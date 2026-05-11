@@ -104,6 +104,24 @@ const links = [
     </div>
 </header>
 
+{/* Logo flottant mobile — visible apres scroll past hero */}
+<div id="mobile-logo-float" class="md:hidden fixed top-4 left-4 z-40 pointer-events-none drop-shadow-xl opacity-0 transition-opacity duration-300">
+    <a href={`${base}/#home`} class="pointer-events-auto flex items-center gap-2 px-2 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-[#E5B32A]/30">
+        <div class="w-7 h-7 rounded-full border border-[#E5B32A]/40 overflow-hidden bg-black/60 flex items-center justify-center">
+            <img
+                src="https://graph.facebook.com/to.kalamaki.tis.troumpas/picture?type=square"
+                alt="Logo"
+                class="w-full h-full object-cover"
+                width="28"
+                height="28"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+            />
+            <span style="display:none" class="w-full h-full items-center justify-center text-[7px] font-bold text-[#E5B32A]">Κ.Τ.</span>
+        </div>
+        <span class="text-xs font-semibold tracking-wide uppercase text-white/90">Καλαμάκι</span>
+    </a>
+</div>
+
 <div id="menu-overlay" class="menu-overlay fixed inset-0 z-[65] md:hidden"></div>
 
 <div id="menu-panel" class="menu-panel-drawer fixed z-[70] flex flex-col md:hidden touch-pan-y">
@@ -192,4 +210,16 @@ const links = [
         const delta = e.changedTouches[0].screenY - swipeStartY;
         if (delta > 60 && drawerOpen) closeDrawer();
     }, { passive: true });
+
+    // Logo flottant mobile : fade-in apres avoir scrolle au-dela du hero
+    const mobileLogoFloat = document.getElementById('mobile-logo-float');
+    if (mobileLogoFloat) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                mobileLogoFloat.style.opacity = '1';
+            } else {
+                mobileLogoFloat.style.opacity = '0';
+            }
+        }, { passive: true });
+    }
 </script>
