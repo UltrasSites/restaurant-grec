@@ -64,26 +64,34 @@ const baseUrl = `/${currentLang}`;
     }
   }
 
-  /* Carrousel mobile — full width, en dehors de la carte 3D */
-  .mobile-photo-strip {
+  /* Carrousel hero — entre la pastille et le titre */
+  .hero-photo-strip {
     width: 100%;
     overflow: hidden;
-    height: 130px;
+    height: 100px;
+    border-radius: 0.85rem;
+    margin-bottom: 1rem;
     position: relative;
+  }
+  @media (min-width: 768px) {
+    .hero-photo-strip { height: 140px; margin-bottom: 1.5rem; }
   }
   .strip-track {
     display: flex;
-    gap: 8px;
+    gap: 6px;
     height: 100%;
     width: max-content;
     animation: strip-scroll 28s linear infinite;
   }
   .strip-track img {
-    height: 130px;
-    width: 200px;
+    height: 100%;
+    width: 160px;
     object-fit: cover;
-    border-radius: 0.75rem;
+    border-radius: 0.6rem;
     flex-shrink: 0;
+  }
+  @media (min-width: 768px) {
+    .strip-track img { width: 220px; }
   }
   @keyframes strip-scroll {
     0%   { transform: translateX(0); }
@@ -131,17 +139,37 @@ const baseUrl = `/${currentLang}`;
         <div class="hero-card-3d max-w-screen-2xl mx-auto grid md:grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-8 lg:gap-16 items-center text-left w-full">
 
           <div class="flex flex-col items-center lg:items-start max-w-xl">
-            <span class="inline-block border border-[#E5B32A]/50 px-6 py-2 rounded-full text-[10px] uppercase tracking-[0.4em] mb-1 bg-black/30 backdrop-blur-sm text-[#E5B32A] font-bold">
+            <span class="inline-block border border-[#E5B32A]/50 px-6 py-2 rounded-full text-[10px] uppercase tracking-[0.4em] mb-3 bg-black/30 backdrop-blur-sm text-[#E5B32A] font-bold">
               {t.hero_badge}
             </span>
+
+            {/* Carrousel entre la pastille et le titre — desktop + mobile */}
+            <div class="hero-photo-strip">
+              <div class="strip-track">
+                {[
+                  "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=240&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=240&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=240&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=240&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=240&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=240&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=240&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=240&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=240&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=240&fit=crop&q=75",
+                ].map((src) => (
+                  <img src={src} alt="" loading="lazy" decoding="async" />
+                ))}
+              </div>
+            </div>
 
             <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif italic text-white mb-2 md:mb-4 leading-none drop-shadow-2xl text-center lg:text-left">
               {t.hero_title}
             </h1>
-            <p class="hidden md:block text-gray-300 max-w-xl md:max-w-2xl mx-auto lg:mx-0 leading-relaxed mb-6 font-light text-lg text-center lg:text-left">
+            <p class="text-gray-300 max-w-xl md:max-w-2xl mx-auto lg:mx-0 leading-relaxed mb-4 md:mb-6 font-light text-base md:text-lg text-center lg:text-left">
               {t.hero_lead}
             </p>
-            <div class="hidden md:flex mb-1 justify-center lg:justify-start opacity-100 visible">
+            <div class="flex mb-1 justify-center lg:justify-start opacity-100 visible">
               <SocialLinks />
             </div>
             <p class="hidden md:block text-xs text-gray-300 italic">{t.hero_demo_note}</p>
@@ -178,28 +206,6 @@ const baseUrl = `/${currentLang}`;
           </aside>
 
         </div>
-      </div>
-    </div>
-  </section>
-
-  {/* Carrousel mobile — full width, en dehors de la carte 3D, sans rotation */}
-  <section class="mobile-strip-section md:hidden bg-neutral-950 py-2">
-    <div class="mobile-photo-strip">
-      <div class="strip-track">
-        {[
-          "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=260&fit=crop&q=75",
-          "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=260&fit=crop&q=75",
-          "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=260&fit=crop&q=75",
-          "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=260&fit=crop&q=75",
-          "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=260&fit=crop&q=75",
-          "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=260&fit=crop&q=75",
-          "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=260&fit=crop&q=75",
-          "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=260&fit=crop&q=75",
-          "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=260&fit=crop&q=75",
-          "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=260&fit=crop&q=75",
-        ].map((src) => (
-          <img src={src} alt="" loading="lazy" decoding="async" />
-        ))}
       </div>
     </div>
   </section>
