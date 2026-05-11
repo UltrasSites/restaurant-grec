@@ -23,32 +23,8 @@
         color: var(--color-primary);
     }
 
-    html[data-theme='dark'] body {
-        background-color: #fdf9e8;
-        color: #f9fafb;
-    }
-
-    html[data-theme='dark'] body>main,
-    html[data-theme='dark'] body>footer,
-    html[data-theme='dark'] body>#desktop-header,
-    html[data-theme='dark'] body>#mobile-drawer,
-    html[data-theme='dark'] body>#menu-backdrop {
-        filter: invert(1) hue-rotate(180deg);
-    }
-
-    html[data-theme='dark'] img:not(.no-invert),
-    html[data-theme='dark'] video {
-        filter: invert(1) hue-rotate(180deg);
-    }
-
-    html[data-theme='dark'] .no-invert {
-        filter: invert(1) hue-rotate(180deg);
-    }
-
-    html[data-theme='dark'] .histoire-section {
-        filter: invert(1) hue-rotate(180deg);
-        isolation: isolate;
-    }
+    /* Theme toggle desactive — identite dark fixe pour le restaurant */
+    /* (Les photos doivent rester naturelles, pas d'inversion couleurs) */
 }
 
 .nav-scrolled {
