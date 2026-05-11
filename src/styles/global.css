@@ -14,17 +14,17 @@
         --color-card: rgba(255, 255, 255, 0.05);
     }
 
-    /* === THEME LIGHT — IVOIRE / CREME (vraies couleurs, pas d'inversion) === */
+    /* === THEME LIGHT — IVOIRE CONTRASTE (vraies couleurs, pas d'inversion) === */
     html[data-theme='dark'] {
-        --color-bg: #f7f1e3;
-        --color-bg-alt: #efe7d2;
-        --color-bg-deep: #e8dec1;
-        --color-text: #2a2419;
-        --color-text-muted: rgba(42, 36, 25, 0.6);
-        --color-primary: #1a1410;
-        --color-accent: #b8861e;
-        --color-border: rgba(42, 36, 25, 0.15);
-        --color-card: rgba(42, 36, 25, 0.05);
+        --color-bg: #f5ede0;
+        --color-bg-alt: #e8dcc4;
+        --color-bg-deep: #ddd0b3;
+        --color-text: #1a120a;
+        --color-text-muted: rgba(26, 18, 10, 0.75);
+        --color-primary: #0a0604;
+        --color-accent: #8a5e0a;
+        --color-border: rgba(26, 18, 10, 0.25);
+        --color-card: rgba(26, 18, 10, 0.08);
     }
 
     body {
@@ -44,17 +44,44 @@
     }
 
     /* === Overrides theme light pour les Tailwind hardcoded === */
-    html[data-theme='dark'] .bg-neutral-950 { background-color: var(--color-bg) !important; }
+    /* IMPORTANT: hero section #home garde son fond image sombre → texte reste BLANC */
+    html[data-theme='dark'] #home,
+    html[data-theme='dark'] #home * {
+        /* Le hero a un fond image, on garde le contraste d'origine */
+        --color-bg: #0a0a0a;
+        --color-text: #ffffff;
+    }
+    html[data-theme='dark'] #home .bg-neutral-950 { background-color: transparent !important; }
+    html[data-theme='dark'] #home .text-white { color: #ffffff !important; }
+    html[data-theme='dark'] #home .text-gray-300,
+    html[data-theme='dark'] #home .text-gray-400 { color: rgba(255,255,255,0.85) !important; }
+    html[data-theme='dark'] #home h1,
+    html[data-theme='dark'] #home h2 { color: #ffffff !important; }
+
+    /* Pour le reste du site en theme light */
+    html[data-theme='dark'] .bg-neutral-950:not(#home):not(#home *) { background-color: var(--color-bg) !important; }
     html[data-theme='dark'] .bg-\[\#0a0a0a\] { background-color: var(--color-bg) !important; }
     html[data-theme='dark'] .bg-\[\#050505\] { background-color: var(--color-bg-deep) !important; }
     html[data-theme='dark'] .bg-neutral-900 { background-color: var(--color-bg-alt) !important; }
-    html[data-theme='dark'] .text-white { color: var(--color-primary) !important; }
-    html[data-theme='dark'] .text-gray-300,
-    html[data-theme='dark'] .text-gray-400 { color: var(--color-text-muted) !important; }
+    html[data-theme='dark'] body:not(#home) .text-white,
+    html[data-theme='dark'] section:not(#home) .text-white,
+    html[data-theme='dark'] footer .text-white { color: var(--color-primary) !important; }
+    html[data-theme='dark'] body:not(#home) .text-gray-300,
+    html[data-theme='dark'] body:not(#home) .text-gray-400,
+    html[data-theme='dark'] section:not(#home) .text-gray-300,
+    html[data-theme='dark'] section:not(#home) .text-gray-400 { color: var(--color-text-muted) !important; }
     html[data-theme='dark'] .border-white\/5,
     html[data-theme='dark'] .border-white\/10 { border-color: var(--color-border) !important; }
 
     /* Les photos gardent TOUJOURS leurs couleurs naturelles — pas de filter */
+
+    /* === Tailles texte augmentees globalement pour confort lecture === */
+    body { font-size: 16px; line-height: 1.55; }
+    p { font-size: 0.95rem; }
+    @media (min-width: 768px) {
+        body { font-size: 17px; }
+        p { font-size: 1rem; }
+    }
 }
 
 .nav-scrolled {

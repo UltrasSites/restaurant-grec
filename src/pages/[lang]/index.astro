@@ -10,6 +10,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import NavBar from "../../components/NavBar.astro";
 import SocialLinks from "../../components/SocialLinks.astro";
 import MenuBook from "../../components/MenuBook.astro";
+import ReviewsSection from "../../components/ReviewsSection.astro";
 import { getLangFromParam } from "../../i18n/utils";
 import { translations, getMenu } from "../../i18n/translations";
 
@@ -367,6 +368,9 @@ const baseUrl = `/${currentLang}`;
       {currentLang === 'el' ? 'Παραγγελία e-food' : 'Order on e-food'}
     </a>
   </div>
+
+  <!-- AVIS GOOGLE -->
+  <ReviewsSection lang={currentLang} />
 
   <!-- CONTACT -->
   <section id="contact" class="bg-[#050505] py-24 px-6 border-t border-white/5">
