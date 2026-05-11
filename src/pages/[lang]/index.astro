@@ -9,6 +9,7 @@ export function getStaticPaths() {
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import NavBar from "../../components/NavBar.astro";
 import SocialLinks from "../../components/SocialLinks.astro";
+import MenuBook from "../../components/MenuBook.astro";
 import { getLangFromParam } from "../../i18n/utils";
 import { translations, getMenu } from "../../i18n/translations";
 
@@ -21,30 +22,37 @@ const baseUrl = `/${currentLang}`;
 <style>
   @media (max-width: 767px) {
     .hero-card-viewport {
-      perspective: 2000px;
-      padding: 0.75rem;
-      margin-top: 0.5rem;
+      padding: 0.5rem;
+      margin-top: 0;
       width: 100%;
     }
-    /* Carte plus transparente sur mobile */
+    /* Pas de carte visible sur mobile — contenu flotte sur l'image */
     .hero-card-3d {
-      background: linear-gradient(135deg, rgba(229, 179, 42, 0.06) 0%, rgba(10, 10, 10, 0.38) 100%);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(229, 179, 42, 0.18);
-      border-radius: 2rem;
-      padding: 1.5rem 1.25rem;
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border: none;
+      border-radius: 0;
+      padding: 0;
       width: 100%;
       position: relative;
     }
+    /* Masquer les infos adresse/phone/hours sur mobile — visibles dans #contact */
+    .mobile-hide-details { display: none !important; }
     .resa-card-inner-mobile {
       background: transparent !important;
       border: none !important;
       backdrop-filter: none !important;
       box-shadow: none !important;
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-      padding-top: 0.25rem !important;
+      padding: 0 !important;
+    }
+    /* CTA buttons compacts sur mobile */
+    .resa-card-inner-mobile .flex.flex-col.gap-3 {
+      gap: 0.5rem;
+    }
+    .resa-card-inner-mobile a {
+      padding-top: 0.625rem !important;
+      padding-bottom: 0.625rem !important;
     }
   }
 
@@ -157,9 +165,9 @@ const baseUrl = `/${currentLang}`;
 
           <aside class="w-full md:mt-0 mt-1">
             <div class="resa-card-inner-mobile bg-gradient-to-b from-[#E5B32A]/12 to-black/70 border border-[#E5B32A]/30 rounded-3xl p-8 md:p-10 backdrop-blur-xl shadow-2xl w-full max-w-lg ml-auto">
-              <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-4">{t.resa_title}</p>
-              <h2 class="text-2xl font-serif text-white mb-6">{t.resa_subtitle}</h2>
-              <div class="space-y-3 text-sm text-gray-300 mb-6">
+              <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2 md:mb-4">{t.resa_title}</p>
+              <h2 class="hidden md:block text-2xl font-serif text-white mb-6">{t.resa_subtitle}</h2>
+              <div class="mobile-hide-details space-y-3 text-sm text-gray-300 mb-6">
                 <p>
                   <span class="font-semibold text-white">{t.resa_label_address} :</span><br />
                   <span class="font-medium text-white/90">{t.resa_address}</span>
@@ -246,43 +254,19 @@ const baseUrl = `/${currentLang}`;
     </div>
   </section>
 
-  <!-- MENU / CARTE -->
-  <section id="carte" class="bg-[#0a0a0a] py-24 px-6 border-t border-white/5">
-    <div class="max-w-4xl mx-auto">
-      <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mb-4">{t.carte_label}</p>
-      <h2 class="text-3xl md:text-4xl font-serif italic text-white mb-4">{t.carte_title}</h2>
-      <p class="text-gray-400 mb-8">{t.carte_lead}</p>
-      <p class="text-xs text-gray-400 mb-12">{t.carte_service_note}</p>
+  <!-- MENU LIVRE -->
+  <div id="carte">
+    <MenuBook lang={currentLang} />
+  </div>
 
-      {menu.map((section) => (
-        <div class="mb-12">
-          <h3 class="text-2xl font-serif italic text-[#E5B32A] mb-6 border-b border-white/10 pb-2 dish-name-gold">
-            {section.category}
-          </h3>
-          <ul class="space-y-4">
-            {section.items.map((item) => (
-              <li class="flex justify-between gap-4 border-b border-white/5 pb-3">
-                <div>
-                  <span class="font-serif text-white">{item.name}</span>
-                  <p class="text-xs text-gray-300 mt-0.5">{item.desc}</p>
-                </div>
-                <span class="font-serif text-[#E5B32A] whitespace-nowrap">{item.price}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
-
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-6 mt-16 pt-8 border-t border-white/10">
-        <a href={`${baseUrl}/#contact`} class="px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
-          {t.carte_reserver}
-        </a>
-        <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" class="px-6 py-3 border border-white/30 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white/10 transition-colors">
-          {currentLang === 'el' ? 'Παραγγελία e-food' : 'Order on e-food'}
-        </a>
-      </div>
-    </div>
-  </section>
+  <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pb-10 px-4">
+    <a href={`${baseUrl}/#contact`} class="px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
+      {t.carte_reserver}
+    </a>
+    <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" class="px-6 py-3 border border-white/30 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white/10 transition-colors">
+      {currentLang === 'el' ? 'Παραγγελία e-food' : 'Order on e-food'}
+    </a>
+  </div>
 
   <!-- CONTACT -->
   <section id="contact" class="bg-[#050505] py-24 px-6 border-t border-white/5">

@@ -1,0 +1,386 @@
+---
+const { lang = "el" } = Astro.props;
+const isEl = lang === "el";
+---
+
+<section id="menu-book" class="bg-[#050505] py-16 px-4 border-t border-white/5">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Titre -->
+    <div class="text-center mb-10">
+      <p class="text-[10px] font-['Space_Grotesk'] uppercase tracking-[0.35em] text-[#E5B32A] font-bold mb-2">
+        {isEl ? "Ο Κατάλογός Μας" : "Our Menu"}
+      </p>
+      <h2 class="text-3xl md:text-4xl font-serif italic text-white">
+        {isEl ? "Αυθεντική Γεύση Πειραιά." : "Authentic Piraeus Flavour."}
+      </h2>
+    </div>
+
+    <!-- Livre -->
+    <div class="book-container" id="menu-book-container">
+
+      <!-- Nav dots -->
+      <div class="book-dots" id="book-dots" aria-label="Pages"></div>
+
+      <!-- Pages wrapper -->
+      <div class="book-pages" id="book-pages">
+
+        <!-- PAGE 0 — COUVERTURE -->
+        <div class="book-page" data-page="0">
+          <div class="page-inner page-cover">
+            <div class="cover-logo">
+              <img
+                src="https://graph.facebook.com/to.kalamaki.tis.troumpas/picture?type=large"
+                alt="Logo"
+                class="cover-logo-img"
+                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+              />
+              <div class="cover-logo-fallback" style="display:none">Κ.Τ.</div>
+            </div>
+            <h3 class="cover-title">Το Καλαμάκι<br/>Της Τρούμπας</h3>
+            <p class="cover-sub">Μπουμπουλίνας 8 & Νοταρά — Πειραιάς</p>
+            <div class="cover-dots">◆ · · · ◆</div>
+            <p class="cover-swipe">{isEl ? "← Σφηνώστε για να ανοίξετε" : "← Swipe to browse"}</p>
+          </div>
+        </div>
+
+        <!-- PAGE 1 — Ορεκτικά / Appetizers p1 -->
+        <div class="book-page" data-page="1">
+          <div class="page-inner">
+            <h3 class="page-title">Ορεκτικά <span class="page-title-en">/ Appetizers</span></h3>
+            <div class="page-divider"></div>
+            <ul class="menu-list">
+              <li class="menu-item"><span class="item-name">Κολοκυθοκεφτέδες τμχ<em>Zucchini Fritter pc</em></span><span class="item-price">1,20€</span></li>
+              <li class="menu-item"><span class="item-name">Κολοκυθοκεφτέδες μερίδα 5 τμχ<em>Zucchini Fritters 5 pcs</em></span><span class="item-price">6,00€</span></li>
+              <li class="menu-item"><span class="item-name">Ρεβυθοκεφτέδες τμχ<em>Chickpea Fritter pc</em></span><span class="item-price">1,20€</span></li>
+              <li class="menu-item"><span class="item-name">Ρεβυθοκεφτέδες μερίδα 5 τμχ<em>Chickpea Fritters 5 pcs</em></span><span class="item-price">6,00€</span></li>
+              <li class="menu-item"><span class="item-name">Πίτα στα κάρβουνα<em>Grilled pita bread</em></span><span class="item-price">0,60€</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- PAGE 2 — Ορεκτικά p2 / Fries & Dips -->
+        <div class="book-page" data-page="2">
+          <div class="page-inner">
+            <h3 class="page-title">Ορεκτικά <span class="page-title-en">/ Appetizers</span></h3>
+            <div class="page-divider"></div>
+            <ul class="menu-list">
+              <li class="menu-item"><span class="item-name">Φρέσκιες Πατάτες<em>Fresh Fried Potatoes</em></span><span class="item-price">3,50€</span></li>
+              <li class="menu-item"><span class="item-name">Φρέσκιες Πατάτες με τυρί<em>with cheese</em></span><span class="item-price">4,00€</span></li>
+              <li class="menu-item"><span class="item-name">Φρέσκιες Πατάτες με τσένταρ & μπέικον<em>with cheddar cheese & bacon</em></span><span class="item-price">4,50€</span></li>
+              <li class="menu-item"><span class="item-name">Φέτα<em>Feta cheese</em></span><span class="item-price">3,50€</span></li>
+              <li class="menu-item"><span class="item-name">Φέτα ψητή με ντομάτα & πιπεριά<em>Roasted Feta with tomato & peppers</em></span><span class="item-price">4,50€</span></li>
+              <li class="menu-item"><span class="item-name">Τζατζίκι σπιτικό<em>Tzatziki (homemade)</em></span><span class="item-price">3,50€</span></li>
+              <li class="menu-item"><span class="item-name">Τυροκαυτερή<em>Hot Pepper Cheese</em></span><span class="item-price">3,50€</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- PAGE 3 — Σαλάτες p1 -->
+        <div class="book-page" data-page="3">
+          <div class="page-inner">
+            <h3 class="page-title">Σαλάτες <span class="page-title-en">/ Salads</span></h3>
+            <div class="page-divider"></div>
+            <ul class="menu-list">
+              <li class="menu-item"><span class="item-name">Λάχανο-Καρότο<em>Cabbage-Carrot Salad</em></span><span class="item-price">4,50€</span></li>
+              <li class="menu-item"><span class="item-name">Μαρούλι<em>Lettuce Salad (lettuce, fresh onion, dill)</em></span><span class="item-price">4,50€</span></li>
+              <li class="menu-item"><span class="item-name">Ντάκος<em>Dakos (crete rusk, tomato, feta, olives, capers)</em></span><span class="item-price">6,50€</span></li>
+              <li class="menu-item"><span class="item-name">Η σαλάτα της Τρούμπας<em>Trouba's salad (lettuce, cabbage, tomato, cucumber, onion, bell pepper, olives, capers & mustard sauce)</em></span><span class="item-price">7,50€</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- PAGE 4 — Πίτες τυλιχτές -->
+        <div class="book-page" data-page="4">
+          <div class="page-inner">
+            <h3 class="page-title">Πίτες τυλιχτές <span class="page-title-en">/ Wrapped Pita</span></h3>
+            <div class="page-divider"></div>
+            <ul class="menu-list">
+              <li class="menu-item"><span class="item-name">Καλαμάκι χοιρινό<em>Skewered pork (tomato, onion, tzatziki, fries)</em></span><span class="item-price">3,50€</span></li>
+              <li class="menu-item"><span class="item-name">Καλαμάκι κοτόπουλο μπούτι<em>Skewered chicken thigh (tomato, lettuce, sauce, fries)</em></span><span class="item-price">3,50€</span></li>
+              <li class="menu-item"><span class="item-name">Καλαμάκι κοτομπέικον<em>Skewered chicken with bacon (tomato, lettuce, sauce, fries)</em></span><span class="item-price">3,80€</span></li>
+              <li class="menu-item"><span class="item-name">Μπιφτέκι μοσχαρίσιο<em>Beef Burger pc (tomato, onion, tzatziki, fries)</em></span><span class="item-price">3,50€</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- PAGE 5 — Μερίδες -->
+        <div class="book-page" data-page="5">
+          <div class="page-inner">
+            <h3 class="page-title">Μερίδες <span class="page-title-en">/ Portions</span></h3>
+            <div class="page-divider"></div>
+            <p class="page-note">{isEl ? "Συνοδεύεται με πατάτες, πίτα, ντομάτα, κρεμμύδι" : "Served with fries, pita bread, tomato, onion"}</p>
+            <ul class="menu-list">
+              <li class="menu-item"><span class="item-name">Καλαμάκι χοιρινό (4 τμχ)<em>Skewered pork (4 pcs) — tomato, onion, tzatziki, fries, 2 pita</em></span><span class="item-price">9,00€</span></li>
+              <li class="menu-item"><span class="item-name">Καλαμάκι κοτόπουλο μπούτι (4 τμχ)<em>Skewered chicken thigh (4 pcs) — tomato, lettuce, sauce, fries, 2 pita</em></span><span class="item-price">9,00€</span></li>
+              <li class="menu-item"><span class="item-name">Καλαμάκι κοτομπέικον (4 τμχ)<em>Skewered chicken with bacon (4 pcs) — tomato, lettuce, sauce, fries, 2 pita</em></span><span class="item-price">9,50€</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- PAGE 6 — Χάμπουργκερ -->
+        <div class="book-page" data-page="6">
+          <div class="page-inner">
+            <h3 class="page-title">Χάμπουργκερ <span class="page-title-en">/ Hamburger</span></h3>
+            <div class="page-divider"></div>
+            <ul class="menu-list">
+              <li class="menu-item"><span class="item-name">Χάμπουργκερ<em>Beef burger — beef patty, cheddar cheese, lettuce, tomato, onion</em></span><span class="item-price">7,00€</span></li>
+              <li class="menu-item menu-item--extra"><span class="item-name">+ Έξτρα μπέικον<em>extra bacon</em></span><span class="item-price">+0,70€</span></li>
+            </ul>
+
+            <div class="page-divider" style="margin-top:1.5rem"></div>
+            <h3 class="page-title" style="margin-top:1rem">Veggie Menu</h3>
+            <ul class="menu-list">
+              <li class="menu-item"><span class="item-name">Μπιφτέκι λαχανικών τμχ<em>Vegetable Stick pc</em></span><span class="item-price">2,00€</span></li>
+              <li class="menu-item"><span class="item-name">Τυλιχτό Μπιφτέκι Λαχανικών<em>Wrapped Vegetable Burger (tomato, lettuce, fries)</em></span><span class="item-price">3,50€</span></li>
+              <li class="menu-item"><span class="item-name">Τυλιχτό Ρεβυθοκεφτές<em>Wrapped Chickpea Fritter (tomato, lettuce, fries)</em></span><span class="item-price">3,50€</span></li>
+              <li class="menu-item"><span class="item-name">Τυλιχτό Οικολογικό<em>Wrapped pita without meat (tomato, onion, lettuce, fries)</em></span><span class="item-price">2,50€</span></li>
+              <li class="menu-item"><span class="item-name">Veggie Burger<em>with cheese, ketchup, mustard, fries</em></span><span class="item-price">7,00€</span></li>
+            </ul>
+          </div>
+        </div>
+
+      </div><!-- /book-pages -->
+
+      <!-- Arrows -->
+      <button class="book-arrow book-arrow--prev" id="book-prev" aria-label="Page précédente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <button class="book-arrow book-arrow--next" id="book-next" aria-label="Page suivante">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+
+    </div><!-- /book-container -->
+  </div>
+</section>
+
+<style>
+  /* ── Container ── */
+  .book-container {
+    position: relative;
+    max-width: 780px;
+    margin: 0 auto;
+  }
+
+  /* ── Pages ── */
+  .book-pages {
+    position: relative;
+    min-height: 420px;
+  }
+  .book-page {
+    display: none;
+    animation: page-in 0.35s ease;
+  }
+  .book-page.active { display: block; }
+
+  @keyframes page-in {
+    from { opacity: 0; transform: translateX(18px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── Page Inner ── */
+  .page-inner {
+    background: #0f0f0f;
+    border: 1px solid rgba(229,179,42,0.18);
+    border-radius: 1.5rem;
+    padding: 2rem 2rem 2.5rem;
+    min-height: 380px;
+    position: relative;
+  }
+  .page-inner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 1.5rem; right: 1.5rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(229,179,42,0.4), transparent);
+  }
+
+  /* ── Cover ── */
+  .page-cover {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(160deg, #1a1200 0%, #0a0a0a 60%, #0d1500 100%);
+    border-color: rgba(229,179,42,0.35);
+    padding: 3rem 2rem;
+  }
+  .cover-logo { margin-bottom: 1.25rem; }
+  .cover-logo-img, .cover-logo-fallback {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    border: 2px solid rgba(229,179,42,0.5);
+    object-fit: cover;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; color: #E5B32A; font-size: 1rem;
+  }
+  .cover-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 2rem;
+    color: #fff;
+    line-height: 1.25;
+    margin-bottom: 0.75rem;
+  }
+  .cover-sub { font-size: 0.75rem; color: rgba(255,255,255,0.45); letter-spacing: 0.06em; margin-bottom: 1.5rem; }
+  .cover-dots { color: rgba(229,179,42,0.5); font-size: 0.9rem; letter-spacing: 0.3em; margin-bottom: 1.5rem; }
+  .cover-swipe { font-size: 0.7rem; color: rgba(255,255,255,0.25); letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* ── Page content ── */
+  .page-title {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1.45rem;
+    color: #E5B32A;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+  .page-title-en { font-size: 1rem; color: rgba(229,179,42,0.55); }
+  .page-divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(229,179,42,0.3), transparent);
+    margin: 0.75rem 0 1rem;
+  }
+  .page-note {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    font-style: italic;
+    margin-bottom: 0.75rem;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Menu items ── */
+  .menu-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+  .menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .menu-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .menu-item--extra { opacity: 0.7; }
+  .item-name {
+    font-size: 0.875rem;
+    color: #fff;
+    font-weight: 600;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+  }
+  .item-name em {
+    font-style: normal;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.38);
+    font-weight: 400;
+    margin-top: 0.15rem;
+  }
+  .item-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem;
+    color: #E5B32A;
+    white-space: nowrap;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+
+  /* ── Arrows ── */
+  .book-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(20,20,20,0.9);
+    border: 1px solid rgba(229,179,42,0.25);
+    color: rgba(229,179,42,0.8);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+  }
+  .book-arrow:hover { background: rgba(229,179,42,0.15); border-color: rgba(229,179,42,0.6); color: #E5B32A; }
+  .book-arrow:disabled { opacity: 0.2; pointer-events: none; }
+  .book-arrow svg { width: 18px; height: 18px; }
+  .book-arrow--prev { left: -52px; }
+  .book-arrow--next { right: -52px; }
+  @media (max-width: 900px) {
+    .book-arrow--prev { left: -8px; }
+    .book-arrow--next { right: -8px; }
+  }
+  @media (max-width: 600px) {
+    .book-arrow--prev { left: 4px; }
+    .book-arrow--next { right: 4px; }
+    .page-inner { padding: 1.5rem 1.25rem 2rem; }
+    .page-title { font-size: 1.2rem; }
+  }
+
+  /* ── Dots ── */
+  .book-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 1.25rem;
+  }
+  .book-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: rgba(229,179,42,0.2);
+    border: 1px solid rgba(229,179,42,0.3);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .book-dot.active {
+    background: #E5B32A;
+    border-color: #E5B32A;
+    transform: scale(1.2);
+  }
+</style>
+
+<script is:inline>
+(function() {
+  const pages = document.querySelectorAll('.book-page');
+  const dotsContainer = document.getElementById('book-dots');
+  const prevBtn = document.getElementById('book-prev');
+  const nextBtn = document.getElementById('book-next');
+  let current = 0;
+  const total = pages.length;
+
+  // Crée les dots
+  pages.forEach(function(_, i) {
+    var d = document.createElement('button');
+    d.className = 'book-dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', 'Page ' + (i + 1));
+    d.addEventListener('click', function() { goTo(i); });
+    dotsContainer.appendChild(d);
+  });
+
+  function goTo(n) {
+    pages[current].classList.remove('active');
+    dotsContainer.children[current].classList.remove('active');
+    current = Math.max(0, Math.min(total - 1, n));
+    pages[current].classList.add('active');
+    dotsContainer.children[current].classList.add('active');
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === total - 1;
+  }
+
+  prevBtn.addEventListener('click', function() { goTo(current - 1); });
+  nextBtn.addEventListener('click', function() { goTo(current + 1); });
+
+  // Swipe
+  var sx = 0;
+  var bookEl = document.getElementById('menu-book-container');
+  bookEl.addEventListener('touchstart', function(e) { sx = e.changedTouches[0].screenX; }, { passive: true });
+  bookEl.addEventListener('touchend', function(e) {
+    var dx = e.changedTouches[0].screenX - sx;
+    if (Math.abs(dx) > 45) goTo(dx < 0 ? current + 1 : current - 1);
+  }, { passive: true });
+
+  goTo(0);
+})();
+</script>
