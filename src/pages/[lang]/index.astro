@@ -21,39 +21,39 @@ const baseUrl = `/${currentLang}`;
 
 <style>
   @media (max-width: 767px) {
-    /* Viewport centré comme le modèle restaurant-bar */
+    /* Viewport centré */
     .hero-card-viewport {
-      perspective: 2000px;
       padding: 1rem;
       margin-top: 1rem;
       width: 100%;
       display: flex;
       justify-content: center;
     }
-    /* Carte 3D flottante centrée — inspirée du restaurant-bar original */
+    /* Carte flottante centrée — pas de rotateY pour eviter le decalage visuel */
     .hero-card-3d {
-      background: linear-gradient(135deg, rgba(229, 179, 42, 0.18) 0%, rgba(10, 10, 10, 0.92) 100%);
+      background: linear-gradient(180deg, rgba(229, 179, 42, 0.15) 0%, rgba(10, 10, 10, 0.92) 100%);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(229, 179, 42, 0.35);
-      border-radius: 2rem;
-      padding: 2rem 1.5rem;
+      border: 1px solid rgba(229, 179, 42, 0.30);
+      border-radius: 1.75rem;
+      padding: 1.5rem 1.25rem;
       width: 100%;
-      max-width: 26rem;
+      max-width: 24rem;
       margin: 0 auto;
-      transform: rotateX(6deg) rotateY(-3deg);
-      box-shadow:
-        0 25px 50px -12px rgba(0, 0, 0, 0.75),
-        0 0 30px rgba(229, 179, 42, 0.08);
-      animation: hero-card-float 8s ease-in-out infinite;
+      box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(229, 179, 42, 0.06);
+      animation: hero-card-float 6s ease-in-out infinite;
       position: relative;
-      text-align: center;
+      /* Override Tailwind text-left du parent grid */
+      text-align: center !important;
     }
-    /* Centrer le contenu enfant */
-    .hero-card-3d > div { width: 100%; }
-    .hero-card-3d aside { width: 100%; margin: 0 auto; }
-    /* Masquer les infos adresse/phone/hours sur mobile — visibles dans #contact */
+    /* Tous les enfants directs : centrés */
+    .hero-card-3d > * { width: 100% !important; max-width: 100% !important; }
+    /* Les flex containers internes : items centrés */
+    .hero-card-3d .flex.flex-col { align-items: center !important; }
+    .hero-card-3d .flex.flex-col > * { text-align: center; }
+    /* Masquer les infos adresse/phone/hours sur mobile */
     .mobile-hide-details { display: none !important; }
+    /* Aside resa : transparent, centré */
     .resa-card-inner-mobile {
       background: transparent !important;
       border: none !important;
@@ -61,16 +61,23 @@ const baseUrl = `/${currentLang}`;
       box-shadow: none !important;
       padding: 0 !important;
       margin: 0 auto !important;
-      text-align: center;
+      max-width: 100% !important;
+      text-align: center !important;
     }
-    .resa-card-inner-mobile .flex.flex-col.gap-3 { gap: 0.5rem; }
+    .resa-card-inner-mobile .flex.flex-col.gap-3 {
+      gap: 0.55rem;
+      width: 100%;
+    }
     .resa-card-inner-mobile a {
-      padding-top: 0.7rem !important;
-      padding-bottom: 0.7rem !important;
+      padding-top: 0.75rem !important;
+      padding-bottom: 0.75rem !important;
+      width: 100%;
+      display: block;
     }
+    /* Float animation — opacity + Y only, no X tilt */
     @keyframes hero-card-float {
-      0%, 100% { transform: rotateX(6deg) rotateY(-3deg) translateY(0); }
-      50%      { transform: rotateX(4deg) rotateY(-1deg) translateY(-10px); }
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
     }
   }
 
