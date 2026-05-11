@@ -27,16 +27,22 @@ const baseUrl = `/${currentLang}`;
       padding: 0.75rem;
       margin-top: 0.75rem;
       width: 100%;
+      box-sizing: border-box;
     }
     .hero-card-3d {
       background: linear-gradient(135deg, rgba(229, 179, 42, 0.2) 0%, rgba(10, 10, 10, 0.95) 100%);
       backdrop-filter: blur(25px);
       -webkit-backdrop-filter: blur(25px);
       border: 1px solid rgba(229, 179, 42, 0.4);
-      border-radius: 2.5rem;
-      padding: 1.25rem 1rem;
+      border-radius: 2rem;
+      padding: 1.5rem 1.25rem !important;
       width: 100%;
+      box-sizing: border-box;
       overflow: hidden;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      gap: 0 !important;
       transform: rotateX(8deg) rotateY(-4deg);
       box-shadow:
         0 30px 60px -12px rgba(0, 0, 0, 0.8),
@@ -45,25 +51,44 @@ const baseUrl = `/${currentLang}`;
       animation: hero-card-float 8s ease-in-out infinite;
       position: relative;
     }
+    /* Force all direct children to fit */
+    .hero-card-3d > * {
+      max-width: 100% !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
     .hero-card-3d h1 {
-      font-size: 2rem !important;
+      font-size: 1.75rem !important;
       white-space: nowrap;
-      margin-bottom: 0.25rem !important;
+      margin-bottom: 0.35rem !important;
+      text-align: center !important;
     }
     .hero-card-3d p {
-      font-size: 0.8rem !important;
-      margin-bottom: 0.5rem !important;
+      font-size: 0.75rem !important;
+      margin-bottom: 0.4rem !important;
+      text-align: center !important;
+      line-height: 1.4 !important;
     }
     .hero-card-3d .flex.mb-1 {
       margin-bottom: 0.25rem !important;
+      justify-content: center !important;
+    }
+    .hero-card-3d .hero-photo-strip {
+      border-radius: 0.75rem;
+      margin-bottom: 0.5rem;
     }
     .hero-card-3d aside {
-      margin-top: 0 !important;
+      margin-top: 0.25rem !important;
     }
     .hero-card-3d aside .flex.flex-col.gap-3 a {
-      padding-top: 0.5rem !important;
-      padding-bottom: 0.5rem !important;
+      padding: 0.6rem 1rem !important;
       font-size: 10px !important;
+    }
+    /* Badge smaller */
+    .hero-card-3d span[class*="tracking"] {
+      font-size: 8px !important;
+      padding: 0.3rem 0.75rem !important;
+      margin-bottom: 0.5rem !important;
     }
     /* Aside inner : transparent comme le modele restaurant-bar */
     .resa-card-inner-mobile {
@@ -71,9 +96,18 @@ const baseUrl = `/${currentLang}`;
       border: none !important;
       backdrop-filter: none !important;
       box-shadow: none !important;
-      padding: 0.25rem 0 0 0 !important;
+      padding: 0 !important;
       margin-left: auto !important;
       margin-right: auto !important;
+      max-width: 100% !important;
+      box-sizing: border-box !important;
+    }
+    .resa-card-inner-mobile p[class*="uppercase"] {
+      margin-bottom: 0.35rem !important;
+      text-align: center !important;
+    }
+    .resa-card-inner-mobile .flex.flex-col.gap-3 {
+      gap: 0.5rem !important;
     }
     /* Masquer adresse/phone/hours sur mobile */
     .mobile-hide-details { display: none !important; }
