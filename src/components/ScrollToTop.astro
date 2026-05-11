@@ -1,0 +1,36 @@
+---
+
+---
+
+<button
+    id="scroll-to-top"
+    class="hidden fixed bottom-24 md:bottom-8 right-4 md:right-8 z-[90] w-12 h-12 bg-black/80 border border-[#E5B32A]/30 text-[#E5B32A] rounded-full backdrop-blur-xl shadow-[0_0_20px_rgba(229,179,42,0.15)] items-center justify-center transition-all duration-500 translate-y-20 opacity-0 hover:bg-[#E5B32A] hover:text-black hover:-translate-y-2 group no-invert"
+    aria-label="Επιστροφή στην κορυφή"
+>
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 transform transition-transform group-hover:-translate-y-1">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"></path>
+    </svg>
+</button>
+
+<script>
+    const scrollBtn = document.getElementById("scroll-to-top");
+    if (scrollBtn) {
+        window.addEventListener("scroll", () => {
+            const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+            const threshold = isDesktop ? 600 : 300;
+            if (window.scrollY > threshold) {
+                scrollBtn.classList.remove("hidden", "translate-y-20", "opacity-0");
+                scrollBtn.classList.add("flex", "translate-y-0", "opacity-100");
+            } else {
+                scrollBtn.classList.add("translate-y-20", "opacity-0");
+                scrollBtn.classList.remove("translate-y-0", "opacity-100");
+                setTimeout(() => {
+                    if (window.scrollY <= threshold) scrollBtn.classList.add("hidden");
+                }, 500);
+            }
+        });
+        scrollBtn.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    }
+</script>

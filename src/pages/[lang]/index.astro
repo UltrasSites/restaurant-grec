@@ -1,0 +1,311 @@
+---
+export function getStaticPaths() {
+  return [
+    { params: { lang: "el" } },
+    { params: { lang: "en" } },
+  ];
+}
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import NavBar from "../../components/NavBar.astro";
+import SocialLinks from "../../components/SocialLinks.astro";
+import { getLangFromParam } from "../../i18n/utils";
+import { translations, getMenu } from "../../i18n/translations";
+
+const currentLang = getLangFromParam(Astro.params.lang);
+const t = translations[currentLang];
+const menu = getMenu(currentLang);
+const baseUrl = `/${currentLang}`;
+---
+
+<style>
+  @media (max-width: 767px) {
+    .hero-card-viewport {
+      perspective: 2000px;
+      padding: 1rem;
+      margin-top: 1rem;
+      width: 100%;
+    }
+    .hero-card-3d {
+      background: linear-gradient(135deg, rgba(229, 179, 42, 0.2) 0%, rgba(10, 10, 10, 0.95) 100%);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(229, 179, 42, 0.4);
+      border-radius: 2.5rem;
+      padding: 2.5rem 1.5rem;
+      width: 100%;
+      transform: rotateX(8deg) rotateY(-4deg);
+      box-shadow:
+        0 30px 60px -12px rgba(0, 0, 0, 0.8),
+        0 18px 36px -18px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(229, 179, 42, 0.1);
+      animation: hero-card-float 8s ease-in-out infinite;
+      position: relative;
+    }
+    .resa-card-inner-mobile {
+      background: transparent !important;
+      border: none !important;
+      backdrop-filter: none !important;
+      box-shadow: none !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      padding-top: 0.5rem !important;
+    }
+    @keyframes hero-card-float {
+      0%, 100% { transform: rotateX(8deg) rotateY(-4deg) translateY(0); }
+      50% { transform: rotateX(6deg) rotateY(-2deg) translateY(-15px); }
+    }
+  }
+  .gold-shine-text {
+    background: linear-gradient(
+      to right,
+      #e5b32a 0%, #fff3ad 25%, #e5b32a 50%, #fff3ad 75%, #e5b32a 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gold-shimmer 4s linear infinite;
+  }
+  .dish-name-gold { color: #e5b32a; }
+  #histoire .histoire-img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+  @keyframes gold-shimmer {
+    from { background-position: 0% center; }
+    to { background-position: 200% center; }
+  }
+</style>
+
+<BaseLayout lang={currentLang} title={t.meta_title} description={t.meta_description}>
+
+  <!-- HERO -->
+  <section id="home" class="relative min-h-screen w-full flex flex-col overflow-x-hidden bg-neutral-950">
+    <div class="absolute inset-0 z-0">
+      <img
+        src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=2000&auto=format&fit=crop"
+        alt="Αυθεντικό ψητοπωλείο Τρούμπα Πειραιάς"
+        class="w-full h-full object-cover opacity-55"
+        width="2000" height="1333"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-neutral-950/75"></div>
+    </div>
+
+    <NavBar lang={currentLang} />
+
+    <div class="relative z-10 px-6 w-full flex-1 flex items-center justify-center py-4 md:py-20">
+      <div class="hero-card-viewport">
+        <div class="hero-card-3d max-w-screen-2xl mx-auto grid md:grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-8 lg:gap-16 items-center text-left w-full">
+
+          <div class="flex flex-col items-center lg:items-start max-w-xl">
+            <span class="inline-block border border-[#E5B32A]/50 px-6 py-2 rounded-full text-[10px] uppercase tracking-[0.4em] mb-1 bg-black/30 backdrop-blur-sm text-[#E5B32A] font-bold">
+              {t.hero_badge}
+            </span>
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif italic text-white mb-2 md:mb-4 leading-none drop-shadow-2xl text-center lg:text-left">
+              {t.hero_title}
+            </h1>
+            <p class="hidden md:block text-gray-300 max-w-xl md:max-w-2xl mx-auto lg:mx-0 leading-relaxed mb-6 font-light text-lg text-center lg:text-left">
+              {t.hero_lead}
+            </p>
+            <div class="hidden md:flex mb-1 justify-center lg:justify-start opacity-100 visible">
+              <SocialLinks />
+            </div>
+            <p class="hidden md:block text-xs text-gray-300 italic">{t.hero_demo_note}</p>
+          </div>
+
+          <aside class="w-full md:mt-0 mt-1">
+            <div class="resa-card-inner-mobile bg-gradient-to-b from-[#E5B32A]/12 to-black/70 border border-[#E5B32A]/30 rounded-3xl p-8 md:p-10 backdrop-blur-xl shadow-2xl w-full max-w-lg ml-auto">
+              <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-4">{t.resa_title}</p>
+              <h2 class="text-2xl font-serif text-white mb-6">{t.resa_subtitle}</h2>
+              <div class="space-y-3 text-sm text-gray-300 mb-6">
+                <p>
+                  <span class="font-semibold text-white">{t.resa_label_address} :</span><br />
+                  <span class="font-medium text-white/90">{t.resa_address}</span>
+                </p>
+                <p>
+                  <span class="font-semibold text-white">{t.resa_label_phone} :</span><br />
+                  <a href="tel:+302104222233" class="font-medium text-[#E5B32A] hover:underline">{t.resa_phone}</a>
+                </p>
+                <p>
+                  <span class="font-semibold text-white">{t.resa_label_hours} :</span><br />
+                  <span class="font-medium text-white/90">{t.resa_hours}</span>
+                </p>
+              </div>
+              <div class="flex flex-col gap-3">
+                <a href={`${baseUrl}/#contact`} class="w-full px-8 py-3 bg-transparent border-2 border-[#E5B32A]/45 text-white text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg hover:bg-white/5 hover:border-[#E5B32A]/70 transition-all duration-300">
+                  {t.resa_cta2}
+                </a>
+                <a href={`${baseUrl}/#carte`} class="w-full px-8 py-3 bg-[#E5B32A] text-black text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg shadow-[0_8px_24px_rgba(229,179,42,0.28)] hover:bg-white hover:shadow-[0_12px_32px_rgba(229,179,42,0.45)] transition-all duration-300">
+                  {t.resa_cta3}
+                </a>
+              </div>
+              <div id="cta-card-sentinel" class="h-px w-full absolute bottom-0" aria-hidden="true"></div>
+            </div>
+          </aside>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HISTOIRE -->
+  <section id="histoire" class="histoire-section bg-[#0a0a0a] py-24 px-6">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+      <div>
+        <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mb-4">{t.story_label}</p>
+        <h2 class="text-3xl md:text-4xl font-serif italic text-white mb-6 gold-shine-text">{t.story_title}</h2>
+        <p class="text-gray-400 leading-relaxed mb-4">{t.story_p1}</p>
+        <p class="text-gray-400 leading-relaxed">{t.story_p2}</p>
+      </div>
+      <div class="flex justify-center items-center relative">
+        <div class="absolute inset-0 bg-gradient-to-tr from-[#E5B32A]/20 to-transparent rounded-2xl blur-2xl -z-10"></div>
+        <img
+          src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1000&auto=format&fit=crop"
+          alt="Σχάρα και κάρβουνα — αυθεντικό ψήσιμο"
+          class="histoire-img no-invert w-full max-w-md object-cover rounded-2xl shadow-2xl border border-white/10"
+          width="600" height="800"
+        />
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG / AMBIANCE CARDS -->
+  <section id="blog" class="bg-[#050505] py-24 px-6 border-t border-white/5">
+    <div class="max-w-7xl mx-auto text-center mb-16">
+      <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mb-4">{t.blog_label}</p>
+      <h2 class="text-3xl md:text-4xl font-serif italic text-white mb-4">{t.blog_title}</h2>
+      <p class="text-gray-400 max-w-2xl mx-auto">{t.blog_lead}</p>
+    </div>
+    <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+      <article class="bg-white/5 border border-white/10 rounded-xl p-6 hover:border-[#E5B32A]/30 transition-colors">
+        <h3 class="text-lg font-serif italic text-[#E5B32A] mb-2 dish-name-gold">{t.card1_title}</h3>
+        <p class="text-sm text-gray-300">{t.card1_desc}</p>
+      </article>
+      <article class="bg-white/5 border border-white/10 rounded-xl p-6 hover:border-[#E5B32A]/30 transition-colors">
+        <h3 class="text-lg font-serif italic text-[#E5B32A] mb-2 dish-name-gold">{t.card2_title}</h3>
+        <p class="text-sm text-gray-300">{t.card2_desc}</p>
+      </article>
+      <article class="bg-white/5 border border-white/10 rounded-xl p-6 hover:border-[#E5B32A]/30 transition-colors">
+        <h3 class="text-lg font-serif italic text-[#E5B32A] mb-2 dish-name-gold">{t.card3_title}</h3>
+        <p class="text-sm text-gray-300">{t.card3_desc}</p>
+      </article>
+      <article class="bg-white/5 border border-white/10 rounded-xl p-6 hover:border-[#E5B32A]/30 transition-colors">
+        <h3 class="text-lg font-serif italic text-[#E5B32A] mb-2 dish-name-gold">{t.card4_title}</h3>
+        <p class="text-sm text-gray-300">{t.card4_desc}</p>
+      </article>
+      <article class="bg-white/5 border border-white/10 rounded-xl p-6 hover:border-[#E5B32A]/30 transition-colors">
+        <h3 class="text-lg font-serif italic text-[#E5B32A] mb-2 dish-name-gold">{t.card5_title}</h3>
+        <p class="text-sm text-gray-300">{t.card5_desc}</p>
+      </article>
+      <article class="bg-white/5 border border-white/10 rounded-xl p-6 hover:border-[#E5B32A]/30 transition-colors">
+        <h3 class="text-lg font-serif italic text-[#E5B32A] mb-2 dish-name-gold">{t.card6_title}</h3>
+        <p class="text-sm text-gray-300">{t.card6_desc}</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- MENU / CARTE -->
+  <section id="carte" class="bg-[#0a0a0a] py-24 px-6 border-t border-white/5">
+    <div class="max-w-4xl mx-auto">
+      <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mb-4">{t.carte_label}</p>
+      <h2 class="text-3xl md:text-4xl font-serif italic text-white mb-4">{t.carte_title}</h2>
+      <p class="text-gray-400 mb-8">{t.carte_lead}</p>
+      <p class="text-xs text-gray-400 mb-12">{t.carte_service_note}</p>
+
+      {menu.map((section) => (
+        <div class="mb-12">
+          <h3 class="text-2xl font-serif italic text-[#E5B32A] mb-6 border-b border-white/10 pb-2 dish-name-gold">
+            {section.category}
+          </h3>
+          <ul class="space-y-4">
+            {section.items.map((item) => (
+              <li class="flex justify-between gap-4 border-b border-white/5 pb-3">
+                <div>
+                  <span class="font-serif text-white">{item.name}</span>
+                  <p class="text-xs text-gray-300 mt-0.5">{item.desc}</p>
+                </div>
+                <span class="font-serif text-[#E5B32A] whitespace-nowrap">{item.price}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-6 mt-16 pt-8 border-t border-white/10">
+        <a href={`${baseUrl}/#contact`} class="px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
+          {t.carte_reserver}
+        </a>
+        <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" class="px-6 py-3 border border-white/30 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white/10 transition-colors">
+          {currentLang === 'el' ? 'Παραγγελία e-food' : 'Order on e-food'}
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="bg-[#050505] py-24 px-6 border-t border-white/5">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-3xl md:text-4xl font-serif italic text-white mb-4">{t.contact_title}</h2>
+      <p class="text-gray-300 mb-8">{t.contact_lead}</p>
+      <p class="text-sm text-gray-300 mb-2">
+        <a href={`mailto:${t.contact_email}`} class="text-[#E5B32A] hover:underline">{t.contact_email}</a>
+      </p>
+      <p class="text-sm text-gray-300 mb-2">
+        <a href="tel:+302104222233" class="text-[#E5B32A] hover:underline">{t.contact_demo}</a>
+      </p>
+      <p class="text-xs text-gray-300 mb-8">{t.contact_hours}</p>
+
+      <form class="space-y-4" action="#" method="post">
+        <div>
+          <label for="name" class="sr-only">{t.form_name}</label>
+          <input
+            type="text" id="name" name="name"
+            placeholder={t.form_name} required
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/30 focus:border-[#E5B32A] focus:outline-none transition-colors"
+          />
+        </div>
+        <div>
+          <label for="guests" class="sr-only">{t.form_guests}</label>
+          <input
+            type="text" id="guests" name="guests"
+            placeholder={t.form_guests}
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/30 focus:border-[#E5B32A] focus:outline-none transition-colors"
+          />
+        </div>
+        <button
+          type="submit"
+          class="w-full px-6 py-4 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors"
+        >{t.form_confirm}</button>
+      </form>
+
+      <div class="mt-8 flex justify-center">
+        <SocialLinks />
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP — Bouboulinas & Notara, Piraeus -->
+  <section class="w-full h-[400px] bg-neutral-900" aria-label={currentLang === 'el' ? 'Χάρτης' : 'Map'}>
+    <iframe
+      src="https://www.openstreetmap.org/export/embed.html?bbox=23.6389786%2C37.9369284%2C23.6489786%2C37.9469284&layer=mapnik&marker=37.9419284%2C23.6439786"
+      class="w-full h-full border-0"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title={currentLang === 'el' ? 'Χάρτης — Τρούμπα Πειραιάς' : 'Map — Troumpa Piraeus'}
+    ></iframe>
+  </section>
+
+  <script>
+    const sentinel = document.getElementById('cta-card-sentinel');
+    if (sentinel) {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) document.body.classList.add('cta-visible');
+          else document.body.classList.remove('cta-visible');
+        });
+      }, { threshold: 0.1 });
+      observer.observe(sentinel);
+    }
+  </script>
+
+</BaseLayout>

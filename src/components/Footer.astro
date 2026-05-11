@@ -1,0 +1,60 @@
+---
+import { translations } from "../i18n/translations";
+import type { Lang } from "../i18n/utils";
+
+interface Props { lang?: Lang; }
+const { lang = "el" } = Astro.props;
+const t = translations[lang];
+const base = `/${lang}`;
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="bg-[#050505] text-white pt-24 pb-12 border-t border-white/5 relative overflow-hidden">
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-[#E5B32A]/30 to-transparent"></div>
+
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-8 mb-20">
+    <div class="md:col-span-2 space-y-6">
+      <div class="flex flex-col">
+        <span class="font-serif italic text-4xl text-white tracking-tight">{t.footer_brand}<span class="text-[#E5B32A]">.</span></span>
+        <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mt-2">{t.footer_demo}</p>
+      </div>
+      <p class="text-gray-400 text-sm max-w-sm leading-relaxed font-light">{t.footer_lead}</p>
+      <div class="flex gap-4">
+        <a href="https://www.facebook.com/to.kalamaki.tis.troumpas/" target="_blank" rel="noopener" aria-label="Facebook" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-[#E5B32A] hover:text-black hover:border-[#E5B32A] transition-all duration-300">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+        </a>
+        <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" aria-label="e-food" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-[#E5B32A] hover:text-black hover:border-[#E5B32A] transition-all duration-300">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9V7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7V9H4C2.89543 9 2 9.89543 2 11V19C2 20.6569 3.34315 22 5 22H19C20.6569 22 22 20.6569 22 19V11C22 9.89543 21.1046 9 20 9H17ZM9 7C9 5.34315 10.3431 4 12 4C13.6569 4 15 5.34315 15 7V9H9V7ZM20 19C20 19.5523 19.5523 20 19 20H5C4.44772 20 4 19.5523 4 19V11H20V19Z"></path></svg>
+        </a>
+        <a href="https://www.instagram.com" target="_blank" rel="noopener" aria-label="Instagram" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-[#E5B32A] hover:text-black hover:border-[#E5B32A] transition-all duration-300">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.066 2.1.291 2.592.484.653.254 1.12.556 1.606 1.041.487.485.789.953 1.042 1.606.192.492.418 1.226.484 2.592.059 1.266.07 1.646.07 4.85s-.011 3.584-.07 4.85c-.066 1.366-.291 2.1-.484 2.592-.254.653-.556 1.12-1.041 1.606-.485.487-.953.789-1.606 1.042-.492.192-1.226.418-2.592.484-1.266.059-1.646.07-4.85.07s-3.584-.011-4.85-.07c-1.366-.066-2.1-.291-2.592-.484-.653-.254-1.12-.556-1.606-1.041-.487-.485-.789-.953-1.042-1.606-.192-.492-.418-1.226-.484-2.592-.059-1.266-.07-1.646-.07-4.85s.011-3.584.07-4.85c.066-1.366.291-2.1.484-2.592.254-.653.556-1.12 1.041-1.606.485-.487.953-.789 1.606-1.042.492-.192 1.226-.418 2.592-.484 1.266-.059 1.646-.07 4.85-.07zm0-2.163c-3.259 0-3.667.014-4.947.072-1.277.058-2.148.261-2.911.558-.79.306-1.458.716-2.122 1.381s-1.075 1.332-1.381 2.122c-.297.763-.5 1.634-.558 2.911-.058 1.28-.072 1.688-.072 4.947s.014 3.667.072 4.947c.058 1.278.261 2.149.558 2.912.306.789.716 1.457 1.381 2.121s1.332 1.075 2.122 1.381c.763.297 1.634.5 2.911.558 1.28.058 1.688.072 4.947.072s3.667-.014 4.947-.072c1.277-.058 2.148-.261 2.911-.558.79-.306 1.458-.716 2.122-1.381s1.075-1.332 1.381-2.122c.297-.763.5-1.634.558-2.911.058-1.28.072-1.688.072-4.947s-.014-3.667-.072-4.947c-.058-1.277-.261-2.148-.558-2.911-.306-.79-.716-1.458-1.381-2.122s-1.332-1.075-2.122-1.381c-.763-.297-1.634-.5-2.911-.558-1.28-.058-1.688-.072-4.947-.072zM12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.791-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.209-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <h3 class="text-xs uppercase tracking-[0.2em] text-white font-bold">{t.footer_restaurant}</h3>
+      <ul class="space-y-4">
+        <li><a href={`${base}/#histoire`} class="text-gray-400 text-sm hover:text-[#E5B32A] transition-colors font-light">{t.footer_story}</a></li>
+        <li><a href={`${base}/#carte`} class="text-gray-400 text-sm hover:text-[#E5B32A] transition-colors font-light">{t.nav_carte}</a></li>
+        <li><a href={`${base}/#contact`} class="text-gray-400 text-sm hover:text-[#E5B32A] transition-colors font-light">{t.nav_contact}</a></li>
+      </ul>
+    </div>
+
+    <div class="space-y-6">
+      <h3 class="text-xs uppercase tracking-[0.2em] text-white font-bold">{t.footer_find}</h3>
+      <div class="space-y-4">
+        <p class="text-gray-400 text-sm leading-relaxed font-light">{t.footer_find_lead}</p>
+        <a href="tel:+302104222233" class="text-[#E5B32A] hover:underline text-sm">+30 210 422 2233</a>
+        <br/>
+        <a href="https://ultras-sites.com" target="_blank" rel="noopener" class="text-white/40 hover:text-[#E5B32A] text-xs transition-colors">ultras-sites.com</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-6 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+    <p class="text-[10px] text-gray-400 uppercase tracking-widest font-medium">
+      © {currentYear} {t.footer_copyright} <a href="https://ultras-sites.com" target="_blank" rel="noopener" class="hover:text-[#E5B32A]">ultras-sites.com</a>
+    </p>
+  </div>
+</footer>

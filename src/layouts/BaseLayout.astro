@@ -1,0 +1,89 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import ScrollToTop from "../components/ScrollToTop.astro";
+import "../styles/global.css";
+import type { Lang } from "../i18n/utils";
+
+interface Props {
+  title?: string;
+  description?: string;
+  lang?: Lang;
+}
+
+const {
+  title = "Το Καλαμάκι Της Τρούμπας – Αυθεντικά Σουβλάκια Πειραιάς",
+  description = "Αυθεντικά καλαμάκια, γύρος και πίτες στην καρδιά της Τρούμπας Πειραιά. Μπουμπουλίνας 8 & Νοταρά.",
+  lang = "el",
+} = Astro.props;
+const htmlLang = lang === 'en' ? 'en-GB' : 'el-GR';
+---
+
+<!doctype html>
+<html lang={htmlLang} data-lang={lang} class="scroll-smooth overflow-x-hidden">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="description" content={description} />
+    <meta name="robots" content="index, follow" />
+    <meta name="keywords" content="σουβλάκι πειραιάς, καλαμάκι τρούμπα, γύρος πειραιάς, souvlaki piraeus, kalamaki troumpa" />
+    <meta name="geo.region" content="GR-I" />
+    <meta name="geo.placename" content="Piraeus" />
+    <meta name="geo.position" content="37.9419284;23.6439786" />
+    <link rel="canonical" href={Astro.url.href} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:locale" content={lang === 'en' ? 'en_GB' : 'el_GR'} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://images.unsplash.com" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" /></noscript>
+
+    <title>{title}</title>
+
+    <style is:inline>
+      html {
+        background-color: #0a0a0a;
+        opacity: 1;
+      }
+      html.loaded { opacity: 1; }
+    </style>
+
+    <script is:inline>
+      document.addEventListener("DOMContentLoaded", () => {
+        document.documentElement.classList.add("loaded");
+        const stored = window.localStorage.getItem("theme");
+        if (stored === "dark") document.documentElement.dataset.theme = "dark";
+      });
+      setTimeout(() => document.documentElement.classList.add("loaded"), 300);
+
+      window.__toggleTheme = function () {
+        const root = document.documentElement;
+        const next = root.dataset.theme === "dark" ? "light" : "dark";
+        if (next === "light") root.removeAttribute("data-theme");
+        else root.dataset.theme = "dark";
+        window.localStorage.setItem("theme", next);
+      };
+    </script>
+  </head>
+
+  <body class="bg-neutral-950 text-white antialiased overflow-x-hidden">
+    <script is:inline>
+      (function(){ var L = document.documentElement.getAttribute('data-lang'); if(L) try { localStorage.setItem('lang', L); } catch(e) {} })();
+    </script>
+    <Header lang={lang} />
+    <main>
+      <slot />
+    </main>
+    <Footer lang={lang} />
+    <ScrollToTop />
+  </body>
+</html>

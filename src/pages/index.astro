@@ -1,0 +1,33 @@
+---
+---
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Το Καλαμάκι Της Τρούμπας</title>
+    <script is:inline>
+      (function() {
+        var supported = ['el', 'en'];
+        var lang = 'el';
+        var params = typeof URLSearchParams !== 'undefined' && window.location.search ? new URLSearchParams(window.location.search) : null;
+        var fromUrl = params && params.get('lang');
+        if (fromUrl && supported.indexOf(fromUrl) !== -1) {
+          lang = fromUrl;
+          try { localStorage.setItem('lang', lang); } catch (e) {}
+        } else {
+          var stored = typeof localStorage !== 'undefined' && localStorage.getItem('lang');
+          if (stored && supported.indexOf(stored) !== -1) lang = stored;
+          else {
+            var browser = typeof navigator !== 'undefined' && (navigator.language || (navigator as any).userLanguage || '').toLowerCase();
+            if (browser && browser.startsWith('en')) lang = 'en';
+          }
+        }
+        window.location.replace('/' + lang + '/');
+      })();
+    </script>
+  </head>
+  <body style="margin:0;font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0a0a0a;color:#fff;">
+    <p style="color:#78716c;">Ανακατεύθυνση…</p>
+  </body>
+</html>
