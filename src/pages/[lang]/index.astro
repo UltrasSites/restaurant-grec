@@ -22,24 +22,19 @@ const baseUrl = `/${currentLang}`;
   @media (max-width: 767px) {
     .hero-card-viewport {
       perspective: 2000px;
-      padding: 1rem;
-      margin-top: 1rem;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
       width: 100%;
     }
+    /* Carte plus transparente sur mobile */
     .hero-card-3d {
-      background: linear-gradient(135deg, rgba(229, 179, 42, 0.2) 0%, rgba(10, 10, 10, 0.95) 100%);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(229, 179, 42, 0.4);
-      border-radius: 2.5rem;
-      padding: 2.5rem 1.5rem;
+      background: linear-gradient(135deg, rgba(229, 179, 42, 0.06) 0%, rgba(10, 10, 10, 0.38) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(229, 179, 42, 0.18);
+      border-radius: 2rem;
+      padding: 1.5rem 1.25rem;
       width: 100%;
-      transform: rotateX(8deg) rotateY(-4deg);
-      box-shadow:
-        0 30px 60px -12px rgba(0, 0, 0, 0.8),
-        0 18px 36px -18px rgba(0, 0, 0, 0.9),
-        0 0 40px rgba(229, 179, 42, 0.1);
-      animation: hero-card-float 8s ease-in-out infinite;
       position: relative;
     }
     .resa-card-inner-mobile {
@@ -49,12 +44,37 @@ const baseUrl = `/${currentLang}`;
       box-shadow: none !important;
       padding-left: 0 !important;
       padding-right: 0 !important;
-      padding-top: 0.5rem !important;
+      padding-top: 0.25rem !important;
     }
-    @keyframes hero-card-float {
-      0%, 100% { transform: rotateX(8deg) rotateY(-4deg) translateY(0); }
-      50% { transform: rotateX(6deg) rotateY(-2deg) translateY(-15px); }
-    }
+  }
+
+  /* Strip défilant d'images — mobile uniquement */
+  .mobile-photo-strip {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 1rem;
+    height: 130px;
+    margin: 0.6rem 0;
+  }
+  @media (min-width: 768px) { .mobile-photo-strip { display: none; } }
+  .strip-track {
+    display: flex;
+    gap: 6px;
+    height: 100%;
+    animation: strip-scroll 20s linear infinite;
+    width: max-content;
+  }
+  .strip-track img {
+    height: 130px;
+    width: 195px;
+    object-fit: cover;
+    border-radius: 0.6rem;
+    flex-shrink: 0;
+  }
+  @keyframes strip-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
   .gold-shine-text {
     background: linear-gradient(
@@ -101,7 +121,29 @@ const baseUrl = `/${currentLang}`;
             <span class="inline-block border border-[#E5B32A]/50 px-6 py-2 rounded-full text-[10px] uppercase tracking-[0.4em] mb-1 bg-black/30 backdrop-blur-sm text-[#E5B32A] font-bold">
               {t.hero_badge}
             </span>
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif italic text-white mb-2 md:mb-4 leading-none drop-shadow-2xl text-center lg:text-left">
+
+            {/* Strip d'images défilantes — mobile uniquement */}
+            <div class="mobile-photo-strip">
+              <div class="strip-track">
+                {[
+                  "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=260&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=260&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=260&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=260&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=260&fit=crop&q=75",
+                  /* duplicate pour boucle infinie fluide */
+                  "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=260&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=260&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=260&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=260&fit=crop&q=75",
+                  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=260&fit=crop&q=75",
+                ].map((src, i) => (
+                  <img src={src} alt="" loading="lazy" decoding="async" />
+                ))}
+              </div>
+            </div>
+
+            <h1 class="hidden md:block text-7xl lg:text-8xl font-serif italic text-white mb-2 md:mb-4 leading-none drop-shadow-2xl text-center lg:text-left">
               {t.hero_title}
             </h1>
             <p class="hidden md:block text-gray-300 max-w-xl md:max-w-2xl mx-auto lg:mx-0 leading-relaxed mb-6 font-light text-lg text-center lg:text-left">
@@ -284,12 +326,13 @@ const baseUrl = `/${currentLang}`;
     </div>
   </section>
 
-  <!-- MAP — Bouboulinas & Notara, Piraeus -->
-  <section class="w-full h-[400px] bg-neutral-900" aria-label={currentLang === 'el' ? 'Χάρτης' : 'Map'}>
+  <!-- MAP — Google Maps Bouboulinas & Notara, Piraeus -->
+  <section class="w-full h-[420px] bg-neutral-900" aria-label={currentLang === 'el' ? 'Χάρτης' : 'Map'}>
     <iframe
-      src="https://www.openstreetmap.org/export/embed.html?bbox=23.6389786%2C37.9369284%2C23.6489786%2C37.9469284&layer=mapnik&marker=37.9419284%2C23.6439786"
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3146.2!2d23.6439786!3d37.9419284!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a1bbc2a93cff0f%3A0xae98a6803fd3f033!2z0KLQviBLYWxhbWFraSBUaXMgVHJvdW1wYXM!5e0!3m2!1sel!2sgr!4v1715449200000!5m2!1sel!2sgr"
       class="w-full h-full border-0"
       loading="lazy"
+      allowfullscreen
       referrerpolicy="no-referrer-when-downgrade"
       title={currentLang === 'el' ? 'Χάρτης — Τρούμπα Πειραιάς' : 'Map — Troumpa Piraeus'}
     ></iframe>

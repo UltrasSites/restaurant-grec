@@ -182,4 +182,14 @@ const links = [
     drawerLinks.forEach((l) => l.addEventListener("click", () => { if (drawerOpen) closeDrawer(); }));
     const drawerThemeBtn = document.getElementById("drawer-theme-btn");
     if (drawerThemeBtn) { drawerThemeBtn.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); if ((window as any).__toggleTheme) (window as any).__toggleTheme(); }); }
+
+    // Swipe down depuis n'importe où dans le drawer pour fermer
+    let swipeStartY = 0;
+    drawer?.addEventListener('touchstart', (e) => {
+        swipeStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+    drawer?.addEventListener('touchend', (e) => {
+        const delta = e.changedTouches[0].screenY - swipeStartY;
+        if (delta > 60 && drawerOpen) closeDrawer();
+    }, { passive: true });
 </script>
