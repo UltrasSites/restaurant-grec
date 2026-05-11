@@ -24,8 +24,8 @@ const baseUrl = `/${currentLang}`;
   @media (max-width: 767px) {
     .hero-card-viewport {
       perspective: 2000px;
-      padding: 1rem;
-      margin-top: 1rem;
+      padding: 0.75rem;
+      margin-top: 0.75rem;
       width: 100%;
     }
     .hero-card-3d {
@@ -34,8 +34,9 @@ const baseUrl = `/${currentLang}`;
       -webkit-backdrop-filter: blur(25px);
       border: 1px solid rgba(229, 179, 42, 0.4);
       border-radius: 2.5rem;
-      padding: 2rem 1.25rem;
+      padding: 1.25rem 1rem;
       width: 100%;
+      overflow: hidden;
       transform: rotateX(8deg) rotateY(-4deg);
       box-shadow:
         0 30px 60px -12px rgba(0, 0, 0, 0.8),
@@ -44,15 +45,33 @@ const baseUrl = `/${currentLang}`;
       animation: hero-card-float 8s ease-in-out infinite;
       position: relative;
     }
+    .hero-card-3d h1 {
+      font-size: 2rem !important;
+      white-space: nowrap;
+      margin-bottom: 0.25rem !important;
+    }
+    .hero-card-3d p {
+      font-size: 0.8rem !important;
+      margin-bottom: 0.5rem !important;
+    }
+    .hero-card-3d .flex.mb-1 {
+      margin-bottom: 0.25rem !important;
+    }
+    .hero-card-3d aside {
+      margin-top: 0 !important;
+    }
+    .hero-card-3d aside .flex.flex-col.gap-3 a {
+      padding-top: 0.5rem !important;
+      padding-bottom: 0.5rem !important;
+      font-size: 10px !important;
+    }
     /* Aside inner : transparent comme le modele restaurant-bar */
     .resa-card-inner-mobile {
       background: transparent !important;
       border: none !important;
       backdrop-filter: none !important;
       box-shadow: none !important;
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-      padding-top: 0.5rem !important;
+      padding: 0.25rem 0 0 0 !important;
       margin-left: auto !important;
       margin-right: auto !important;
     }
@@ -68,13 +87,13 @@ const baseUrl = `/${currentLang}`;
   .hero-photo-strip {
     width: 100%;
     overflow: hidden;
-    height: 100px;
+    height: 70px;
     border-radius: 0.85rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     position: relative;
   }
   @media (min-width: 768px) {
-    .hero-photo-strip { height: 140px; margin-bottom: 1.5rem; }
+    .hero-photo-strip { height: 90px; margin-bottom: 1rem; }
   }
   .strip-track {
     display: flex;
@@ -85,13 +104,13 @@ const baseUrl = `/${currentLang}`;
   }
   .strip-track img {
     height: 100%;
-    width: 160px;
+    width: 120px;
     object-fit: cover;
     border-radius: 0.6rem;
     flex-shrink: 0;
   }
   @media (min-width: 768px) {
-    .strip-track img { width: 220px; }
+    .strip-track img { width: 170px; }
   }
   @keyframes strip-scroll {
     0%   { transform: translateX(0); }
@@ -163,7 +182,7 @@ const baseUrl = `/${currentLang}`;
               </div>
             </div>
 
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif italic text-white mb-2 md:mb-4 leading-none drop-shadow-2xl text-center lg:text-left">
+            <h1 class="text-5xl md:text-5xl lg:text-6xl font-serif italic text-white mb-2 md:mb-3 leading-none drop-shadow-2xl text-center lg:text-left whitespace-nowrap">
               {t.hero_title}
             </h1>
             <p class="text-gray-300 max-w-xl md:max-w-2xl mx-auto lg:mx-0 leading-relaxed mb-4 md:mb-6 font-light text-base md:text-lg text-center lg:text-left">
