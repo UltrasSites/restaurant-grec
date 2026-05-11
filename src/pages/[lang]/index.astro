@@ -64,34 +64,6 @@ const baseUrl = `/${currentLang}`;
     }
   }
 
-  /* Strip défilant d'images — mobile uniquement */
-  .mobile-photo-strip {
-    display: block;
-    width: 100%;
-    overflow: hidden;
-    border-radius: 1rem;
-    height: 130px;
-    margin: 0.6rem 0;
-  }
-  @media (min-width: 768px) { .mobile-photo-strip { display: none; } }
-  .strip-track {
-    display: flex;
-    gap: 6px;
-    height: 100%;
-    animation: strip-scroll 20s linear infinite;
-    width: max-content;
-  }
-  .strip-track img {
-    height: 130px;
-    width: 195px;
-    object-fit: cover;
-    border-radius: 0.6rem;
-    flex-shrink: 0;
-  }
-  @keyframes strip-scroll {
-    0%   { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
   .gold-shine-text {
     background: linear-gradient(
       to right,
@@ -138,28 +110,7 @@ const baseUrl = `/${currentLang}`;
               {t.hero_badge}
             </span>
 
-            {/* Strip d'images défilantes — mobile uniquement */}
-            <div class="mobile-photo-strip">
-              <div class="strip-track">
-                {[
-                  "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=260&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=260&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=260&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=260&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=260&fit=crop&q=75",
-                  /* duplicate pour boucle infinie fluide */
-                  "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=260&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=260&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=260&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=260&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=260&fit=crop&q=75",
-                ].map((src, i) => (
-                  <img src={src} alt="" loading="lazy" decoding="async" />
-                ))}
-              </div>
-            </div>
-
-            <h1 class="hidden md:block text-7xl lg:text-8xl font-serif italic text-white mb-2 md:mb-4 leading-none drop-shadow-2xl text-center lg:text-left">
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif italic text-white mb-2 md:mb-4 leading-none drop-shadow-2xl text-center lg:text-left">
               {t.hero_title}
             </h1>
             <p class="hidden md:block text-gray-300 max-w-xl md:max-w-2xl mx-auto lg:mx-0 leading-relaxed mb-6 font-light text-lg text-center lg:text-left">
