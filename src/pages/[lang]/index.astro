@@ -21,22 +21,37 @@ const baseUrl = `/${currentLang}`;
 
 <style>
   @media (max-width: 767px) {
+    /* Viewport centré comme le modèle restaurant-bar */
     .hero-card-viewport {
-      padding: 0.5rem;
-      margin-top: 0;
+      perspective: 2000px;
+      padding: 1rem;
+      margin-top: 1rem;
       width: 100%;
+      display: flex;
+      justify-content: center;
     }
-    /* Pas de carte visible sur mobile — contenu flotte sur l'image */
+    /* Carte 3D flottante centrée — inspirée du restaurant-bar original */
     .hero-card-3d {
-      background: transparent;
-      backdrop-filter: none;
-      -webkit-backdrop-filter: none;
-      border: none;
-      border-radius: 0;
-      padding: 0;
+      background: linear-gradient(135deg, rgba(229, 179, 42, 0.18) 0%, rgba(10, 10, 10, 0.92) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(229, 179, 42, 0.35);
+      border-radius: 2rem;
+      padding: 2rem 1.5rem;
       width: 100%;
+      max-width: 26rem;
+      margin: 0 auto;
+      transform: rotateX(6deg) rotateY(-3deg);
+      box-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.75),
+        0 0 30px rgba(229, 179, 42, 0.08);
+      animation: hero-card-float 8s ease-in-out infinite;
       position: relative;
+      text-align: center;
     }
+    /* Centrer le contenu enfant */
+    .hero-card-3d > div { width: 100%; }
+    .hero-card-3d aside { width: 100%; margin: 0 auto; }
     /* Masquer les infos adresse/phone/hours sur mobile — visibles dans #contact */
     .mobile-hide-details { display: none !important; }
     .resa-card-inner-mobile {
@@ -45,14 +60,17 @@ const baseUrl = `/${currentLang}`;
       backdrop-filter: none !important;
       box-shadow: none !important;
       padding: 0 !important;
+      margin: 0 auto !important;
+      text-align: center;
     }
-    /* CTA buttons compacts sur mobile */
-    .resa-card-inner-mobile .flex.flex-col.gap-3 {
-      gap: 0.5rem;
-    }
+    .resa-card-inner-mobile .flex.flex-col.gap-3 { gap: 0.5rem; }
     .resa-card-inner-mobile a {
-      padding-top: 0.625rem !important;
-      padding-bottom: 0.625rem !important;
+      padding-top: 0.7rem !important;
+      padding-bottom: 0.7rem !important;
+    }
+    @keyframes hero-card-float {
+      0%, 100% { transform: rotateX(6deg) rotateY(-3deg) translateY(0); }
+      50%      { transform: rotateX(4deg) rotateY(-1deg) translateY(-10px); }
     }
   }
 
@@ -259,10 +277,45 @@ const baseUrl = `/${currentLang}`;
     <MenuBook lang={currentLang} />
   </div>
 
+  <!-- PDF + QR Code -->
+  <div class="bg-[#050505] py-10 px-4 border-t border-white/5">
+    <div class="max-w-3xl mx-auto flex flex-col md:flex-row items-center gap-8 bg-gradient-to-br from-[#E5B32A]/8 to-black/60 border border-[#E5B32A]/20 rounded-3xl p-6 md:p-8">
+      <!-- QR Code -->
+      <div class="shrink-0 flex flex-col items-center">
+        <div class="bg-white p-3 rounded-2xl shadow-2xl">
+          <img src="/menu-qr.png" alt={currentLang === 'el' ? 'QR Code Μενού' : 'Menu QR Code'} class="w-32 h-32" width="128" height="128" />
+        </div>
+        <p class="text-[9px] uppercase tracking-[0.2em] text-white/40 mt-2 font-bold">
+          {currentLang === 'el' ? 'Σκανάρε' : 'Scan'}
+        </p>
+      </div>
+      <!-- Text + CTA -->
+      <div class="flex-1 text-center md:text-left">
+        <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2">
+          {currentLang === 'el' ? 'Κατάλογος PDF' : 'PDF Menu'}
+        </p>
+        <h3 class="text-xl md:text-2xl font-serif italic text-white mb-3">
+          {currentLang === 'el' ? 'Πάρε τον κατάλογο μαζί σου.' : 'Take the menu with you.'}
+        </h3>
+        <p class="text-sm text-gray-400 mb-5 leading-relaxed">
+          {currentLang === 'el'
+            ? 'Σκανάρε το QR ή κατέβασε το PDF — όλος ο κατάλογος, παντού, χωρίς ίντερνετ.'
+            : 'Scan the QR or download the PDF — full menu, anywhere, no internet needed.'}
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
+          <a href="/menu.pdf" download="menu-kalamaki-troumpas.pdf" class="inline-flex items-center gap-2 px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
+            {currentLang === 'el' ? 'Κατέβασμα PDF' : 'Download PDF'}
+          </a>
+          <a href={`${baseUrl}/#contact`} class="inline-flex items-center gap-2 px-6 py-3 border border-white/25 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white/10 transition-colors">
+            {t.carte_reserver}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pb-10 px-4">
-    <a href={`${baseUrl}/#contact`} class="px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
-      {t.carte_reserver}
-    </a>
     <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" class="px-6 py-3 border border-white/30 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white/10 transition-colors">
       {currentLang === 'el' ? 'Παραγγελία e-food' : 'Order on e-food'}
     </a>
