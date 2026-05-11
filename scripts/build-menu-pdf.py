@@ -8,7 +8,8 @@ from reportlab.pdfbase.ttfonts import TTFont
 import qrcode
 import os
 
-OUT_PDF = "C:/Users/User/Desktop/CODE ENTREPRISES/restaurant-grec/public/menu.pdf"
+OUT_PDF_EL = "C:/Users/User/Desktop/CODE ENTREPRISES/restaurant-grec/public/menu-el.pdf"
+OUT_PDF_EN = "C:/Users/User/Desktop/CODE ENTREPRISES/restaurant-grec/public/menu-en.pdf"
 OUT_QR  = "C:/Users/User/Desktop/CODE ENTREPRISES/restaurant-grec/public/menu-qr.png"
 URL_MENU = "https://restaurant-grec.pages.dev/el/#carte"
 
@@ -135,90 +136,94 @@ for f in [
 W, H = A5  # 148 x 210 mm
 PAD = 1.2 * cm
 
-def page_cover(c):
+def page_cover(c, isel):
     c.setFillColor(DARK)
     c.rect(0, 0, W, H, fill=1, stroke=0)
-    # Gold border
     c.setStrokeColor(GOLD)
     c.setLineWidth(1)
     c.rect(0.7*cm, 0.7*cm, W - 1.4*cm, H - 1.4*cm, stroke=1, fill=0)
-    # Title
     c.setFillColor(WHITE)
     c.setFont(GREEK_BOLD, 22)
-    lines = MENU["cover"]["title_el"].split("\n")
+    title = MENU["cover"]["title_el"] if isel else "To Kalamaki\nTis Troumpas"
+    lines = title.split("\n")
     y = H - 5*cm
     for line in lines:
         c.drawCentredString(W/2, y, line)
         y -= 0.9*cm
-    c.setFont(GREEK_FONT, 11)
-    c.setFillColor(GOLD)
-    c.drawCentredString(W/2, y - 0.3*cm, MENU["cover"]["title_en"])
-    # Diamond divider
     c.setFont(GREEK_FONT, 14)
+    c.setFillColor(GOLD)
     c.drawCentredString(W/2, y - 1.5*cm, "◆ · · · ◆")
-    # Info
     c.setFillColor(WHITE)
     c.setFont(GREEK_FONT, 9)
-    c.drawCentredString(W/2, 5*cm, MENU["cover"]["sub"])
-    c.drawCentredString(W/2, 4.5*cm, MENU["cover"]["phone"])
+    addr = MENU["cover"]["sub"] if isel else "Bouboulinas 8 & Notara - Piraeus"
+    phone = MENU["cover"]["phone"]
+    c.drawCentredString(W/2, 5*cm, addr)
+    c.drawCentredString(W/2, 4.5*cm, phone)
     c.setFillColor(GREY)
     c.setFont(GREEK_FONT, 7)
-    c.drawCentredString(W/2, 3.8*cm, MENU["cover"]["hours"])
-    # Footer
+    hours = MENU["cover"]["hours"] if isel else "Mon-Thu 11:00-03:00 | Fri-Sat 11:00-06:00 | Sun closed"
+    c.drawCentredString(W/2, 3.8*cm, hours)
     c.setFont(GREEK_FONT, 6)
     c.setFillColor(HexColor("#444444"))
     c.drawCentredString(W/2, 1.2*cm, "restaurant-grec.pages.dev")
 
-def page_section(c, section):
+def page_section(c, section, isel):
     c.setFillColor(DARK)
     c.rect(0, 0, W, H, fill=1, stroke=0)
-    # Header
     c.setFillColor(GOLD)
     c.setFont(GREEK_BOLD, 16)
-    c.drawCentredString(W/2, H - 2*cm, section["title_el"])
-    c.setFillColor(WHITE)
-    c.setFont(GREEK_FONT, 10)
-    c.drawCentredString(W/2, H - 2.5*cm, section["title_en"])
-    # Divider
+    title = section["title_el"] if isel else section["title_en"]
+    c.drawCentredString(W/2, H - 2*cm, title)
     c.setStrokeColor(GOLD)
     c.setLineWidth(0.5)
-    c.line(3*cm, H - 2.9*cm, W - 3*cm, H - 2.9*cm)
-    # Items
-    y = H - 3.6*cm
+    c.line(3*cm, H - 2.5*cm, W - 3*cm, H - 2.5*cm)
+    y = H - 3.2*cm
     for name_el, name_en, price in section["items"]:
         if y < 2*cm:
             break
         c.setFillColor(WHITE)
-        c.setFont(GREEK_BOLD, 9)
-        # Greek name (left)
-        c.drawString(PAD, y, name_el)
-        # Price (right)
+        c.setFont(GREEK_BOLD, 10)
+        name = name_el if isel else name_en
+        # Word wrap manuel pour names longs
+        max_chars = 48
+        if len(name) > max_chars:
+            # Couper et continuer sur la ligne suivante
+            words = name.split()
+            line1 = ""
+            line2 = ""
+            for w in words:
+                if len(line1) + len(w) + 1 <= max_chars:
+                    line1 = (line1 + " " + w).strip()
+                else:
+                    line2 = (line2 + " " + w).strip()
+            c.drawString(PAD, y, line1)
+            c.drawString(PAD, y - 0.4*cm, line2)
+            y_price = y
+            line_height = 1.3*cm
+        else:
+            c.drawString(PAD, y, name)
+            y_price = y
+            line_height = 0.85*cm
         c.setFillColor(GOLD)
-        c.setFont(GREEK_BOLD, 9.5)
-        c.drawRightString(W - PAD, y, price)
-        # English description (below, grey)
-        c.setFillColor(GREY)
-        c.setFont(GREEK_FONT, 7)
-        c.drawString(PAD, y - 0.35*cm, name_en)
-        # Separator line
+        c.setFont(GREEK_BOLD, 10)
+        c.drawRightString(W - PAD, y_price, price)
         c.setStrokeColor(HexColor("#1a1a1a"))
         c.setLineWidth(0.3)
-        c.line(PAD, y - 0.7*cm, W - PAD, y - 0.7*cm)
-        y -= 1.1*cm
-    # Footer
+        c.line(PAD, y - line_height + 0.3*cm, W - PAD, y - line_height + 0.3*cm)
+        y -= line_height
     c.setFillColor(HexColor("#444444"))
     c.setFont(GREEK_FONT, 6)
     c.drawCentredString(W/2, 1.2*cm, "restaurant-grec.pages.dev")
 
-def build_pdf():
-    c = canvas.Canvas(OUT_PDF, pagesize=A5)
-    page_cover(c)
+def build_pdf(out_path, isel):
+    c = canvas.Canvas(out_path, pagesize=A5)
+    page_cover(c, isel)
     c.showPage()
     for s in MENU["sections"]:
-        page_section(c, s)
+        page_section(c, s, isel)
         c.showPage()
     c.save()
-    print("PDF:", OUT_PDF)
+    print("PDF:", out_path)
 
 def build_qr():
     qr = qrcode.QRCode(
@@ -234,5 +239,6 @@ def build_qr():
     print("QR:", OUT_QR)
 
 if __name__ == "__main__":
-    build_pdf()
+    build_pdf(OUT_PDF_EL, isel=True)
+    build_pdf(OUT_PDF_EN, isel=False)
     build_qr()

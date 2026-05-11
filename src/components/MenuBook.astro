@@ -1,6 +1,102 @@
 ---
 const { lang = "el" } = Astro.props;
 const isEl = lang === "el";
+
+type Item = { el: string; en: string; desc_el?: string; desc_en?: string; price: string };
+type Page = { title_el: string; title_en: string; photo: string; note_el?: string; note_en?: string; items: Item[] };
+
+const pages: Page[] = [
+  {
+    title_el: "Ορεκτικά Ι",
+    title_en: "Appetizers I",
+    photo: "https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=600&h=200&fit=crop&q=75",
+    items: [
+      { el: "Ντοματοκεφτέδες τμχ", en: "Tomato Fritter pc", price: "MP" },
+      { el: "Ντοματοκεφτέδες μερίδα 5 τμχ", en: "Tomato Fritters portion 5 pcs", price: "MP" },
+      { el: "Κολοκυθοκεφτέδες τμχ", en: "Zucchini Fritter pc", price: "1,20€" },
+      { el: "Κολοκυθοκεφτέδες μερίδα 5 τμχ", en: "Zucchini Fritters 5 pcs", price: "6,00€" },
+      { el: "Ρεβυθοκεφτέδες τμχ", en: "Chickpea Fritter pc", price: "1,20€" },
+      { el: "Ρεβυθοκεφτέδες μερίδα 5 τμχ", en: "Chickpea Fritters 5 pcs", price: "6,00€" },
+      { el: "Πιτάκι (σταρένιο / καλαμποκιού / ολικής)", en: "Mini pita bread (wheat / corn / whole grain)", price: "MP" },
+      { el: "Πίτα στα κάρβουνα", en: "Grilled pita bread", price: "0,60€" },
+    ],
+  },
+  {
+    title_el: "Ορεκτικά ΙΙ",
+    title_en: "Appetizers II",
+    photo: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&h=200&fit=crop&q=75",
+    items: [
+      { el: "Φρέσκιες Πατάτες", en: "Fresh Fried Potatoes", price: "3,50€" },
+      { el: "Φρέσκιες Πατάτες με τυρί", en: "Fresh Fries with cheese", price: "4,00€" },
+      { el: "Φρέσκιες Πατάτες με τσένταρ & μπέικον", en: "Fries with cheddar cheese & bacon", price: "4,50€" },
+      { el: "Φέτα", en: "Feta cheese", price: "3,50€" },
+      { el: "Φέτα ψητή με ντομάτα & πιπεριά", en: "Roasted Feta with tomato & peppers", price: "4,50€" },
+      { el: "Τζατζίκι σπιτικό", en: "Tzatziki (homemade)", price: "3,50€" },
+      { el: "Τυροκαυτερή", en: "Hot Pepper Cheese", price: "3,50€" },
+    ],
+  },
+  {
+    title_el: "Σαλάτες",
+    title_en: "Salads",
+    photo: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=200&fit=crop&q=75",
+    items: [
+      { el: "Χωριάτικη", en: "Greek Salad", desc_el: "ντομάτα, αγγούρι, κρεμμύδι, πιπεριά, ελιές, φέτα", desc_en: "tomato, cucumber, onion, peppers, olives, feta", price: "MP" },
+      { el: "Λάχανο-Καρότο", en: "Cabbage-Carrot Salad", price: "4,50€" },
+      { el: "Μαρούλι", en: "Lettuce Salad", desc_el: "μαρούλι, φρέσκο κρεμμύδι, άνηθος", desc_en: "lettuce, fresh onion, dill", price: "4,50€" },
+      { el: "Ντομάτα Τριαντάφυλλο", en: "Rose-Tomato", desc_el: "ντομάτα, αγγούρι, τριμμένη φέτα, κάπαρη", desc_en: "tomato, cucumber, grated feta, capers", price: "MP" },
+      { el: "Ντάκος", en: "Dakos", desc_el: "κρητικό παξιμάδι, ντομάτα, φέτα, ελιές, κάπαρη", desc_en: "crete rusk, tomato, feta, olives, capers", price: "6,50€" },
+      { el: "Η σαλάτα της Τρούμπας", en: "Trouba's salad", desc_el: "μαρούλι, λάχανο, ντομάτα, αγγούρι, κρεμμύδι, πιπεριά, ελιές, κάπαρη & σως μουστάρδας", desc_en: "lettuce, cabbage, tomato, cucumber, onion, peppers, olives, capers & mustard sauce", price: "7,50€" },
+      { el: "Fit Salad", en: "Fit Salad", desc_el: "πράσινη σαλάτα, ρόκα, αγγούρι, ντοματίνια, παρμεζάνα & σως γιαουρτιού", desc_en: "green salad, rocket, cucumber, cherry tomatoes, parmigiana & yoghurt sauce", price: "MP" },
+    ],
+  },
+  {
+    title_el: "Πίτες τυλιχτές",
+    title_en: "Wrapped Pita",
+    photo: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=600&h=200&fit=crop&q=75",
+    items: [
+      { el: "Καλαμάκι χοιρινό", en: "Skewered pork", desc_el: "ντομάτα, κρεμμύδι, τζατζίκι, πατάτες", desc_en: "tomato, onion, tzatziki, fries", price: "3,50€" },
+      { el: "Καλαμάκι κοτόπουλο μπούτι", en: "Skewered chicken thigh", desc_el: "ντομάτα, μαρούλι, σως, πατάτες", desc_en: "tomato, lettuce, sauce, fries", price: "3,50€" },
+      { el: "Καλαμάκι κοτομπέικον", en: "Skewered chicken with bacon", desc_el: "ντομάτα, μαρούλι, σως, πατάτες", desc_en: "tomato, lettuce, sauce, fries", price: "3,80€" },
+      { el: "Μπιφτέκι μοσχαρίσιο", en: "Beef Burger pc", desc_el: "ντομάτα, κρεμμύδι, τζατζίκι, πατάτες", desc_en: "tomato, onion, tzatziki, fries", price: "3,50€" },
+    ],
+  },
+  {
+    title_el: "Μερίδες",
+    title_en: "Portions",
+    photo: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&h=200&fit=crop&q=75",
+    note_el: "Συνοδεύεται με πατάτες, πίτα, ντομάτα, κρεμμύδι",
+    note_en: "Served with fries, pita, tomato, onion",
+    items: [
+      { el: "Καλαμάκι χοιρινό (4 τμχ)", en: "Skewered pork (4 pcs)", desc_el: "ντομάτα, κρεμμύδι, τζατζίκι, πατάτες, 2 πίτες", desc_en: "tomato, onion, tzatziki, fries, 2 pita", price: "9,00€" },
+      { el: "Καλαμάκι κοτόπουλο μπούτι (4 τμχ)", en: "Skewered chicken thigh (4 pcs)", desc_el: "ντομάτα, μαρούλι, σως, πατάτες, 2 πίτες", desc_en: "tomato, lettuce, sauce, fries, 2 pita", price: "9,00€" },
+      { el: "Καλαμάκι κοτομπέικον (4 τμχ)", en: "Skewered chicken with bacon (4 pcs)", desc_el: "ντομάτα, μαρούλι, σως, πατάτες, 2 πίτες", desc_en: "tomato, lettuce, sauce, fries, 2 pita", price: "9,50€" },
+    ],
+  },
+  {
+    title_el: "Χάμπουργκερ",
+    title_en: "Hamburger",
+    photo: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=200&fit=crop&q=75",
+    items: [
+      { el: "Χάμπουργκερ", en: "Hamburger", desc_el: "με μπιφτέκι μοσχαρίσιο, τυρί cheddar, πράσινη σαλάτα, ντομάτα, κρεμμύδι", desc_en: "beef patty, cheddar cheese, lettuce, tomato, onion", price: "7,00€" },
+      { el: "+ Έξτρα μπέικον", en: "+ extra bacon", price: "+0,70€" },
+    ],
+  },
+  {
+    title_el: "Veggie Menu",
+    title_en: "Veggie Menu",
+    photo: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=200&fit=crop&q=75",
+    items: [
+      { el: "Μπιφτέκι λαχανικών τμχ", en: "Vegetable Stick pc", price: "2,00€" },
+      { el: "Τυλιχτό Μπιφτέκι Λαχανικών", en: "Wrapped Vegetable Burger", desc_el: "ντομάτα, μαρούλι, πατάτες", desc_en: "tomato, lettuce, fries", price: "3,50€" },
+      { el: "Τυλιχτό Ρεβυθοκεφτές", en: "Wrapped Chickpea Fritter", desc_el: "ντομάτα, μαρούλι, πατάτες", desc_en: "tomato, lettuce, fries", price: "3,50€" },
+      { el: "Τυλιχτό Οικολογικό", en: "Wrapped pita without meat", desc_el: "ντομάτα, κρεμμύδι, μαρούλι, πατάτες", desc_en: "tomato, onion, lettuce, fries", price: "2,50€" },
+      { el: "Τυλιχτό Ντοματοκεφτές", en: "Wrapped Tomato Fritter", desc_el: "ντομάτα, μαρούλι, πατάτες", desc_en: "tomato, lettuce, fries", price: "MP" },
+      { el: "Λουκάνικο σουπιάς τμχ", en: "Sepia Sausage pc", price: "2,50€" },
+      { el: "Τυλιχτό Λουκάνικο σουπιάς", en: "Wrapped Sepia Sausage", desc_el: "ντομάτα, μαρούλι, πατάτες", desc_en: "tomato, lettuce, fries", price: "3,50€" },
+      { el: "Veggie Burger", en: "Veggie Burger", desc_el: "με τυρί, κέτσαπ, μουστάρδα, πατάτες", desc_en: "with cheese, ketchup, mustard, fries", price: "7,00€" },
+    ],
+  },
+];
 ---
 
 <section id="menu-book" class="bg-[#050505] py-16 px-4 border-t border-white/5">
@@ -37,128 +133,38 @@ const isEl = lang === "el";
               />
               <div class="cover-logo-fallback" style="display:none">Κ.Τ.</div>
             </div>
-            <h3 class="cover-title">Το Καλαμάκι<br/>Της Τρούμπας</h3>
-            <p class="cover-sub">Μπουμπουλίνας 8 & Νοταρά — Πειραιάς</p>
+            <h3 class="cover-title">{isEl ? "Το Καλαμάκι" : "To Kalamaki"}<br/>{isEl ? "Της Τρούμπας" : "Tis Troumpas"}</h3>
+            <p class="cover-sub">{isEl ? "Μπουμπουλίνας 8 & Νοταρά — Πειραιάς" : "Bouboulinas 8 & Notara — Piraeus"}</p>
             <div class="cover-dots">◆ · · · ◆</div>
             <p class="cover-swipe">{isEl ? "← Σφηνώστε για να ανοίξετε" : "← Swipe to browse"}</p>
           </div>
         </div>
 
-        <!-- PAGE 1 — Ορεκτικά / Appetizers p1 -->
-        <div class="book-page" data-page="1">
-          <div class="page-inner">
-            <h3 class="page-title">Ορεκτικά <span class="page-title-en">/ Appetizers</span></h3>
-            <div class="page-divider"></div>
-            <img src="https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=600&h=200&fit=crop&q=75" alt="" class="page-photo" loading="lazy" />
-            <ul class="menu-list">
-              <li class="menu-item"><span class="item-name">Ντοματοκεφτέδες τμχ / μερίδα 5 τμχ<em>Tomato Fritter pc / portion 5 pcs</em></span><span class="item-price">MP</span></li>
-              <li class="menu-item"><span class="item-name">Κολοκυθοκεφτέδες τμχ<em>Zucchini Fritter pc</em></span><span class="item-price">1,20€</span></li>
-              <li class="menu-item"><span class="item-name">Κολοκυθοκεφτέδες μερίδα 5 τμχ<em>Zucchini Fritters 5 pcs</em></span><span class="item-price">6,00€</span></li>
-              <li class="menu-item"><span class="item-name">Ρεβυθοκεφτέδες τμχ<em>Chickpea Fritter pc</em></span><span class="item-price">1,20€</span></li>
-              <li class="menu-item"><span class="item-name">Ρεβυθοκεφτέδες μερίδα 5 τμχ<em>Chickpea Fritters 5 pcs</em></span><span class="item-price">6,00€</span></li>
-              <li class="menu-item"><span class="item-name">Πιτάκι (σταρένιο / καλαμποκιού / ολικής)<em>Mini pita bread (wheat / corn / whole grain)</em></span><span class="item-price">MP</span></li>
-              <li class="menu-item"><span class="item-name">Πίτα στα κάρβουνα<em>Grilled pita bread</em></span><span class="item-price">0,60€</span></li>
-            </ul>
+        {pages.map((p, idx) => (
+          <div class="book-page" data-page={idx + 1}>
+            <div class="page-inner">
+              <h3 class="page-title">{isEl ? p.title_el : p.title_en}</h3>
+              <div class="page-divider"></div>
+              <img src={p.photo} alt="" class="page-photo" loading="lazy" />
+              {(isEl ? p.note_el : p.note_en) && (
+                <p class="page-note">{isEl ? p.note_el : p.note_en}</p>
+              )}
+              <ul class="menu-list">
+                {p.items.map((item) => (
+                  <li class={item.price.startsWith("+") ? "menu-item menu-item--extra" : "menu-item"}>
+                    <span class="item-name">
+                      {isEl ? item.el : item.en}
+                      {(isEl ? item.desc_el : item.desc_en) && (
+                        <em>{isEl ? item.desc_el : item.desc_en}</em>
+                      )}
+                    </span>
+                    <span class="item-price">{item.price}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-        </div>
-
-        <!-- PAGE 2 — Ορεκτικά p2 / Fries & Dips -->
-        <div class="book-page" data-page="2">
-          <div class="page-inner">
-            <h3 class="page-title">Ορεκτικά <span class="page-title-en">/ Appetizers</span></h3>
-            <div class="page-divider"></div>
-            <img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&h=200&fit=crop&q=75" alt="" class="page-photo" loading="lazy" />
-            <ul class="menu-list">
-              <li class="menu-item"><span class="item-name">Φρέσκιες Πατάτες<em>Fresh Fried Potatoes</em></span><span class="item-price">3,50€</span></li>
-              <li class="menu-item"><span class="item-name">Φρέσκιες Πατάτες με τυρί<em>with cheese</em></span><span class="item-price">4,00€</span></li>
-              <li class="menu-item"><span class="item-name">Φρέσκιες Πατάτες με τσένταρ & μπέικον<em>with cheddar cheese & bacon</em></span><span class="item-price">4,50€</span></li>
-              <li class="menu-item"><span class="item-name">Φέτα<em>Feta cheese</em></span><span class="item-price">3,50€</span></li>
-              <li class="menu-item"><span class="item-name">Φέτα ψητή με ντομάτα & πιπεριά<em>Roasted Feta with tomato & peppers</em></span><span class="item-price">4,50€</span></li>
-              <li class="menu-item"><span class="item-name">Τζατζίκι σπιτικό<em>Tzatziki (homemade)</em></span><span class="item-price">3,50€</span></li>
-              <li class="menu-item"><span class="item-name">Τυροκαυτερή<em>Hot Pepper Cheese</em></span><span class="item-price">3,50€</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- PAGE 3 — Σαλάτες -->
-        <div class="book-page" data-page="3">
-          <div class="page-inner">
-            <h3 class="page-title">Σαλάτες <span class="page-title-en">/ Salads</span></h3>
-            <div class="page-divider"></div>
-            <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=200&fit=crop&q=75" alt="" class="page-photo" loading="lazy" />
-            <ul class="menu-list">
-              <li class="menu-item"><span class="item-name">Χωριάτικη<em>Greek Salad (tomato, cucumber, onion, peppers, olives, feta)</em></span><span class="item-price">MP</span></li>
-              <li class="menu-item"><span class="item-name">Λάχανο-Καρότο<em>Cabbage-Carrot Salad</em></span><span class="item-price">4,50€</span></li>
-              <li class="menu-item"><span class="item-name">Μαρούλι<em>Lettuce Salad (lettuce, fresh onion, dill)</em></span><span class="item-price">4,50€</span></li>
-              <li class="menu-item"><span class="item-name">Ντομάτα Τριαντάφυλλο<em>Rose-Tomato (tomato, cucumber, grated feta, capers)</em></span><span class="item-price">MP</span></li>
-              <li class="menu-item"><span class="item-name">Ντάκος<em>Dakos (crete rusk, tomato, feta, olives, capers)</em></span><span class="item-price">6,50€</span></li>
-              <li class="menu-item"><span class="item-name">Η σαλάτα της Τρούμπας<em>Trouba's salad — full mixed with mustard sauce</em></span><span class="item-price">7,50€</span></li>
-              <li class="menu-item"><span class="item-name">Fit Salad<em>Green salad, rocket, cucumber, cherry tomato, parmigiana, yoghurt sauce</em></span><span class="item-price">MP</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- PAGE 4 — Πίτες τυλιχτές -->
-        <div class="book-page" data-page="4">
-          <div class="page-inner">
-            <h3 class="page-title">Πίτες τυλιχτές <span class="page-title-en">/ Wrapped Pita</span></h3>
-            <div class="page-divider"></div>
-            <img src="https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=600&h=200&fit=crop&q=75" alt="" class="page-photo" loading="lazy" />
-            <ul class="menu-list">
-              <li class="menu-item"><span class="item-name">Καλαμάκι χοιρινό<em>Skewered pork (tomato, onion, tzatziki, fries)</em></span><span class="item-price">3,50€</span></li>
-              <li class="menu-item"><span class="item-name">Καλαμάκι κοτόπουλο μπούτι<em>Skewered chicken thigh (tomato, lettuce, sauce, fries)</em></span><span class="item-price">3,50€</span></li>
-              <li class="menu-item"><span class="item-name">Καλαμάκι κοτομπέικον<em>Skewered chicken with bacon (tomato, lettuce, sauce, fries)</em></span><span class="item-price">3,80€</span></li>
-              <li class="menu-item"><span class="item-name">Μπιφτέκι μοσχαρίσιο<em>Beef Burger pc (tomato, onion, tzatziki, fries)</em></span><span class="item-price">3,50€</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- PAGE 5 — Μερίδες -->
-        <div class="book-page" data-page="5">
-          <div class="page-inner">
-            <h3 class="page-title">Μερίδες <span class="page-title-en">/ Portions</span></h3>
-            <div class="page-divider"></div>
-            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&h=200&fit=crop&q=75" alt="" class="page-photo" loading="lazy" />
-            <p class="page-note">{isEl ? "Συνοδεύεται με πατάτες, πίτα, ντομάτα, κρεμμύδι" : "Served with fries, pita bread, tomato, onion"}</p>
-            <ul class="menu-list">
-              <li class="menu-item"><span class="item-name">Καλαμάκι χοιρινό (4 τμχ)<em>Skewered pork (4 pcs) — tomato, onion, tzatziki, fries, 2 pita</em></span><span class="item-price">9,00€</span></li>
-              <li class="menu-item"><span class="item-name">Καλαμάκι κοτόπουλο μπούτι (4 τμχ)<em>Skewered chicken thigh (4 pcs) — tomato, lettuce, sauce, fries, 2 pita</em></span><span class="item-price">9,00€</span></li>
-              <li class="menu-item"><span class="item-name">Καλαμάκι κοτομπέικον (4 τμχ)<em>Skewered chicken with bacon (4 pcs) — tomato, lettuce, sauce, fries, 2 pita</em></span><span class="item-price">9,50€</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- PAGE 6 — Χάμπουργκερ -->
-        <div class="book-page" data-page="6">
-          <div class="page-inner">
-            <h3 class="page-title">Χάμπουργκερ <span class="page-title-en">/ Hamburger</span></h3>
-            <div class="page-divider"></div>
-            <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=200&fit=crop&q=75" alt="" class="page-photo" loading="lazy" />
-            <ul class="menu-list">
-              <li class="menu-item"><span class="item-name">Χάμπουργκερ<em>Beef burger — beef patty, cheddar cheese, lettuce, tomato, onion</em></span><span class="item-price">7,00€</span></li>
-              <li class="menu-item menu-item--extra"><span class="item-name">+ Έξτρα μπέικον<em>extra bacon</em></span><span class="item-price">+0,70€</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- PAGE 7 — Veggie Menu -->
-        <div class="book-page" data-page="7">
-          <div class="page-inner">
-            <h3 class="page-title">Veggie Menu</h3>
-            <div class="page-divider"></div>
-            <img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=200&fit=crop&q=75" alt="" class="page-photo" loading="lazy" />
-            <ul class="menu-list">
-              <li class="menu-item"><span class="item-name">Μπιφτέκι λαχανικών τμχ<em>Vegetable Stick pc</em></span><span class="item-price">2,00€</span></li>
-              <li class="menu-item"><span class="item-name">Τυλιχτό Μπιφτέκι Λαχανικών<em>Wrapped Vegetable Burger (tomato, lettuce, fries)</em></span><span class="item-price">3,50€</span></li>
-              <li class="menu-item"><span class="item-name">Τυλιχτό Ρεβυθοκεφτές<em>Wrapped Chickpea Fritter (tomato, lettuce, fries)</em></span><span class="item-price">3,50€</span></li>
-              <li class="menu-item"><span class="item-name">Τυλιχτό Οικολογικό<em>Wrapped pita without meat (tomato, onion, lettuce, fries)</em></span><span class="item-price">2,50€</span></li>
-              <li class="menu-item"><span class="item-name">Τυλιχτό Ντοματοκεφτές<em>Wrapped Tomato Fritter (tomato, lettuce, fries)</em></span><span class="item-price">MP</span></li>
-              <li class="menu-item"><span class="item-name">Λουκάνικο σουπιάς τμχ<em>Sepia Sausage pc</em></span><span class="item-price">2,50€</span></li>
-              <li class="menu-item"><span class="item-name">Τυλιχτό Λουκάνικο σουπιάς<em>Wrapped Sepia Sausage (tomato, lettuce, fries)</em></span><span class="item-price">3,50€</span></li>
-              <li class="menu-item"><span class="item-name">Veggie Burger<em>with cheese, ketchup, mustard, fries</em></span><span class="item-price">7,00€</span></li>
-            </ul>
-          </div>
-        </div>
+        ))}
 
       </div><!-- /book-pages -->
 
@@ -175,30 +181,14 @@ const isEl = lang === "el";
 </section>
 
 <style>
-  /* ── Container ── */
-  .book-container {
-    position: relative;
-    max-width: 780px;
-    margin: 0 auto;
-  }
-
-  /* ── Pages ── */
-  .book-pages {
-    position: relative;
-    min-height: 420px;
-  }
-  .book-page {
-    display: none;
-    animation: page-in 0.35s ease;
-  }
+  .book-container { position: relative; max-width: 780px; margin: 0 auto; }
+  .book-pages { position: relative; min-height: 420px; }
+  .book-page { display: none; animation: page-in 0.35s ease; }
   .book-page.active { display: block; }
-
   @keyframes page-in {
     from { opacity: 0; transform: translateX(18px); }
     to   { opacity: 1; transform: translateX(0); }
   }
-
-  /* ── Page Inner ── */
   .page-inner {
     background: #0f0f0f;
     border: 1px solid rgba(229,179,42,0.18);
@@ -214,13 +204,8 @@ const isEl = lang === "el";
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(229,179,42,0.4), transparent);
   }
-
-  /* ── Cover ── */
   .page-cover {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center;
     background: linear-gradient(160deg, #1a1200 0%, #0a0a0a 60%, #0d1500 100%);
     border-color: rgba(229,179,42,0.35);
@@ -228,8 +213,7 @@ const isEl = lang === "el";
   }
   .cover-logo { margin-bottom: 1.25rem; }
   .cover-logo-img, .cover-logo-fallback {
-    width: 72px; height: 72px;
-    border-radius: 50%;
+    width: 72px; height: 72px; border-radius: 50%;
     border: 2px solid rgba(229,179,42,0.5);
     object-fit: cover;
     display: flex; align-items: center; justify-content: center;
@@ -237,100 +221,59 @@ const isEl = lang === "el";
   }
   .cover-title {
     font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 2rem;
-    color: #fff;
-    line-height: 1.25;
-    margin-bottom: 0.75rem;
+    font-style: italic; font-size: 2rem; color: #fff;
+    line-height: 1.25; margin-bottom: 0.75rem;
   }
   .cover-sub { font-size: 0.75rem; color: rgba(255,255,255,0.45); letter-spacing: 0.06em; margin-bottom: 1.5rem; }
   .cover-dots { color: rgba(229,179,42,0.5); font-size: 0.9rem; letter-spacing: 0.3em; margin-bottom: 1.5rem; }
   .cover-swipe { font-size: 0.7rem; color: rgba(255,255,255,0.25); letter-spacing: 0.1em; text-transform: uppercase; }
-
-  /* ── Page content ── */
   .page-title {
     font-family: 'Playfair Display', serif;
-    font-style: italic;
-    font-size: 1.45rem;
-    color: #E5B32A;
-    margin-bottom: 0.5rem;
-    line-height: 1.2;
+    font-style: italic; font-size: 1.6rem; color: #E5B32A;
+    margin-bottom: 0.5rem; line-height: 1.2;
   }
-  .page-title-en { font-size: 1rem; color: rgba(229,179,42,0.55); }
   .page-divider {
-    width: 100%;
-    height: 1px;
+    width: 100%; height: 1px;
     background: linear-gradient(90deg, transparent, rgba(229,179,42,0.3), transparent);
     margin: 0.75rem 0 1rem;
   }
   .page-photo {
-    width: 100%;
-    height: 130px;
-    object-fit: cover;
-    border-radius: 0.75rem;
-    margin-bottom: 1rem;
+    width: 100%; height: 130px; object-fit: cover;
+    border-radius: 0.75rem; margin-bottom: 1rem;
     border: 1px solid rgba(229,179,42,0.15);
     filter: brightness(0.85) contrast(1.05);
   }
   .page-note {
-    font-size: 0.72rem;
-    color: rgba(255,255,255,0.35);
-    font-style: italic;
-    margin-bottom: 0.75rem;
-    letter-spacing: 0.02em;
+    font-size: 0.72rem; color: rgba(255,255,255,0.35);
+    font-style: italic; margin-bottom: 0.75rem; letter-spacing: 0.02em;
   }
-
-  /* ── Menu items ── */
   .menu-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.7rem; }
   .menu-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    padding-bottom: 0.6rem;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;
+    padding-bottom: 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.05);
   }
   .menu-item:last-child { border-bottom: none; padding-bottom: 0; }
   .menu-item--extra { opacity: 0.7; }
   .item-name {
-    font-size: 0.875rem;
-    color: #fff;
-    font-weight: 600;
-    line-height: 1.4;
-    display: flex;
-    flex-direction: column;
+    font-size: 0.875rem; color: #fff; font-weight: 600; line-height: 1.4;
+    display: flex; flex-direction: column;
   }
   .item-name em {
-    font-style: normal;
-    font-size: 0.72rem;
-    color: rgba(255,255,255,0.38);
-    font-weight: 400;
-    margin-top: 0.15rem;
+    font-style: normal; font-size: 0.72rem; color: rgba(255,255,255,0.4);
+    font-weight: 400; margin-top: 0.15rem;
   }
   .item-price {
     font-family: 'Playfair Display', serif;
-    font-size: 0.95rem;
-    color: #E5B32A;
-    white-space: nowrap;
-    font-weight: 700;
-    flex-shrink: 0;
-    margin-top: 0.1rem;
+    font-size: 0.95rem; color: #E5B32A;
+    white-space: nowrap; font-weight: 700; flex-shrink: 0; margin-top: 0.1rem;
   }
-
-  /* ── Arrows ── */
   .book-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: rgba(20,20,20,0.9);
-    border: 1px solid rgba(229,179,42,0.25);
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(20,20,20,0.9); border: 1px solid rgba(229,179,42,0.25);
     color: rgba(229,179,42,0.8);
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    z-index: 10;
+    cursor: pointer; transition: all 0.2s; z-index: 10;
   }
   .book-arrow:hover { background: rgba(229,179,42,0.15); border-color: rgba(229,179,42,0.6); color: #E5B32A; }
   .book-arrow:disabled { opacity: 0.2; pointer-events: none; }
@@ -345,28 +288,19 @@ const isEl = lang === "el";
     .book-arrow--prev { left: 4px; }
     .book-arrow--next { right: 4px; }
     .page-inner { padding: 1.5rem 1.25rem 2rem; }
-    .page-title { font-size: 1.2rem; }
+    .page-title { font-size: 1.3rem; }
   }
-
-  /* ── Dots ── */
   .book-dots {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 1.25rem;
+    display: flex; justify-content: center; gap: 8px; margin-bottom: 1.25rem;
+    flex-wrap: wrap;
   }
   .book-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: rgba(229,179,42,0.2);
-    border: 1px solid rgba(229,179,42,0.3);
-    cursor: pointer;
-    transition: all 0.2s;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: rgba(229,179,42,0.2); border: 1px solid rgba(229,179,42,0.3);
+    cursor: pointer; transition: all 0.2s;
   }
   .book-dot.active {
-    background: #E5B32A;
-    border-color: #E5B32A;
-    transform: scale(1.2);
+    background: #E5B32A; border-color: #E5B32A; transform: scale(1.2);
   }
 </style>
 
@@ -379,7 +313,6 @@ const isEl = lang === "el";
   let current = 0;
   const total = pages.length;
 
-  // Crée les dots
   pages.forEach(function(_, i) {
     var d = document.createElement('button');
     d.className = 'book-dot' + (i === 0 ? ' active' : '');
@@ -401,7 +334,6 @@ const isEl = lang === "el";
   prevBtn.addEventListener('click', function() { goTo(current - 1); });
   nextBtn.addEventListener('click', function() { goTo(current + 1); });
 
-  // Swipe
   var sx = 0;
   var bookEl = document.getElementById('menu-book-container');
   bookEl.addEventListener('touchstart', function(e) { sx = e.changedTouches[0].screenX; }, { passive: true });

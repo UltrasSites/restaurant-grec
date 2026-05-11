@@ -297,7 +297,7 @@ const baseUrl = `/${currentLang}`;
             : 'Scan the QR or download the PDF — full menu, anywhere, no internet needed.'}
         </p>
         <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
-          <a href="/menu.pdf" download="menu-kalamaki-troumpas.pdf" class="inline-flex items-center gap-2 px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
+          <a href={currentLang === 'el' ? '/menu-el.pdf' : '/menu-en.pdf'} download={`menu-kalamaki-troumpas-${currentLang}.pdf`} class="inline-flex items-center gap-2 px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
             {currentLang === 'el' ? 'Κατέβασμα PDF' : 'Download PDF'}
           </a>
