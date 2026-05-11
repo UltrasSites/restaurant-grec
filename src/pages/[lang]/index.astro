@@ -21,63 +21,60 @@ const baseUrl = `/${currentLang}`;
 
 <style>
   @media (max-width: 767px) {
-    /* Viewport centré */
+    /* Viewport mobile : juste un wrapper centre */
     .hero-card-viewport {
-      padding: 1rem;
-      margin-top: 1rem;
+      padding: 0.5rem;
       width: 100%;
-      display: flex;
-      justify-content: center;
     }
-    /* Carte flottante centrée — pas de rotateY pour eviter le decalage visuel */
+    /* Le grid container : transparent + centre, pas de carte visible ici */
     .hero-card-3d {
-      background: linear-gradient(180deg, rgba(229, 179, 42, 0.15) 0%, rgba(10, 10, 10, 0.92) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(229, 179, 42, 0.30);
-      border-radius: 1.75rem;
-      padding: 1.5rem 1.25rem;
-      width: 100%;
-      max-width: 24rem;
-      margin: 0 auto;
-      box-shadow: 0 20px 45px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(229, 179, 42, 0.06);
-      animation: hero-card-float 6s ease-in-out infinite;
-      position: relative;
-      /* Override Tailwind text-left du parent grid */
-      text-align: center !important;
-    }
-    /* Tous les enfants directs : centrés */
-    .hero-card-3d > * { width: 100% !important; max-width: 100% !important; }
-    /* Les flex containers internes : items centrés */
-    .hero-card-3d .flex.flex-col { align-items: center !important; }
-    .hero-card-3d .flex.flex-col > * { text-align: center; }
-    /* Masquer les infos adresse/phone/hours sur mobile */
-    .mobile-hide-details { display: none !important; }
-    /* Aside resa : transparent, centré */
-    .resa-card-inner-mobile {
       background: transparent !important;
-      border: none !important;
       backdrop-filter: none !important;
-      box-shadow: none !important;
+      -webkit-backdrop-filter: none !important;
+      border: none !important;
+      border-radius: 0 !important;
       padding: 0 !important;
-      margin: 0 auto !important;
       max-width: 100% !important;
       text-align: center !important;
+      transform: none !important;
+      animation: none !important;
+      box-shadow: none !important;
     }
-    .resa-card-inner-mobile .flex.flex-col.gap-3 {
+    /* Premiere colonne (badge + strip) : centree */
+    .hero-card-3d > div:first-child {
+      align-items: center !important;
+      max-width: 100% !important;
+      width: 100% !important;
+      margin: 0 auto !important;
+    }
+    /* Aside : centre, max width raisonnable, override ml-auto */
+    .hero-card-3d > aside {
+      width: 100% !important;
+      margin: 0.5rem auto 0 !important;
+      max-width: 22rem !important;
+    }
+    /* Aside inner : on GARDE le gradient/border (sinon CTAs invisibles sur image) */
+    .resa-card-inner-mobile {
+      margin-left: auto !important;
+      margin-right: auto !important;
+      max-width: 22rem !important;
+      padding: 1.5rem 1.25rem !important;
+      text-align: center !important;
+    }
+    /* Masquer adresse/phone/hours sur mobile (visibles dans #contact) */
+    .mobile-hide-details { display: none !important; }
+    /* Le H2 subtitle masque sur mobile aussi */
+    /* CTAs : full width container + bouton full width */
+    .resa-card-inner-mobile > .flex.flex-col.gap-3 {
+      width: 100%;
       gap: 0.55rem;
-      width: 100%;
     }
-    .resa-card-inner-mobile a {
-      padding-top: 0.75rem !important;
-      padding-bottom: 0.75rem !important;
+    .resa-card-inner-mobile > .flex.flex-col.gap-3 > a {
       width: 100%;
-      display: block;
-    }
-    /* Float animation — opacity + Y only, no X tilt */
-    @keyframes hero-card-float {
-      0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-8px); }
+      padding-top: 0.8rem !important;
+      padding-bottom: 0.8rem !important;
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
     }
   }
 
