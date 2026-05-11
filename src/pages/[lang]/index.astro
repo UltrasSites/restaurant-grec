@@ -20,61 +20,47 @@ const baseUrl = `/${currentLang}`;
 ---
 
 <style>
+  /* === MOBILE HERO — Exact restaurant-bar pattern + carrousel === */
   @media (max-width: 767px) {
-    /* Viewport mobile : juste un wrapper centre */
     .hero-card-viewport {
-      padding: 0.5rem;
+      perspective: 2000px;
+      padding: 1rem;
+      margin-top: 1rem;
       width: 100%;
     }
-    /* Le grid container : transparent + centre, pas de carte visible ici */
     .hero-card-3d {
-      background: transparent !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      border: none !important;
-      border-radius: 0 !important;
-      padding: 0 !important;
-      max-width: 100% !important;
-      text-align: center !important;
-      transform: none !important;
-      animation: none !important;
-      box-shadow: none !important;
+      background: linear-gradient(135deg, rgba(229, 179, 42, 0.2) 0%, rgba(10, 10, 10, 0.95) 100%);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(229, 179, 42, 0.4);
+      border-radius: 2.5rem;
+      padding: 2rem 1.25rem;
+      width: 100%;
+      transform: rotateX(8deg) rotateY(-4deg);
+      box-shadow:
+        0 30px 60px -12px rgba(0, 0, 0, 0.8),
+        0 18px 36px -18px rgba(0, 0, 0, 0.9),
+        0 0 40px rgba(229, 179, 42, 0.1);
+      animation: hero-card-float 8s ease-in-out infinite;
+      position: relative;
     }
-    /* Premiere colonne (badge + strip) : centree */
-    .hero-card-3d > div:first-child {
-      align-items: center !important;
-      max-width: 100% !important;
-      width: 100% !important;
-      margin: 0 auto !important;
-    }
-    /* Aside : centre, max width raisonnable, override ml-auto */
-    .hero-card-3d > aside {
-      width: 100% !important;
-      margin: 0.5rem auto 0 !important;
-      max-width: 22rem !important;
-    }
-    /* Aside inner : on GARDE le gradient/border (sinon CTAs invisibles sur image) */
+    /* Aside inner : transparent comme le modele restaurant-bar */
     .resa-card-inner-mobile {
+      background: transparent !important;
+      border: none !important;
+      backdrop-filter: none !important;
+      box-shadow: none !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      padding-top: 0.5rem !important;
       margin-left: auto !important;
       margin-right: auto !important;
-      max-width: 22rem !important;
-      padding: 1.5rem 1.25rem !important;
-      text-align: center !important;
     }
-    /* Masquer adresse/phone/hours sur mobile (visibles dans #contact) */
+    /* Masquer adresse/phone/hours sur mobile */
     .mobile-hide-details { display: none !important; }
-    /* Le H2 subtitle masque sur mobile aussi */
-    /* CTAs : full width container + bouton full width */
-    .resa-card-inner-mobile > .flex.flex-col.gap-3 {
-      width: 100%;
-      gap: 0.55rem;
-    }
-    .resa-card-inner-mobile > .flex.flex-col.gap-3 > a {
-      width: 100%;
-      padding-top: 0.8rem !important;
-      padding-bottom: 0.8rem !important;
-      padding-left: 1rem !important;
-      padding-right: 1rem !important;
+    @keyframes hero-card-float {
+      0%, 100% { transform: rotateX(8deg) rotateY(-4deg) translateY(0); }
+      50%      { transform: rotateX(6deg) rotateY(-2deg) translateY(-15px); }
     }
   }
 
