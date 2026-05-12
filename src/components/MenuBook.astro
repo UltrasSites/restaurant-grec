@@ -159,6 +159,13 @@ const pages: Page[] = [
     ],
   },
 ];
+
+// Titres pour l'indicateur de section
+const sectionTitles = [
+  { el: "Εξώφυλλο", en: "Cover" },
+  ...pages.map(p => ({ el: p.title_el, en: p.title_en }))
+];
+const totalPages = pages.length + 1;
 ---
 
 <section id="menu-book" class="bg-[#050505] py-16 px-4 border-t border-white/5">
@@ -177,14 +184,24 @@ const pages: Page[] = [
     <!-- Livre -->
     <div class="book-container" id="menu-book-container">
 
-      <!-- Nav dots -->
-      <div class="book-dots" id="book-dots" aria-label="Pages"></div>
+      <!-- Tutorial hint (premiere visite) -->
+      <div class="book-tutorial" id="book-tutorial" aria-hidden="true">
+        <div class="tutorial-hand">👉</div>
+        <div class="tutorial-text">
+          {isEl ? "Γύρισε τις σελίδες" : "Tourne les pages"}
+        </div>
+      </div>
+
+      <!-- Spine + tranche de pages (decoratif) -->
+      <div class="book-spine" aria-hidden="true"></div>
+      <div class="book-edges book-edges--right" aria-hidden="true"></div>
+      <div class="book-edges book-edges--left" aria-hidden="true"></div>
 
       <!-- Pages wrapper -->
       <div class="book-pages" id="book-pages">
 
         <!-- PAGE 0 — COUVERTURE -->
-        <div class="book-page" data-page="0">
+        <div class="book-page active" data-page="0">
           <div class="page-inner page-cover">
             <div class="cover-logo-frame">
               <span class="cover-logo-text">Καλαμάκι</span>
@@ -192,7 +209,9 @@ const pages: Page[] = [
             <h3 class="cover-title">{isEl ? "Το Καλαμάκι" : "To Kalamaki"}<br/>{isEl ? "Της Τρούμπας" : "Tis Troumpas"}</h3>
             <p class="cover-sub">{isEl ? "Μπουμπουλίνας 8 & Νοταρά — Πειραιάς" : "Bouboulinas 8 & Notara — Piraeus"}</p>
             <div class="cover-dots">◆ · · · ◆</div>
-            <p class="cover-swipe">{isEl ? "← Σφηνώστε για να ανοίξετε" : "← Swipe to browse"}</p>
+            <p class="cover-swipe">{isEl ? "← Γύρισε για να ανοίξεις" : "← Swipe to browse"}</p>
+            <!-- Coin corne -->
+            <div class="page-corner" aria-hidden="true"></div>
           </div>
         </div>
 
@@ -218,6 +237,14 @@ const pages: Page[] = [
                   </li>
                 ))}
               </ul>
+              <!-- Numero de page -->
+              <div class="page-number">
+                <span class="page-number-current">{idx + 2}</span>
+                <span class="page-number-sep">/</span>
+                <span class="page-number-total">{totalPages}</span>
+              </div>
+              <!-- Coin corne -->
+              <div class="page-corner" aria-hidden="true"></div>
             </div>
           </div>
         ))}
@@ -225,33 +252,162 @@ const pages: Page[] = [
       </div><!-- /book-pages -->
 
       <!-- Arrows -->
-      <button class="book-arrow book-arrow--prev" id="book-prev" aria-label="Page précédente">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-      </button>
-      <button class="book-arrow book-arrow--next" id="book-next" aria-label="Page suivante">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-      </button>
+      <div class="book-arrow-wrap book-arrow-wrap--prev">
+        <button class="book-arrow book-arrow--prev" id="book-prev" aria-label={isEl ? "Προηγούμενη σελίδα" : "Page précédente"}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <span class="book-arrow-label">{isEl ? "Πίσω" : "Précédente"}</span>
+      </div>
+      <div class="book-arrow-wrap book-arrow-wrap--next">
+        <button class="book-arrow book-arrow--next" id="book-next" aria-label={isEl ? "Επόμενη σελίδα" : "Page suivante"}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <span class="book-arrow-label">{isEl ? "Επόμενη" : "Suivante"}</span>
+      </div>
 
     </div><!-- /book-container -->
+
+    <!-- Footer livre : dots + section actuelle -->
+    <div class="book-footer">
+      <div class="book-dots" id="book-dots" aria-label="Pages"></div>
+      <div class="book-pagination">
+        <span class="pagination-counter">
+          <span id="book-current-page">1</span>
+          <span class="pagination-sep">/</span>
+          <span>{totalPages}</span>
+        </span>
+        <span class="pagination-dot">·</span>
+        <span class="pagination-section" id="book-current-section">{isEl ? sectionTitles[0].el : sectionTitles[0].en}</span>
+      </div>
+      <p class="book-swipe-hint mobile-only">{isEl ? "← Γλίστρα →" : "← Glisse →"}</p>
+    </div>
+
+    <!-- Data sections pour le JS -->
+    <script type="application/json" id="book-sections-data" set:html={JSON.stringify(sectionTitles.map(s => isEl ? s.el : s.en))} />
   </div>
 </section>
 
 <style>
-  .book-container { position: relative; max-width: 780px; margin: 0 auto; }
-  .book-pages { position: relative; min-height: 420px; }
-  .book-page { display: none; animation: page-in 0.35s ease; }
-  .book-page.active { display: block; }
-  @keyframes page-in {
-    from { opacity: 0; transform: translateX(18px); }
-    to   { opacity: 1; transform: translateX(0); }
+  .book-container {
+    position: relative;
+    max-width: 780px;
+    margin: 0 auto;
+    perspective: 2000px;
   }
+
+  /* Spine (dos du livre) */
+  .book-spine {
+    position: absolute;
+    top: 8px; bottom: 8px;
+    left: 50%; transform: translateX(-50%);
+    width: 2px;
+    background: linear-gradient(180deg, transparent, rgba(229,179,42,0.18), rgba(229,179,42,0.28), rgba(229,179,42,0.18), transparent);
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.5;
+    display: none;
+  }
+
+  /* Tranche de pages empilees (droite et gauche) */
+  .book-edges {
+    position: absolute;
+    top: 14px; bottom: 14px;
+    width: 8px;
+    pointer-events: none;
+    z-index: 2;
+    border-radius: 2px;
+  }
+  .book-edges--right {
+    right: -6px;
+    background: repeating-linear-gradient(
+      180deg,
+      rgba(229,179,42,0.18) 0px,
+      rgba(229,179,42,0.18) 1px,
+      rgba(0,0,0,0.6) 1px,
+      rgba(0,0,0,0.6) 3px
+    );
+    box-shadow: 2px 0 6px rgba(0,0,0,0.5), inset -1px 0 0 rgba(229,179,42,0.15);
+  }
+  .book-edges--left {
+    left: -6px;
+    background: repeating-linear-gradient(
+      180deg,
+      rgba(229,179,42,0.12) 0px,
+      rgba(229,179,42,0.12) 1px,
+      rgba(0,0,0,0.6) 1px,
+      rgba(0,0,0,0.6) 3px
+    );
+    box-shadow: -2px 0 6px rgba(0,0,0,0.5), inset 1px 0 0 rgba(229,179,42,0.1);
+  }
+
+  .book-pages {
+    position: relative;
+    min-height: 420px;
+    transform-style: preserve-3d;
+  }
+
+  .book-page {
+    display: none;
+    position: relative;
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
+  .book-page.active { display: block; }
+
+  /* Animations 3D — pages tournent */
+  .book-page.flip-out-left {
+    display: block;
+    animation: flip-out-left 600ms cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+    transform-origin: left center;
+    z-index: 4;
+  }
+  .book-page.flip-in-left {
+    display: block;
+    animation: flip-in-left 600ms cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+    transform-origin: left center;
+    z-index: 3;
+  }
+  .book-page.flip-out-right {
+    display: block;
+    animation: flip-out-right 600ms cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+    transform-origin: right center;
+    z-index: 4;
+  }
+  .book-page.flip-in-right {
+    display: block;
+    animation: flip-in-right 600ms cubic-bezier(0.4, 0.0, 0.2, 1) forwards;
+    transform-origin: right center;
+    z-index: 3;
+  }
+
+  @keyframes flip-out-left {
+    0%   { transform: rotateY(0deg); opacity: 1; box-shadow: 0 0 0 rgba(0,0,0,0); }
+    50%  { transform: rotateY(-85deg); opacity: 0.85; box-shadow: -30px 0 40px rgba(0,0,0,0.6); }
+    100% { transform: rotateY(-180deg); opacity: 0; }
+  }
+  @keyframes flip-in-left {
+    0%   { transform: rotateY(15deg); opacity: 0; }
+    100% { transform: rotateY(0deg); opacity: 1; }
+  }
+  @keyframes flip-out-right {
+    0%   { transform: rotateY(0deg); opacity: 1; }
+    50%  { transform: rotateY(85deg); opacity: 0.85; box-shadow: 30px 0 40px rgba(0,0,0,0.6); }
+    100% { transform: rotateY(180deg); opacity: 0; }
+  }
+  @keyframes flip-in-right {
+    0%   { transform: rotateY(-15deg); opacity: 0; }
+    100% { transform: rotateY(0deg); opacity: 1; }
+  }
+
   .page-inner {
-    background: #0f0f0f;
-    border: 1px solid rgba(229,179,42,0.18);
+    background: linear-gradient(135deg, #111 0%, #0a0a0a 100%);
+    border: 1px solid rgba(229,179,42,0.2);
     border-radius: 1.5rem;
-    padding: 2rem 2rem 2.5rem;
+    padding: 2rem 2rem 3rem;
     min-height: 380px;
     position: relative;
+    box-shadow: 0 20px 50px -20px rgba(0,0,0,0.7), inset 0 0 30px rgba(229,179,42,0.03);
+    overflow: hidden;
   }
   .page-inner::before {
     content: '';
@@ -260,11 +416,55 @@ const pages: Page[] = [
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(229,179,42,0.4), transparent);
   }
+  /* Coin corne en haut a droite */
+  .page-corner {
+    position: absolute;
+    top: 0; right: 0;
+    width: 36px; height: 36px;
+    background: linear-gradient(225deg, rgba(229,179,42,0.18) 0%, rgba(229,179,42,0.08) 45%, transparent 50%);
+    border-bottom-left-radius: 8px;
+    pointer-events: none;
+    transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 6;
+  }
+  .page-corner::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 0 14px 14px 0;
+    border-color: transparent rgba(229,179,42,0.35) transparent transparent;
+    transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+  .page-inner:hover .page-corner {
+    width: 56px; height: 56px;
+    background: linear-gradient(225deg, rgba(229,179,42,0.32) 0%, rgba(229,179,42,0.15) 45%, transparent 50%);
+  }
+  .page-inner:hover .page-corner::after {
+    border-width: 0 22px 22px 0;
+    border-color: transparent rgba(229,179,42,0.6) transparent transparent;
+  }
+
+  /* Numero de page en bas */
+  .page-number {
+    position: absolute;
+    bottom: 0.9rem; right: 1.3rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.7rem;
+    color: rgba(229,179,42,0.5);
+    letter-spacing: 0.15em;
+    display: flex; gap: 0.3rem;
+    pointer-events: none;
+  }
+  .page-number-current { color: rgba(229,179,42,0.85); font-weight: 700; }
+  .page-number-sep { opacity: 0.5; }
+
   .page-cover {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     text-align: center;
     background: linear-gradient(160deg, #1a1200 0%, #0a0a0a 60%, #0d1500 100%);
-    border-color: rgba(229,179,42,0.35);
+    border-color: rgba(229,179,42,0.4);
     padding: 3rem 2rem;
   }
   .cover-logo-frame {
@@ -285,7 +485,7 @@ const pages: Page[] = [
   }
   .cover-sub { font-size: 0.75rem; color: rgba(255,255,255,0.45); letter-spacing: 0.06em; margin-bottom: 1.5rem; }
   .cover-dots { color: rgba(229,179,42,0.5); font-size: 0.9rem; letter-spacing: 0.3em; margin-bottom: 1.5rem; }
-  .cover-swipe { font-size: 0.7rem; color: rgba(255,255,255,0.25); letter-spacing: 0.1em; text-transform: uppercase; }
+  .cover-swipe { font-size: 0.7rem; color: rgba(255,255,255,0.4); letter-spacing: 0.1em; text-transform: uppercase; }
   .page-title {
     font-family: 'Playfair Display', serif;
     font-style: italic; font-size: 1.6rem; color: #E5B32A;
@@ -316,6 +516,7 @@ const pages: Page[] = [
   .item-name {
     font-size: 0.875rem; color: #fff; font-weight: 600; line-height: 1.4;
     display: flex; flex-direction: column;
+    font-family: 'Inter', sans-serif;
   }
   .item-name em {
     font-style: normal; font-size: 0.72rem; color: rgba(255,255,255,0.4);
@@ -326,40 +527,199 @@ const pages: Page[] = [
     font-size: 0.95rem; color: #E5B32A;
     white-space: nowrap; font-weight: 700; flex-shrink: 0; margin-top: 0.1rem;
   }
+
+  /* ============== FLECHES ============== */
+  .book-arrow-wrap {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0.5rem;
+    z-index: 12;
+  }
+  .book-arrow-wrap--prev { left: -82px; }
+  .book-arrow-wrap--next { right: -82px; }
+
   .book-arrow {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    width: 40px; height: 40px; border-radius: 50%;
-    background: rgba(20,20,20,0.9); border: 1px solid rgba(229,179,42,0.25);
-    color: rgba(229,179,42,0.8);
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(229,179,42,0.18) 0%, rgba(20,20,20,0.95) 100%);
+    border: 2px solid rgba(229,179,42,0.5);
+    color: #E5B32A;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: all 0.2s; z-index: 10;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0.0, 0.2, 1);
+    position: relative;
+    animation: arrow-pulse 2.2s ease-in-out infinite;
+    box-shadow: 0 0 18px rgba(229,179,42,0.18), 0 4px 12px rgba(0,0,0,0.5);
   }
-  .book-arrow:hover { background: rgba(229,179,42,0.15); border-color: rgba(229,179,42,0.6); color: #E5B32A; }
-  .book-arrow:disabled { opacity: 0.2; pointer-events: none; }
-  .book-arrow svg { width: 18px; height: 18px; }
-  .book-arrow--prev { left: -52px; }
-  .book-arrow--next { right: -52px; }
-  @media (max-width: 900px) {
-    .book-arrow--prev { left: -8px; }
-    .book-arrow--next { right: -8px; }
+  @keyframes arrow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 18px rgba(229,179,42,0.18), 0 4px 12px rgba(0,0,0,0.5);
+      border-color: rgba(229,179,42,0.5);
+    }
+    50% {
+      box-shadow: 0 0 32px rgba(229,179,42,0.45), 0 4px 16px rgba(0,0,0,0.5);
+      border-color: rgba(229,179,42,0.85);
+    }
   }
-  @media (max-width: 600px) {
-    .book-arrow--prev { left: 4px; }
-    .book-arrow--next { right: 4px; }
-    .page-inner { padding: 1.5rem 1.25rem 2rem; }
+  .book-arrow:hover {
+    transform: scale(1.12);
+    background: linear-gradient(135deg, rgba(229,179,42,0.4) 0%, rgba(40,30,5,0.95) 100%);
+    border-color: #E5B32A;
+    color: #fff;
+    box-shadow: 0 0 38px rgba(229,179,42,0.7), 0 4px 18px rgba(0,0,0,0.6);
+    animation-play-state: paused;
+  }
+  .book-arrow:active { transform: scale(0.96); }
+  .book-arrow:disabled {
+    opacity: 0.25; pointer-events: none;
+    animation: none;
+    border-color: rgba(229,179,42,0.2);
+    box-shadow: none;
+  }
+  .book-arrow svg { width: 26px; height: 26px; }
+
+  .book-arrow-label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: rgba(229,179,42,0.75);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+  }
+
+  /* Responsive arrows */
+  @media (max-width: 980px) {
+    .book-arrow-wrap--prev { left: -10px; }
+    .book-arrow-wrap--next { right: -10px; }
+    .book-arrow { width: 52px; height: 52px; background: linear-gradient(135deg, rgba(229,179,42,0.25) 0%, rgba(20,20,20,0.97) 100%); }
+    .book-arrow svg { width: 22px; height: 22px; }
+  }
+  @media (max-width: 640px) {
+    .book-arrow-wrap--prev { left: 4px; }
+    .book-arrow-wrap--next { right: 4px; }
+    .book-arrow { width: 46px; height: 46px; }
+    .book-arrow svg { width: 20px; height: 20px; }
+    .book-arrow-label { font-size: 0.55rem; letter-spacing: 0.1em; }
+    .page-inner { padding: 1.5rem 1.25rem 2.5rem; }
     .page-title { font-size: 1.3rem; }
   }
+
+  /* ============== FOOTER : dots + pagination ============== */
+  .book-footer {
+    margin-top: 1.5rem;
+    display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+  }
   .book-dots {
-    display: flex; justify-content: center; gap: 8px; margin-bottom: 1.25rem;
+    display: flex; justify-content: center; gap: 8px;
     flex-wrap: wrap;
   }
   .book-dot {
-    width: 7px; height: 7px; border-radius: 50%;
+    width: 8px; height: 8px; border-radius: 50%;
     background: rgba(229,179,42,0.2); border: 1px solid rgba(229,179,42,0.3);
-    cursor: pointer; transition: all 0.2s;
+    cursor: pointer; transition: all 0.25s; padding: 0;
   }
+  .book-dot:hover { background: rgba(229,179,42,0.45); border-color: rgba(229,179,42,0.6); }
   .book-dot.active {
-    background: #E5B32A; border-color: #E5B32A; transform: scale(1.2);
+    background: #E5B32A; border-color: #E5B32A;
+    transform: scale(1.35);
+    box-shadow: 0 0 10px rgba(229,179,42,0.6);
+  }
+
+  .book-pagination {
+    display: flex; align-items: center; gap: 0.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .pagination-counter { color: #E5B32A; font-weight: 700; }
+  .pagination-sep { opacity: 0.5; margin: 0 0.15rem; }
+  .pagination-dot { color: rgba(229,179,42,0.5); }
+  .pagination-section { color: rgba(255,255,255,0.75); font-weight: 500; }
+
+  .book-swipe-hint {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.7rem;
+    color: rgba(229,179,42,0.45);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    animation: swipe-hint 2.4s ease-in-out infinite;
+    margin: 0;
+  }
+  @keyframes swipe-hint {
+    0%, 100% { opacity: 0.4; transform: translateX(0); }
+    50%      { opacity: 0.9; transform: translateX(2px); }
+  }
+  .mobile-only { display: none; }
+  @media (max-width: 720px) {
+    .mobile-only { display: block; }
+  }
+
+  /* ============== TUTORIAL HINT ============== */
+  .book-tutorial {
+    position: absolute;
+    top: 18px;
+    right: 12px;
+    z-index: 20;
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    background: linear-gradient(135deg, rgba(229,179,42,0.95) 0%, rgba(200,150,30,0.95) 100%);
+    color: #0a0a0a;
+    border-radius: 999px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    box-shadow: 0 8px 24px rgba(229,179,42,0.45), 0 0 0 4px rgba(229,179,42,0.18);
+    pointer-events: none;
+    opacity: 0;
+  }
+  .book-tutorial.show {
+    display: flex;
+    animation: tutorial-pop 2800ms ease-in-out forwards;
+  }
+  .tutorial-hand {
+    font-size: 1.1rem;
+    animation: tutorial-point 0.9s ease-in-out infinite;
+    display: inline-block;
+  }
+  @keyframes tutorial-point {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    50%      { transform: translateX(6px) rotate(-8deg); }
+  }
+  @keyframes tutorial-pop {
+    0%   { opacity: 0; transform: translateY(-8px) scale(0.92); }
+    12%  { opacity: 1; transform: translateY(0) scale(1.04); }
+    20%  { transform: translateY(0) scale(1); }
+    85%  { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  }
+
+  /* Show spine sur grand ecran */
+  @media (min-width: 980px) {
+    .book-spine { display: block; }
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .book-arrow { animation: none; }
+    .book-tutorial.show { animation: none; opacity: 1; display: flex; }
+    .book-page.flip-out-left,
+    .book-page.flip-in-left,
+    .book-page.flip-out-right,
+    .book-page.flip-in-right {
+      animation: none;
+    }
+    .book-swipe-hint { animation: none; }
   }
 </style>
 
@@ -369,38 +729,124 @@ const pages: Page[] = [
   const dotsContainer = document.getElementById('book-dots');
   const prevBtn = document.getElementById('book-prev');
   const nextBtn = document.getElementById('book-next');
+  const currentPageEl = document.getElementById('book-current-page');
+  const currentSectionEl = document.getElementById('book-current-section');
+  const tutorial = document.getElementById('book-tutorial');
+  const sectionsDataEl = document.getElementById('book-sections-data');
+  let sections = [];
+  try { sections = JSON.parse(sectionsDataEl ? sectionsDataEl.textContent : '[]'); } catch (e) { sections = []; }
+
   let current = 0;
+  let isAnimating = false;
   const total = pages.length;
 
+  // Build dots
   pages.forEach(function(_, i) {
     var d = document.createElement('button');
     d.className = 'book-dot' + (i === 0 ? ' active' : '');
     d.setAttribute('aria-label', 'Page ' + (i + 1));
+    d.type = 'button';
     d.addEventListener('click', function() { goTo(i); });
     dotsContainer.appendChild(d);
   });
 
-  function goTo(n) {
-    pages[current].classList.remove('active');
-    dotsContainer.children[current].classList.remove('active');
-    current = Math.max(0, Math.min(total - 1, n));
-    pages[current].classList.add('active');
-    dotsContainer.children[current].classList.add('active');
-    prevBtn.disabled = current === 0;
-    nextBtn.disabled = current === total - 1;
+  function updateUI(n) {
+    // Dots
+    Array.prototype.forEach.call(dotsContainer.children, function(dot, idx) {
+      dot.classList.toggle('active', idx === n);
+    });
+    // Pagination
+    if (currentPageEl) currentPageEl.textContent = String(n + 1);
+    if (currentSectionEl && sections[n]) currentSectionEl.textContent = sections[n];
+    // Arrows
+    prevBtn.disabled = n === 0;
+    nextBtn.disabled = n === total - 1;
   }
 
-  prevBtn.addEventListener('click', function() { goTo(current - 1); });
-  nextBtn.addEventListener('click', function() { goTo(current + 1); });
+  function goTo(n, direction) {
+    if (isAnimating) return;
+    n = Math.max(0, Math.min(total - 1, n));
+    if (n === current) return;
 
-  var sx = 0;
+    const dir = direction || (n > current ? 'next' : 'prev');
+    const oldPage = pages[current];
+    const newPage = pages[n];
+    isAnimating = true;
+
+    if (dir === 'next') {
+      oldPage.classList.add('flip-out-left');
+      newPage.classList.add('flip-in-left', 'active');
+    } else {
+      oldPage.classList.add('flip-out-right');
+      newPage.classList.add('flip-in-right', 'active');
+    }
+
+    current = n;
+    updateUI(current);
+
+    setTimeout(function() {
+      oldPage.classList.remove('active', 'flip-out-left', 'flip-out-right');
+      newPage.classList.remove('flip-in-left', 'flip-in-right');
+      isAnimating = false;
+    }, 620);
+  }
+
+  prevBtn.addEventListener('click', function() { goTo(current - 1, 'prev'); });
+  nextBtn.addEventListener('click', function() { goTo(current + 1, 'next'); });
+
+  // Keyboard nav
+  document.addEventListener('keydown', function(e) {
+    var book = document.getElementById('menu-book-container');
+    if (!book) return;
+    var rect = book.getBoundingClientRect();
+    var visible = rect.top < window.innerHeight && rect.bottom > 0;
+    if (!visible) return;
+    if (e.key === 'ArrowRight') { e.preventDefault(); goTo(current + 1, 'next'); }
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); goTo(current - 1, 'prev'); }
+  });
+
+  // Swipe gestures
+  var sx = 0, sy = 0;
   var bookEl = document.getElementById('menu-book-container');
-  bookEl.addEventListener('touchstart', function(e) { sx = e.changedTouches[0].screenX; }, { passive: true });
+  bookEl.addEventListener('touchstart', function(e) {
+    sx = e.changedTouches[0].screenX;
+    sy = e.changedTouches[0].screenY;
+  }, { passive: true });
   bookEl.addEventListener('touchend', function(e) {
     var dx = e.changedTouches[0].screenX - sx;
-    if (Math.abs(dx) > 45) goTo(dx < 0 ? current + 1 : current - 1);
+    var dy = e.changedTouches[0].screenY - sy;
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+      goTo(dx < 0 ? current + 1 : current - 1, dx < 0 ? 'next' : 'prev');
+    }
   }, { passive: true });
 
-  goTo(0);
+  // Init
+  updateUI(0);
+
+  // Tutorial hint — premiere visite
+  try {
+    var seen = localStorage.getItem('menubook_seen');
+    if (!seen && tutorial) {
+      // Lance quand le livre est visible
+      var shown = false;
+      var triggerHint = function() {
+        if (shown) return;
+        var rect = bookEl.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.85 && rect.bottom > 0) {
+          shown = true;
+          setTimeout(function() {
+            tutorial.classList.add('show');
+            setTimeout(function() {
+              tutorial.classList.remove('show');
+            }, 2900);
+          }, 350);
+          try { localStorage.setItem('menubook_seen', '1'); } catch (e) {}
+          window.removeEventListener('scroll', triggerHint);
+        }
+      };
+      triggerHint();
+      window.addEventListener('scroll', triggerHint, { passive: true });
+    }
+  } catch (e) { /* localStorage indisponible */ }
 })();
 </script>
