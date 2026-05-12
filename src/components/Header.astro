@@ -21,20 +21,11 @@ const links = [
     id="desktop-header"
     class="hidden md:flex fixed top-0 left-0 right-0 w-full z-50 h-16 items-center justify-between px-6 lg:px-10 bg-black/25 backdrop-blur-sm border-b border-white/10 transition-all duration-300"
 >
-    <a href={`${base}/#home`} class="flex items-center gap-3 group">
-        <div class="w-10 h-10 rounded-full border border-[#E5B32A]/40 overflow-hidden bg-black/60 flex items-center justify-center flex-shrink-0">
-            <img
-                src="https://graph.facebook.com/to.kalamaki.tis.troumpas/picture?type=square"
-                alt="Το Καλαμάκι Της Τρούμπας"
-                class="w-full h-full object-cover"
-                width="40"
-                height="40"
-                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-            />
-            <span style="display:none" class="w-full h-full items-center justify-center text-[9px] font-bold tracking-widest uppercase text-[#E5B32A]">Κ.Τ.</span>
-        </div>
-        <span class="text-base lg:text-lg font-serif tracking-wide text-white">
-            Το Καλαμάκι <span class="text-[#E5B32A]">Τρούμπας</span>.
+    <a href={`${base}/#home`} class="flex items-center group">
+        <span class="logo-frame inline-flex items-center px-3 py-1.5 border-2 border-black bg-transparent">
+            <span class="text-base lg:text-lg font-serif tracking-wide text-white">
+                Το Καλαμάκι <span class="text-[#E5B32A]">Τρούμπας</span>
+            </span>
         </span>
     </a>
 
@@ -106,18 +97,7 @@ const links = [
 
 {/* Logo flottant mobile — visible apres scroll past hero */}
 <div id="mobile-logo-float" class="md:hidden fixed top-4 left-4 z-40 pointer-events-none drop-shadow-xl opacity-0 transition-opacity duration-300">
-    <a href={`${base}/#home`} class="pointer-events-auto flex items-center gap-2 px-2 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-[#E5B32A]/30">
-        <div class="w-7 h-7 rounded-full border border-[#E5B32A]/40 overflow-hidden bg-black/60 flex items-center justify-center">
-            <img
-                src="https://graph.facebook.com/to.kalamaki.tis.troumpas/picture?type=square"
-                alt="Logo"
-                class="w-full h-full object-cover"
-                width="28"
-                height="28"
-                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-            />
-            <span style="display:none" class="w-full h-full items-center justify-center text-[7px] font-bold text-[#E5B32A]">Κ.Τ.</span>
-        </div>
+    <a href={`${base}/#home`} class="pointer-events-auto inline-flex items-center px-2.5 py-1 border-2 border-black bg-transparent">
         <span class="text-xs font-semibold tracking-wide uppercase text-white/90">Καλαμάκι</span>
     </a>
 </div>

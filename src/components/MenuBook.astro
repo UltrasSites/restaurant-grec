@@ -94,6 +94,9 @@ const pages: Page[] = [
       { el: "Λουκάνικο σουπιάς τμχ", en: "Sepia Sausage pc", price: "2,50€" },
       { el: "Τυλιχτό Λουκάνικο σουπιάς", en: "Wrapped Sepia Sausage", desc_el: "ντομάτα, μαρούλι, πατάτες", desc_en: "tomato, lettuce, fries", price: "3,50€" },
       { el: "Veggie Burger", en: "Veggie Burger", desc_el: "με τυρί, κέτσαπ, μουστάρδα, πατάτες", desc_en: "with cheese, ketchup, mustard, fries", price: "7,00€" },
+      { el: "Καλαμάκι Σεϊτάν", en: "Seitan skewer", desc_el: "φυτικής πρωτεΐνης που μοιάζει με κρέας, ψητό στα κάρβουνα", desc_en: "plant-based meat-like protein, charcoal grilled", price: "2,50€" },
+      { el: "Τυλιχτό Σεϊτάν", en: "Wrapped Seitan", desc_el: "σεϊτάν, ντομάτα, κρεμμύδι, σως, πατάτες", desc_en: "seitan, tomato, onion, sauce, fries", price: "4,00€" },
+      { el: "Πλατέ Σεϊτάν", en: "Seitan plate", desc_el: "3 σούβλες σεϊτάν, πίτα, πατάτες, σαλάτα", desc_en: "3 seitan skewers, pita, fries, salad", price: "9,00€" },
     ],
   },
 ];
@@ -124,14 +127,8 @@ const pages: Page[] = [
         <!-- PAGE 0 — COUVERTURE -->
         <div class="book-page" data-page="0">
           <div class="page-inner page-cover">
-            <div class="cover-logo">
-              <img
-                src="https://graph.facebook.com/to.kalamaki.tis.troumpas/picture?type=large"
-                alt="Logo"
-                class="cover-logo-img"
-                onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-              />
-              <div class="cover-logo-fallback" style="display:none">Κ.Τ.</div>
+            <div class="cover-logo-frame">
+              <span class="cover-logo-text">Καλαμάκι</span>
             </div>
             <h3 class="cover-title">{isEl ? "Το Καλαμάκι" : "To Kalamaki"}<br/>{isEl ? "Της Τρούμπας" : "Tis Troumpas"}</h3>
             <p class="cover-sub">{isEl ? "Μπουμπουλίνας 8 & Νοταρά — Πειραιάς" : "Bouboulinas 8 & Notara — Piraeus"}</p>
@@ -211,13 +208,16 @@ const pages: Page[] = [
     border-color: rgba(229,179,42,0.35);
     padding: 3rem 2rem;
   }
-  .cover-logo { margin-bottom: 1.25rem; }
-  .cover-logo-img, .cover-logo-fallback {
-    width: 72px; height: 72px; border-radius: 50%;
-    border: 2px solid rgba(229,179,42,0.5);
-    object-fit: cover;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; color: #E5B32A; font-size: 1rem;
+  .cover-logo-frame {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.6rem 1.2rem; margin-bottom: 1.25rem;
+    border: 2px solid #000;
+    background: transparent;
+  }
+  .cover-logo-text {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700; color: #fff;
+    font-size: 1.15rem; letter-spacing: 0.02em;
   }
   .cover-title {
     font-family: 'Playfair Display', serif;

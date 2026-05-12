@@ -1,0 +1,109 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getLangFromParam } from "../../i18n/utils";
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: "el" } },
+    { params: { lang: "en" } },
+  ];
+}
+
+const currentLang = getLangFromParam(Astro.params.lang);
+const isEl = currentLang === "el";
+const title = isEl ? "Όροι χρήσης" : "Terms of service";
+---
+
+<BaseLayout lang={currentLang} title={`${title} — Το Καλαμάκι Της Τρούμπας`} description={title}>
+  <section class="bg-[#0a0a0a] pt-32 pb-24 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-3xl md:text-4xl font-serif italic text-white mb-8">{title}</h1>
+
+      {isEl ? (
+        <div class="space-y-6 text-gray-300 leading-relaxed text-[0.95rem]">
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">1. Αντικείμενο</h2>
+            <p>Οι παρόντες όροι ρυθμίζουν τη χρήση του ιστότοπου kalamakitroubas.gr και τη διενέργεια online παραγγελιών στο κατάστημα «Το Καλαμάκι Της Τρούμπας», Μπουμπουλίνας 8 & Νοταρά, Πειραιάς.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">2. Παραγγελίες & παραλαβή</h2>
+            <p>Οι παραγγελίες πραγματοποιούνται αποκλειστικά για παραλαβή από το κατάστημα (take-away). Δεν παρέχεται διανομή κατ' οίκον από τον ιστότοπο.</p>
+            <p>Η πληρωμή πραγματοποιείται στο ταμείο κατά την παραλαβή, σε μετρητά ή με κάρτα.</p>
+            <p>Μετά την επιβεβαίωση της παραγγελίας, ο πελάτης θα ειδοποιηθεί όταν είναι έτοιμη η παραλαβή.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">3. Τιμές</h2>
+            <p>Όλες οι τιμές αναγράφονται σε ευρώ (€) και περιλαμβάνουν ΦΠΑ. Το κατάστημα διατηρεί το δικαίωμα τροποποίησης των τιμών χωρίς προηγούμενη ειδοποίηση. Η τιμή που ισχύει είναι αυτή που εμφανίζεται κατά την επιβεβαίωση της παραγγελίας.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">4. Ακύρωση</h2>
+            <p>Ο πελάτης μπορεί να ακυρώσει την παραγγελία τηλεφωνικά στο +30 210 422 2233 εφόσον αυτή δεν έχει ακόμη ξεκινήσει να ετοιμάζεται. Μετά την έναρξη της προετοιμασίας, δεν υπάρχει δυνατότητα ακύρωσης.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">5. Αλλεργίες & συστατικά</h2>
+            <p>Πληροφορίες για αλλεργιογόνα και συστατικά διατίθενται στο κατάστημα. Σε περίπτωση αλλεργίας ή ειδικής δίαιτας, παρακαλούμε ενημερώστε μας πριν την παραγγελία.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">6. Παράπονα</h2>
+            <p>Για οποιοδήποτε πρόβλημα ή παράπονο: kalamaki.troubas@gmail.com ή +30 210 422 2233.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">7. Εφαρμοστέο δίκαιο</h2>
+            <p>Οι παρόντες όροι διέπονται από το ελληνικό δίκαιο. Αρμόδια είναι τα δικαστήρια Πειραιά.</p>
+          </div>
+        </div>
+      ) : (
+        <div class="space-y-6 text-gray-300 leading-relaxed text-[0.95rem]">
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">1. Scope</h2>
+            <p>These terms govern the use of the website kalamakitroubas.gr and online orders placed with "To Kalamaki Tis Troumpas", Bouboulinas 8 & Notara, Piraeus.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">2. Orders & pickup</h2>
+            <p>Orders are exclusively for in-store pickup (take-away). No delivery service is provided through the website.</p>
+            <p>Payment is made at the counter upon pickup, in cash or by card.</p>
+            <p>After your order is confirmed, you will be notified when it is ready to be picked up.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">3. Prices</h2>
+            <p>All prices are shown in euros (€) and include VAT. The restaurant reserves the right to modify prices without prior notice. The applicable price is the one displayed at the moment of order confirmation.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">4. Cancellation</h2>
+            <p>The customer can cancel an order by calling +30 210 422 2233 as long as preparation has not yet begun. Once preparation has started, cancellation is no longer possible.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">5. Allergens & ingredients</h2>
+            <p>Allergen and ingredient information is available at the restaurant. If you have any allergies or special dietary needs, please let us know before ordering.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">6. Complaints</h2>
+            <p>For any issue or complaint: kalamaki.troubas@gmail.com or +30 210 422 2233.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">7. Governing law</h2>
+            <p>These terms are governed by Greek law. The courts of Piraeus have exclusive jurisdiction.</p>
+          </div>
+        </div>
+      )}
+
+      <div class="mt-12 pt-8 border-t border-white/10">
+        <a href={`/${currentLang}/`} class="text-[#E5B32A] hover:underline text-sm">
+          ← {isEl ? "Επιστροφή στην αρχική" : "Back to home"}
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

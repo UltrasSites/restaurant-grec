@@ -385,7 +385,7 @@ const baseUrl = `/${currentLang}`;
       </p>
       <p class="text-xs text-gray-300 mb-8">{t.contact_hours}</p>
 
-      <form class="space-y-4" action="#" method="post">
+      <form id="contact-form" class="space-y-4" data-lang={currentLang}>
         <div>
           <label for="name" class="sr-only">{t.form_name}</label>
           <input
@@ -402,11 +402,59 @@ const baseUrl = `/${currentLang}`;
             class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/30 focus:border-[#E5B32A] focus:outline-none transition-colors"
           />
         </div>
+        <div>
+          <label for="message" class="sr-only">{currentLang === 'el' ? 'Μήνυμα (προαιρετικό)' : 'Message (optional)'}</label>
+          <textarea id="message" name="message" rows="3"
+            placeholder={currentLang === 'el' ? 'Μήνυμα (προαιρετικό)' : 'Message (optional)'}
+            class="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg placeholder-white/30 focus:border-[#E5B32A] focus:outline-none transition-colors"
+          ></textarea>
+        </div>
         <button
           type="submit"
           class="w-full px-6 py-4 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors"
         >{t.form_confirm}</button>
+        <p id="contact-status" class="text-xs text-gray-400 text-center min-h-[1rem]" aria-live="polite"></p>
       </form>
+
+      <script is:inline>
+        (function () {
+          const form = document.getElementById('contact-form');
+          if (!form) return;
+          const status = document.getElementById('contact-status');
+          form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const lang = form.getAttribute('data-lang') || 'el';
+            const fd = new FormData(form);
+            const payload = {
+              name: fd.get('name') || '',
+              guests: fd.get('guests') || '',
+              message: fd.get('message') || '',
+              lang,
+            };
+            if (status) status.textContent = lang === 'el' ? 'Αποστολή...' : 'Sending...';
+            try {
+              const r = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
+              });
+              const data = await r.json().catch(() => ({}));
+              if (r.ok && data.ok) {
+                if (status) status.textContent = lang === 'el'
+                  ? 'Το μήνυμά σας στάλθηκε. Θα σας απαντήσουμε σύντομα.'
+                  : 'Your message has been sent. We will get back to you shortly.';
+                form.reset();
+              } else {
+                throw new Error('send_failed');
+              }
+            } catch (err) {
+              if (status) status.textContent = lang === 'el'
+                ? 'Σφάλμα. Καλέστε μας στο +30 210 422 2233.'
+                : 'Error. Please call +30 210 422 2233.';
+            }
+          });
+        })();
+      </script>
 
       <div class="mt-8 flex justify-center">
         <SocialLinks />

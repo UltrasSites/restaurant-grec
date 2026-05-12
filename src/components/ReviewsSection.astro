@@ -42,7 +42,8 @@ const reviews: Review[] = [
   },
 ];
 
-const avg = (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1);
+// Note Google réelle de l'établissement (source : Google Business Profile)
+const avg = "4.3";
 ---
 
 <section id="avis" class="bg-[#0a0a0a] py-20 px-4 border-t border-white/5">

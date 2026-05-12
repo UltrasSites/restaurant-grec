@@ -63,13 +63,29 @@
     html[data-theme='dark'] .bg-\[\#0a0a0a\] { background-color: var(--color-bg) !important; }
     html[data-theme='dark'] .bg-\[\#050505\] { background-color: var(--color-bg-deep) !important; }
     html[data-theme='dark'] .bg-neutral-900 { background-color: var(--color-bg-alt) !important; }
-    html[data-theme='dark'] body:not(#home) .text-white,
+    /* Sections HORS du hero : texte sombre en mode clair */
     html[data-theme='dark'] section:not(#home) .text-white,
-    html[data-theme='dark'] footer .text-white { color: var(--color-primary) !important; }
-    html[data-theme='dark'] body:not(#home) .text-gray-300,
-    html[data-theme='dark'] body:not(#home) .text-gray-400,
+    html[data-theme='dark'] footer .text-white,
+    html[data-theme='dark'] main > div:not(#home) .text-white { color: var(--color-primary) !important; }
     html[data-theme='dark'] section:not(#home) .text-gray-300,
-    html[data-theme='dark'] section:not(#home) .text-gray-400 { color: var(--color-text-muted) !important; }
+    html[data-theme='dark'] section:not(#home) .text-gray-400,
+    html[data-theme='dark'] footer .text-gray-300,
+    html[data-theme='dark'] footer .text-gray-400,
+    html[data-theme='dark'] main > div:not(#home) .text-gray-300,
+    html[data-theme='dark'] main > div:not(#home) .text-gray-400 { color: var(--color-text-muted) !important; }
+    /* Hero #home : on FORCE le texte clair (priorité au-dessus des règles globales) */
+    html[data-theme='dark'] #home,
+    html[data-theme='dark'] #home *,
+    html[data-theme='dark'] #home .text-white,
+    html[data-theme='dark'] #home h1,
+    html[data-theme='dark'] #home h2,
+    html[data-theme='dark'] #home p,
+    html[data-theme='dark'] #home span,
+    html[data-theme='dark'] #home a { color: #ffffff !important; }
+    html[data-theme='dark'] #home .text-gray-300,
+    html[data-theme='dark'] #home .text-gray-400 { color: rgba(255,255,255,0.85) !important; }
+    html[data-theme='dark'] #home .text-\[\#E5B32A\],
+    html[data-theme='dark'] #home .gold-shine-text { color: #E5B32A !important; }
     html[data-theme='dark'] .border-white\/5,
     html[data-theme='dark'] .border-white\/10 { border-color: var(--color-border) !important; }
 

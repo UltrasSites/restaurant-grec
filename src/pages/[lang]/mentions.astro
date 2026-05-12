@@ -1,0 +1,115 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getLangFromParam } from "../../i18n/utils";
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: "el" } },
+    { params: { lang: "en" } },
+  ];
+}
+
+const currentLang = getLangFromParam(Astro.params.lang);
+const isEl = currentLang === "el";
+const title = isEl ? "Νομικές πληροφορίες" : "Legal notice";
+---
+
+<BaseLayout lang={currentLang} title={`${title} — Το Καλαμάκι Της Τρούμπας`} description={title}>
+  <section class="bg-[#0a0a0a] pt-32 pb-24 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-3xl md:text-4xl font-serif italic text-white mb-8">{title}</h1>
+
+      {isEl ? (
+        <div class="space-y-6 text-gray-300 leading-relaxed text-[0.95rem]">
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">1. Στοιχεία επιχείρησης</h2>
+            <p>Επωνυμία: Το Καλαμάκι Της Τρούμπας</p>
+            <p>Διεύθυνση: Μπουμπουλίνας 8 & Νοταρά, Πειραιάς 185 35, Ελλάδα</p>
+            <p>Τηλέφωνο: +30 210 422 2233</p>
+            <p>Email: kalamaki.troubas@gmail.com</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">2. Διεύθυνση δικτυακού τόπου</h2>
+            <p>URL: https://kalamakitroubas.gr</p>
+            <p>Υπεύθυνος δημοσίευσης: ο νόμιμος εκπρόσωπος της επιχείρησης.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">3. Φιλοξενία</h2>
+            <p>Ο ιστότοπος φιλοξενείται από την Cloudflare, Inc. — 101 Townsend St, San Francisco, CA 94107, ΗΠΑ.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">4. Δικαιώματα πνευματικής ιδιοκτησίας</h2>
+            <p>Όλο το περιεχόμενο του ιστότοπου (κείμενα, εικόνες, λογότυπα, γραφικά) προστατεύεται από τη νομοθεσία περί πνευματικής ιδιοκτησίας. Απαγορεύεται κάθε αναπαραγωγή χωρίς προηγούμενη γραπτή άδεια.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">5. Προσωπικά δεδομένα</h2>
+            <p>Τα προσωπικά δεδομένα που συλλέγονται μέσω της φόρμας επικοινωνίας ή της παραγγελίας online χρησιμοποιούνται αποκλειστικά για την επεξεργασία του αιτήματός σας. Δεν διαβιβάζονται σε τρίτους. Έχετε δικαίωμα πρόσβασης, διόρθωσης και διαγραφής σύμφωνα με τον ΓΚΠΔ (GDPR).</p>
+            <p>Για να ασκήσετε τα δικαιώματά σας: kalamaki.troubas@gmail.com</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">6. Cookies</h2>
+            <p>Ο ιστότοπος χρησιμοποιεί μόνο τεχνικά cookies απαραίτητα για τη λειτουργία του (επιλογή γλώσσας, θέμα εμφάνισης). Δεν χρησιμοποιούνται cookies παρακολούθησης ή διαφήμισης.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">7. Σχεδίαση & ανάπτυξη</h2>
+            <p>Ιστοσελίδα σχεδιασμένη και κατασκευασμένη από <a href="https://ultras-sites.com" target="_blank" rel="noopener" class="text-[#E5B32A] hover:underline">Ultras-Sites</a>.</p>
+          </div>
+        </div>
+      ) : (
+        <div class="space-y-6 text-gray-300 leading-relaxed text-[0.95rem]">
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">1. Company information</h2>
+            <p>Trade name: To Kalamaki Tis Troumpas</p>
+            <p>Address: Bouboulinas 8 & Notara, Piraeus 185 35, Greece</p>
+            <p>Phone: +30 210 422 2233</p>
+            <p>Email: kalamaki.troubas@gmail.com</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">2. Website</h2>
+            <p>URL: https://kalamakitroubas.gr</p>
+            <p>Publishing manager: the legal representative of the business.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">3. Hosting</h2>
+            <p>This website is hosted by Cloudflare, Inc. — 101 Townsend St, San Francisco, CA 94107, USA.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">4. Intellectual property</h2>
+            <p>All content on this website (text, images, logos, graphics) is protected by intellectual property law. Any reproduction without prior written authorization is prohibited.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">5. Personal data</h2>
+            <p>Personal data collected through the contact form or online order is used exclusively to process your request. It is not transferred to third parties. You have the right to access, rectify and delete your data in accordance with GDPR.</p>
+            <p>To exercise your rights: kalamaki.troubas@gmail.com</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">6. Cookies</h2>
+            <p>This website only uses technical cookies necessary for its operation (language preference, theme). No tracking or advertising cookies are used.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">7. Design & development</h2>
+            <p>Website designed and built by <a href="https://ultras-sites.com" target="_blank" rel="noopener" class="text-[#E5B32A] hover:underline">Ultras-Sites</a>.</p>
+          </div>
+        </div>
+      )}
+
+      <div class="mt-12 pt-8 border-t border-white/10">
+        <a href={`/${currentLang}/`} class="text-[#E5B32A] hover:underline text-sm">
+          ← {isEl ? "Επιστροφή στην αρχική" : "Back to home"}
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
