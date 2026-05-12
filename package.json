@@ -12,5 +12,9 @@
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.6",
     "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "pdfkit": "^0.18.0",
+    "qrcode": "^1.5.4"
   }
 }

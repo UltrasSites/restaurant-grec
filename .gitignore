@@ -1,3 +1,6 @@
 node_modules/
 dist/
 .astro/
+
+# PDF generation fonts (regen via scripts/download-fonts.mjs)
+scripts/fonts/

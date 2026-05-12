@@ -248,10 +248,13 @@ const baseUrl = `/${currentLang}`;
                 </p>
               </div>
               <div class="flex flex-col gap-3">
+                <a href={`${baseUrl}/commander`} class="w-full px-8 py-3 bg-[#E5B32A] text-black text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg shadow-[0_8px_24px_rgba(229,179,42,0.28)] hover:bg-white hover:shadow-[0_12px_32px_rgba(229,179,42,0.45)] transition-all duration-300">
+                  {t.order_cta}
+                </a>
                 <a href={`${baseUrl}/#contact`} class="w-full px-8 py-3 bg-transparent border-2 border-[#E5B32A]/45 text-white text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg hover:bg-white/5 hover:border-[#E5B32A]/70 transition-all duration-300">
                   {t.resa_cta2}
                 </a>
-                <a href={`${baseUrl}/#carte`} class="w-full px-8 py-3 bg-[#E5B32A] text-black text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg shadow-[0_8px_24px_rgba(229,179,42,0.28)] hover:bg-white hover:shadow-[0_12px_32px_rgba(229,179,42,0.45)] transition-all duration-300">
+                <a href={`${baseUrl}/#carte`} class="w-full px-8 py-3 bg-transparent border border-white/15 text-white/80 text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg hover:bg-white/5 transition-all duration-300">
                   {t.resa_cta3}
                 </a>
               </div>
@@ -351,7 +354,7 @@ const baseUrl = `/${currentLang}`;
             : 'Scan the QR or download the PDF — full menu, anywhere, no internet needed.'}
         </p>
         <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
-          <a href={currentLang === 'el' ? '/menu-el.pdf' : '/menu-en.pdf'} download={`menu-kalamaki-troumpas-${currentLang}.pdf`} class="inline-flex items-center gap-2 px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
+          <a href="/menu-download" class="inline-flex items-center gap-2 px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
             {currentLang === 'el' ? 'Κατέβασμα PDF' : 'Download PDF'}
           </a>
@@ -473,6 +476,41 @@ const baseUrl = `/${currentLang}`;
       title={currentLang === 'el' ? 'Χάρτης — Τρούμπα Πειραιάς' : 'Map — Troumpa Piraeus'}
     ></iframe>
   </section>
+
+  <!-- FAB Commander online — visible sur mobile, discret desktop -->
+  <a href={`${baseUrl}/commander`} class="order-fab" aria-label={t.order_cta}>
+    <span class="order-fab-icon">🛒</span>
+    <span class="order-fab-label">{t.order_cta}</span>
+  </a>
+
+  <style>
+    .order-fab {
+      position: fixed;
+      right: 1rem; bottom: 1rem;
+      z-index: 55;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.85rem 1.15rem;
+      background: linear-gradient(135deg, #E5B32A 0%, #c89324 100%);
+      color: #0a0a0a;
+      border-radius: 999px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800; font-size: 0.78rem;
+      text-decoration: none;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      box-shadow: 0 12px 28px rgba(229,179,42,0.4), 0 4px 12px rgba(0,0,0,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+      animation: fab-pulse 2.6s ease-in-out infinite;
+    }
+    .order-fab:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 16px 36px rgba(229,179,42,0.55), 0 6px 16px rgba(0,0,0,0.5); }
+    .order-fab-icon { font-size: 1rem; }
+    @keyframes fab-pulse {
+      0%, 100% { box-shadow: 0 12px 28px rgba(229,179,42,0.4), 0 4px 12px rgba(0,0,0,0.4); }
+      50%      { box-shadow: 0 14px 36px rgba(229,179,42,0.65), 0 6px 18px rgba(0,0,0,0.5); }
+    }
+    @media (max-width: 767px) {
+      .order-fab { padding-bottom: calc(0.85rem + env(safe-area-inset-bottom, 0)); }
+    }
+  </style>
 
   <script>
     const sentinel = document.getElementById('cta-card-sentinel');
