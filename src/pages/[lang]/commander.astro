@@ -1,0 +1,515 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getLangFromParam } from "../../i18n/utils";
+import { translations } from "../../i18n/translations";
+import { menuPages, parsePrice, itemId } from "../../data/menu-data";
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: "el" } },
+    { params: { lang: "en" } },
+  ];
+}
+
+const currentLang = getLangFromParam(Astro.params.lang);
+const t = translations[currentLang];
+const isEl = currentLang === "el";
+
+// Index plat des items (pour JS panier + serveur)
+const flatItems = menuPages.flatMap((p, pi) =>
+  p.items
+    .filter((it) => !it.price.startsWith("+")) // pas d'extras isolés
+    .map((it, ii) => ({
+      id: itemId(pi, ii),
+      name_el: it.el,
+      name_en: it.en,
+      price: parsePrice(it.price),
+      priceLabel: it.price,
+      page: pi,
+    }))
+);
+---
+
+<BaseLayout lang={currentLang} title={`${t.order_title} — ${t.drawer_brand}`} description={t.order_subtitle}>
+  <section class="order-page bg-[#0a0a0a] pt-28 pb-40 px-4">
+    <div class="max-w-5xl mx-auto">
+
+      <header class="text-center mb-10">
+        <p class="text-[10px] uppercase tracking-[0.35em] text-[#E5B32A] font-bold mb-2">{t.order_title}</p>
+        <h1 class="text-3xl md:text-4xl font-serif italic text-white mb-3">{isEl ? "Παραγγελία online" : "Order online"}</h1>
+        <p class="text-gray-400 max-w-xl mx-auto">{t.order_subtitle}</p>
+        <p class="text-xs text-gray-500 mt-2">{t.order_form_pay_note}</p>
+      </header>
+
+      <!-- VUE MENU -->
+      <div id="order-view-menu">
+        <div class="grid gap-8">
+          {menuPages.map((p, pi) => (
+            <section class="rounded-2xl bg-white/3 border border-white/10 p-5 md:p-6">
+              <h2 class="text-xl md:text-2xl font-serif italic text-[#E5B32A] mb-4">{isEl ? p.title_el : p.title_en}</h2>
+              {(isEl ? p.note_el : p.note_en) && (
+                <p class="text-xs text-gray-400 italic mb-4">{isEl ? p.note_el : p.note_en}</p>
+              )}
+              <ul class="divide-y divide-white/5">
+                {p.items.map((it, ii) => {
+                  const id = itemId(pi, ii);
+                  const isExtra = it.price.startsWith("+");
+                  return (
+                    <li class="flex items-start justify-between gap-3 py-3" data-item-row={id}>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm md:text-base text-white font-medium leading-snug">{isEl ? it.el : it.en}</p>
+                        {(isEl ? it.desc_el : it.desc_en) && (
+                          <p class="text-xs text-gray-500 mt-0.5">{isEl ? it.desc_el : it.desc_en}</p>
+                        )}
+                        <p class="text-sm text-[#E5B32A] font-bold mt-1">{it.price}</p>
+                      </div>
+                      {!isExtra && (
+                        <div class="flex items-center gap-2 shrink-0">
+                          <button type="button" class="qty-btn qty-minus" data-id={id} aria-label={t.order_remove}>−</button>
+                          <span class="qty-display w-7 text-center text-white font-bold text-base" data-qty={id}>0</span>
+                          <button type="button" class="qty-btn qty-plus" data-id={id} aria-label={t.order_add}>+</button>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))}
+        </div>
+      </div>
+
+      <!-- VUE CHECKOUT -->
+      <div id="order-view-checkout" hidden>
+        <button type="button" id="back-to-menu" class="text-sm text-[#E5B32A] hover:underline mb-6">{t.order_form_back}</button>
+        <div class="bg-white/3 border border-white/10 rounded-2xl p-6 md:p-8">
+          <h2 class="text-2xl font-serif italic text-white mb-6">{t.order_form_title}</h2>
+
+          <div id="checkout-cart-summary" class="mb-6 text-sm space-y-2"></div>
+
+          <form id="order-form" class="space-y-4">
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1">{t.order_form_name}</label>
+              <input type="text" name="name" required minlength="2" maxlength="60" class="w-full bg-black/40 border border-white/15 text-white px-4 py-3 rounded-lg focus:border-[#E5B32A] focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1">{t.order_form_phone}</label>
+              <input type="tel" name="phone" required minlength="6" maxlength="20" pattern="[0-9+\\s\\-().]+" class="w-full bg-black/40 border border-white/15 text-white px-4 py-3 rounded-lg focus:border-[#E5B32A] focus:outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs uppercase tracking-wider text-gray-400 mb-2">{t.order_form_pickup}</label>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <label class="pickup-radio"><input type="radio" name="pickup_time" value="15" required /><span>{t.order_form_pickup_15}</span></label>
+                <label class="pickup-radio"><input type="radio" name="pickup_time" value="30" /><span>{t.order_form_pickup_30}</span></label>
+                <label class="pickup-radio"><input type="radio" name="pickup_time" value="45" /><span>{t.order_form_pickup_45}</span></label>
+                <label class="pickup-radio"><input type="radio" name="pickup_time" value="60" /><span>{t.order_form_pickup_60}</span></label>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500 italic">{t.order_form_pay_note}</p>
+            <button type="submit" id="order-submit-btn" class="w-full bg-[#E5B32A] text-black font-bold uppercase tracking-[0.2em] py-4 rounded-lg text-sm hover:bg-white transition-all">{t.order_form_submit}</button>
+            <p id="order-error" class="text-red-400 text-sm text-center" hidden></p>
+          </form>
+        </div>
+      </div>
+
+      <!-- VUE SUCCESS -->
+      <div id="order-view-success" hidden class="max-w-xl mx-auto text-center py-10">
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#E5B32A]/15 border-2 border-[#E5B32A] mb-6">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#E5B32A" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h2 class="text-2xl md:text-3xl font-serif italic text-white mb-4">{t.order_success_title}</h2>
+        <p id="order-success-msg" class="text-gray-300 mb-8"></p>
+        <a href={`/${currentLang}/`} class="inline-block text-[#E5B32A] hover:underline text-sm">{t.order_success_back}</a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PANIER FLOTTANT -->
+  <div id="cart-floater" class="cart-floater" hidden>
+    <button type="button" id="cart-open-btn" class="cart-bar">
+      <span class="cart-count" id="cart-count">0</span>
+      <span class="cart-label">{t.order_cart}</span>
+      <span class="cart-total" id="cart-total">0,00€</span>
+    </button>
+  </div>
+
+  <!-- DRAWER PANIER (mobile + desktop) -->
+  <div id="cart-drawer" class="cart-drawer" hidden aria-hidden="true">
+    <div class="cart-backdrop" id="cart-backdrop"></div>
+    <div class="cart-panel" role="dialog" aria-labelledby="cart-drawer-title">
+      <div class="cart-handle"></div>
+      <div class="cart-header">
+        <h3 id="cart-drawer-title" class="text-lg font-serif italic text-white">{t.order_cart}</h3>
+        <button type="button" id="cart-close-btn" class="text-gray-400 hover:text-white text-2xl leading-none" aria-label="Close">×</button>
+      </div>
+      <div class="cart-body" id="cart-body">
+        <p class="text-gray-400 text-sm" id="cart-empty">{t.order_cart_empty}</p>
+        <ul class="cart-list" id="cart-list"></ul>
+      </div>
+      <div class="cart-footer">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-gray-300 uppercase text-xs tracking-wider">{t.order_cart_total}</span>
+          <span class="text-2xl font-bold text-[#E5B32A]" id="cart-drawer-total">0,00€</span>
+        </div>
+        <button type="button" id="cart-validate-btn" class="w-full bg-[#E5B32A] text-black font-bold uppercase tracking-[0.2em] py-4 rounded-lg text-sm hover:bg-white transition-all disabled:opacity-50" disabled>{t.order_validate}</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .order-page { min-height: 80vh; }
+    .qty-btn {
+      width: 36px; height: 36px; border-radius: 999px;
+      background: rgba(229,179,42,0.15); color: #E5B32A;
+      border: 1px solid rgba(229,179,42,0.4);
+      font-size: 1.2rem; font-weight: 700; line-height: 1;
+      cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .qty-btn:hover { background: rgba(229,179,42,0.3); }
+    .qty-btn:active { transform: scale(0.94); }
+    [data-item-row].has-qty { background: linear-gradient(90deg, rgba(229,179,42,0.05), transparent 60%); }
+
+    .pickup-radio { position: relative; cursor: pointer; }
+    .pickup-radio input { position: absolute; opacity: 0; pointer-events: none; }
+    .pickup-radio span {
+      display: block; text-align: center; padding: 0.75rem 0.5rem;
+      background: rgba(0,0,0,0.3); border: 1.5px solid rgba(255,255,255,0.12);
+      border-radius: 0.625rem; font-size: 0.8rem; color: #ddd;
+      transition: all 0.2s;
+    }
+    .pickup-radio input:checked + span {
+      background: rgba(229,179,42,0.15); border-color: #E5B32A; color: #E5B32A; font-weight: 700;
+    }
+
+    /* PANIER FLOTTANT */
+    .cart-floater {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      z-index: 60;
+      padding: 0.75rem 1rem env(safe-area-inset-bottom, 1rem);
+      background: linear-gradient(180deg, transparent, rgba(10,10,10,0.95) 30%);
+      pointer-events: none;
+    }
+    .cart-bar {
+      pointer-events: auto;
+      display: flex; align-items: center; gap: 0.75rem;
+      width: 100%; max-width: 480px; margin: 0 auto;
+      background: linear-gradient(135deg, #E5B32A 0%, #c89324 100%);
+      color: #0a0a0a;
+      border: none; border-radius: 999px;
+      padding: 0.85rem 1.25rem;
+      font-weight: 700; font-size: 0.95rem;
+      box-shadow: 0 12px 32px rgba(229,179,42,0.45), 0 4px 12px rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cart-bar:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(229,179,42,0.55), 0 6px 16px rgba(0,0,0,0.6); }
+    .cart-bar:active { transform: scale(0.98); }
+    .cart-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      background: #0a0a0a; color: #E5B32A;
+      border-radius: 999px;
+      font-size: 0.85rem; font-weight: 800;
+    }
+    .cart-label { flex: 1; text-align: left; font-family: 'Space Grotesk', sans-serif; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; }
+    .cart-total { font-size: 1.05rem; font-weight: 800; font-family: 'Playfair Display', serif; }
+
+    /* DRAWER */
+    .cart-drawer {
+      position: fixed; inset: 0; z-index: 80;
+    }
+    .cart-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .cart-drawer.open .cart-backdrop { opacity: 1; }
+    .cart-panel {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(180deg, #111 0%, #0a0a0a 100%);
+      border-top: 1px solid rgba(229,179,42,0.3);
+      border-radius: 1.5rem 1.5rem 0 0;
+      max-height: 85vh;
+      display: flex; flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.4, 0.0, 0.2, 1);
+      box-shadow: 0 -20px 60px rgba(0,0,0,0.7);
+    }
+    .cart-drawer.open .cart-panel { transform: translateY(0); }
+    .cart-handle {
+      width: 40px; height: 4px;
+      background: rgba(229,179,42,0.4);
+      border-radius: 2px;
+      margin: 0.75rem auto 0;
+    }
+    .cart-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .cart-body {
+      flex: 1; overflow-y: auto; padding: 1rem 1.5rem;
+    }
+    .cart-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+    .cart-list-item {
+      display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+      padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .cart-list-item:last-child { border-bottom: none; }
+    .cart-item-name { font-size: 0.875rem; color: #fff; flex: 1; line-height: 1.3; }
+    .cart-item-qty { font-size: 0.8rem; color: #E5B32A; font-weight: 700; }
+    .cart-item-price { font-size: 0.875rem; color: #E5B32A; font-family: 'Playfair Display', serif; font-weight: 700; min-width: 60px; text-align: right; }
+    .cart-item-remove {
+      background: none; border: none; color: rgba(255,255,255,0.4);
+      font-size: 1.1rem; cursor: pointer; padding: 0 0.5rem;
+      line-height: 1;
+    }
+    .cart-item-remove:hover { color: #ef4444; }
+    .cart-footer {
+      padding: 1rem 1.5rem 1.5rem;
+      padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0));
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    @media (min-width: 768px) {
+      .cart-panel {
+        left: auto; right: 1.5rem; bottom: 1.5rem;
+        width: 420px;
+        border-radius: 1.5rem;
+        border: 1px solid rgba(229,179,42,0.3);
+      }
+      .cart-drawer.open .cart-panel { transform: translateY(0); }
+      .cart-handle { display: none; }
+    }
+  </style>
+
+  <script type="application/json" id="order-items-data" set:html={JSON.stringify(flatItems)} />
+  <script type="application/json" id="order-i18n-data" set:html={JSON.stringify({
+    cart_empty: t.order_cart_empty,
+    error: t.order_error,
+    success_body: t.order_success_body,
+    pickup_15: t.order_form_pickup_15,
+    pickup_30: t.order_form_pickup_30,
+    pickup_45: t.order_form_pickup_45,
+    pickup_60: t.order_form_pickup_60,
+    lang: currentLang,
+    isEl,
+  })} />
+
+  <script is:inline>
+  (function() {
+    var itemsData = JSON.parse(document.getElementById('order-items-data').textContent || '[]');
+    var i18n = JSON.parse(document.getElementById('order-i18n-data').textContent || '{}');
+    var byId = {};
+    itemsData.forEach(function(it) { byId[it.id] = it; });
+
+    var cart = {}; // { id: qty }
+
+    var $ = function(s) { return document.querySelector(s); };
+
+    var viewMenu = $('#order-view-menu');
+    var viewCheckout = $('#order-view-checkout');
+    var viewSuccess = $('#order-view-success');
+    var floater = $('#cart-floater');
+    var drawer = $('#cart-drawer');
+
+    function fmt(n) { return (Math.round(n * 100) / 100).toFixed(2).replace('.', ',') + '€'; }
+
+    function totalAmount() {
+      var t = 0;
+      Object.keys(cart).forEach(function(id) {
+        var q = cart[id] || 0;
+        var it = byId[id];
+        if (it && q > 0) t += it.price * q;
+      });
+      return t;
+    }
+    function totalCount() {
+      var n = 0;
+      Object.keys(cart).forEach(function(id) { n += cart[id] || 0; });
+      return n;
+    }
+
+    function updateRow(id) {
+      var qty = cart[id] || 0;
+      var disp = document.querySelector('[data-qty="' + id + '"]');
+      if (disp) disp.textContent = String(qty);
+      var row = document.querySelector('[data-item-row="' + id + '"]');
+      if (row) row.classList.toggle('has-qty', qty > 0);
+    }
+
+    function updateCart() {
+      var count = totalCount();
+      var total = totalAmount();
+      $('#cart-count').textContent = String(count);
+      $('#cart-total').textContent = fmt(total);
+      $('#cart-drawer-total').textContent = fmt(total);
+      floater.hidden = count === 0;
+      var validate = $('#cart-validate-btn');
+      validate.disabled = count === 0;
+
+      var list = $('#cart-list');
+      var empty = $('#cart-empty');
+      list.innerHTML = '';
+      var hasItems = false;
+      Object.keys(cart).forEach(function(id) {
+        var q = cart[id] || 0;
+        if (q <= 0) return;
+        hasItems = true;
+        var it = byId[id];
+        if (!it) return;
+        var li = document.createElement('li');
+        li.className = 'cart-list-item';
+        var name = i18n.isEl ? it.name_el : it.name_en;
+        li.innerHTML = '<span class="cart-item-name">' + name + '</span>'
+          + '<span class="cart-item-qty">×' + q + '</span>'
+          + '<span class="cart-item-price">' + fmt(it.price * q) + '</span>'
+          + '<button type="button" class="cart-item-remove" data-remove="' + id + '" aria-label="Remove">×</button>';
+        list.appendChild(li);
+      });
+      empty.hidden = hasItems;
+    }
+
+    function add(id) {
+      cart[id] = (cart[id] || 0) + 1;
+      updateRow(id);
+      updateCart();
+    }
+    function sub(id) {
+      cart[id] = Math.max(0, (cart[id] || 0) - 1);
+      if (cart[id] === 0) delete cart[id];
+      updateRow(id);
+      updateCart();
+    }
+    function removeAll(id) {
+      delete cart[id];
+      updateRow(id);
+      updateCart();
+    }
+
+    document.addEventListener('click', function(e) {
+      var t = e.target;
+      if (!(t instanceof Element)) return;
+      if (t.classList.contains('qty-plus')) { add(t.getAttribute('data-id')); }
+      else if (t.classList.contains('qty-minus')) { sub(t.getAttribute('data-id')); }
+      else if (t.hasAttribute && t.hasAttribute('data-remove')) { removeAll(t.getAttribute('data-remove')); }
+    });
+
+    // Drawer open/close
+    function openDrawer() {
+      drawer.hidden = false;
+      drawer.setAttribute('aria-hidden', 'false');
+      requestAnimationFrame(function() { drawer.classList.add('open'); });
+      document.body.style.overflow = 'hidden';
+    }
+    function closeDrawer() {
+      drawer.classList.remove('open');
+      drawer.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      setTimeout(function() { drawer.hidden = true; }, 320);
+    }
+    $('#cart-open-btn').addEventListener('click', openDrawer);
+    $('#cart-close-btn').addEventListener('click', closeDrawer);
+    $('#cart-backdrop').addEventListener('click', closeDrawer);
+
+    // Swipe to close (mobile)
+    var startY = 0, deltaY = 0, panel = drawer.querySelector('.cart-panel');
+    panel.addEventListener('touchstart', function(e) { startY = e.touches[0].clientY; deltaY = 0; }, { passive: true });
+    panel.addEventListener('touchmove', function(e) {
+      deltaY = e.touches[0].clientY - startY;
+      if (deltaY > 0) { panel.style.transform = 'translateY(' + deltaY + 'px)'; }
+    }, { passive: true });
+    panel.addEventListener('touchend', function() {
+      panel.style.transform = '';
+      if (deltaY > 120) closeDrawer();
+      deltaY = 0;
+    });
+
+    // Validate -> checkout view
+    $('#cart-validate-btn').addEventListener('click', function() {
+      closeDrawer();
+      viewMenu.hidden = true;
+      floater.hidden = true;
+      viewCheckout.hidden = false;
+      renderCheckoutSummary();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    $('#back-to-menu').addEventListener('click', function() {
+      viewCheckout.hidden = true;
+      viewMenu.hidden = false;
+      floater.hidden = totalCount() === 0;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    function renderCheckoutSummary() {
+      var box = $('#checkout-cart-summary');
+      var html = '<ul class="space-y-1 text-gray-300">';
+      Object.keys(cart).forEach(function(id) {
+        var q = cart[id]; if (!q) return;
+        var it = byId[id]; if (!it) return;
+        var name = i18n.isEl ? it.name_el : it.name_en;
+        html += '<li class="flex justify-between"><span>' + name + ' <span class="text-[#E5B32A]">×' + q + '</span></span><span class="text-[#E5B32A] font-bold">' + fmt(it.price * q) + '</span></li>';
+      });
+      html += '</ul>';
+      html += '<div class="flex justify-between mt-3 pt-3 border-t border-white/10 text-base"><span class="text-white font-bold uppercase text-xs tracking-wider">' + (i18n.isEl ? 'Σύνολο' : 'Total') + '</span><span class="text-2xl font-bold text-[#E5B32A]">' + fmt(totalAmount()) + '</span></div>';
+      box.innerHTML = html;
+    }
+
+    // Submit
+    $('#order-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var btn = $('#order-submit-btn');
+      var errEl = $('#order-error');
+      errEl.hidden = true;
+      btn.disabled = true;
+      btn.textContent = '…';
+
+      var fd = new FormData(e.target);
+      var name = String(fd.get('name') || '').trim();
+      var phone = String(fd.get('phone') || '').trim();
+      var pickup_time = String(fd.get('pickup_time') || '');
+
+      var items = [];
+      Object.keys(cart).forEach(function(id) {
+        var q = cart[id]; if (!q) return;
+        var it = byId[id]; if (!it) return;
+        items.push({ id: id, name: i18n.isEl ? it.name_el : it.name_en, price: it.price, qty: q });
+      });
+
+      try {
+        var res = await fetch('/api/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: name, phone: phone, items: items, total: totalAmount(), pickup_time: pickup_time, lang: i18n.lang })
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Server error');
+
+        // Success view
+        viewCheckout.hidden = true;
+        viewSuccess.hidden = false;
+        var pickupLabel = (i18n['pickup_' + pickup_time] || (pickup_time + ' min'));
+        $('#order-success-msg').textContent = (i18n.success_body || '')
+          .replace('{ID}', data.order_id || '?')
+          .replace('{PICKUP}', pickupLabel);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        errEl.textContent = i18n.error || 'Error';
+        errEl.hidden = false;
+        btn.disabled = false;
+        btn.textContent = document.querySelector('#order-submit-btn').getAttribute('data-original') || '';
+      }
+    });
+
+    // Init
+    var submitBtn = $('#order-submit-btn');
+    submitBtn.setAttribute('data-original', submitBtn.textContent);
+    updateCart();
+  })();
+  </script>
+</BaseLayout>

@@ -72,6 +72,31 @@ type RestaurantTranslations = {
   footer_copyright: string;
   drawer_theme: string;
   drawer_brand: string;
+  // Commander online
+  order_cta: string;
+  order_title: string;
+  order_subtitle: string;
+  order_cart: string;
+  order_cart_empty: string;
+  order_cart_total: string;
+  order_validate: string;
+  order_form_title: string;
+  order_form_name: string;
+  order_form_phone: string;
+  order_form_pickup: string;
+  order_form_pickup_15: string;
+  order_form_pickup_30: string;
+  order_form_pickup_45: string;
+  order_form_pickup_60: string;
+  order_form_submit: string;
+  order_form_back: string;
+  order_form_pay_note: string;
+  order_success_title: string;
+  order_success_body: string;
+  order_success_back: string;
+  order_error: string;
+  order_add: string;
+  order_remove: string;
 };
 
 const ui: Record<Lang, RestaurantTranslations> = {
@@ -145,6 +170,30 @@ const ui: Record<Lang, RestaurantTranslations> = {
     footer_copyright: 'Το Καλαμάκι Της Τρούμπας ·',
     drawer_theme: 'Αλλαγή θέματος',
     drawer_brand: 'Το Καλαμάκι Της Τρούμπας',
+    order_cta: 'Παραγγελία online',
+    order_title: 'Παραγγελία online',
+    order_subtitle: 'Διάλεξε, πλήρωσε στο μαγαζί, πάρ\'το σε λίγα λεπτά.',
+    order_cart: 'Το καλάθι σου',
+    order_cart_empty: 'Το καλάθι είναι άδειο.',
+    order_cart_total: 'Σύνολο',
+    order_validate: 'Επιβεβαίωση παραγγελίας',
+    order_form_title: 'Τα στοιχεία σου',
+    order_form_name: 'Όνομα',
+    order_form_phone: 'Τηλέφωνο',
+    order_form_pickup: 'Ώρα παραλαβής',
+    order_form_pickup_15: 'σε 15 λεπτά',
+    order_form_pickup_30: 'σε 30 λεπτά',
+    order_form_pickup_45: 'σε 45 λεπτά',
+    order_form_pickup_60: 'σε 1 ώρα',
+    order_form_submit: 'Επιβεβαίωση',
+    order_form_back: '← Πίσω στο μενού',
+    order_form_pay_note: 'Πληρωμή στο κατάστημα κατά την παραλαβή.',
+    order_success_title: 'Η παραγγελία σου επιβεβαιώθηκε',
+    order_success_body: 'Παραγγελία #{ID} — Παραλαβή σε {PICKUP} στο κατάστημα. Πληρωμή στο ταμείο.',
+    order_success_back: '← Επιστροφή στην αρχική',
+    order_error: 'Σφάλμα — δοκίμασε ξανά.',
+    order_add: 'Προσθήκη',
+    order_remove: 'Αφαίρεση',
   },
   en: {
     meta_title: 'To Kalamaki Tis Troumpas – Authentic Greek Souvlaki Piraeus',
@@ -216,6 +265,30 @@ const ui: Record<Lang, RestaurantTranslations> = {
     footer_copyright: 'To Kalamaki Tis Troumpas ·',
     drawer_theme: 'Change theme',
     drawer_brand: 'To Kalamaki Tis Troumpas',
+    order_cta: 'Order online',
+    order_title: 'Order online',
+    order_subtitle: 'Pick what you like, pay at the counter, grab it in minutes.',
+    order_cart: 'Your cart',
+    order_cart_empty: 'Cart is empty.',
+    order_cart_total: 'Total',
+    order_validate: 'Confirm order',
+    order_form_title: 'Your details',
+    order_form_name: 'Name',
+    order_form_phone: 'Phone',
+    order_form_pickup: 'Pickup time',
+    order_form_pickup_15: 'in 15 min',
+    order_form_pickup_30: 'in 30 min',
+    order_form_pickup_45: 'in 45 min',
+    order_form_pickup_60: 'in 1 hour',
+    order_form_submit: 'Confirm',
+    order_form_back: '← Back to menu',
+    order_form_pay_note: 'Pay at the counter when you pick up.',
+    order_success_title: 'Order confirmed',
+    order_success_body: 'Order #{ID} — Pickup in {PICKUP} at the shop. Pay at the counter.',
+    order_success_back: '← Back to home',
+    order_error: 'Error — please try again.',
+    order_add: 'Add',
+    order_remove: 'Remove',
   },
 };
 

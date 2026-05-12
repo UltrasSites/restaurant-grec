@@ -1,0 +1,445 @@
+---
+// Page admin caisse (FR — pour l'employé / le patron).
+// Non liée à l'i18n du site public.
+---
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Caisse — Κaλαμάκι Της Τρούμπας</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    :root { --gold: #E5B32A; --bg: #0a0a0a; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; min-height: 100vh; }
+    body { overflow-x: hidden; }
+
+    /* ====== LOGIN ====== */
+    .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .login-box {
+      width: 100%; max-width: 380px;
+      background: #111; border: 1px solid rgba(229,179,42,0.3);
+      border-radius: 1rem; padding: 2rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .login-box h1 { margin: 0 0 1.5rem; font-size: 1.25rem; color: var(--gold); text-align: center; letter-spacing: 0.05em; }
+    .login-box input {
+      width: 100%; padding: 0.9rem 1rem;
+      background: #000; border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 0.5rem; color: #fff; font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+    .login-box input:focus { outline: none; border-color: var(--gold); }
+    .login-box button {
+      width: 100%; padding: 0.9rem; background: var(--gold); color: #000;
+      border: none; border-radius: 0.5rem; font-weight: 800; font-size: 0.95rem;
+      letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+    }
+    .login-box button:hover { background: #fff; }
+    .login-error { color: #ef4444; font-size: 0.85rem; margin-top: 0.75rem; text-align: center; }
+
+    /* ====== DASHBOARD ====== */
+    .dashboard { display: none; min-height: 100vh; flex-direction: column; }
+    .dashboard.show { display: flex; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem; background: #000;
+      border-bottom: 2px solid rgba(229,179,42,0.4);
+      position: sticky; top: 0; z-index: 10;
+    }
+    .topbar h1 { margin: 0; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.05em; }
+    .topbar .status {
+      display: flex; align-items: center; gap: 0.75rem;
+      font-size: 0.85rem; color: #aaa;
+    }
+    .status .dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; }
+    .status.disconnected .dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
+    .clock { font-variant-numeric: tabular-nums; font-weight: 700; color: #fff; }
+
+    .orders-area { flex: 1; padding: 1.5rem; }
+    .empty-state {
+      text-align: center; padding: 4rem 1rem;
+      color: #555; font-size: 1.2rem; letter-spacing: 0.05em;
+    }
+    .empty-state .big { font-size: 4rem; opacity: 0.3; margin-bottom: 1rem; }
+
+    .order-list { display: grid; gap: 1.5rem; grid-template-columns: 1fr; max-width: 1000px; margin: 0 auto; }
+
+    .order-card {
+      background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+      border: 3px solid #ef4444;
+      border-radius: 1.25rem;
+      padding: 1.5rem 1.75rem;
+      box-shadow: 0 0 0 4px rgba(239,68,68,0.18), 0 24px 48px rgba(0,0,0,0.6);
+      animation: pulse-red 1.6s ease-in-out infinite;
+    }
+    @keyframes pulse-red {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(239,68,68,0.18), 0 24px 48px rgba(0,0,0,0.6); border-color: #ef4444; }
+      50%      { box-shadow: 0 0 0 8px rgba(239,68,68,0.45), 0 24px 56px rgba(0,0,0,0.7); border-color: #ff6666; }
+    }
+
+    .order-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+    .order-id { font-size: 2.5rem; font-weight: 900; color: var(--gold); letter-spacing: 0.05em; line-height: 1; }
+    .order-meta { font-size: 0.95rem; color: #ccc; text-align: right; }
+    .order-meta .name { font-size: 1.4rem; color: #fff; font-weight: 700; }
+    .order-meta .phone { color: var(--gold); font-weight: 700; margin-top: 0.25rem; }
+
+    .order-pickup {
+      display: inline-block; padding: 0.4rem 0.9rem;
+      background: rgba(229,179,42,0.18); color: var(--gold);
+      border: 2px solid var(--gold); border-radius: 999px;
+      font-weight: 800; font-size: 1.05rem;
+      margin-bottom: 1rem;
+    }
+
+    .order-items {
+      list-style: none; padding: 0; margin: 0 0 1rem;
+      background: rgba(0,0,0,0.4); border-radius: 0.75rem; padding: 0.85rem 1rem;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .order-items li {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+      padding: 0.4rem 0; font-size: 1.15rem;
+      border-bottom: 1px dashed rgba(255,255,255,0.08);
+    }
+    .order-items li:last-child { border-bottom: none; }
+    .order-items .qty {
+      display: inline-block; min-width: 2.3rem; text-align: center;
+      background: var(--gold); color: #000; font-weight: 900;
+      border-radius: 0.4rem; padding: 0.1rem 0.4rem; margin-right: 0.5rem;
+      font-size: 1rem;
+    }
+    .order-items .item-name { flex: 1; color: #fff; font-weight: 600; }
+    .order-items .item-total { color: var(--gold); font-weight: 700; min-width: 80px; text-align: right; }
+
+    .order-total {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 0;
+      font-size: 1.5rem; font-weight: 900;
+      color: var(--gold);
+    }
+    .order-total span:first-child { color: #fff; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
+
+    .ack-btn {
+      width: 100%; padding: 1.5rem;
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+      color: #fff; border: none; border-radius: 0.85rem;
+      font-size: 1.4rem; font-weight: 900;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; transition: transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 8px 24px rgba(34,197,94,0.35);
+    }
+    .ack-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(34,197,94,0.5); }
+    .ack-btn:active { transform: scale(0.98); }
+    .ack-btn:disabled { opacity: 0.6; cursor: wait; }
+
+    /* CLIGNOTEMENT GLOBAL quand commande non acquittée */
+    body.has-pending::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+      background: rgba(239,68,68,0.0);
+      animation: flash-bg 1.2s ease-in-out infinite;
+    }
+    @keyframes flash-bg {
+      0%, 100% { background: rgba(239,68,68,0); }
+      50% { background: rgba(239,68,68,0.12); }
+    }
+
+    .sound-toggle {
+      padding: 0.5rem 0.85rem; font-size: 0.8rem;
+      background: #222; color: #ccc; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.4rem; cursor: pointer;
+      letter-spacing: 0.05em;
+    }
+    .sound-toggle.muted { background: #3a1a1a; color: #ef4444; border-color: #7a2d2d; }
+    .sound-toggle:hover { background: #333; }
+
+    @media (max-width: 700px) {
+      .topbar { padding: 0.85rem 1rem; }
+      .topbar h1 { font-size: 0.95rem; }
+      .order-id { font-size: 2rem; }
+      .order-meta .name { font-size: 1.2rem; }
+      .order-items li { font-size: 1.05rem; }
+      .ack-btn { font-size: 1.2rem; padding: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ÉCRAN LOGIN -->
+  <div id="login-screen" class="login-wrap">
+    <form class="login-box" id="login-form">
+      <h1>CAISSE — TROUMPAS</h1>
+      <input type="password" name="password" id="login-pw" placeholder="Password" autocomplete="current-password" required />
+      <button type="submit">Connexion</button>
+      <p id="login-error" class="login-error" style="display:none;"></p>
+    </form>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard" class="dashboard">
+    <div class="topbar">
+      <h1>📟 ΚΑΛΑΜΑΚΙ — CAISSE</h1>
+      <div class="status" id="conn-status">
+        <span class="dot"></span>
+        <span class="clock" id="clock">--:--</span>
+        <button type="button" id="sound-toggle" class="sound-toggle" aria-pressed="false">🔊 SON</button>
+      </div>
+    </div>
+    <div class="orders-area">
+      <div id="order-list" class="order-list"></div>
+      <div id="empty-state" class="empty-state">
+        <div class="big">🍴</div>
+        <p>Aucune commande en attente.</p>
+        <p style="font-size: 0.85rem; opacity: 0.6; margin-top: 1rem;">Le système écoute en continu. Le son se déclenchera automatiquement à la première commande.</p>
+      </div>
+    </div>
+  </div>
+
+  <script is:inline>
+  (function() {
+    var loginScreen = document.getElementById('login-screen');
+    var dashboard = document.getElementById('dashboard');
+    var loginForm = document.getElementById('login-form');
+    var loginError = document.getElementById('login-error');
+    var orderListEl = document.getElementById('order-list');
+    var emptyEl = document.getElementById('empty-state');
+    var clockEl = document.getElementById('clock');
+    var connEl = document.getElementById('conn-status');
+    var soundToggle = document.getElementById('sound-toggle');
+
+    var orders = {}; // id -> order
+    var since = 0;
+    var polling = false;
+    var soundOn = true;
+    var beepInterval = null;
+    var audioCtx = null;
+
+    function tickClock() {
+      var d = new Date();
+      var hh = String(d.getHours()).padStart(2, '0');
+      var mm = String(d.getMinutes()).padStart(2, '0');
+      var ss = String(d.getSeconds()).padStart(2, '0');
+      clockEl.textContent = hh + ':' + mm + ':' + ss;
+    }
+    setInterval(tickClock, 1000); tickClock();
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+        catch (e) { audioCtx = null; }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(function(){});
+      }
+    }
+
+    function beep() {
+      if (!soundOn) return;
+      ensureAudio();
+      if (!audioCtx) return;
+      try {
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.35, audioCtx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.4);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.42);
+      } catch (e) {}
+    }
+
+    function startBeeping() {
+      if (beepInterval) return;
+      beep();
+      beepInterval = setInterval(beep, 2000);
+    }
+    function stopBeeping() {
+      if (beepInterval) { clearInterval(beepInterval); beepInterval = null; }
+    }
+
+    soundToggle.addEventListener('click', function() {
+      soundOn = !soundOn;
+      soundToggle.textContent = soundOn ? '🔊 SON' : '🔇 MUET';
+      soundToggle.classList.toggle('muted', !soundOn);
+      soundToggle.setAttribute('aria-pressed', String(!soundOn));
+      if (soundOn) {
+        ensureAudio();
+        if (hasPending()) startBeeping();
+      } else {
+        stopBeeping();
+      }
+    });
+
+    function hasPending() {
+      return Object.keys(orders).length > 0;
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, function(c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+
+    function fmt(n) { return (Math.round(n * 100) / 100).toFixed(2).replace('.', ',') + '€'; }
+
+    function pickupLabel(p) {
+      var v = String(p);
+      if (v === '15') return '15 min';
+      if (v === '30') return '30 min';
+      if (v === '45') return '45 min';
+      if (v === '60') return '1 h';
+      return v + ' min';
+    }
+
+    function renderOrders() {
+      var ids = Object.keys(orders).sort(function(a, b) { return orders[a].created_at - orders[b].created_at; });
+      if (ids.length === 0) {
+        orderListEl.innerHTML = '';
+        emptyEl.style.display = 'block';
+        document.body.classList.remove('has-pending');
+        stopBeeping();
+        return;
+      }
+      emptyEl.style.display = 'none';
+      document.body.classList.add('has-pending');
+      if (soundOn) startBeeping();
+
+      var html = '';
+      ids.forEach(function(id) {
+        var o = orders[id];
+        var itemsHtml = '';
+        (o.items || []).forEach(function(it) {
+          itemsHtml += '<li>'
+            + '<span><span class="qty">×' + it.qty + '</span><span class="item-name">' + escapeHtml(it.name) + '</span></span>'
+            + '<span class="item-total">' + fmt(it.price * it.qty) + '</span>'
+            + '</li>';
+        });
+        var d = new Date(o.created_at);
+        var time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+        html += '<article class="order-card" data-order="' + escapeHtml(o.id) + '">'
+          + '<div class="order-head">'
+          + '<div><div class="order-id">' + escapeHtml(o.id) + '</div><div style="font-size:0.8rem;color:#999;margin-top:0.25rem;">reçue à ' + time + '</div></div>'
+          + '<div class="order-meta"><div class="name">' + escapeHtml(o.name) + '</div><div class="phone">📞 <a href="tel:' + encodeURIComponent(o.phone) + '" style="color:inherit;text-decoration:none;">' + escapeHtml(o.phone) + '</a></div></div>'
+          + '</div>'
+          + '<div class="order-pickup">⏱ Παραλαβή σε ' + pickupLabel(o.pickup_time) + '</div>'
+          + '<ul class="order-items">' + itemsHtml + '</ul>'
+          + '<div class="order-total"><span>TOTAL</span><span>' + fmt(o.total) + '</span></div>'
+          + '<button type="button" class="ack-btn" data-ack="' + escapeHtml(o.id) + '">✓ COMMANDE PRISE EN CHARGE</button>'
+          + '</article>';
+      });
+      orderListEl.innerHTML = html;
+    }
+
+    orderListEl.addEventListener('click', async function(e) {
+      var t = e.target;
+      if (!(t instanceof Element)) return;
+      if (!t.hasAttribute('data-ack')) return;
+      var id = t.getAttribute('data-ack');
+      t.disabled = true;
+      t.textContent = '…';
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/ack', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
+        delete orders[id];
+        renderOrders();
+      } catch (err) {
+        t.disabled = false;
+        t.textContent = '✓ COMMANDE PRISE EN CHARGE';
+        alert('Erreur ack: ' + (err && err.message ? err.message : err));
+      }
+    });
+
+    async function pollLoop() {
+      if (polling) return;
+      polling = true;
+      while (polling) {
+        try {
+          var res = await fetch('/api/orders/poll?since=' + encodeURIComponent(since), {
+            credentials: 'include',
+            cache: 'no-store'
+          });
+          if (res.status === 401) {
+            polling = false;
+            showLogin();
+            return;
+          }
+          var data = await res.json();
+          connEl.classList.remove('disconnected');
+          if (data && Array.isArray(data.orders)) {
+            data.orders.forEach(function(o) {
+              if (!orders[o.id]) orders[o.id] = o;
+            });
+            if (typeof data.now === 'number') since = data.now;
+            renderOrders();
+          }
+        } catch (err) {
+          connEl.classList.add('disconnected');
+          await new Promise(function(r) { setTimeout(r, 3000); });
+        }
+        // petite pause entre les long-polls
+        await new Promise(function(r) { setTimeout(r, 500); });
+      }
+    }
+
+    function showDashboard() {
+      loginScreen.style.display = 'none';
+      dashboard.classList.add('show');
+      ensureAudio();
+      pollLoop();
+    }
+    function showLogin() {
+      loginScreen.style.display = 'flex';
+      dashboard.classList.remove('show');
+    }
+
+    loginForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      var pw = document.getElementById('login-pw').value;
+      loginError.style.display = 'none';
+      try {
+        var res = await fetch('/api/caisse-login', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw })
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Wrong password');
+        showDashboard();
+      } catch (err) {
+        loginError.textContent = (err && err.message) || 'Erreur';
+        loginError.style.display = 'block';
+      }
+    });
+
+    // Auto-tentative : si déjà cookie valide, le poll va passer
+    fetch('/api/orders/poll?since=' + Date.now(), { credentials: 'include' })
+      .then(function(r) {
+        if (r.ok) {
+          // session OK
+          showDashboard();
+        } else {
+          showLogin();
+        }
+      })
+      .catch(function() { showLogin(); });
+
+    // Service Worker pour PWA (best-effort)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/caisse-sw.js').catch(function(){});
+    }
+  })();
+  </script>
+</body>
+</html>

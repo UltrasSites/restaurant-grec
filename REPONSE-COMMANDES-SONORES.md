@@ -209,3 +209,116 @@ Je propose de :
 2. Démarrer Phase 2 dès que tu me dis "go" — je te montrerai un mockup `/caisse` avant le code
 
 — Claude
+
+---
+
+## ✅ PHASE 2 — IMPLÉMENTÉE (13/05/2026)
+
+### Ce qui est en ligne
+- `/{lang}/commander` (el + en) — menu interactif + panier + checkout + confirmation
+- `/caisse` — login password + dashboard temps réel avec son aigu (880Hz, toutes les 2s)
+- Pages Functions :
+  - `POST /api/order` — création commande (KV `ORDERS`, ID court `K-001…`, TTL 24h, rate-limit 5/IP/10min)
+  - `GET /api/orders/poll?since=<ts>` — long-poll 25s, retourne les commandes `status=new`
+  - `POST /api/orders/{id}/ack` — marque `status=seen`, arrête le son
+  - `POST /api/caisse-login` — vérifie password, set cookie `caisse_auth` 12h
+- Liens depuis `index.astro` : bouton "Commander en ligne" prioritaire + FAB flottant en bas à droite (clignote)
+
+### Sécurité
+- Cookie auth httpOnly + Secure + SameSite=Lax (12h)
+- Rate-limit 5 commandes / IP / 10min via KV
+- Sanitize tous les inputs (XSS, tags, control chars, longueurs max)
+- Recalcul du total côté serveur (impossible de spoofer le prix)
+- Validation pickup_time strict (15/30/45/60)
+- `noindex, nofollow` sur `/caisse`
+- Délai 500ms sur mauvais password (anti-bruteforce léger)
+
+### Données menu
+Le menu est désormais centralisé dans `src/data/menu-data.ts` (single source of truth).
+`MenuBook.astro` et `/commander` consomment la même source.
+**Important** : les bières (Amstel/Alfa/Fix/Heineken/Mythos) sont désormais en lignes séparées 330ml et 500ml (pour permettre l'ajout au panier sans ambiguïté).
+
+---
+
+## 🚨 ÉTAPES OBLIGATOIRES À FAIRE PAR TIAGO
+
+### 1. Créer le KV namespace `ORDERS`
+
+```bash
+cd "C:\Users\User\Desktop\CODE ENTREPRISES\restaurant-grec"
+npx wrangler kv namespace create ORDERS
+```
+
+Copie l'ID retourné (du genre `id = "abc123…"`).
+
+**OU** via le dashboard Cloudflare :
+1. Workers & Pages → KV → Create namespace
+2. Nom : `ORDERS`
+3. Copier l'ID
+
+### 2. Binder le KV au projet Pages
+
+Dans Cloudflare Dashboard :
+1. **Workers & Pages → restaurant-grec → Settings → Functions**
+2. Section **KV namespace bindings** :
+   - Variable name : `ORDERS`
+   - KV namespace : sélectionner `ORDERS` créé à l'étape 1
+3. **Save**
+
+### 3. Setter la variable `ADMIN_KEY`
+
+Dans Cloudflare Dashboard :
+1. **Workers & Pages → restaurant-grec → Settings → Environment variables**
+2. Production → Add variable :
+   - Variable name : `ADMIN_KEY`
+   - Value : choisir un password fort (ex: `Troumpa2026!K`)
+   - Type : **Encrypt** (important)
+3. **Save**
+
+Note : c'est le même genre de var que Sara — réutilise un password fort.
+
+### 4. Redéployer
+
+Après avoir setté KV + ADMIN_KEY, **redéploie** pour que les bindings soient pris en compte :
+
+```bash
+npx wrangler pages deploy dist --project-name restaurant-grec --branch main
+```
+
+### 5. Tester
+
+- Site public : `https://restaurant-grec.pages.dev/el/commander`
+  - Ajouter 2-3 items, valider, remplir nom/tel, confirmer → message "Votre commande #K-001 est confirmée"
+- Dashboard caisse : `https://restaurant-grec.pages.dev/caisse`
+  - Saisir l'`ADMIN_KEY`
+  - L'onglet doit afficher la commande, clignoter rouge, émettre un bip aigu toutes les 2s
+  - Cliquer "✓ COMMANDE PRISE EN CHARGE" → le son s'arrête, la carte disparaît
+- Important : sur mobile/tablette, le son démarre seulement après la première interaction utilisateur (politique navigateur). Le login compte comme interaction → ok.
+
+### 6. Installation tablette (recommandation)
+
+Sur la tablette du comptoir :
+1. Ouvrir `/caisse` dans Chrome
+2. Menu Chrome → "Ajouter à l'écran d'accueil" (devient une PWA)
+3. Lancer l'app, se connecter, brancher la tablette au chargeur et au haut-parleur
+4. L'onglet reste ouvert toute la journée
+
+---
+
+## 📁 Fichiers ajoutés/modifiés
+
+**Nouveaux** :
+- `src/data/menu-data.ts` — source de vérité du menu
+- `src/pages/[lang]/commander.astro` — page commande client
+- `src/pages/caisse.astro` — dashboard admin plein écran
+- `functions/api/order.ts` — POST création commande
+- `functions/api/orders/poll.ts` — GET long-poll
+- `functions/api/orders/[id]/ack.ts` — POST acquittement
+- `functions/api/caisse-login.ts` — POST login admin
+- `public/caisse-sw.js` — service worker minimal (PWA)
+
+**Modifiés** :
+- `src/components/MenuBook.astro` — utilise menu-data.ts
+- `src/i18n/translations.ts` — clés `order_*` ajoutées (el + en)
+- `src/pages/[lang]/index.astro` — bouton "Commander online" en CTA principal + FAB flottant
+
