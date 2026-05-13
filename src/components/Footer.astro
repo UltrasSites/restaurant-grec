@@ -7,31 +7,38 @@ const { lang = "el" } = Astro.props;
 const t = translations[lang];
 const base = `/${lang}`;
 const currentYear = new Date().getFullYear();
+const isEl = lang === 'el';
 ---
 
-<footer class="bg-[#050505] text-white pt-24 pb-12 border-t border-white/5 relative overflow-hidden">
+<footer class="bg-[#050505] text-white pt-24 pb-10 border-t border-white/5 relative overflow-hidden">
   <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-[#E5B32A]/30 to-transparent"></div>
 
-  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-16 md:gap-8 mb-20">
+  <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-16">
     <div class="md:col-span-2 space-y-6">
       <div class="flex flex-col">
-        <span class="font-serif italic text-4xl text-white tracking-tight">{t.footer_brand}<span class="text-[#E5B32A]">.</span></span>
-        <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mt-2">{t.footer_demo}</p>
+        <span class="font-serif italic text-3xl md:text-4xl text-white tracking-tight">{t.footer_brand}<span class="text-[#E5B32A]">.</span></span>
+        <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mt-2">{isEl ? 'Σουβλάκι · Γύρος · Πίτα · Πειραιάς' : 'Souvlaki · Gyros · Pita · Piraeus'}</p>
       </div>
       <p class="text-gray-400 text-sm max-w-sm leading-relaxed font-light">{t.footer_lead}</p>
-      <div class="flex gap-4">
+      <div class="flex gap-3">
         <a href="https://www.facebook.com/to.kalamaki.tis.troumpas/" target="_blank" rel="noopener" aria-label="Facebook" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-[#E5B32A] hover:text-black hover:border-[#E5B32A] transition-all duration-300">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
         </a>
-        <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" aria-label="e-food" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-[#E5B32A] hover:text-black hover:border-[#E5B32A] transition-all duration-300">
-          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9V7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7V9H4C2.89543 9 2 9.89543 2 11V19C2 20.6569 3.34315 22 5 22H19C20.6569 22 22 20.6569 22 19V11C22 9.89543 21.1046 9 20 9H17ZM9 7C9 5.34315 10.3431 4 12 4C13.6569 4 15 5.34315 15 7V9H9V7ZM20 19C20 19.5523 19.5523 20 19 20H5C4.44772 20 4 19.5523 4 19V11H20V19Z"></path></svg>
+        <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" aria-label="e-food" class="px-3 h-10 rounded-full border border-white/10 flex items-center gap-2 text-xs font-bold hover:bg-[#E5B32A] hover:text-black hover:border-[#E5B32A] transition-all duration-300">
+          <span>e-food</span>
+        </a>
+        <a href="https://wolt.com/el/grc/piraeus/restaurant/to-kalamaki-tis-troumpas" target="_blank" rel="noopener" aria-label="Wolt" class="px-3 h-10 rounded-full border border-white/10 flex items-center gap-2 text-xs font-bold hover:bg-[#E5B32A] hover:text-black hover:border-[#E5B32A] transition-all duration-300">
+          <span>Wolt</span>
+        </a>
+        <a href="https://box.gr" target="_blank" rel="noopener" aria-label="Box" class="px-3 h-10 rounded-full border border-white/10 flex items-center gap-2 text-xs font-bold hover:bg-[#E5B32A] hover:text-black hover:border-[#E5B32A] transition-all duration-300">
+          <span>Box</span>
         </a>
       </div>
     </div>
 
     <div class="space-y-6">
       <h3 class="text-xs uppercase tracking-[0.2em] text-white font-bold">{t.footer_restaurant}</h3>
-      <ul class="space-y-4">
+      <ul class="space-y-3">
         <li><a href={`${base}/#histoire`} class="text-gray-400 text-sm hover:text-[#E5B32A] transition-colors font-light">{t.footer_story}</a></li>
         <li><a href={`${base}/#carte`} class="text-gray-400 text-sm hover:text-[#E5B32A] transition-colors font-light">{t.nav_carte}</a></li>
         <li><a href={`${base}/#contact`} class="text-gray-400 text-sm hover:text-[#E5B32A] transition-colors font-light">{t.nav_contact}</a></li>
@@ -40,22 +47,28 @@ const currentYear = new Date().getFullYear();
 
     <div class="space-y-6">
       <h3 class="text-xs uppercase tracking-[0.2em] text-white font-bold">{t.footer_find}</h3>
-      <div class="space-y-4">
+      <div class="space-y-3">
         <p class="text-gray-400 text-sm leading-relaxed font-light">{t.footer_find_lead}</p>
-        <a href="tel:+302104222233" class="text-[#E5B32A] hover:underline text-sm">+30 210 422 2233</a>
-        <br/>
-        <a href="https://ultras-sites.com" target="_blank" rel="noopener" class="text-white/40 hover:text-[#E5B32A] text-xs transition-colors">ultras-sites.com</a>
+        <a href="tel:+302104222233" class="block text-[#E5B32A] hover:underline text-sm whitespace-nowrap">+30 210 422 2233</a>
+        <a href="tel:+302104222273" class="block text-[#E5B32A] hover:underline text-sm whitespace-nowrap">+30 210 422 2273</a>
+        <a href="mailto:kalamaki.troubas@gmail.com" class="block text-[#E5B32A] hover:underline text-sm">kalamaki.troubas@gmail.com</a>
       </div>
     </div>
   </div>
 
-  <div class="max-w-7xl mx-auto px-6 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+  <div class="max-w-7xl mx-auto px-6 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
     <p class="text-[10px] text-gray-400 uppercase tracking-widest font-medium">
-      © {currentYear} {t.footer_copyright} <a href="https://ultras-sites.com" target="_blank" rel="noopener" class="hover:text-[#E5B32A]">ultras-sites.com</a>
+      © {currentYear} Το Καλαμάκι Της Τρούμπας
     </p>
     <nav class="flex gap-6 text-[10px] text-gray-400 uppercase tracking-widest font-medium" aria-label="Legal">
-      <a href={`${base}/mentions/`} class="hover:text-[#E5B32A] transition-colors">{lang === 'el' ? 'Νομικές πληροφορίες' : 'Legal notice'}</a>
-      <a href={`${base}/cgv/`} class="hover:text-[#E5B32A] transition-colors">{lang === 'el' ? 'Όροι χρήσης' : 'Terms'}</a>
+      <a href={`${base}/mentions/`} class="hover:text-[#E5B32A] transition-colors">{isEl ? 'Νομικές πληροφορίες' : 'Legal notice'}</a>
+      <a href={`${base}/cgv/`} class="hover:text-[#E5B32A] transition-colors">{isEl ? 'Όροι χρήσης' : 'Terms'}</a>
     </nav>
+    <p class="text-[10px] text-white/35 uppercase tracking-widest font-medium flex items-center gap-1.5">
+      <span>{isEl ? 'Φτιαγμένο με' : 'Made with'}</span>
+      <svg viewBox="0 0 24 24" class="w-3 h-3 inline fill-[#E5B32A]"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      <span>{isEl ? 'από' : 'by'}</span>
+      <a href="https://ultras-sites.com" target="_blank" rel="noopener" class="text-white/60 hover:text-[#E5B32A] transition-colors">ultras-sites.com</a>
+    </p>
   </div>
 </footer>
