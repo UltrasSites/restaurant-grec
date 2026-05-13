@@ -1,14 +1,15 @@
 ---
+import Flag from "../components/Flag.astro";
 // Standalone language picker — clients land here after scanning the QR.
 // On click, opens the PDF inline in browser.
 const LANGS = [
-  { code: "zh", flag: "🇨🇳", label: "中文",      sub: "Chinese",     hello: "欢迎光临" },
-  { code: "el", flag: "🇬🇷", label: "Ελληνικά",  sub: "Greek",       hello: "Καλώς ήρθατε" },
-  { code: "en", flag: "🇬🇧", label: "English",   sub: "English",     hello: "Welcome", pdf: "/menu-en.pdf" },
-  { code: "fr", flag: "🇫🇷", label: "Français",  sub: "French",      hello: "Bienvenue" },
-  { code: "pt", flag: "🇵🇹", label: "Português", sub: "Portuguese",  hello: "Bem-vindo" },
-  { code: "it", flag: "🇮🇹", label: "Italiano",  sub: "Italian",     hello: "Benvenuto" },
-  { code: "es", flag: "🇪🇸", label: "Español",   sub: "Spanish",     hello: "Bienvenido" },
+  { code: "zh", label: "中文",      sub: "Chinese",     hello: "欢迎光临" },
+  { code: "el", label: "Ελληνικά",  sub: "Greek",       hello: "Καλώς ήρθατε" },
+  { code: "en", label: "English",   sub: "English",     hello: "Welcome", pdf: "/menu-en.pdf" },
+  { code: "fr", label: "Français",  sub: "French",      hello: "Bienvenue" },
+  { code: "pt", label: "Português", sub: "Portuguese",  hello: "Bem-vindo" },
+  { code: "it", label: "Italiano",  sub: "Italian",     hello: "Benvenuto" },
+  { code: "es", label: "Español",   sub: "Spanish",     hello: "Bienvenido" },
 ];
 ---
 <!doctype html>
@@ -142,11 +143,11 @@ const LANGS = [
       }
       .lang-btn:hover::before, .lang-btn:focus-visible::before { opacity: 1; }
       .lang-btn:active { transform: translateY(0) scale(0.98); }
-      .flag {
-        font-size: 38px;
+      .flag-wrap {
+        display: inline-flex;
         line-height: 1;
+        margin-bottom: 4px;
         filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
-        margin-bottom: 2px;
       }
       .label {
         font-family: 'Playfair Display', serif;
@@ -222,7 +223,7 @@ const LANGS = [
             data-lang={l.code}
             aria-label={`Open menu in ${l.sub}`}
           >
-            <span class="flag" aria-hidden="true">{l.flag}</span>
+            <span class="flag-wrap"><Flag code={l.code} size={56} rounded /></span>
             <span class="label">{l.label}</span>
             <span class="sub">{l.sub}</span>
             <span class="hello">{l.hello}</span>

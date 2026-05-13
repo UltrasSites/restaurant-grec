@@ -11,6 +11,7 @@ import NavBar from "../../components/NavBar.astro";
 import SocialLinks from "../../components/SocialLinks.astro";
 import MenuBook from "../../components/MenuBook.astro";
 import ReviewsSection from "../../components/ReviewsSection.astro";
+import Flag from "../../components/Flag.astro";
 import { getLangFromParam } from "../../i18n/utils";
 import { translations, getMenu } from "../../i18n/translations";
 
@@ -360,13 +361,13 @@ const baseUrl = `/${currentLang}`;
         </p>
         <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-5">
           {[
-            { code: 'el', flag: '🇬🇷', label: 'Ελληνικά' },
-            { code: 'en', flag: '🇬🇧', label: 'English' },
-            { code: 'fr', flag: '🇫🇷', label: 'Français' },
-            { code: 'es', flag: '🇪🇸', label: 'Español' },
-            { code: 'it', flag: '🇮🇹', label: 'Italiano' },
-            { code: 'pt', flag: '🇵🇹', label: 'Português' },
-            { code: 'zh', flag: '🇨🇳', label: '中文' },
+            { code: 'el', label: 'Ελληνικά' },
+            { code: 'en', label: 'English' },
+            { code: 'fr', label: 'Français' },
+            { code: 'es', label: 'Español' },
+            { code: 'it', label: 'Italiano' },
+            { code: 'pt', label: 'Português' },
+            { code: 'zh', label: '中文' },
           ].map((l) => (
             <a
               href={`/menu-${l.code}.pdf`}
@@ -375,7 +376,7 @@ const baseUrl = `/${currentLang}`;
               aria-label={`${currentLang === 'el' ? 'Κατέβασε τον κατάλογο' : 'Download menu'} — ${l.label}`}
               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/75 text-[11px] font-semibold hover:bg-[#E5B32A]/15 hover:border-[#E5B32A]/50 hover:text-white transition-all duration-200"
             >
-              <span class="text-[15px] leading-none" aria-hidden="true">{l.flag}</span>
+              <Flag code={l.code} size={18} rounded />
               <span>{l.label}</span>
             </a>
           ))}

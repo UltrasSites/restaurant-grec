@@ -6,17 +6,9 @@ interface Props {
   variant?: 'header' | 'drawer';
 }
 
+import Flag from './Flag.astro';
 const { currentLang, variant = 'header' } = Astro.props;
 const isDrawer = variant === 'drawer';
-
-const flags: Record<string, string> = {
-  el: '🇬🇷',
-  en: '🇬🇧',
-};
-const labels: Record<string, string> = {
-  el: 'ΕΛΛ',
-  en: 'ENG',
-};
 ---
 
 <div class:list={['lang-switcher', isDrawer ? 'lang-switcher--drawer' : 'lang-switcher--header']} role="navigation" aria-label="Choose language">
@@ -30,8 +22,8 @@ const labels: Record<string, string> = {
         aria-current={isActive ? 'true' : undefined}
         data-lang={l}
       >
-        <span class="lang-flag" aria-hidden="true">{flags[l]}</span>
-        <span class="lang-code">{labels[l]}</span>
+        <Flag code={l} size={18} rounded />
+        <span class="lang-code">{l.toUpperCase()}</span>
       </a>
     );
   })}

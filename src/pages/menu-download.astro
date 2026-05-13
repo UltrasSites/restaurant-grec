@@ -1,13 +1,14 @@
 ---
+import Flag from "../components/Flag.astro";
 // Same language picker — but triggers download instead of inline view.
 const LANGS = [
-  { code: "zh", flag: "🇨🇳", label: "中文",      sub: "Chinese",     hello: "下载菜单" },
-  { code: "el", flag: "🇬🇷", label: "Ελληνικά",  sub: "Greek",       hello: "Κατεβάστε" },
-  { code: "en", flag: "🇬🇧", label: "English",   sub: "English",     hello: "Download", pdf: "/menu-en.pdf", file: "menu-kalamaki-en.pdf" },
-  { code: "fr", flag: "🇫🇷", label: "Français",  sub: "French",      hello: "Télécharger" },
-  { code: "pt", flag: "🇵🇹", label: "Português", sub: "Portuguese",  hello: "Descarregar" },
-  { code: "it", flag: "🇮🇹", label: "Italiano",  sub: "Italian",     hello: "Scarica" },
-  { code: "es", flag: "🇪🇸", label: "Español",   sub: "Spanish",     hello: "Descargar" },
+  { code: "zh", label: "中文",      sub: "Chinese",     hello: "下载菜单" },
+  { code: "el", label: "Ελληνικά",  sub: "Greek",       hello: "Κατεβάστε" },
+  { code: "en", label: "English",   sub: "English",     hello: "Download", pdf: "/menu-en.pdf", file: "menu-kalamaki-en.pdf" },
+  { code: "fr", label: "Français",  sub: "French",      hello: "Télécharger" },
+  { code: "pt", label: "Português", sub: "Portuguese",  hello: "Descarregar" },
+  { code: "it", label: "Italiano",  sub: "Italian",     hello: "Scarica" },
+  { code: "es", label: "Español",   sub: "Spanish",     hello: "Descargar" },
 ];
 ---
 <!doctype html>
@@ -163,7 +164,7 @@ const LANGS = [
       }
       .lang-btn:hover::before, .lang-btn:focus-visible::before { opacity: 1; }
       .lang-btn:active { transform: translateY(0) scale(0.98); }
-      .flag { font-size: 38px; line-height: 1; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); margin-bottom: 2px; }
+      .flag-wrap { display: inline-flex; line-height: 1; margin-bottom: 4px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4)); }
       .label {
         font-family: 'Playfair Display', serif;
         font-style: italic; font-weight: 700;
@@ -234,7 +235,7 @@ const LANGS = [
             data-lang={l.code}
             aria-label={`Download menu in ${l.sub}`}
           >
-            <span class="flag" aria-hidden="true">{l.flag}</span>
+            <span class="flag-wrap"><Flag code={l.code} size={56} rounded /></span>
             <span class="label">{l.label}</span>
             <span class="sub">{l.sub}</span>
             <span class="hello">{l.hello}</span>
