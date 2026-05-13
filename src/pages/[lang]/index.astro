@@ -175,10 +175,10 @@ const baseUrl = `/${currentLang}`;
   <section id="home" class="relative min-h-screen w-full flex flex-col overflow-x-hidden bg-neutral-950">
     <div class="absolute inset-0 z-0">
       <img
-        src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?q=80&w=2000&auto=format&fit=crop"
+        src="/photos/efood-00-1600w.webp"
         alt="Αυθεντικό ψητοπωλείο Τρούμπα Πειραιάς"
         class="w-full h-full object-cover opacity-55"
-        width="2000" height="1333"
+        width="1600" height="900"
         loading="eager"
         fetchpriority="high"
         decoding="async"
@@ -197,20 +197,19 @@ const baseUrl = `/${currentLang}`;
               {t.hero_badge}
             </span>
 
-            {/* Carrousel entre la pastille et le titre — desktop + mobile */}
+            {/* Carrousel : remplacé temporairement — photos haute résolution clientes à fournir */}
             <div class="hero-photo-strip">
               <div class="strip-track">
                 {[
-                  "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=240&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=240&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=240&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=240&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=240&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=240&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=400&h=240&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=240&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=240&fit=crop&q=75",
-                  "https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=240&fit=crop&q=75",
+                  "/photos/efood-00-800w.webp",
+                  "/photos/facebook-03-400w.webp",
+                  "/photos/facebook-04-400w.webp",
+                  "/photos/efood-00-800w.webp",
+                  "/photos/facebook-03-400w.webp",
+                  "/photos/facebook-04-400w.webp",
+                  "/photos/efood-00-800w.webp",
+                  "/photos/facebook-03-400w.webp",
+                  "/photos/facebook-04-400w.webp",
                 ].map((src) => (
                   <img src={src} alt="" loading="lazy" decoding="async" />
                 ))}
@@ -279,10 +278,12 @@ const baseUrl = `/${currentLang}`;
       <div class="flex justify-center items-center relative">
         <div class="absolute inset-0 bg-gradient-to-tr from-[#E5B32A]/20 to-transparent rounded-2xl blur-2xl -z-10"></div>
         <img
-          src="https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1000&auto=format&fit=crop"
+          src="/photos/efood-00-1600w.webp"
           alt="Σχάρα και κάρβουνα — αυθεντικό ψήσιμο"
           class="histoire-img no-invert w-full max-w-md object-cover rounded-2xl shadow-2xl border border-white/10"
-          width="600" height="800"
+          width="800" height="800"
+          loading="lazy"
+          decoding="async"
         />
       </div>
     </div>
@@ -348,15 +349,41 @@ const baseUrl = `/${currentLang}`;
         <h3 class="text-xl md:text-2xl font-serif italic text-white mb-3">
           {currentLang === 'el' ? 'Πάρε τον κατάλογο μαζί σου.' : 'Take the menu with you.'}
         </h3>
-        <p class="text-sm text-gray-400 mb-5 leading-relaxed">
+        <p class="text-sm text-gray-400 mb-3 leading-relaxed">
           {currentLang === 'el'
             ? 'Σκανάρε το QR ή κατέβασε το PDF — όλος ο κατάλογος, παντού, χωρίς ίντερνετ.'
             : 'Scan the QR or download the PDF — full menu, anywhere, no internet needed.'}
         </p>
+        <p class="text-[10px] uppercase tracking-[0.25em] text-[#E5B32A]/85 font-bold mb-2 flex items-center gap-2">
+          <svg viewBox="0 0 24 24" class="w-3 h-3 fill-current"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+          {currentLang === 'el' ? 'Διαθέσιμο σε 7 γλώσσες :' : 'Available in 7 languages :'}
+        </p>
+        <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-5">
+          {[
+            { code: 'el', flag: '🇬🇷', label: 'Ελληνικά' },
+            { code: 'en', flag: '🇬🇧', label: 'English' },
+            { code: 'fr', flag: '🇫🇷', label: 'Français' },
+            { code: 'es', flag: '🇪🇸', label: 'Español' },
+            { code: 'it', flag: '🇮🇹', label: 'Italiano' },
+            { code: 'pt', flag: '🇵🇹', label: 'Português' },
+            { code: 'zh', flag: '🇨🇳', label: '中文' },
+          ].map((l) => (
+            <a
+              href={`/menu-${l.code}.pdf`}
+              target="_blank"
+              rel="noopener"
+              aria-label={`${currentLang === 'el' ? 'Κατέβασε τον κατάλογο' : 'Download menu'} — ${l.label}`}
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/75 text-[11px] font-semibold hover:bg-[#E5B32A]/15 hover:border-[#E5B32A]/50 hover:text-white transition-all duration-200"
+            >
+              <span class="text-[15px] leading-none" aria-hidden="true">{l.flag}</span>
+              <span>{l.label}</span>
+            </a>
+          ))}
+        </div>
         <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
           <a href="/menu-download" class="inline-flex items-center gap-2 px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
-            {currentLang === 'el' ? 'Κατέβασμα PDF' : 'Download PDF'}
+            {currentLang === 'el' ? 'Επιλέξτε γλώσσα' : 'Choose language'}
           </a>
           <a href={`${baseUrl}/#contact`} class="inline-flex items-center gap-2 px-6 py-3 border border-white/25 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white/10 transition-colors">
             {t.carte_reserver}
@@ -466,15 +493,68 @@ const baseUrl = `/${currentLang}`;
   </section>
 
   <!-- MAP — Google Maps Bouboulinas & Notara, Piraeus -->
-  <section class="w-full h-[420px] bg-neutral-900" aria-label={currentLang === 'el' ? 'Χάρτης' : 'Map'}>
-    <iframe
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3146.2!2d23.6439786!3d37.9419284!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a1bbc2a93cff0f%3A0xae98a6803fd3f033!2z0KLQviBLYWxhbWFraSBUaXMgVHJvdW1wYXM!5e0!3m2!1sel!2sgr!4v1715449200000!5m2!1sel!2sgr"
-      class="w-full h-full border-0"
-      loading="lazy"
-      allowfullscreen
-      referrerpolicy="no-referrer-when-downgrade"
-      title={currentLang === 'el' ? 'Χάρτης — Τρούμπα Πειραιάς' : 'Map — Troumpa Piraeus'}
-    ></iframe>
+  <section class="bg-[#050505] py-20 px-4 border-t border-white/5" aria-label={currentLang === 'el' ? 'Χάρτης' : 'Map'}>
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-10">
+        <p class="text-[10px] font-['Space_Grotesk'] uppercase tracking-[0.35em] text-[#E5B32A] font-bold mb-3">
+          {currentLang === 'el' ? 'Πού θα μας βρείτε' : 'Where to find us'}
+        </p>
+        <h2 class="text-3xl md:text-4xl font-serif italic text-white gold-shine-text">
+          {currentLang === 'el' ? 'Στην καρδιά της Τρούμπας' : 'In the heart of Troumpa'}
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6 lg:gap-8 items-stretch">
+        <!-- Map iframe wrapped in styled container -->
+        <div class="relative rounded-3xl overflow-hidden border border-[#E5B32A]/20 shadow-[0_30px_80px_-20px_rgba(229,179,42,0.18)] bg-neutral-900 min-h-[380px] lg:min-h-[460px]">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3146.2!2d23.6439786!3d37.9419284!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14a1bbc2a93cff0f%3A0xae98a6803fd3f033!2z0KLQviBLYWxhbWFraSBUaXMgVHJvdW1wYXM!5e0!3m2!1sel!2sgr!4v1715449200000!5m2!1sel!2sgr"
+            class="absolute inset-0 w-full h-full border-0 grayscale-[15%] contrast-110"
+            loading="lazy"
+            allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+            title={currentLang === 'el' ? 'Χάρτης — Τρούμπα Πειραιάς' : 'Map — Troumpa Piraeus'}
+          ></iframe>
+        </div>
+
+        <!-- Info card -->
+        <div class="bg-gradient-to-br from-[#E5B32A]/10 to-black/70 border border-[#E5B32A]/25 rounded-3xl p-7 md:p-9 backdrop-blur-xl flex flex-col gap-5">
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2">{t.resa_label_address}</p>
+            <p class="text-base md:text-lg text-white font-serif italic leading-snug">{t.resa_address}</p>
+          </div>
+          <div class="border-t border-white/10 pt-5">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2">{t.resa_label_hours}</p>
+            <p class="text-sm text-white/85 leading-relaxed">{t.resa_hours}</p>
+          </div>
+          <div class="border-t border-white/10 pt-5">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2">{t.resa_label_phone}</p>
+            <a href="tel:+302104222233" class="text-base text-[#E5B32A] hover:underline font-bold tracking-wide">+30 210 422 2233</a>
+          </div>
+          <div class="mt-auto flex flex-col sm:flex-row gap-3 pt-2">
+            <a
+              href="https://maps.app.goo.gl/kuNXzqB7Yiknasgk9"
+              target="_blank"
+              rel="noopener"
+              class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#E5B32A] text-black text-[11px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white transition-colors"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"/>
+              </svg>
+              {currentLang === 'el' ? 'Οδηγίες' : 'Directions'}
+            </a>
+            <a
+              href="https://www.google.com/maps/place/%CE%A4%CE%BF+%CE%9A%CE%B1%CE%BB%CE%B1%CE%BC%CE%AC%CE%BA%CE%B9+%CE%A4%CE%B7%CF%82+%CE%A4%CF%81%CE%BF%CF%8D%CE%BC%CF%80%CE%B1%CF%82/@37.9419284,23.6439786,17z"
+              target="_blank"
+              rel="noopener"
+              class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/25 text-white text-[11px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white/5 hover:border-[#E5B32A]/60 transition-colors"
+            >
+              {currentLang === 'el' ? 'Δείτε στο Google' : 'View on Google'}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- FAB Commander online — visible sur mobile, discret desktop -->

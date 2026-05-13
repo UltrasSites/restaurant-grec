@@ -22,7 +22,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Ποτά",
     title_en: "Drinks",
-    photo: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-08-800w.webp",
     items: [
       { el: "Αναψυκτικά 330ml", en: "Soft drinks 330ml", price: "1,60€" },
       { el: "Αναψυκτικά 500ml", en: "Soft drinks 500ml", price: "1,60€" },
@@ -46,7 +46,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Ορεκτικά Ι",
     title_en: "Appetizers I",
-    photo: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-01-800w.webp",
     items: [
       { el: "Φρέσκιες Πατάτες", en: "Fresh Fried Potatoes", price: "3,50€" },
       { el: "Πατάτες με τυρί", en: "Fries with cheese", price: "4,00€" },
@@ -60,7 +60,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Ορεκτικά ΙΙ",
     title_en: "Appetizers II",
-    photo: "https://images.unsplash.com/photo-1626200419199-391ae4be7a41?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-03-800w.webp",
     items: [
       { el: "Κολοκυθοκεφτέδες τμχ", en: "Zucchini Fritter pc", price: "1,20€" },
       { el: "Κολοκυθοκεφτέδες μερίδα 5 τμχ", en: "Zucchini Fritters portion 5 pcs", price: "6,00€" },
@@ -72,7 +72,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Σαλάτες",
     title_en: "Salads",
-    photo: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-05-800w.webp",
     items: [
       { el: "Η σαλάτα της Τρούμπας", en: "Trouba's salad", desc_el: "μαρούλι, λάχανο, ντομάτα, αγγούρι, κρεμμύδι, πιπεριά, ελιές, κάπαρη & σως μουστάρδας", desc_en: "lettuce, cabbage, tomato, cucumber, onion, peppers, olives, capers & mustard sauce", price: "7,50€" },
       { el: "Λάχανο-Καρότο", en: "Cabbage-Carrot Salad", price: "4,50€" },
@@ -82,7 +82,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Πίτες τυλιχτές",
     title_en: "Wrapped Pita",
-    photo: "https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-10-800w.webp",
     items: [
       { el: "Καλαμάκι χοιρινό", en: "Skewered pork", desc_el: "ντομάτα, κρεμμύδι, τζατζίκι, πατάτες", desc_en: "tomato, onion, tzatziki, fries", price: "3,50€" },
       { el: "Καλαμάκι κοτόπουλο μπούτι", en: "Skewered chicken thigh", desc_el: "ντομάτα, μαρούλι, σως, πατάτες", desc_en: "tomato, lettuce, sauce, fries", price: "3,50€" },
@@ -93,7 +93,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Πίτες τυλιχτές ΙΙ",
     title_en: "Wrapped Pita II",
-    photo: "https://images.unsplash.com/photo-1561758033-d89a9ad46330?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-15-800w.webp",
     items: [
       { el: "Τρουμπάκι — Special μπιφτεκάκι της Τρούμπας", en: "Trouba's special burger", desc_el: "ντομάτα, μουστάρδα, πατάτες", desc_en: "tomato, mustard, fries", price: "3,50€" },
       { el: "Κεμπάπ Φιλαδέλφεια", en: "Kebap Philadelphia", desc_el: "ντομάτα, κρεμμύδι, τζατζίκι, πατάτες", desc_en: "tomato, onion, tzatziki, fries", price: "3,80€" },
@@ -105,7 +105,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Μερίδες — Καλαμάκια",
     title_en: "Portions — Skewers",
-    photo: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-20-800w.webp",
     note_el: "4 τμχ — συνοδεύεται με ντομάτα, κρεμμύδι, τζατζίκι, πατάτες, 2 πίτες",
     note_en: "4 pcs — served with tomato, onion, tzatziki, fries, 2 pita",
     items: [
@@ -117,7 +117,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Μερίδες — Σπεσιαλιτέ",
     title_en: "Portions — Specials",
-    photo: "https://images.unsplash.com/photo-1606755962773-d324e0a13086?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-25-800w.webp",
     note_el: "Συνοδεύεται με πατάτες, πίτα, σαλάτα/σάλτσα",
     note_en: "Served with fries, pita, salad/sauce",
     items: [
@@ -129,7 +129,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Μερίδες — Χοιρινά",
     title_en: "Portions — Pork",
-    photo: "https://images.unsplash.com/photo-1558030006-450675393462?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-30-800w.webp",
     note_el: "Συνοδεύεται με ντομάτα, κρεμμύδι, τζατζίκι, πατάτες, 2 πίτες",
     note_en: "Served with tomato, onion, tzatziki, fries, 2 pita",
     items: [
@@ -142,16 +142,21 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Χάμπουργκερ",
     title_en: "Hamburger",
-    photo: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-35-800w.webp",
     items: [
-      { el: "Χάμπουργκερ", en: "Hamburger", desc_el: "με μπιφτέκι μοσχαρίσιο, τυρί cheddar, πράσινη σαλάτα, ντομάτα, κρεμμύδι", desc_en: "beef burger, cheddar cheese, lettuce, tomato, onion", price: "7,00€" },
+      { el: "Χάμπουργκερ Κλασικό", en: "Classic Hamburger", desc_el: "μπιφτέκι μοσχαρίσιο, τυρί cheddar, πράσινη σαλάτα, ντομάτα, κρεμμύδι, πατάτες", desc_en: "beef burger, cheddar cheese, lettuce, tomato, onion, fries", price: "7,00€" },
+      { el: "Χάμπουργκερ Διπλό", en: "Double Hamburger", desc_el: "διπλό μπιφτέκι, διπλό cheddar, πράσινη σαλάτα, ντομάτα, κρεμμύδι, πατάτες", desc_en: "double beef burger, double cheddar, lettuce, tomato, onion, fries", price: "9,50€" },
+      { el: "Cheeseburger της Τρούμπας", en: "Trouba's Cheeseburger", desc_el: "μπιφτέκι, διπλό cheddar, μπέικον, αυγό τηγανητό, πατάτες", desc_en: "burger, double cheddar, bacon, fried egg, fries", price: "8,50€" },
+      { el: "BBQ Burger", en: "BBQ Burger", desc_el: "μπιφτέκι, καπνιστό τυρί, καραμελωμένο κρεμμύδι, BBQ sauce, πατάτες", desc_en: "burger, smoked cheese, caramelised onion, BBQ sauce, fries", price: "8,50€" },
       { el: "+ Έξτρα μπέικον", en: "+ extra bacon", price: "+0,70€" },
+      { el: "+ Έξτρα cheddar", en: "+ extra cheddar", price: "+0,70€" },
+      { el: "+ Έξτρα αυγό", en: "+ extra fried egg", price: "+0,80€" },
     ],
   },
   {
     title_el: "Veggie Menu",
     title_en: "Veggie Menu",
-    photo: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-40-800w.webp",
     items: [
       { el: "Μπιφτέκι λαχανικών τμχ", en: "Vegetable Stick pc", price: "2,00€" },
       { el: "Τυλιχτό Μπιφτέκι λαχανικών", en: "Wrapped Vegetable Burger", desc_el: "ντομάτα, μαρούλι, πατάτες", desc_en: "tomato, lettuce, fries", price: "3,50€" },
@@ -169,11 +174,12 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Σάντουιτς & Σκεπαστή",
     title_en: "Sandwich & Skepasti",
-    photo: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&h=200&fit=crop&q=75",
+    photo: "/photos/efood-45-800w.webp",
     items: [
-      { el: "Σάντουιτς με κρέας της επιλογής σας", en: "Sandwich with meat of your choice", price: "4,50€" },
-      { el: "Σάντουιτς με διπλό κρέας της επιλογής σας", en: "Sandwich with double meat of your choice", price: "5,50€" },
+      { el: "Σάντουιτς με κρέας της επιλογής σας", en: "Sandwich with meat of your choice", desc_el: "ντομάτα, μαρούλι, τζατζίκι, πατάτες", desc_en: "tomato, lettuce, tzatziki, fries", price: "4,50€" },
+      { el: "Σάντουιτς με διπλό κρέας", en: "Sandwich with double meat", desc_el: "ντομάτα, μαρούλι, τζατζίκι, πατάτες", desc_en: "tomato, lettuce, tzatziki, fries", price: "5,50€" },
       { el: "Σκεπαστή με κρέας της επιλογής σας", en: "Skepasti with meat of your choice", desc_el: "ντομάτα, μαρούλι, σως, πατάτες & τυρί γκούντα", desc_en: "tomato, lettuce, sauce, fries & gouda cheese", price: "7,50€" },
+      { el: "Σκεπαστή με κρέας της επιλογής σας (διπλό)", en: "Skepasti — double meat", desc_el: "ντομάτα, μαρούλι, σως, πατάτες & τυρί γκούντα", desc_en: "tomato, lettuce, sauce, fries & gouda cheese", price: "9,50€" },
     ],
   },
 ];

@@ -8,6 +8,15 @@ interface Props {
 
 const { currentLang, variant = 'header' } = Astro.props;
 const isDrawer = variant === 'drawer';
+
+const flags: Record<string, string> = {
+  el: '🇬🇷',
+  en: '🇬🇧',
+};
+const labels: Record<string, string> = {
+  el: 'ΕΛΛ',
+  en: 'ENG',
+};
 ---
 
 <div class:list={['lang-switcher', isDrawer ? 'lang-switcher--drawer' : 'lang-switcher--header']} role="navigation" aria-label="Choose language">
@@ -21,7 +30,8 @@ const isDrawer = variant === 'drawer';
         aria-current={isActive ? 'true' : undefined}
         data-lang={l}
       >
-        {l.toUpperCase()}
+        <span class="lang-flag" aria-hidden="true">{flags[l]}</span>
+        <span class="lang-code">{labels[l]}</span>
       </a>
     );
   })}
@@ -29,6 +39,8 @@ const isDrawer = variant === 'drawer';
 
 <style>
   .lang-switcher { display: flex; align-items: center; gap: 0.5rem; }
+  .lang-flag { font-size: 1.05rem; line-height: 1; display: inline-block; transform: translateY(-1px); }
+  .lang-code { font-size: 10px; letter-spacing: 0.1em; }
 
   .lang-switcher__link {
     font-family: 'Inter', sans-serif;

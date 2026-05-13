@@ -45,6 +45,14 @@ const LANGS = [
         max-width: 720px; margin: 0 auto;
       }
       .brand { text-align: center; margin-bottom: 28px; }
+      .brand-logo {
+        display: block;
+        width: auto;
+        height: clamp(86px, 18vw, 130px);
+        margin: 0 auto 14px;
+        object-fit: contain;
+        filter: drop-shadow(0 6px 18px rgba(229,179,42,0.25));
+      }
       .brand-mark {
         display: inline-block;
         font-family: 'Playfair Display', serif;
@@ -204,8 +212,8 @@ const LANGS = [
   <body>
     <main class="wrap">
       <div class="brand">
+        <img src="/photos/logo-main.png" alt="Το Καλαμάκι Της Τρούμπας" class="brand-logo" width="260" height="110" />
         <span class="brand-mark">Bouboulinas 8 · Piraeus</span>
-        <h1>Το Καλαμάκι Της Τρούμπας</h1>
         <p>Authentic Piraeus Flavour</p>
       </div>
 

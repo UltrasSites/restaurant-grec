@@ -32,17 +32,82 @@ const htmlLang = lang === 'en' ? 'en-GB' : 'el-GR';
     <meta name="geo.placename" content="Piraeus" />
     <meta name="geo.position" content="37.9419284;23.6439786" />
     <link rel="canonical" href={Astro.url.href} />
-    <meta property="og:type" content="website" />
+    <link rel="alternate" hreflang="el" href={new URL('/el/', Astro.url.origin).href} />
+    <link rel="alternate" hreflang="en" href={new URL('/en/', Astro.url.origin).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL('/el/', Astro.url.origin).href} />
+    <meta property="og:type" content="restaurant" />
+    <meta property="og:site_name" content="Το Καλαμάκι Της Τρούμπας" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={Astro.url.href} />
     <meta property="og:locale" content={lang === 'en' ? 'en_GB' : 'el_GR'} />
+    <meta property="og:locale:alternate" content={lang === 'en' ? 'el_GR' : 'en_GB'} />
+    <meta property="og:image" content={new URL('/photos/efood-00-1600w.webp', Astro.url).href} />
+    <meta property="og:image:alt" content="Το Καλαμάκι Της Τρούμπας — Αυθεντικά Σουβλάκια Πειραιάς" />
+    <meta property="og:image:width" content="1600" />
+    <meta property="og:image:height" content="900" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={new URL('/photos/efood-00-1600w.webp', Astro.url).href} />
+    <meta name="twitter:image:alt" content="Το Καλαμάκι Της Τρούμπας" />
+
+    {/* JSON-LD : Restaurant schema for Google rich results + local SEO */}
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Restaurant",
+      "name": "Το Καλαμάκι Της Τρούμπας",
+      "alternateName": "To Kalamaki Tis Troumpas",
+      "description": description,
+      "url": Astro.url.origin,
+      "image": [
+        new URL('/photos/efood-00-1600w.webp', Astro.url).href,
+        new URL('/photos/efood-00-800w.webp', Astro.url).href,
+        new URL('/photos/logo-main.png', Astro.url).href
+      ],
+      "logo": new URL('/photos/logo-main.png', Astro.url).href,
+      "telephone": "+302104222233",
+      "priceRange": "€",
+      "servesCuisine": ["Greek", "Mediterranean", "Souvlaki", "Gyros"],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Μπουμπουλίνας 8 & Νοταρά",
+        "addressLocality": "Πειραιάς",
+        "postalCode": "18535",
+        "addressRegion": "Αττική",
+        "addressCountry": "GR"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 37.9419284,
+        "longitude": 23.6439786
+      },
+      "hasMap": "https://maps.app.goo.gl/kuNXzqB7Yiknasgk9",
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday"], "opens": "13:00", "closes": "02:30" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "13:00", "closes": "04:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "20:00", "closes": "05:00" }
+      ],
+      "menu": new URL(`/menu-${lang}.pdf`, Astro.url).href,
+      "acceptsReservations": "False",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.3",
+        "reviewCount": "200",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "sameAs": [
+        "https://www.facebook.com/to.kalamaki.tis.troumpas/",
+        "https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas"
+      ]
+    })}></script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/photos/logo-favicon.png" />
+    <link rel="apple-touch-icon" href="/photos/logo-favicon.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preconnect" href="https://images.unsplash.com" />
-    <link rel="dns-prefetch" href="https://images.unsplash.com" />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" media="print" onload="this.media='all'" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" /></noscript>

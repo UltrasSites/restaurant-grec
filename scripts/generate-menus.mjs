@@ -12,6 +12,7 @@ const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, "..");
 const FONT_DIR = path.join(__dirname, "fonts");
 const OUT_DIR = path.join(ROOT, "public");
+const LOGO_PATH = path.join(OUT_DIR, "photos", "logo-main.png");
 
 const GOLD = "#E5B32A";
 const DARK = "#0a0a0a";
@@ -85,10 +86,21 @@ function drawFrame(doc) {
 function drawHeader(doc, lang) {
   drawTopBorder(doc);
   doc.save();
+  // Mini logo en haut à gauche (si disponible)
+  let textX = MARGIN;
+  let textW = PAGE_W - 2 * MARGIN;
+  if (fs.existsSync(LOGO_PATH)) {
+    const h = 22;
+    doc.opacity(0.85);
+    doc.image(LOGO_PATH, MARGIN, 18, { height: h });
+    doc.opacity(1);
+    textX = MARGIN + 60;
+    textW = PAGE_W - MARGIN - textX;
+  }
   doc.fillColor(GOLD).font("SansBold").fontSize(8);
-  doc.text(RESTAURANT.name_el.toUpperCase(), MARGIN, 24, { width: PAGE_W - 2 * MARGIN, align: "left", characterSpacing: 2 });
+  doc.text(RESTAURANT.name_el.toUpperCase(), textX, 24, { width: textW, align: "left", characterSpacing: 2 });
   doc.fillColor(DIM).font("Sans").fontSize(7);
-  doc.text(RESTAURANT.address, MARGIN, 36, { width: PAGE_W - 2 * MARGIN, align: "right" });
+  doc.text(RESTAURANT.address, textX, 36, { width: textW, align: "right" });
   doc.restore();
 }
 
@@ -112,28 +124,36 @@ function drawCover(doc, lang) {
   drawFrame(doc);
   drawTopBorder(doc);
 
-  // Decorative diamond top
-  const cx = PAGE_W / 2;
-  doc.save();
-  doc.fillColor(GOLD).opacity(0.5);
-  doc.fontSize(14).font("Regular").text("◆", 0, 110, { width: PAGE_W, align: "center" });
-  doc.opacity(1);
-  doc.restore();
+  // Logo principal sur la couverture (sans fond, centré)
+  const hasLogo = fs.existsSync(LOGO_PATH);
+  if (hasLogo) {
+    const logoH = 110;
+    const logoMaxW = PAGE_W - 2 * (MARGIN + 30);
+    doc.image(LOGO_PATH, (PAGE_W - logoMaxW) / 2, 80, { fit: [logoMaxW, logoH], align: "center" });
+  } else {
+    doc.save();
+    doc.fillColor(GOLD).opacity(0.5);
+    doc.fontSize(14).font("Regular").text("◆", 0, 110, { width: PAGE_W, align: "center" });
+    doc.opacity(1);
+    doc.restore();
+  }
 
-  // Tagline (small caps)
+  // Tagline (small caps) — sous le logo
+  const taglineY = hasLogo ? 220 : 140;
   doc.fillColor(GOLD).font("SansBold").fontSize(9);
-  doc.text(pick(RESTAURANT.tagline, lang).toUpperCase(), MARGIN, 140, {
+  doc.text(pick(RESTAURANT.tagline, lang).toUpperCase(), MARGIN, taglineY, {
     width: PAGE_W - 2 * MARGIN, align: "center", characterSpacing: 3,
   });
 
   // Main title — in Greek (original)
-  doc.fillColor(WHITE).font(lang === "zh" ? "Regular" : "BoldItalic").fontSize(36);
-  doc.text(RESTAURANT.name_el, MARGIN, 200, { width: PAGE_W - 2 * MARGIN, align: "center" });
+  const titleY = taglineY + 22;
+  doc.fillColor(WHITE).font(lang === "zh" ? "Regular" : "BoldItalic").fontSize(26);
+  doc.text(RESTAURANT.name_el, MARGIN, titleY, { width: PAGE_W - 2 * MARGIN, align: "center" });
 
   // Subtitle (translit / latin)
   if (lang !== "el") {
-    doc.fillColor(GREY).font("Italic").fontSize(14);
-    doc.text(RESTAURANT.name_translit, MARGIN, 260, { width: PAGE_W - 2 * MARGIN, align: "center" });
+    doc.fillColor(GREY).font("Italic").fontSize(13);
+    doc.text(RESTAURANT.name_translit, MARGIN, titleY + 36, { width: PAGE_W - 2 * MARGIN, align: "center" });
   }
 
   // Gold divider
@@ -290,11 +310,12 @@ function drawBackCover(doc, lang) {
   const thanks = {
     zh: "感谢您的光临",
     el: "Σας ευχαριστούμε",
+    en: "Thank you for your visit",
     fr: "Merci de votre visite",
     pt: "Obrigado pela visita",
     it: "Grazie per la visita",
     es: "Gracias por su visita",
-  }[lang];
+  }[lang] || "Thank you";
   doc.text(thanks.toUpperCase(), MARGIN, 200, { width: PAGE_W - 2 * MARGIN, align: "center", characterSpacing: 3 });
 
   doc.fillColor(WHITE).font(lang === "zh" ? "Bold" : "BoldItalic").fontSize(28);

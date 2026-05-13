@@ -2,11 +2,12 @@
 // Greek dish names are KEPT in Greek (gastronomic identity)
 // Only section titles + ingredient descriptions are translated.
 
-export const LANGS = ["zh", "el", "fr", "pt", "it", "es"];
+export const LANGS = ["zh", "el", "en", "fr", "pt", "it", "es"];
 
 export const LANG_LABELS = {
   zh: "中文",
   el: "Ελληνικά",
+  en: "English",
   fr: "Français",
   pt: "Português",
   it: "Italiano",
@@ -16,6 +17,7 @@ export const LANG_LABELS = {
 export const LANG_FLAGS = {
   zh: "🇨🇳",
   el: "🇬🇷",
+  en: "🇬🇧",
   fr: "🇫🇷",
   pt: "🇵🇹",
   it: "🇮🇹",
@@ -32,6 +34,7 @@ export const RESTAURANT = {
   hours: {
     zh: "周一至周四 11:00–03:00 · 周五至周六 11:00–06:00 · 周日休息",
     el: "Δευ–Πέμ 11:00–03:00 · Παρ–Σαβ 11:00–06:00 · Κυρ Κλειστό",
+    en: "Mon–Thu 11:00–03:00 · Fri–Sat 11:00–06:00 · Sun Closed",
     fr: "Lun–Jeu 11:00–03:00 · Ven–Sam 11:00–06:00 · Dim Fermé",
     pt: "Seg–Qui 11:00–03:00 · Sex–Sáb 11:00–06:00 · Dom Fechado",
     it: "Lun–Gio 11:00–03:00 · Ven–Sab 11:00–06:00 · Dom Chiuso",
@@ -40,6 +43,7 @@ export const RESTAURANT = {
   tagline: {
     zh: "比雷埃夫斯港的传统希腊烤串",
     el: "Αυθεντική Γεύση Πειραιά",
+    en: "Authentic Piraeus Flavour",
     fr: "Saveurs Authentiques du Pirée",
     pt: "Sabores Autênticos do Pireu",
     it: "Sapori Autentici del Pireo",
@@ -48,6 +52,7 @@ export const RESTAURANT = {
   menu_title: {
     zh: "我们的菜单",
     el: "Ο Κατάλογός Μας",
+    en: "Our Menu",
     fr: "Notre Carte",
     pt: "O Nosso Cardápio",
     it: "Il Nostro Menu",
@@ -56,6 +61,7 @@ export const RESTAURANT = {
   footer_scan: {
     zh: "扫描二维码 · 在线查看菜单",
     el: "Σκανάρετε το QR · Δείτε τον κατάλογο online",
+    en: "Scan the QR · View the menu online",
     fr: "Scannez le QR · Voir la carte en ligne",
     pt: "Escaneie o QR · Ver o menu online",
     it: "Scansiona il QR · Vedi il menu online",
@@ -65,18 +71,18 @@ export const RESTAURANT = {
 
 // Section titles per language
 const SECTIONS = {
-  drinks:        { zh: "饮料",       el: "Ποτά",                 fr: "Boissons",              pt: "Bebidas",                  it: "Bevande",                 es: "Bebidas" },
-  appetizers1:   { zh: "开胃菜 I",   el: "Ορεκτικά Ι",           fr: "Entrées I",             pt: "Entradas I",               it: "Antipasti I",             es: "Entrantes I" },
-  appetizers2:   { zh: "开胃菜 II",  el: "Ορεκτικά ΙΙ",          fr: "Entrées II",            pt: "Entradas II",              it: "Antipasti II",            es: "Entrantes II" },
-  salads:        { zh: "沙拉",       el: "Σαλάτες",              fr: "Salades",               pt: "Saladas",                  it: "Insalate",                es: "Ensaladas" },
-  pita1:         { zh: "卷饼 I",     el: "Πίτες τυλιχτές",       fr: "Pitas Roulées",         pt: "Pitas Enroladas",          it: "Pita Arrotolate",         es: "Pitas Enrolladas" },
-  pita2:         { zh: "卷饼 II",    el: "Πίτες τυλιχτές ΙΙ",    fr: "Pitas Roulées II",      pt: "Pitas Enroladas II",       it: "Pita Arrotolate II",      es: "Pitas Enrolladas II" },
-  port_skew:     { zh: "份量 — 烤串", el: "Μερίδες — Καλαμάκια", fr: "Portions — Brochettes", pt: "Porções — Espetinhos",     it: "Porzioni — Spiedini",     es: "Raciones — Brochetas" },
-  port_special:  { zh: "份量 — 特色", el: "Μερίδες — Σπεσιαλιτέ", fr: "Portions — Spécialités", pt: "Porções — Especialidades", it: "Porzioni — Specialità", es: "Raciones — Especiales" },
-  port_pork:     { zh: "份量 — 猪肉", el: "Μερίδες — Χοιρινά",    fr: "Portions — Porc",       pt: "Porções — Porco",          it: "Porzioni — Maiale",       es: "Raciones — Cerdo" },
-  burger:        { zh: "汉堡",       el: "Χάμπουργκερ",          fr: "Hamburger",             pt: "Hambúrguer",               it: "Hamburger",               es: "Hamburguesa" },
-  veggie:        { zh: "素食菜单",   el: "Veggie Menu",          fr: "Menu Végétarien",       pt: "Menu Vegetariano",         it: "Menu Vegetariano",        es: "Menú Vegetariano" },
-  sandwich:      { zh: "三明治 & 卷饼 Skepasti", el: "Σάντουιτς & Σκεπαστή", fr: "Sandwich & Skepasti", pt: "Sanduíche & Skepasti", it: "Sandwich & Skepasti", es: "Sándwich & Skepasti" },
+  drinks:        { zh: "饮料",       el: "Ποτά",                 en: "Drinks",                fr: "Boissons",              pt: "Bebidas",                  it: "Bevande",                 es: "Bebidas" },
+  appetizers1:   { zh: "开胃菜 I",   el: "Ορεκτικά Ι",           en: "Appetizers I",          fr: "Entrées I",             pt: "Entradas I",               it: "Antipasti I",             es: "Entrantes I" },
+  appetizers2:   { zh: "开胃菜 II",  el: "Ορεκτικά ΙΙ",          en: "Appetizers II",         fr: "Entrées II",            pt: "Entradas II",              it: "Antipasti II",            es: "Entrantes II" },
+  salads:        { zh: "沙拉",       el: "Σαλάτες",              en: "Salads",                fr: "Salades",               pt: "Saladas",                  it: "Insalate",                es: "Ensaladas" },
+  pita1:         { zh: "卷饼 I",     el: "Πίτες τυλιχτές",       en: "Pita Wraps",            fr: "Pitas Roulées",         pt: "Pitas Enroladas",          it: "Pita Arrotolate",         es: "Pitas Enrolladas" },
+  pita2:         { zh: "卷饼 II",    el: "Πίτες τυλιχτές ΙΙ",    en: "Pita Wraps II",         fr: "Pitas Roulées II",      pt: "Pitas Enroladas II",       it: "Pita Arrotolate II",      es: "Pitas Enrolladas II" },
+  port_skew:     { zh: "份量 — 烤串", el: "Μερίδες — Καλαμάκια", en: "Portions — Skewers",    fr: "Portions — Brochettes", pt: "Porções — Espetinhos",     it: "Porzioni — Spiedini",     es: "Raciones — Brochetas" },
+  port_special:  { zh: "份量 — 特色", el: "Μερίδες — Σπεσιαλιτέ", en: "Portions — Specialities", fr: "Portions — Spécialités", pt: "Porções — Especialidades", it: "Porzioni — Specialità", es: "Raciones — Especiales" },
+  port_pork:     { zh: "份量 — 猪肉", el: "Μερίδες — Χοιρινά",    en: "Portions — Pork",       fr: "Portions — Porc",       pt: "Porções — Porco",          it: "Porzioni — Maiale",       es: "Raciones — Cerdo" },
+  burger:        { zh: "汉堡",       el: "Χάμπουργκερ",          en: "Hamburger",             fr: "Hamburger",             pt: "Hambúrguer",               it: "Hamburger",               es: "Hamburguesa" },
+  veggie:        { zh: "素食菜单",   el: "Veggie Menu",          en: "Veggie Menu",           fr: "Menu Végétarien",       pt: "Menu Vegetariano",         it: "Menu Vegetariano",        es: "Menú Vegetariano" },
+  sandwich:      { zh: "三明治 & 卷饼 Skepasti", el: "Σάντουιτς & Σκεπαστή", en: "Sandwich & Skepasti", fr: "Sandwich & Skepasti", pt: "Sanduíche & Skepasti", it: "Sandwich & Skepasti", es: "Sándwich & Skepasti" },
 };
 
 // Description translations dictionary (descriptions reused across items)
