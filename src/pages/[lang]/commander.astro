@@ -55,16 +55,17 @@ const flatItems = menuPages.flatMap((p, pi) =>
                   const id = itemId(pi, ii);
                   const isExtra = it.price.startsWith("+");
                   return (
-                    <li class="flex items-start justify-between gap-3 py-3" data-item-row={id}>
+                    <li class="flex items-start gap-3 py-3" data-item-row={id}>
+                      <img src={p.photo} alt="" class="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-white/10" loading="lazy" />
                       <div class="flex-1 min-w-0">
                         <p class="text-sm md:text-base text-white font-medium leading-snug">{isEl ? it.el : it.en}</p>
                         {(isEl ? it.desc_el : it.desc_en) && (
-                          <p class="text-xs text-gray-500 mt-0.5">{isEl ? it.desc_el : it.desc_en}</p>
+                          <p class="text-xs text-gray-500 mt-0.5 leading-snug">{isEl ? it.desc_el : it.desc_en}</p>
                         )}
                         <p class="text-sm text-[#E5B32A] font-bold mt-1">{it.price}</p>
                       </div>
                       {!isExtra && (
-                        <div class="flex items-center gap-2 shrink-0">
+                        <div class="flex items-center gap-2 shrink-0 mt-1">
                           <button type="button" class="qty-btn qty-minus" data-id={id} aria-label={t.order_remove}>−</button>
                           <span class="qty-display w-7 text-center text-white font-bold text-base" data-qty={id}>0</span>
                           <button type="button" class="qty-btn qty-plus" data-id={id} aria-label={t.order_add}>+</button>
@@ -81,7 +82,10 @@ const flatItems = menuPages.flatMap((p, pi) =>
 
       <!-- VUE CHECKOUT -->
       <div id="order-view-checkout" hidden>
-        <button type="button" id="back-to-menu" class="text-sm text-[#E5B32A] hover:underline mb-6">{t.order_form_back}</button>
+        <button type="button" id="back-to-menu" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/15 text-[#E5B32A] hover:bg-[#E5B32A]/15 hover:border-[#E5B32A]/60 text-xs font-bold uppercase tracking-widest mb-6 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          {t.order_form_back}
+        </button>
         <div class="bg-white/3 border border-white/10 rounded-2xl p-6 md:p-8">
           <h2 class="text-2xl font-serif italic text-white mb-6">{t.order_form_title}</h2>
 
