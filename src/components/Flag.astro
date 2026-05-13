@@ -1,42 +1,38 @@
 ---
-// Composant drapeau cross-platform via flagcdn.com (SVG/PNG).
-// Mapping langue → pays ISO 3166-1 alpha-2.
+// Drapeau SVG self-hosted (public/flags/<code>.svg). Pas de dépendance externe.
 interface Props {
-  code: string;            // code langue OU pays (ex: 'en', 'el', 'fr', 'gb')
-  size?: number;           // largeur en px (default 20)
-  rounded?: boolean;       // bordure arrondie (default false)
+  code: string;
+  size?: number;
+  rounded?: boolean;
   className?: string;
 }
 
 const LANG_TO_COUNTRY: Record<string, string> = {
   el: 'gr', en: 'gb', fr: 'fr', es: 'es', pt: 'pt', de: 'de', it: 'it',
   zh: 'cn', nl: 'nl', ar: 'sa', ja: 'jp', ko: 'kr', ru: 'ru', pl: 'pl',
-  // Si on passe déjà un code pays, on le garde tel quel.
+  ao: 'ao', dz: 'dz', at: 'at', ch: 'ch', us: 'us', gb: 'gb', gr: 'gr',
 };
 
 const { code, size = 20, rounded = false, className = '' } = Astro.props;
 const countryRaw = LANG_TO_COUNTRY[code.toLowerCase()] ?? code.toLowerCase();
 const country = countryRaw.toLowerCase();
 const w = size;
-const h = Math.round((size * 3) / 4); // ratio ~4:3 pour les drapeaux
-const widthHi = size * 2; // pour retina (w40, w80...)
-const src = `https://flagcdn.com/w${widthHi}/${country}.png`;
-const srcset = `https://flagcdn.com/w${widthHi * 2}/${country}.png 2x`;
-const alt = country.toUpperCase();
+const h = Math.round((size * 3) / 4);
+const src = `/flags/${country}.svg`;
 ---
 <img
   src={src}
-  srcset={srcset}
-  alt={alt}
+  alt={country.toUpperCase()}
   width={w}
   height={h}
   loading="lazy"
   decoding="async"
+  onerror="this.style.display='none'"
   class:list={['flag-img', rounded && 'flag-img--rounded', className]}
   style={`width:${w}px;height:${h}px;display:inline-block;vertical-align:middle;object-fit:cover;`}
 />
 
 <style>
   .flag-img { box-shadow: 0 0 0 1px rgba(0,0,0,0.08); }
-  .flag-img--rounded { border-radius: 4px; }
+  .flag-img--rounded { border-radius: 3px; }
 </style>
