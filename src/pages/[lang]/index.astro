@@ -501,8 +501,8 @@ const baseUrl = `/${currentLang}`;
   {/* === FAB COMMANDER · côté droit, milieu de page === */}
   <div class="order-fab-wrap" data-order-fab>
     <span class="order-pop" aria-hidden="true">
-      <span class="order-pop-title">{currentLang === 'el' ? 'Παραγγείλετε' : 'Commandez'}</span>
-      <span class="order-pop-sub">{currentLang === 'el' ? 'και πληρώστε επί τόπου' : 'et payez sur place'}</span>
+      <span class="order-pop-title">{currentLang === 'el' ? 'Παραγγείλετε' : 'Order online'}</span>
+      <span class="order-pop-sub">{currentLang === 'el' ? 'και πληρώστε επί τόπου' : 'and pay in-store'}</span>
       <span class="order-pop-arrow" aria-hidden="true"></span>
     </span>
     <button type="button" class="order-fab" aria-label={t.order_cta} data-order-open>
@@ -518,8 +518,8 @@ const baseUrl = `/${currentLang}`;
     <div class="order-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="order-drawer-title">
       <div class="order-drawer-head">
         <div>
-          <p class="order-drawer-eyebrow">{currentLang === 'el' ? 'Παραγγελία' : 'Commande'}</p>
-          <h3 id="order-drawer-title" class="order-drawer-title">{currentLang === 'el' ? 'Επιλέξτε & πληρώστε επί τόπου' : 'Choisissez & payez sur place'}</h3>
+          <p class="order-drawer-eyebrow">{currentLang === 'el' ? 'Παραγγελία' : 'Order'}</p>
+          <h3 id="order-drawer-title" class="order-drawer-title">{currentLang === 'el' ? 'Επιλέξτε & πληρώστε επί τόπου' : 'Choose & pay in-store'}</h3>
         </div>
         <button type="button" class="order-drawer-close" data-order-close aria-label="Close">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
