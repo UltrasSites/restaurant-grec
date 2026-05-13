@@ -1,17 +1,16 @@
 /**
  * Cloudflare Pages Function: POST /api/contact
- * Compatible avec un site Astro en output static.
- * Pattern identique au projet sarah-rodriguez-limpieza (100% Cloudflare).
+ * Sends an email via MailChannels (free on Cloudflare Pages, no third-party).
  */
 type Env = {
-  TRACKING?: KVNamespace;
   TURNSTILE_SECRET_KEY?: string;
-  EMAIL_SERVICE_URL?: string;
   ADMIN_KEY?: string;
+  FROM_EMAIL?: string;
+  TO_EMAIL?: string;
 };
 
-const KALAMAKI_EMAIL = "kalamaki.troubas@gmail.com";
-const FROM_EMAIL = "contact@kalamakitroubas.gr";
+const DEFAULT_TO = "kalamaki.troubas@gmail.com";
+const DEFAULT_FROM = "contact@kalamakitroubas.gr";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -55,17 +54,33 @@ async function parsePayload(request: Request): Promise<ContactPayload> {
   };
 }
 
-type HandlerContext = {
-  request: Request;
-  env: Env;
-};
+async function sendMail(opts: {
+  to: string;
+  from: string;
+  subject: string;
+  text: string;
+  replyTo?: string;
+}): Promise<Response> {
+  return fetch("https://api.mailchannels.net/tx/v1/send", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      personalizations: [{ to: [{ email: opts.to }] }],
+      from: { email: opts.from, name: "Καλαμάκι Της Τρούμπας" },
+      reply_to: opts.replyTo ? { email: opts.replyTo } : undefined,
+      subject: opts.subject,
+      content: [{ type: "text/plain", value: opts.text }],
+    }),
+  });
+}
+
+type HandlerContext = { request: Request; env: Env };
 
 export const onRequestOptions = async () =>
   new Response(null, { headers: corsHeaders });
 
 export const onRequestPost = async (context: HandlerContext) => {
   const { request, env } = context;
-
   try {
     const { name, guests, message, lang, turnstileToken } = await parsePayload(request);
 
@@ -96,62 +111,28 @@ export const onRequestPost = async (context: HandlerContext) => {
     }
 
     const country = (request as Request & { cf?: { country?: string } }).cf?.country || "XX";
-    const city = (request as Request & { cf?: { city?: string } }).cf?.city || "Unknown";
-    const ua = request.headers.get("user-agent") || "";
-    const device = /mobile/i.test(ua) ? "Mobile" : "Desktop";
-    const ip = request.headers.get("cf-connecting-ip") || "0.0.0.0";
+    const subject =
+      lang === "en" ? `New reservation — ${name}` : `Νέα κράτηση — ${name}`;
+    const text = [
+      `Name / Όνομα   : ${name}`,
+      `Guests / Άτομα : ${guests}`,
+      `Lang           : ${lang}`,
+      `Country        : ${country}`,
+      "",
+      "Message / Μήνυμα:",
+      message,
+      "",
+      `— kalamakitroubas.gr`,
+    ].join("\n");
 
-    if (env.TRACKING) {
-      await env.TRACKING.put(
-        `lead:${Date.now()}`,
-        JSON.stringify({
-          type: "contact",
-          name,
-          guests,
-          message,
-          lang,
-          ts: Date.now(),
-          geo: { country, city, ip },
-          device,
-        }),
-        { expirationTtl: 60 * 60 * 24 * 365 }
-      );
-    }
+    const to = env.TO_EMAIL || DEFAULT_TO;
+    const from = env.FROM_EMAIL || DEFAULT_FROM;
 
-    if (!env.EMAIL_SERVICE_URL || !env.ADMIN_KEY) {
-      throw new Error("EMAIL_SERVICE_URL or ADMIN_KEY missing in Cloudflare env vars");
-    }
-
-    const subject = lang === "en"
-      ? `New reservation — ${name}`
-      : `Νέα κράτηση — ${name}`;
-
-    const emailRes = await fetch(env.EMAIL_SERVICE_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        to: KALAMAKI_EMAIL,
-        from: FROM_EMAIL,
-        subject,
-        replyTo: FROM_EMAIL,
-        adminKey: env.ADMIN_KEY,
-        body: [
-          `Name / Όνομα   : ${name}`,
-          `Guests / Άτομα : ${guests}`,
-          `Lang           : ${lang}`,
-          "",
-          "Message / Μήνυμα:",
-          message,
-          "",
-          `— Sent from kalamakitroubas.gr`,
-        ].join("\n"),
-      }),
-    });
-
+    const emailRes = await sendMail({ to, from, subject, text });
     if (!emailRes.ok) {
       const errText = await emailRes.text();
-      console.error("Email Service Error:", errText);
-      throw new Error("Failed to send email via helper");
+      console.error("MailChannels error:", emailRes.status, errText);
+      throw new Error(`Mail send failed: ${emailRes.status}`);
     }
 
     return new Response(JSON.stringify({ ok: true }), {
