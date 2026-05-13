@@ -14,6 +14,12 @@ type OrderPayload = {
   total: number;
   pickup_time: string;
   lang: string;
+  mode: string;          // "takeaway" | "delivery"
+  payment: string;       // "cash" | "card"
+  address?: string;
+  floor?: string;
+  bell?: string;
+  notes?: string;
 };
 
 type Env = {
@@ -60,11 +66,26 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
   const phone = sanitize(body.phone, 20);
   const pickup_time = sanitize(body.pickup_time, 4);
   const lang = sanitize(body.lang, 4) || "el";
+  const mode = sanitize(body.mode, 10) || "takeaway";
+  const payment = sanitize(body.payment, 8) || "cash";
+  const address = sanitize(body.address, 200);
+  const floor = sanitize(body.floor, 30);
+  const bell = sanitize(body.bell, 40);
+  const notes = sanitize(body.notes, 200);
 
   if (!name || name.length < 2) return jsonResp({ ok: false, error: "Name required" }, 400);
   if (!phone || phone.length < 6) return jsonResp({ ok: false, error: "Phone required" }, 400);
   if (!["15", "30", "45", "60"].includes(pickup_time)) {
     return jsonResp({ ok: false, error: "Invalid pickup_time" }, 400);
+  }
+  if (!["takeaway", "delivery"].includes(mode)) {
+    return jsonResp({ ok: false, error: "Invalid mode" }, 400);
+  }
+  if (!["cash", "card"].includes(payment)) {
+    return jsonResp({ ok: false, error: "Invalid payment" }, 400);
+  }
+  if (mode === "delivery" && (!address || address.length < 6)) {
+    return jsonResp({ ok: false, error: "Address required for delivery" }, 400);
   }
 
   if (!Array.isArray(body.items) || body.items.length === 0) {
@@ -119,6 +140,12 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
     total,
     pickup_time,
     lang,
+    mode,
+    payment,
+    address: mode === "delivery" ? address : "",
+    floor: mode === "delivery" ? floor : "",
+    bell: mode === "delivery" ? bell : "",
+    notes,
     status: "new" as const,
     created_at: now,
     country,

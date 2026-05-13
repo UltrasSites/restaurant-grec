@@ -95,6 +95,41 @@
       margin-bottom: 1rem;
     }
 
+    .order-mode-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.4rem 0.85rem; border-radius: 999px;
+      font-weight: 800; font-size: 0.95rem; letter-spacing: 0.04em;
+    }
+    .pill-takeaway { background: rgba(229,179,42,0.18); color: var(--gold); border: 2px solid var(--gold); }
+    .pill-delivery { background: rgba(59,130,246,0.18); color: #60a5fa; border: 2px solid #3b82f6; }
+    .pill-cash { background: rgba(34,197,94,0.18); color: #4ade80; border: 2px solid #22c55e; }
+    .pill-card { background: rgba(168,85,247,0.18); color: #c084fc; border: 2px solid #a855f7; }
+
+    .delivery-box {
+      background: rgba(59,130,246,0.08);
+      border: 2px solid rgba(59,130,246,0.35);
+      border-radius: 0.75rem;
+      padding: 0.85rem 1rem;
+      margin-bottom: 1rem;
+    }
+    .delivery-box .deliv-label {
+      font-size: 0.7rem; color: #60a5fa;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      font-weight: 800; margin-bottom: 0.35rem;
+    }
+    .delivery-box .deliv-addr {
+      font-size: 1.2rem; color: #fff; font-weight: 700;
+      line-height: 1.35;
+    }
+    .delivery-box .deliv-extra {
+      font-size: 0.9rem; color: #bbb; margin-top: 0.35rem;
+    }
+    .delivery-box .deliv-notes {
+      font-size: 0.9rem; color: #fbbf24;
+      margin-top: 0.5rem; font-style: italic;
+    }
+
     .order-items {
       list-style: none; padding: 0; margin: 0 0 1rem;
       background: rgba(0,0,0,0.4); border-radius: 0.75rem; padding: 0.85rem 1rem;
@@ -322,12 +357,41 @@
         });
         var d = new Date(o.created_at);
         var time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+
+        var isDelivery = o.mode === 'delivery';
+        var modePill = isDelivery
+          ? '<span class="pill pill-delivery">🛵 LIVRAISON</span>'
+          : '<span class="pill pill-takeaway">🥡 À EMPORTER</span>';
+        var payPill = o.payment === 'card'
+          ? '<span class="pill pill-card">💳 CARTE ' + (isDelivery ? 'AU LIVREUR' : 'AU COMPTOIR') + '</span>'
+          : '<span class="pill pill-cash">💶 ESPÈCES ' + (isDelivery ? 'AU LIVREUR' : 'AU COMPTOIR') + '</span>';
+        var pickupText = isDelivery
+          ? '⏱ Παράδοση σε ' + pickupLabel(o.pickup_time)
+          : '⏱ Παραλαβή σε ' + pickupLabel(o.pickup_time);
+
+        var deliveryBlock = '';
+        if (isDelivery && o.address) {
+          var extra = [];
+          if (o.floor) extra.push('Όροφος : ' + escapeHtml(o.floor));
+          if (o.bell)  extra.push('Κουδούνι : ' + escapeHtml(o.bell));
+          deliveryBlock = '<div class="delivery-box">'
+            + '<div class="deliv-label">📍 ADRESSE DE LIVRAISON</div>'
+            + '<div class="deliv-addr">' + escapeHtml(o.address) + '</div>'
+            + (extra.length ? '<div class="deliv-extra">' + extra.join(' · ') + '</div>' : '')
+            + (o.notes ? '<div class="deliv-notes">📝 ' + escapeHtml(o.notes) + '</div>' : '')
+            + '</div>';
+        } else if (o.notes) {
+          deliveryBlock = '<div class="delivery-box"><div class="deliv-notes">📝 ' + escapeHtml(o.notes) + '</div></div>';
+        }
+
         html += '<article class="order-card" data-order="' + escapeHtml(o.id) + '">'
           + '<div class="order-head">'
           + '<div><div class="order-id">' + escapeHtml(o.id) + '</div><div style="font-size:0.8rem;color:#999;margin-top:0.25rem;">reçue à ' + time + '</div></div>'
           + '<div class="order-meta"><div class="name">' + escapeHtml(o.name) + '</div><div class="phone">📞 <a href="tel:' + encodeURIComponent(o.phone) + '" style="color:inherit;text-decoration:none;">' + escapeHtml(o.phone) + '</a></div></div>'
           + '</div>'
-          + '<div class="order-pickup">⏱ Παραλαβή σε ' + pickupLabel(o.pickup_time) + '</div>'
+          + '<div class="order-mode-row">' + modePill + payPill + '</div>'
+          + '<div class="order-pickup">' + pickupText + '</div>'
+          + deliveryBlock
           + '<ul class="order-items">' + itemsHtml + '</ul>'
           + '<div class="order-total"><span>TOTAL</span><span>' + fmt(o.total) + '</span></div>'
           + '<button type="button" class="ack-btn" data-ack="' + escapeHtml(o.id) + '">✓ COMMANDE PRISE EN CHARGE</button>'
