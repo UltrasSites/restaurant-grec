@@ -305,10 +305,37 @@ function drawSectionPage(doc, lang, section, pageNum, totalPages) {
     doc.restore();
   }
 
+  // Image de section (en bas, si place dispo + slug fourni)
+  if (section.imageSlug) {
+    const PHOTOS_DIR = path.join(OUT_DIR, "photos", "efood");
+    const imgPath = path.join(PHOTOS_DIR, `${section.imageSlug}-800w.webp`);
+    const jpegBuf = getJpeg(imgPath);
+    if (jpegBuf) {
+      const imgMaxH = 180; // hauteur max de l'image en bas
+      const imgMaxW = PAGE_W - 2 * MARGIN;
+      const footerReserve = 60; // espace pour le footer
+      const spaceLeft = PAGE_H - footerReserve - y;
+      if (spaceLeft >= 100) { // au moins 100px pour afficher une image utile
+        const drawH = Math.min(imgMaxH, spaceLeft - 16);
+        const drawW = Math.min(imgMaxW * 0.8, 380); // image centrée, pas trop large
+        const drawX = (PAGE_W - drawW) / 2;
+        const drawY = y + 8;
+
+        doc.save();
+        // Border doré subtil
+        doc.lineWidth(0.6).strokeColor(GOLD).opacity(0.4);
+        doc.rect(drawX - 2, drawY - 2, drawW + 4, drawH + 4).stroke();
+        doc.opacity(1);
+        doc.image(jpegBuf, drawX, drawY, { fit: [drawW, drawH], align: "center", valign: "center" });
+        doc.restore();
+      }
+    }
+  }
+
   drawFooter(doc, lang, pageNum, totalPages);
 }
 
-// Page "galerie" — 4 photos emblématiques avant la back cover
+// (Galerie 4-photos séparée supprimée — images désormais intégrées dans chaque section)
 function drawGalleryPage(doc, lang) {
   fillBg(doc);
   drawFrame(doc);
@@ -491,9 +518,7 @@ async function generatePDF(lang) {
       drawSectionPage(doc, lang, section, idx + 2, totalPages);
     });
 
-    // Gallery page (4 photos emblématiques)
-    doc.addPage();
-    drawGalleryPage(doc, lang);
+    // (Plus de gallery page séparée — images sont dans chaque section)
 
     // Back cover
     doc.addPage();
@@ -509,10 +534,11 @@ async function generatePDF(lang) {
   });
 }
 
-// Pré-charge les 4 photos de la galerie en JPEG (pdfkit ne supporte pas WebP)
+// Pré-charge toutes les photos requises par les sections (champ imageSlug) en JPEG
 async function preloadGalleryImages() {
   const PHOTOS_DIR = path.join(OUT_DIR, "photos", "efood");
-  const slugs = ["kalamaki-choirino-se-pita", "i-salata-tis-troympas", "patates-tiganites", "kalamaki-choirino"];
+  // Récupère tous les slugs uniques utilisés dans les sections
+  const slugs = [...new Set(PAGES.map((s) => s.imageSlug).filter(Boolean))];
   for (const slug of slugs) {
     const p = path.join(PHOTOS_DIR, `${slug}-800w.webp`);
     if (fs.existsSync(p)) {
@@ -520,7 +546,7 @@ async function preloadGalleryImages() {
       _imgCache.set(p, buf);
     }
   }
-  console.log(`  Préchargé ${_imgCache.size} images galerie`);
+  console.log(`  Préchargé ${_imgCache.size} images de section`);
 }
 
 (async () => {

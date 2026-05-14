@@ -257,6 +257,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.appetizers1,
+    imageSlug: "patates-tiganites",
     items: [
       { name: itemName("Φρέσκιες Πατάτες", "Fresh Fried Potatoes", { zh: "新鲜炸薯条", fr: "Frites maison", pt: "Batatas fritas frescas", it: "Patatine fritte fresche", es: "Patatas fritas caseras", de: "Frische Pommes" }), price: "3,50€" },
       { name: itemName("Πατάτες με τυρί", "Fries with cheese", { zh: "奶酪薯条", fr: "Frites au fromage", pt: "Batatas fritas com queijo", it: "Patatine al formaggio", es: "Patatas fritas con queso", de: "Pommes mit Käse" }), price: "4,00€" },
@@ -269,6 +270,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.appetizers2,
+    imageSlug: "kolokythokeftes",
     items: [
       { name: itemName("Κολοκυθοκεφτέδες τμχ", "Zucchini Fritter pc", { zh: "西葫芦煎饼(单个)", fr: "Beignet de courgette (pièce)", pt: "Bolinho de courgete (un)", it: "Polpetta di zucchine (pz)", es: "Buñuelo de calabacín (ud)", de: "Zucchini-Puffer (Stk)" }), price: "1,20€" },
       { name: itemName("Κολοκυθοκεφτέδες μερίδα 5 τμχ", "Zucchini Fritters portion 5 pcs", { zh: "西葫芦煎饼 5 个", fr: "Beignets de courgette 5 pièces", pt: "Bolinhos de courgete 5 un", it: "Polpette di zucchine 5 pz", es: "Buñuelos de calabacín 5 uds", de: "Zucchini-Puffer 5 Stk" }), price: "6,00€" },
@@ -279,6 +281,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.salads,
+    imageSlug: "i-salata-tis-troympas",
     items: [
       { name: itemName("Η σαλάτα της Τρούμπας", "Trouba's salad", { zh: "Trouba 特色沙拉", fr: "Salade de la Trouba", pt: "Salada da Trouba", it: "Insalata della Trouba", es: "Ensalada de la Trouba", de: "Trouba-Salat" }), desc: D("lettuce, cabbage, tomato, cucumber, onion, peppers, olives, capers & mustard sauce"), price: "7,50€" },
       { name: itemName("Λάχανο-Καρότο", "Cabbage-Carrot Salad", { zh: "卷心菜胡萝卜沙拉", fr: "Salade chou-carotte", pt: "Salada de couve e cenoura", it: "Insalata di cavolo cappuccio e carote", es: "Ensalada de col y zanahoria", de: "Krautsalat mit Karotten" }), price: "4,50€" },
@@ -287,6 +290,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.pita1,
+    imageSlug: "kalamaki-choirino-se-pita",
     items: [
       { name: itemName("Καλαμάκι χοιρινό", "Skewered pork", { zh: "猪肉烤串", fr: "Brochette de porc (kalamaki)", pt: "Espetada de porco (kalamaki)", it: "Spiedino di maiale (kalamaki)", es: "Brocheta de cerdo (kalamaki)", de: "Schweinespieß (Kalamaki)" }), desc: D("tomato, onion, tzatziki, fries"), price: "3,50€" },
       { name: itemName("Καλαμάκι κοτόπουλο μπούτι", "Skewered chicken thigh", { zh: "鸡腿肉烤串", fr: "Brochette de cuisse de poulet (kalamaki)", pt: "Espetada de coxa de frango (kalamaki)", it: "Spiedino di coscia di pollo (kalamaki)", es: "Brocheta de muslo de pollo (kalamaki)", de: "Hähnchenschenkel-Spieß (Kalamaki)" }), desc: D("tomato, lettuce, sauce, fries"), price: "3,50€" },
@@ -296,6 +300,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.pita2,
+    imageSlug: "kempap-philadelhia-se-pita",
     items: [
       { name: itemName("Τρουμπάκι — Special μπιφτεκάκι της Τρούμπας", "Trouba's special burger", { zh: "Trouba 特色小牛肉饼", fr: "Troubaki — petit steak spécial Trouba", pt: "Troubaki — hambúrguer especial da Trouba", it: "Troubaki — polpettina speciale Trouba", es: "Troubaki — hamburguesita especial Trouba", de: "Troubaki — Spezial-Bratling der Trouba" }), desc: D("tomato, mustard, fries"), price: "3,50€" },
       { name: itemName("Κεμπάπ Φιλαδέλφεια", "Kebap Philadelphia", { zh: "费城烤肉串 (Kebap)", fr: "Kebab Philadelphia", pt: "Kebab Filadélfia", it: "Kebab Filadelfia", es: "Kebab Filadelfia", de: "Philadelphia-Kebap" }), desc: D("tomato, onion, tzatziki, fries"), price: "3,80€" },
@@ -306,6 +311,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.port_skew,
+    imageSlug: "kalamaki-choirino-merida",
     note: D("4 pcs — served with tomato, onion, tzatziki, fries, 2 pita"),
     items: [
       { name: itemName("Καλαμάκι χοιρινό 4τμχ", "Skewered pork 4pcs", { zh: "猪肉烤串 4 串", fr: "Brochette de porc 4 pièces (kalamaki)", pt: "Espetada de porco 4 un (kalamaki)", it: "Spiedino di maiale 4 pz (kalamaki)", es: "Brocheta de cerdo 4 uds (kalamaki)", de: "Schweinespieß 4 Stk (Kalamaki)" }), price: "9,00€" },
@@ -315,6 +321,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.port_special,
+    imageSlug: "special-mpifteki-tis-troympas-merida",
     note: D("Served with fries, pita, salad/sauce"),
     items: [
       { name: itemName("Μπιφτέκι μοσχαρίσιο 2τμχ", "Beef Burger 2pcs", { zh: "牛肉饼 2 个", fr: "Steak haché de bœuf 2 pièces", pt: "Hambúrguer de vaca 2 un", it: "Polpetta di manzo 2 pz", es: "Hamburguesa de ternera 2 uds", de: "Rindfleisch-Bratling 2 Stk" }), price: "9,00€" },
@@ -324,6 +331,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.port_pork,
+    imageSlug: "pansetakia-choirina-merida",
     note: D("Served with tomato, onion, tzatziki, fries, 2 pita"),
     items: [
       { name: itemName("Πανσετάκι χοιρινό 5τμχ", "Pork Belly 5pcs", { zh: "猪五花肉 5 块", fr: "Poitrine de porc grillée 5 pièces", pt: "Entremeada de porco grelhada 5 un", it: "Pancetta di maiale alla griglia 5 pz", es: "Panceta de cerdo a la brasa 5 uds", de: "Schweinebauch vom Grill 5 Stk" }), price: "9,50€" },
@@ -334,6 +342,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.burger,
+    imageSlug: "burger-moscharisio",
     items: [
       { name: itemName("Χάμπουργκερ", "Hamburger", { zh: "汉堡", fr: "Hamburger", pt: "Hambúrguer", it: "Hamburger", es: "Hamburguesa", de: "Hamburger" }), desc: D("beef burger, cheddar cheese, lettuce, tomato, onion"), price: "7,00€" },
       { name: itemName("+ Έξτρα μπέικον", "+ extra bacon", { zh: "+ 加培根", fr: "+ bacon supplémentaire", pt: "+ bacon extra", it: "+ bacon extra", es: "+ bacon extra", de: "+ extra Bacon" }), price: "+0,70€" },
@@ -341,6 +350,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.veggie,
+    imageSlug: "veggie-burger",
     items: [
       { name: itemName("Μπιφτέκι λαχανικών τμχ", "Vegetable Stick pc", { zh: "蔬菜饼(单个)", fr: "Galette de légumes (pièce)", pt: "Hambúrguer de legumes (un)", it: "Polpetta vegetale (pz)", es: "Hamburguesa de verduras (ud)", de: "Gemüse-Bratling (Stk)" }), price: "2,00€" },
       { name: itemName("Τυλιχτό Μπιφτέκι λαχανικών", "Wrapped Vegetable Burger", { zh: "蔬菜饼卷饼", fr: "Pita roulée aux légumes", pt: "Pita enrolada de legumes", it: "Pita arrotolata con polpetta vegetale", es: "Pita enrollada de verduras", de: "Pita-Wrap mit Gemüse-Bratling" }), desc: D("tomato, lettuce, fries"), price: "3,50€" },
@@ -357,6 +367,7 @@ export const PAGES = [
   },
   {
     title: SECTIONS.sandwich,
+    imageSlug: "kalamaki-choirino-se-santoyits",
     items: [
       { name: itemName("Σάντουιτς με κρέας της επιλογής σας", "Sandwich with meat of your choice", { zh: "三明治(自选肉类)", fr: "Sandwich avec viande au choix", pt: "Sandes com carne à escolha", it: "Panino con carne a scelta", es: "Sándwich con carne a elegir", de: "Sandwich mit Fleisch nach Wahl" }), price: "4,50€" },
       { name: itemName("Σάντουιτς με διπλό κρέας της επιλογής σας", "Sandwich with double meat of your choice", { zh: "双份肉三明治(自选肉类)", fr: "Sandwich double viande au choix", pt: "Sandes com carne dupla à escolha", it: "Panino con doppia carne a scelta", es: "Sándwich con carne doble a elegir", de: "Sandwich mit doppeltem Fleisch nach Wahl" }), price: "5,50€" },
