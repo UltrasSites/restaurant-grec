@@ -207,19 +207,19 @@ const baseUrl = `/${currentLang}`;
               {t.hero_badge}
             </span>
 
-            {/* Carrousel : remplacé temporairement — photos haute résolution clientes à fournir */}
+            {/* Carrousel hero — photos haute résolution du resto */}
             <div class="hero-photo-strip">
               <div class="strip-track">
                 {[
+                  "/photos/trouba-storefront-800w.webp",
+                  "/photos/trouba-grill-skewers-800w.webp",
+                  "/photos/trouba-grill-chops-800w.webp",
                   "/photos/efood-00-800w.webp",
-                  "/photos/efood-15-800w.webp",
-                  "/photos/facebook-03-400w.webp",
-                  "/photos/efood-30-800w.webp",
-                  "/photos/efood-00-800w.webp",
-                  "/photos/efood-45-800w.webp",
-                  "/photos/facebook-03-400w.webp",
+                  "/photos/trouba-storefront-800w.webp",
+                  "/photos/trouba-grill-skewers-800w.webp",
+                  "/photos/trouba-grill-chops-800w.webp",
                   "/photos/efood-25-800w.webp",
-                  "/photos/efood-00-800w.webp",
+                  "/photos/trouba-storefront-800w.webp",
                 ].map((src) => (
                   <img src={src} alt="" loading="lazy" decoding="async" />
                 ))}
@@ -294,6 +294,34 @@ const baseUrl = `/${currentLang}`;
     </div>
   </section>
 
+  <!-- VIDEO CUISSON — sous le hero -->
+  <section class="bg-[#050505] py-12 px-6 border-t border-white/5">
+    <div class="max-w-6xl mx-auto text-center">
+      <p class="text-[10px] uppercase tracking-[0.35em] text-[#E5B32A] font-bold mb-3">
+        {currentLang === 'el' ? 'Στην κουζίνα μας' : 'In our kitchen'}
+      </p>
+      <h2 class="text-2xl md:text-3xl font-serif italic text-white mb-6">
+        {currentLang === 'el' ? 'Ζωντανή σχάρα · κάθε μέρα · στα κάρβουνα' : 'Live charcoal grill · every day · over coals'}
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto">
+        <video
+          src="/videos/trouba-cuisson-1-720.mp4"
+          poster="/videos/trouba-cuisson-1-poster.jpg"
+          autoplay muted loop playsinline preload="metadata"
+          class="w-full aspect-[9/16] md:aspect-[464/848] object-cover rounded-2xl shadow-2xl border border-white/10 max-h-[480px] mx-auto"
+          aria-label="Ψήσιμο στα κάρβουνα — Καλαμάκι Της Τρούμπας"
+        ></video>
+        <video
+          src="/videos/trouba-cuisson-2-720.mp4"
+          poster="/videos/trouba-cuisson-2-poster.jpg"
+          autoplay muted loop playsinline preload="metadata"
+          class="w-full aspect-[9/16] md:aspect-[464/848] object-cover rounded-2xl shadow-2xl border border-white/10 max-h-[480px] mx-auto"
+          aria-label="Καλαμάκια στη σχάρα — Καλαμάκι Της Τρούμπας"
+        ></video>
+      </div>
+    </div>
+  </section>
+
   <!-- HISTOIRE -->
   <section id="histoire" class="histoire-section bg-[#0a0a0a] py-24 px-6">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
@@ -306,10 +334,10 @@ const baseUrl = `/${currentLang}`;
       <div class="flex justify-center items-center relative">
         <div class="absolute inset-0 bg-gradient-to-tr from-[#E5B32A]/20 to-transparent rounded-2xl blur-2xl -z-10"></div>
         <img
-          src="/photos/efood-00-1600w.webp"
-          alt="Σχάρα και κάρβουνα — αυθεντικό ψήσιμο"
+          src="/photos/trouba-storefront-1600w.webp"
+          alt="Καλαμάκι Της Τρούμπας — η είσοδος του καταστήματος, Πειραιάς"
           class="histoire-img no-invert w-full max-w-md object-cover rounded-2xl shadow-2xl border border-white/10"
-          width="800" height="800"
+          width="800" height="600"
           loading="lazy"
           decoding="async"
         />
