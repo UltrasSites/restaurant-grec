@@ -180,7 +180,7 @@ const baseUrl = `/${currentLang}`;
   }
 </style>
 
-<BaseLayout lang={currentLang} title={t.meta_title} description={t.meta_description} hideHeader>
+<BaseLayout lang={currentLang} title={t.meta_title} description={t.meta_description}>
 
   <!-- HERO -->
   <section id="home" class="relative min-h-screen w-full flex flex-col overflow-x-hidden bg-neutral-950">
@@ -611,13 +611,82 @@ const baseUrl = `/${currentLang}`;
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
           +30 210 422 2273
         </a>
-        <a href="mailto:kalamaki.troubas@gmail.com" class="inline-flex items-center justify-center gap-2 px-6 py-4 border-2 border-white/30 text-white text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:border-[#E5B32A] hover:text-[#E5B32A] transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
-          kalamaki.troubas@gmail.com
-        </a>
       </div>
 
-      <p class="text-xs text-gray-400 mb-8">{t.contact_hours}</p>
+      {/* Formulaire contact — envoie un email au patron via /api/contact */}
+      <form id="contact-form" class="max-w-xl mx-auto mb-8 text-left space-y-3" novalidate>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <input type="text" name="name" required minlength="2" maxlength="80"
+            placeholder={currentLang === 'el' ? 'Το όνομά σου' : 'Your name'}
+            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:border-[#E5B32A] focus:outline-none transition-colors" />
+          <input type="email" name="email" required maxlength="120"
+            placeholder={currentLang === 'el' ? 'Το email σου' : 'Your email'}
+            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:border-[#E5B32A] focus:outline-none transition-colors" />
+        </div>
+        <input type="tel" name="phone" maxlength="30"
+          placeholder={currentLang === 'el' ? 'Τηλέφωνο (προαιρετικό)' : 'Phone (optional)'}
+          class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:border-[#E5B32A] focus:outline-none transition-colors" />
+        <textarea name="message" required minlength="5" maxlength="2000" rows="4"
+          placeholder={currentLang === 'el' ? 'Το μήνυμά σου — κράτηση, ερώτηση, ειδική παραγγελία...' : 'Your message — booking, question, special order...'}
+          class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/40 focus:border-[#E5B32A] focus:outline-none transition-colors resize-none"></textarea>
+        <button type="submit" id="contact-submit"
+          class="w-full px-6 py-4 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-[0.15em] rounded-full hover:bg-white transition-colors shadow-[0_12px_30px_rgba(229,179,42,0.35)] disabled:opacity-50 disabled:cursor-not-allowed">
+          {currentLang === 'el' ? 'Στείλε το μήνυμα' : 'Send message'}
+        </button>
+        <p id="contact-result" class="text-center text-sm mt-2 hidden"></p>
+      </form>
+
+      <p class="text-xs text-gray-400 mb-2">
+        {currentLang === 'el' ? 'ή στείλε απευθείας ένα email στο ' : 'or email directly at '}
+        <a href="mailto:kalamaki.troubas@gmail.com" class="text-[#E5B32A] hover:underline">kalamaki.troubas@gmail.com</a>
+      </p>
+
+      <p class="text-xs text-gray-400 mb-8 mt-4">{t.contact_hours}</p>
+
+      <script is:inline>
+        (function () {
+          const form = document.getElementById('contact-form');
+          const btn = document.getElementById('contact-submit');
+          const result = document.getElementById('contact-result');
+          if (!form || !btn || !result) return;
+          const lang = document.documentElement.getAttribute('data-lang') || 'el';
+          const T = {
+            el: { sending: 'Αποστολή...', ok: '✓ Το μήνυμά σου στάλθηκε! Θα σου απαντήσουμε σύντομα.', err: 'Σφάλμα. Δοκίμασε ξανά ή στείλε email απευθείας.' },
+            en: { sending: 'Sending...', ok: '✓ Your message has been sent! We will reply soon.', err: 'Error. Try again or email us directly.' },
+          };
+          const t = T[lang] || T.el;
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            btn.disabled = true;
+            const originalText = btn.textContent;
+            btn.textContent = t.sending;
+            result.classList.add('hidden');
+            const data = Object.fromEntries(new FormData(form));
+            try {
+              const res = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+              });
+              const json = await res.json();
+              if (json.ok) {
+                result.textContent = t.ok;
+                result.className = 'text-center text-sm mt-2 text-emerald-400';
+                form.reset();
+              } else {
+                throw new Error(json.error || 'failed');
+              }
+            } catch (err) {
+              result.textContent = t.err;
+              result.className = 'text-center text-sm mt-2 text-red-400';
+            } finally {
+              btn.disabled = false;
+              btn.textContent = originalText;
+              result.classList.remove('hidden');
+            }
+          });
+        })();
+      </script>
 
       <div class="flex justify-center">
         <SocialLinks lang={currentLang} />
