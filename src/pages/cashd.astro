@@ -215,12 +215,14 @@
 
   <!-- LOGIN SCREEN -->
   <div id="login-screen" class="login-wrap">
-    <form class="login-box" id="login-form">
+    <form class="login-box" id="login-form" method="post" action="#" autocomplete="on">
       <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
         <button type="button" id="login-lang-toggle" class="lang-toggle" aria-label="Language"></button>
       </div>
       <h1 id="login-title">ΤΑΜΕΙΟ — ΤΡΟΥΜΠΑΣ</h1>
-      <input type="password" name="password" id="login-pw" autocomplete="current-password" required />
+      {/* Hidden username pour permettre au navigateur d'enregistrer le mot de passe */}
+      <input type="text" name="username" id="login-user" value="kalamaki-caisse" autocomplete="username" readonly hidden aria-hidden="true" tabindex="-1" />
+      <input type="password" name="password" id="login-pw" autocomplete="current-password" required autofocus />
       <button type="submit" id="login-btn">Σύνδεση</button>
       <p id="login-error" class="login-error" style="display:none;"></p>
     </form>

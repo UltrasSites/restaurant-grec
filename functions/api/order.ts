@@ -155,5 +155,8 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
   const orderKey = `order:${now}:${order_id}`;
   await env.ORDERS.put(orderKey, JSON.stringify(order), { expirationTtl: 60 * 60 * 24 }); // 24h
 
+  // Marqueur séparé (small single key) — propage plus vite que list() pour signal au polling
+  await env.ORDERS.put("latest_order_ts", String(now), { expirationTtl: 60 * 60 * 24 });
+
   return jsonResp({ ok: true, order_id });
 };
