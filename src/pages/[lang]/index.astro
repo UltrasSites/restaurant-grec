@@ -187,7 +187,7 @@ const baseUrl = `/${currentLang}`;
     <div class="absolute inset-0 z-0">
       <img
         src="/photos/efood-00-1600w.webp"
-        alt="Αυθεντικό ψητοπωλείο Τρούμπα Πειραιάς"
+        alt={currentLang === 'el' ? 'Αυθεντικό ψητοπωλείο στην Τρούμπα, Πειραιάς' : 'Authentic charcoal souvlaki shop in Troumpa, Piraeus'}
         class="w-full h-full object-cover opacity-55"
         width="1600" height="900"
         loading="eager"
@@ -234,7 +234,7 @@ const baseUrl = `/${currentLang}`;
               {t.hero_lead}
             </p>
             <div class="flex mb-1 justify-center lg:justify-start opacity-100 visible">
-              <SocialLinks />
+              <SocialLinks lang={currentLang} />
             </div>
             <p class="hidden md:block text-xs text-gray-300 italic">{t.hero_demo_note}</p>
           </div>
@@ -306,7 +306,7 @@ const baseUrl = `/${currentLang}`;
         <div class="absolute inset-0 bg-gradient-to-tr from-[#E5B32A]/20 to-transparent rounded-2xl blur-2xl -z-10"></div>
         <img
           src="/photos/trouba-storefront-1600w.webp"
-          alt="Καλαμάκι Της Τρούμπας — η είσοδος του καταστήματος, Πειραιάς"
+          alt={currentLang === 'el' ? 'Καλαμάκι Της Τρούμπας — η είσοδος του μαγαζιού, Πειραιάς' : 'Kalamaki Tis Troumpas — shopfront in Piraeus'}
           class="histoire-img no-invert w-full max-w-md object-cover rounded-2xl shadow-2xl border border-white/10"
           width="800" height="600"
           loading="lazy"
@@ -323,12 +323,12 @@ const baseUrl = `/${currentLang}`;
         {currentLang === 'el' ? 'Οι σπεσιαλιτέ μας' : 'Our specialities'}
       </p>
       <h2 class="text-3xl md:text-4xl font-serif italic text-white mb-3 gold-shine-text">
-        {currentLang === 'el' ? 'Τα πιάτα που μας έκαναν γνωστούς' : 'The dishes that built our name'}
+        {currentLang === 'el' ? 'Τα πιάτα που μας έκαναν γνωστούς' : 'The dishes that made our name'}
       </h2>
       <p class="text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
         {currentLang === 'el'
-          ? 'Φρέσκα υλικά, σχάρα στα κάρβουνα — κάθε μέρα από την ώρα που ανοίγουμε.'
-          : 'Fresh ingredients, charcoal grill — every day from open to close.'}
+          ? 'Φρέσκα υλικά, ψήσιμο στα κάρβουνα — κάθε μέρα απ\'την ώρα που ανοίγουμε.'
+          : 'Fresh ingredients, real charcoal grill — every day from open to close.'}
       </p>
     </div>
 
@@ -429,28 +429,28 @@ const baseUrl = `/${currentLang}`;
       <!-- QR Code -->
       <div class="shrink-0 flex flex-col items-center">
         <div class="bg-white p-3 rounded-2xl shadow-2xl">
-          <img src="/menu-qr.png" alt={currentLang === 'el' ? 'QR Code Μενού' : 'Menu QR Code'} class="w-32 h-32" width="128" height="128" />
+          <img src="/menu-qr.png" alt={currentLang === 'el' ? 'QR Code καταλόγου' : 'Menu QR Code'} class="w-32 h-32" width="128" height="128" />
         </div>
         <p class="text-[9px] uppercase tracking-[0.2em] text-white/40 mt-2 font-bold">
-          {currentLang === 'el' ? 'Σκανάρε' : 'Scan'}
+          {currentLang === 'el' ? 'Σκάναρε' : 'Scan'}
         </p>
       </div>
       <!-- Text + CTA -->
       <div class="flex-1 text-center md:text-left">
         <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2">
-          {currentLang === 'el' ? 'Κατάλογος PDF' : 'PDF Menu'}
+          {currentLang === 'el' ? 'Κατάλογος σε PDF' : 'PDF menu'}
         </p>
         <h3 class="text-xl md:text-2xl font-serif italic text-white mb-3">
           {currentLang === 'el' ? 'Πάρε τον κατάλογο μαζί σου.' : 'Take the menu with you.'}
         </h3>
         <p class="text-sm text-gray-400 mb-3 leading-relaxed">
           {currentLang === 'el'
-            ? 'Σκανάρε το QR ή κατέβασε το PDF — όλος ο κατάλογος, παντού, χωρίς ίντερνετ.'
-            : 'Scan the QR or download the PDF — full menu, anywhere, no internet needed.'}
+            ? 'Σκάναρε το QR ή κατέβασε το PDF — όλος ο κατάλογος, παντού, χωρίς ίντερνετ.'
+            : 'Scan the QR or download the PDF — the full menu, anywhere, no internet needed.'}
         </p>
         <p class="text-[10px] uppercase tracking-[0.25em] text-[#E5B32A]/85 font-bold mb-2 flex items-center gap-2">
           <svg viewBox="0 0 24 24" class="w-3 h-3 fill-current"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-          {currentLang === 'el' ? 'Διαθέσιμο σε 7 γλώσσες :' : 'Available in 7 languages :'}
+          {currentLang === 'el' ? 'Διαθέσιμος σε 7 γλώσσες :' : 'Available in 7 languages :'}
         </p>
         <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-5">
           {[
@@ -477,7 +477,7 @@ const baseUrl = `/${currentLang}`;
         <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-3">
           <a href="/menu-download" class="inline-flex items-center gap-2 px-6 py-3 bg-[#E5B32A] text-black text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
-            {currentLang === 'el' ? 'Επιλέξτε γλώσσα' : 'Choose language'}
+            {currentLang === 'el' ? 'Διάλεξε γλώσσα' : 'Choose language'}
           </a>
           <a href={`${baseUrl}/#contact`} class="inline-flex items-center gap-2 px-6 py-3 border border-white/25 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white/10 transition-colors">
             {t.carte_reserver}
@@ -493,12 +493,12 @@ const baseUrl = `/${currentLang}`;
         {currentLang === 'el' ? 'Παράδοση κατ\'οίκον' : 'Home delivery'}
       </p>
       <h2 class="text-2xl md:text-3xl font-serif italic text-white mb-3">
-        {currentLang === 'el' ? 'Παραγγείλετε από τους συνεργάτες παράδοσης' : 'Order via our delivery partners'}
+        {currentLang === 'el' ? 'Παράγγειλε απ\'τους συνεργάτες delivery' : 'Order via our delivery partners'}
       </h2>
       <p class="text-gray-400 text-sm mb-8 max-w-xl mx-auto">
         {currentLang === 'el'
-          ? 'Επιλέξτε την εφαρμογή σας — ή χρησιμοποιήστε τη δική μας online παραγγελία χωρίς προμήθεια.'
-          : 'Pick your preferred app — or use our own online ordering with zero commission.'}
+          ? 'Διάλεξε την εφαρμογή που προτιμάς — ή κάνε απευθείας online παραγγελία από εμάς, χωρίς προμήθεια.'
+          : 'Pick your favourite app — or order direct with us online, no commission added.'}
       </p>
       <div class="flex flex-wrap items-stretch justify-center gap-3">
         <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 bg-[#a8104a] text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-[#8a0c3e] transition-colors shadow-[0_8px_20px_rgba(168,16,74,0.45)]">
@@ -515,7 +515,7 @@ const baseUrl = `/${currentLang}`;
         </a>
         <a href={`/${currentLang}/delivery`} class="inline-flex items-center gap-2 px-5 py-3 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors shadow-[0_8px_20px_rgba(229,179,42,0.4)]">
           <span class="text-base">🥡</span>
-          <span>{currentLang === 'el' ? 'Άμεση παραγγελία' : 'Order direct'}</span>
+          <span>{currentLang === 'el' ? 'Απευθείας παραγγελία' : 'Order direct'}</span>
           <span class="text-[10px] opacity-80">{currentLang === 'el' ? '0% προμήθεια' : '0% fees'}</span>
         </a>
       </div>
@@ -532,10 +532,10 @@ const baseUrl = `/${currentLang}`;
         {currentLang === 'el' ? 'Γκαλερί' : 'Gallery'}
       </p>
       <h2 class="text-2xl md:text-3xl font-serif italic text-white mb-3">
-        {currentLang === 'el' ? 'Ζωντανή σχάρα · κάθε μέρα · στα κάρβουνα' : 'Live charcoal grill · every day · over coals'}
+        {currentLang === 'el' ? 'Ζωντανή σχάρα · κάθε μέρα · στα κάρβουνα' : 'Live charcoal grill · every day · over the coals'}
       </h2>
       <p class="text-gray-400 text-sm max-w-xl mx-auto">
-        {currentLang === 'el' ? 'Φωτογραφίες και βίντεο από την κουζίνα μας.' : 'Photos and videos from our kitchen.'}
+        {currentLang === 'el' ? 'Φωτογραφίες και βίντεο μέσα απ\'την κουζίνα μας.' : 'Photos and videos straight from our kitchen.'}
       </p>
     </div>
 
@@ -598,8 +598,8 @@ const baseUrl = `/${currentLang}`;
       <h2 class="text-3xl md:text-4xl font-serif italic text-white mb-4">{t.contact_title}</h2>
       <p class="text-gray-300 mb-10 max-w-xl mx-auto leading-relaxed">
         {currentLang === 'el'
-          ? 'Για κρατήσεις, ερωτήσεις ή ιδιαίτερες παραγγελίες — καλέστε μας ή στείλτε ένα email. Απαντάμε γρήγορα.'
-          : 'For reservations, questions or special orders — call us or send an email. Quick reply guaranteed.'}
+          ? 'Για κρατήσεις, ερωτήσεις ή ειδικές παραγγελίες — πάρε τηλέφωνο ή στείλε ένα email. Απαντάμε γρήγορα.'
+          : 'For bookings, questions or special orders — call us or drop us an email. We reply quickly.'}
       </p>
 
       <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8 flex-wrap">
@@ -620,7 +620,7 @@ const baseUrl = `/${currentLang}`;
       <p class="text-xs text-gray-400 mb-8">{t.contact_hours}</p>
 
       <div class="flex justify-center">
-        <SocialLinks />
+        <SocialLinks lang={currentLang} />
       </div>
     </div>
   </section>
@@ -630,7 +630,7 @@ const baseUrl = `/${currentLang}`;
     <div class="max-w-6xl mx-auto">
       <div class="text-center mb-10">
         <p class="text-[10px] font-['Space_Grotesk'] uppercase tracking-[0.35em] text-[#E5B32A] font-bold mb-3">
-          {currentLang === 'el' ? 'Πού θα μας βρείτε' : 'Where to find us'}
+          {currentLang === 'el' ? 'Πού θα μας βρεις' : 'Where to find us'}
         </p>
         <h2 class="text-3xl md:text-4xl font-serif italic text-white gold-shine-text">
           {currentLang === 'el' ? 'Στην καρδιά της Τρούμπας' : 'In the heart of Troumpa'}
@@ -683,7 +683,7 @@ const baseUrl = `/${currentLang}`;
               rel="noopener"
               class="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 border border-white/25 text-white text-[11px] font-bold uppercase tracking-[0.2em] rounded-full hover:bg-white/5 hover:border-[#E5B32A]/60 transition-colors"
             >
-              {currentLang === 'el' ? 'Δείτε στο Google' : 'View on Google'}
+              {currentLang === 'el' ? 'Δες στο Google' : 'View on Google'}
             </a>
           </div>
         </div>
@@ -694,8 +694,8 @@ const baseUrl = `/${currentLang}`;
   {/* === FAB COMMANDER · DESKTOP UNIQUEMENT · lien direct vers /delivery (pas de drawer) === */}
   <a href={`${baseUrl}/delivery`} class="order-fab-link hidden md:flex" aria-label={t.order_cta}>
     <span class="order-pop" aria-hidden="true">
-      <span class="order-pop-title">{currentLang === 'el' ? 'Παραγγείλετε' : 'Order online'}</span>
-      <span class="order-pop-sub">{currentLang === 'el' ? 'και πληρώστε επί τόπου' : 'and pay in-store'}</span>
+      <span class="order-pop-title">{currentLang === 'el' ? 'Παράγγειλε online' : 'Order online'}</span>
+      <span class="order-pop-sub">{currentLang === 'el' ? 'και πλήρωσε επί τόπου' : 'and pay at the shop'}</span>
       <span class="order-pop-arrow" aria-hidden="true"></span>
     </span>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="order-fab-svg" aria-hidden="true">

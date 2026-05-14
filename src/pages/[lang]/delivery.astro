@@ -120,9 +120,9 @@ const flatItems = menuPages.flatMap((p, pi) =>
           <form id="order-form" class="space-y-5">
             {/* Mode : livraison vs à emporter */}
             <div>
-              <label class="block text-xs uppercase tracking-wider text-gray-400 mb-2">{isEl ? 'Παραλαβή ή παράδοση' : 'Pickup or delivery'}</label>
+              <label class="block text-xs uppercase tracking-wider text-gray-400 mb-2">{isEl ? 'Παραλαβή ή παράδοση' : 'Collection or delivery'}</label>
               <div class="grid grid-cols-2 gap-2">
-                <label class="pickup-radio"><input type="radio" name="mode" value="takeaway" checked required data-mode-toggle /><span>{isEl ? 'Παραλαβή' : 'Take-away'}</span></label>
+                <label class="pickup-radio"><input type="radio" name="mode" value="takeaway" checked required data-mode-toggle /><span>{isEl ? 'Παραλαβή απ\'το μαγαζί' : 'Takeaway'}</span></label>
                 <label class="pickup-radio"><input type="radio" name="mode" value="delivery" data-mode-toggle /><span>{isEl ? 'Παράδοση κατ\'οίκον' : 'Delivery'}</span></label>
               </div>
             </div>
@@ -182,13 +182,13 @@ const flatItems = menuPages.flatMap((p, pi) =>
                   <input type="text" name="floor" maxlength="30" placeholder={isEl ? '3ος' : '3rd'} class="w-full bg-black/40 border border-white/15 text-white px-4 py-3 rounded-lg focus:border-[#E5B32A] focus:outline-none" />
                 </div>
                 <div>
-                  <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1">{isEl ? 'Κουδούνι' : 'Bell / name'}</label>
+                  <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1">{isEl ? 'Όνομα στο κουδούνι' : 'Buzzer / name'}</label>
                   <input type="text" name="bell" maxlength="40" placeholder={isEl ? 'Παπαδόπουλος' : 'Smith'} class="w-full bg-black/40 border border-white/15 text-white px-4 py-3 rounded-lg focus:border-[#E5B32A] focus:outline-none" />
                 </div>
               </div>
               <div>
                 <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1">{isEl ? 'Σημειώσεις (προαιρετικό)' : 'Notes (optional)'}</label>
-                <input type="text" name="notes" maxlength="200" placeholder={isEl ? 'π.χ. χτυπήστε δυνατά' : 'e.g. ring twice'} class="w-full bg-black/40 border border-white/15 text-white px-4 py-3 rounded-lg focus:border-[#E5B32A] focus:outline-none" />
+                <input type="text" name="notes" maxlength="200" placeholder={isEl ? 'π.χ. χτυπήστε δύο φορές' : 'e.g. ring twice'} class="w-full bg-black/40 border border-white/15 text-white px-4 py-3 rounded-lg focus:border-[#E5B32A] focus:outline-none" />
               </div>
             </div>
 
@@ -210,7 +210,7 @@ const flatItems = menuPages.flatMap((p, pi) =>
                 <label class="pickup-radio"><input type="radio" name="payment" value="cash" checked required /><span>{isEl ? '💶 Μετρητά' : '💶 Cash'}</span></label>
                 <label class="pickup-radio"><input type="radio" name="payment" value="card" /><span>{isEl ? '💳 Κάρτα' : '💳 Card'}</span></label>
               </div>
-              <p class="text-xs text-gray-500 italic mt-2" id="payment-note">{isEl ? 'Πληρωμή στο κατάστημα κατά την παραλαβή.' : 'Payment at the counter on pickup.'}</p>
+              <p class="text-xs text-gray-500 italic mt-2" id="payment-note">{isEl ? 'Πληρωμή στο μαγαζί όταν παραλάβεις.' : 'Pay at the counter when you collect.'}</p>
             </div>
 
             <button type="submit" id="order-submit-btn" class="w-full bg-[#E5B32A] text-black font-bold uppercase tracking-[0.2em] py-4 rounded-lg text-sm hover:bg-white transition-all">{t.order_form_submit}</button>
@@ -563,10 +563,10 @@ const flatItems = menuPages.flatMap((p, pi) =>
     function renderCheckoutSummary() {
       var box = $('#checkout-cart-summary');
       if (totalCount() === 0) {
-        box.innerHTML = '<p class="text-center text-gray-400 py-4">' + (i18n.isEl ? 'Άδειο καλάθι. Επιστρέψτε στο μενού.' : 'Empty cart. Go back to menu.') + '</p>';
+        box.innerHTML = '<p class="text-center text-gray-400 py-4">' + (i18n.isEl ? 'Άδειο καλάθι. Γύρνα πίσω στο μενού.' : 'Empty cart. Go back to the menu.') + '</p>';
         return;
       }
-      var html = '<p class="text-[10px] uppercase tracking-widest text-[#E5B32A]/80 font-bold mb-2">' + (i18n.isEl ? 'Το καλάθι σας (επεξεργάσιμο)' : 'Your cart (editable)') + '</p>';
+      var html = '<p class="text-[10px] uppercase tracking-widest text-[#E5B32A]/80 font-bold mb-2">' + (i18n.isEl ? 'Το καλάθι σου (επεξεργάσιμο)' : 'Your cart (editable)') + '</p>';
       html += '<ul class="space-y-2">';
       Object.keys(cart).forEach(function(id) {
         var q = cart[id]; if (!q) return;
@@ -675,10 +675,10 @@ const flatItems = menuPages.flatMap((p, pi) =>
       if (addressInput) addressInput.required = isDelivery;
       if (pickupLabel) pickupLabel.textContent = isDelivery
         ? (i18n.isEl ? 'Παράδοση σε' : 'Delivery in')
-        : (i18n.isEl ? 'Παραλαβή σε' : 'Pickup in');
+        : (i18n.isEl ? 'Παραλαβή σε' : 'Ready in');
       if (paymentNote) paymentNote.textContent = isDelivery
-        ? (i18n.isEl ? 'Πληρωμή στον διανομέα κατά την παράδοση.' : 'Payment to the courier on delivery.')
-        : (i18n.isEl ? 'Πληρωμή στο κατάστημα κατά την παραλαβή.' : 'Payment at the counter on pickup.');
+        ? (i18n.isEl ? 'Πληρωμή στον διανομέα κατά την παράδοση.' : 'Pay the courier on delivery.')
+        : (i18n.isEl ? 'Πληρωμή στο μαγαζί όταν παραλάβεις.' : 'Pay at the counter when you collect.');
     }
     document.querySelectorAll('[data-mode-toggle]').forEach(function(r) {
       r.addEventListener('change', refreshMode);

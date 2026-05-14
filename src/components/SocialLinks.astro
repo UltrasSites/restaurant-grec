@@ -2,6 +2,18 @@
 // Liens sociaux + avis avec notes/étoiles
 // Facebook : juste l'icône
 // Google + TripAdvisor : icône + note + étoiles + nombre d'avis
+import type { Lang } from "../i18n/utils";
+
+interface Props { lang?: Lang; }
+const { lang = "el" } = Astro.props;
+
+const ARIA_REVIEWS: Record<string, string> = {
+  el: "κριτικές",
+  en: "reviews",
+  fr: "avis",
+};
+const reviewsWord = ARIA_REVIEWS[lang] || ARIA_REVIEWS.el;
+
 interface Site {
   name: string;
   href: string;
@@ -49,7 +61,7 @@ function renderStars(rating: number) {
       return (
         <a
           href={site.href}
-          aria-label={site.rating ? `${site.name} ${site.rating}/5 (${site.count} avis)` : site.name}
+          aria-label={site.rating ? `${site.name} ${site.rating}/5 (${site.count} ${reviewsWord})` : site.name}
           target="_blank"
           rel="noopener"
           class="relative group flex flex-col items-center"
