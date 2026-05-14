@@ -22,7 +22,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Ποτά",
     title_en: "Drinks",
-    photo: "/photos/efood-08-800w.webp",
+    photo: "/photos/efood-00-800w.webp",
     items: [
       { el: "Αναψυκτικά 330ml", en: "Soft drinks 330ml", desc_el: "Coca-Cola, Sprite, Fanta, Soda — δροσερό κουτάκι", desc_en: "Coca-Cola, Sprite, Fanta, Soda — ice-cold can", price: "1,60€" },
       { el: "Αναψυκτικά 500ml", en: "Soft drinks 500ml", desc_el: "Coca-Cola, Sprite, Fanta — μπουκάλι 500ml", desc_en: "Coca-Cola, Sprite, Fanta — 500ml bottle", price: "1,60€" },
@@ -46,7 +46,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Ορεκτικά Ι",
     title_en: "Appetizers I",
-    photo: "/photos/efood-01-800w.webp",
+    photo: "/photos/efood-05-800w.webp",
     items: [
       { el: "Φρέσκιες Πατάτες", en: "Fresh Fried Potatoes", desc_el: "Χειροποίητες πατάτες κομμένες την ώρα, τηγανιτές σε φρέσκο λάδι, αλάτι θαλάσσιο", desc_en: "Hand-cut fries made to order, fried in fresh oil, sea salt", price: "3,50€" },
       { el: "Πατάτες με τυρί", en: "Fries with cheese", desc_el: "Φρέσκιες πατάτες με λιωμένο κίτρινο τυρί από επάνω", desc_en: "Fresh fries topped with melted yellow cheese", price: "4,00€" },
@@ -60,7 +60,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Ορεκτικά ΙΙ",
     title_en: "Appetizers II",
-    photo: "/photos/efood-03-800w.webp",
+    photo: "/photos/efood-08-800w.webp",
     items: [
       { el: "Κολοκυθοκεφτέδες τμχ", en: "Zucchini Fritter pc", desc_el: "Σπιτικά κεφτεδάκια κολοκυθιού με φέτα, δυόσμο και άνηθο, τηγανιτά", desc_en: "Homemade zucchini fritter with feta, mint and dill, pan-fried", price: "1,20€" },
       { el: "Κολοκυθοκεφτέδες μερίδα 5 τμχ", en: "Zucchini Fritters portion 5 pcs", desc_el: "5 σπιτικά κολοκυθοκεφτέδες σε μερίδα — σερβίρονται με τζατζίκι", desc_en: "Portion of 5 homemade zucchini fritters — served with tzatziki", price: "6,00€" },
@@ -72,7 +72,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Σαλάτες",
     title_en: "Salads",
-    photo: "/photos/efood-05-800w.webp",
+    photo: "/photos/efood-25-800w.webp",
     items: [
       { el: "Η σαλάτα της Τρούμπας", en: "Trouba's salad", desc_el: "Η σπεσιαλιτέ μας : μαρούλι, λάχανο, ντομάτα, αγγούρι, κρεμμύδι, πιπεριά, ελιές Καλαμάτας, κάπαρη και σπιτική σως μουστάρδας", desc_en: "Our house special: lettuce, cabbage, tomato, cucumber, onion, peppers, Kalamata olives, capers and homemade mustard dressing", price: "7,50€" },
       { el: "Λάχανο-Καρότο", en: "Cabbage-Carrot Salad", desc_el: "Φρέσκο λάχανο και καρότο ψιλοκομμένο, ελαιόλαδο, λεμόνι", desc_en: "Finely sliced fresh cabbage and carrot, olive oil, lemon", price: "4,50€" },
@@ -82,7 +82,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Πίτες τυλιχτές",
     title_en: "Wrapped Pita",
-    photo: "/photos/efood-10-800w.webp",
+    photo: "/photos/efood-01-800w.webp",
     note_el: "Τυλιχτές σε φρέσκια πίτα ψημένη στα κάρβουνα, με σπιτικές πατάτες",
     note_en: "Wrapped in fresh charcoal-grilled pita, served with house fries",
     items: [
@@ -95,7 +95,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Πίτες τυλιχτές ΙΙ",
     title_en: "Wrapped Pita II",
-    photo: "/photos/efood-15-800w.webp",
+    photo: "/photos/efood-03-800w.webp",
     note_el: "Οι σπεσιαλιτέ της Τρούμπας — δοκίμασε το Τρουμπάκι",
     note_en: "Trouba's specials — try the signature Trouba burger",
     items: [
@@ -109,7 +109,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Μερίδες — Καλαμάκια",
     title_en: "Portions — Skewers",
-    photo: "/photos/efood-20-800w.webp",
+    photo: "/photos/efood-06-800w.webp",
     note_el: "Πλήρες πιάτο : 4 τεμάχια — με ντομάτα, κρεμμύδι, τζατζίκι, πατάτες και 2 πίτες στα κάρβουνα",
     note_en: "Full plate: 4 skewers — with tomato, onion, tzatziki, fries and 2 charcoal-grilled pitas",
     items: [
@@ -121,7 +121,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Μερίδες — Σπεσιαλιτέ",
     title_en: "Portions — Specials",
-    photo: "/photos/efood-25-800w.webp",
+    photo: "/photos/efood-60-800w.webp",
     note_el: "Συνοδεύεται με πατάτες, πίτα στα κάρβουνα και σαλάτα/σάλτσα",
     note_en: "Served with fries, charcoal-grilled pita and salad/sauce",
     items: [
@@ -133,20 +133,20 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Μερίδες — Χοιρινά",
     title_en: "Portions — Pork",
-    photo: "/photos/efood-30-800w.webp",
+    photo: "/photos/efood-62-800w.webp",
     note_el: "Συνοδεύεται με ντομάτα, κρεμμύδι, τζατζίκι, πατάτες και 2 πίτες",
     note_en: "Served with tomato, onion, tzatziki, fries and 2 pitas",
     items: [
       { el: "Πανσετάκι χοιρινό 5τμχ", en: "Pork Belly 5pcs", desc_el: "5 φέτες χοιρινής πανσέτας στα κάρβουνα — ζουμερές, τραγανές, με ρίγανη", desc_en: "5 slices of charcoal-grilled pork belly — juicy, crispy edges, oregano", price: "9,50€" },
       { el: "Μπριζολάκι χοιρινό 4τμχ", en: "Pork Chop 4pcs", desc_el: "4 μικρές χοιρινές μπριζόλες μαριναρισμένες, ψημένες στα κάρβουνα", desc_en: "4 small marinated pork chops grilled on charcoal", price: "9,50€" },
       { el: "Λουκάνικο χοιρινό 3τμχ", en: "Pork Sausage 3pcs", desc_el: "3 χωριάτικα λουκάνικα με πορτοκάλι και πράσο, στα κάρβουνα", desc_en: "3 village-style sausages with orange and leek, charcoal-grilled", price: "9,50€" },
-      { el: "Ποικιλία 2 ατόμων", en: "Mix grill for 2 persons", desc_el: "Μεγάλη ποικιλία για 2 : σουβλάκι, μπιφτέκι, πανσέτα, λουκάνικο — με όλες τις γαρνιτούρες", desc_en: "Generous mixed grill for 2: souvlaki, burger, pork belly, sausage — with all the trimmings", price: "16,00€" },
+      { el: "Ποικιλία 2 ατόμων", en: "Charcoal plate for 2", desc_el: "Μεγάλη ποικιλία για 2 : σουβλάκι, μπιφτέκι, πανσέτα, λουκάνικο — με όλες τις γαρνιτούρες", desc_en: "Generous charcoal plate for 2: souvlaki, burger, pork belly, sausage — with all the trimmings", price: "16,00€" },
     ],
   },
   {
     title_el: "Χάμπουργκερ",
     title_en: "Hamburger",
-    photo: "/photos/efood-35-800w.webp",
+    photo: "/photos/efood-42-800w.webp",
     items: [
       { el: "Χάμπουργκερ Κλασικό", en: "Classic Hamburger", desc_el: "μπιφτέκι μοσχαρίσιο, τυρί cheddar, πράσινη σαλάτα, ντομάτα, κρεμμύδι, πατάτες", desc_en: "beef burger, cheddar cheese, lettuce, tomato, onion, fries", price: "7,00€" },
       { el: "Χάμπουργκερ Διπλό", en: "Double Hamburger", desc_el: "διπλό μπιφτέκι, διπλό cheddar, πράσινη σαλάτα, ντομάτα, κρεμμύδι, πατάτες", desc_en: "double beef burger, double cheddar, lettuce, tomato, onion, fries", price: "9,50€" },
@@ -160,7 +160,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Veggie Menu",
     title_en: "Veggie Menu",
-    photo: "/photos/efood-40-800w.webp",
+    photo: "/photos/efood-32-800w.webp",
     note_el: "Χορτοφαγικές και vegan επιλογές — φτιαγμένες με την ίδια φροντίδα",
     note_en: "Vegetarian and vegan options — made with the same care",
     items: [
@@ -180,7 +180,7 @@ export const menuPages: MenuPage[] = [
   {
     title_el: "Σάντουιτς & Σκεπαστή",
     title_en: "Sandwich & Skepasti",
-    photo: "/photos/efood-45-800w.webp",
+    photo: "/photos/efood-47-800w.webp",
     note_el: "Η σκεπαστή είναι πίτα γεμιστή και κλειστή στη σχάρα — μια ιδιαιτερότητα του Πειραιά",
     note_en: "Skepasti is a stuffed pita closed and pressed on the grill — a Piraeus specialty",
     items: [
