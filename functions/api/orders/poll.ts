@@ -1,12 +1,12 @@
 /**
  * GET /api/orders/poll?since=<ts>
- * Long-poll : retourne les commandes status="new" créées depuis `since`.
- * Si rien après ~25s, retourne tableau vide.
- * Auth : cookie "caisse_auth" === ADMIN_KEY (set par /caisse).
+ * Long-poll : retourne les commandes status="new" créées depuis `since` (D1).
+ * D1 strongly consistent → plus de boucle marker, simple SELECT.
+ * Auth : cookie "caisse_auth" === ADMIN_KEY.
  */
 
 type Env = {
-  ORDERS?: KVNamespace;
+  DB?: D1Database;
   ADMIN_KEY?: string;
 };
 
@@ -18,9 +18,34 @@ type StoredOrder = {
   total: number;
   pickup_time: string;
   lang: string;
+  mode: string;
+  payment: string;
+  address?: string;
+  floor?: string;
+  bell?: string;
+  notes?: string;
   status: string;
   created_at: number;
   country?: string;
+};
+
+type OrderRow = {
+  id: string;
+  name: string;
+  phone: string;
+  total: number;
+  pickup_time: string;
+  lang: string;
+  mode: string;
+  payment: string;
+  address: string | null;
+  floor: string | null;
+  bell: string | null;
+  notes: string | null;
+  country: string | null;
+  items_json: string;
+  status: string;
+  created_at: number;
 };
 
 const corsHeaders = {
@@ -56,26 +81,43 @@ function jsonResp(body: unknown, status = 200): Response {
   });
 }
 
-async function fetchNewOrders(env: Env, since: number): Promise<StoredOrder[]> {
-  if (!env.ORDERS) return [];
-  const listed = await env.ORDERS.list({ prefix: "order:", limit: 100 });
-  const out: StoredOrder[] = [];
-  for (const k of listed.keys) {
-    // key format order:<ts>:<id>
-    const parts = k.name.split(":");
-    const ts = parseInt(parts[1] || "0", 10);
-    if (ts <= since) continue;
-    const raw = await env.ORDERS.get(k.name);
-    if (!raw) continue;
-    try {
-      const o = JSON.parse(raw) as StoredOrder;
-      if (o.status === "new") out.push(o);
-    } catch {
-      // skip
-    }
-  }
-  out.sort((a, b) => a.created_at - b.created_at);
-  return out;
+function rowToOrder(r: OrderRow): StoredOrder {
+  let items: StoredOrder["items"] = [];
+  try { items = JSON.parse(r.items_json); } catch { /* skip */ }
+  return {
+    id: r.id,
+    name: r.name,
+    phone: r.phone,
+    items,
+    total: r.total,
+    pickup_time: r.pickup_time,
+    lang: r.lang,
+    mode: r.mode,
+    payment: r.payment,
+    address: r.address || "",
+    floor: r.floor || "",
+    bell: r.bell || "",
+    notes: r.notes || "",
+    status: r.status,
+    created_at: r.created_at,
+    country: r.country || "XX",
+  };
+}
+
+async function fetchNew(env: Env, since: number): Promise<StoredOrder[]> {
+  if (!env.DB) return [];
+  const res = await env.DB
+    .prepare(
+      `SELECT id, name, phone, total, pickup_time, lang, mode, payment,
+              address, floor, bell, notes, country, items_json, status, created_at
+       FROM orders
+       WHERE status = 'new' AND created_at > ?1
+       ORDER BY created_at ASC
+       LIMIT 100`
+    )
+    .bind(since)
+    .all<OrderRow>();
+  return (res.results || []).map(rowToOrder);
 }
 
 export const onRequestOptions = async () =>
@@ -88,33 +130,34 @@ export const onRequestGet = async (ctx: { request: Request; env: Env }) => {
     return jsonResp({ ok: false, error: "unauthorized" }, 401);
   }
 
-  if (!env.ORDERS) return jsonResp({ ok: false, error: "ORDERS KV not bound" }, 500);
+  if (!env.DB) return jsonResp({ ok: false, error: "DB binding missing" }, 500);
 
   const url = new URL(request.url);
   const sinceParam = url.searchParams.get("since");
   const since = sinceParam ? parseInt(sinceParam, 10) : 0;
 
-  // Check rapide d'un "marqueur" léger (latest_order_ts) qui propage plus vite que list()
-  const latestRaw = await env.ORDERS.get("latest_order_ts", { cacheTtl: 0 } as any);
-  const latestTs = latestRaw ? parseInt(latestRaw, 10) : 0;
+  // Cleanup opportuniste : supprime expired rows (rate_limit + orders > 24h)
+  const now = Date.now();
+  await env.DB
+    .prepare(`DELETE FROM orders WHERE expires_at < ?1`)
+    .bind(now)
+    .run()
+    .catch(() => {});
+  await env.DB
+    .prepare(`DELETE FROM rate_limit WHERE expires_at < ?1`)
+    .bind(now)
+    .run()
+    .catch(() => {});
 
-  // Premier check immédiat (full list)
-  let orders = await fetchNewOrders(env, since);
+  // 1er check : immédiat
+  let orders = await fetchNew(env, since);
   if (orders.length > 0) return jsonResp({ ok: true, orders, now: Date.now() });
 
-  // Si pas de nouveau marqueur et pas de commande, retour vide rapide (3s) pour économiser
-  if (latestTs <= since) {
-    // Quand même attendre 3s pour préserver une couche long-poll mini
-    await new Promise((r) => setTimeout(r, 3000));
-    orders = await fetchNewOrders(env, since);
-    return jsonResp({ ok: true, orders, now: Date.now() });
-  }
-
-  // Marqueur indique une nouvelle commande — boucle rapide pour la trouver (KV list est eventually consistent)
-  const deadline = Date.now() + 8_000;
+  // Long-poll soft : 4 essais espacés sur ~12s max (D1 = consistent, donc court suffit)
+  const deadline = Date.now() + 12_000;
   while (Date.now() < deadline) {
-    await new Promise((r) => setTimeout(r, 400));
-    orders = await fetchNewOrders(env, since);
+    await new Promise((r) => setTimeout(r, 1500));
+    orders = await fetchNew(env, since);
     if (orders.length > 0) break;
   }
 

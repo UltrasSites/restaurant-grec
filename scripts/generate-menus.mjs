@@ -5,7 +5,15 @@ import PDFDocument from "pdfkit";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import sharp from "sharp";
 import { LANGS, RESTAURANT, PAGES, pick } from "./menu-data.mjs";
+
+// Cache des conversions WebP → JPEG (pdfkit ne supporte pas WebP).
+// Pré-rempli au démarrage via preloadGalleryImages() → utilisable de manière synchrone ensuite.
+const _imgCache = new Map();
+function getJpeg(filePath) {
+  return _imgCache.get(filePath) || null;
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -113,7 +121,7 @@ function drawFooter(doc, lang, pageNum, totalPages) {
   doc.rect(MARGIN, y - 8, PAGE_W - 2 * MARGIN, 0.5).fill(grad);
 
   doc.fillColor(DIM).font("Sans").fontSize(7);
-  doc.text(RESTAURANT.phone + "  ·  " + RESTAURANT.email, MARGIN, y, { width: PAGE_W - 2 * MARGIN, align: "left" });
+  doc.text(RESTAURANT.phone + "  ·  " + RESTAURANT.email, MARGIN, y, { width: PAGE_W - 2 * MARGIN, align: "left", lineBreak: false });
   doc.fillColor(GOLD).font("SansBold").fontSize(7);
   doc.text(`${pageNum} / ${totalPages}`, MARGIN, y, { width: PAGE_W - 2 * MARGIN, align: "right" });
   doc.restore();
@@ -219,7 +227,7 @@ function drawSectionPage(doc, lang, section, pageNum, totalPages) {
 
   // Section title
   doc.fillColor(GOLD).font(lang === "zh" ? "Bold" : "BoldItalic").fontSize(22);
-  doc.text(pick(section.title, lang), MARGIN, y, { width: PAGE_W - 2 * MARGIN, align: "left" });
+  doc.text(pick(section.title, lang), MARGIN, y, { width: PAGE_W - 2 * MARGIN, align: "left", lineBreak: false });
   y += 32;
 
   // Divider
@@ -236,7 +244,7 @@ function drawSectionPage(doc, lang, section, pageNum, totalPages) {
     if (noteText) {
       doc.fillColor(GREY).font("Italic").fontSize(9);
       const noteH = doc.heightOfString(noteText, { width: PAGE_W - 2 * MARGIN });
-      doc.text(noteText, MARGIN, y, { width: PAGE_W - 2 * MARGIN });
+      doc.text(noteText, MARGIN, y, { width: PAGE_W - 2 * MARGIN, height: noteH + 4 });
       y += noteH + 14;
     }
   }
@@ -269,22 +277,22 @@ function drawSectionPage(doc, lang, section, pageNum, totalPages) {
       drawHeader(doc, lang);
       y = 80;
       doc.fillColor(GOLD).font(lang === "zh" ? "Bold" : "BoldItalic").fontSize(16);
-      doc.text(pick(section.title, lang) + " (suite)", MARGIN, y, { width: PAGE_W - 2 * MARGIN, align: "left" });
+      doc.text(pick(section.title, lang) + " (suite)", MARGIN, y, { width: PAGE_W - 2 * MARGIN, align: "left", lineBreak: false });
       y += 30;
     }
 
-    // Name
+    // Name — height limit pour empêcher auto-paginate de pdfkit
     doc.fillColor(WHITE).font("Bold").fontSize(11);
-    doc.text(itemName, MARGIN, y, { width: nameColW });
+    doc.text(itemName, MARGIN, y, { width: nameColW, height: nameH + 4 });
 
     // Price (right aligned)
     doc.fillColor(GOLD).font("Bold").fontSize(11.5);
-    doc.text(item.price, MARGIN + nameColW + 10, y, { width: priceColW, align: "right" });
+    doc.text(item.price, MARGIN + nameColW + 10, y, { width: priceColW, align: "right", lineBreak: false });
 
     let descY = y + nameH + 2;
     if (descText) {
       doc.fillColor(DIM).font("Italic").fontSize(8.5);
-      doc.text(descText, MARGIN, descY, { width: nameColW });
+      doc.text(descText, MARGIN, descY, { width: nameColW, height: descH + 4 });
     }
 
     y += rowH;
@@ -298,6 +306,92 @@ function drawSectionPage(doc, lang, section, pageNum, totalPages) {
   }
 
   drawFooter(doc, lang, pageNum, totalPages);
+}
+
+// Page "galerie" — 4 photos emblématiques avant la back cover
+function drawGalleryPage(doc, lang) {
+  fillBg(doc);
+  drawFrame(doc);
+  drawTopBorder(doc);
+
+  // Titre
+  const galleryTitle = {
+    zh: "我们的特色", el: "Οι Σπεσιαλιτέ μας", en: "Our Specialities",
+    fr: "Nos Spécialités", pt: "As Nossas Especialidades", it: "Le Nostre Specialità",
+    es: "Nuestras Especialidades", de: "Unsere Spezialitäten",
+  }[lang] || "Our Specialities";
+
+  doc.fillColor(GOLD).font("SansBold").fontSize(18);
+  doc.text(galleryTitle.toUpperCase(), MARGIN, 60, {
+    width: PAGE_W - 2 * MARGIN, align: "center", characterSpacing: 4, lineBreak: false,
+  });
+
+  // Divider
+  doc.save();
+  doc.fillColor(GOLD).opacity(0.5);
+  doc.fontSize(10).font("Regular").text("◆ · · · ◆", 0, 92, { width: PAGE_W, align: "center", characterSpacing: 4, lineBreak: false });
+  doc.opacity(1);
+  doc.restore();
+
+  // 4 photos en grid 2x2, avec leur libellé multilingue
+  const PHOTOS_DIR = path.join(OUT_DIR, "photos", "efood");
+  const labels = {
+    pita: { zh: "皮塔卷饼", el: "Πίτα τυλιχτή", en: "Wrapped Pita", fr: "Pita roulée", pt: "Pita enrolada", it: "Pita arrotolata", es: "Pita enrollada", de: "Pita-Wrap" },
+    salad: { zh: "特鲁巴沙拉", el: "Σαλάτα Τρούμπας", en: "Trouba's Salad", fr: "Salade de Trouba", pt: "Salada da Trouba", it: "Insalata Trouba", es: "Ensalada de Trouba", de: "Trouba-Salat" },
+    fries: { zh: "新鲜炸薯条", el: "Φρέσκιες Πατάτες", en: "Fresh Fried Potatoes", fr: "Frites maison", pt: "Batatas fritas frescas", it: "Patatine fresche", es: "Patatas fritas frescas", de: "Frische Pommes" },
+    skewer: { zh: "希腊烤串", el: "Καλαμάκι", en: "Greek Skewer", fr: "Brochette grecque", pt: "Espetada grega", it: "Spiedino greco", es: "Brocheta griega", de: "Griechischer Spieß" },
+  };
+  const photos = [
+    { slug: "kalamaki-choirino-se-pita", label: labels.pita },
+    { slug: "i-salata-tis-troympas", label: labels.salad },
+    { slug: "patates-tiganites", label: labels.fries },
+    { slug: "kalamaki-choirino", label: labels.skewer },
+  ];
+
+  // Grid 2x2 : zone disponible 110 → 760, width 499 (margins-to-margins)
+  const gridStartY = 130;
+  const cellW = (PAGE_W - 2 * MARGIN - 20) / 2; // 2 colonnes avec 20px gap
+  const cellH = 280; // 2 rangées (incluant libellé)
+  const imgH = cellH - 40; // image height (laisser place au libellé)
+
+  for (let i = 0; i < photos.length; i++) {
+    const p = photos[i];
+    const col = i % 2;
+    const row = Math.floor(i / 2);
+    const x = MARGIN + col * (cellW + 20);
+    const y0 = gridStartY + row * (cellH + 16);
+
+    const imgPath = path.join(PHOTOS_DIR, `${p.slug}-800w.webp`);
+    const jpegBuf = getJpeg(imgPath);
+    if (jpegBuf) {
+      doc.save();
+      // Border doré subtil
+      doc.lineWidth(0.6).strokeColor(GOLD).opacity(0.4);
+      doc.rect(x - 2, y0 - 2, cellW + 4, imgH + 4).stroke();
+      doc.opacity(1);
+      doc.image(jpegBuf, x, y0, { fit: [cellW, imgH], align: "center", valign: "center" });
+      doc.restore();
+    } else {
+      // Placeholder si image manquante
+      doc.save();
+      doc.fillColor(ACCENT_DIM).rect(x, y0, cellW, imgH).fill();
+      doc.fillColor(DIM).font("Italic").fontSize(8);
+      doc.text("(image)", x, y0 + imgH / 2 - 4, { width: cellW, align: "center", lineBreak: false });
+      doc.restore();
+    }
+
+    // Libellé sous l'image
+    doc.fillColor(GOLD).font("SansBold").fontSize(9);
+    doc.text(pick(p.label, lang).toUpperCase(), x, y0 + imgH + 8, {
+      width: cellW, align: "center", characterSpacing: 2, lineBreak: false,
+    });
+  }
+
+  // Petit footer galerie
+  doc.fillColor(DIM).font("Sans").fontSize(7);
+  doc.text(pick(RESTAURANT.tagline, lang), MARGIN, PAGE_H - 40, {
+    width: PAGE_W - 2 * MARGIN, align: "center", characterSpacing: 2, lineBreak: false,
+  });
 }
 
 function drawBackCover(doc, lang) {
@@ -369,7 +463,9 @@ async function generatePDF(lang) {
     const outPath = path.join(OUT_DIR, `menu-${lang}.pdf`);
     const doc = new PDFDocument({
       size: "A4",
-      margin: MARGIN,
+      // margins à 0 : on positionne tout en absolu (drawFooter, drawHeader sont au-delà des marges Astro standard).
+      // Sans ça, pdfkit auto-paginate quand on dessine hors-zone → pages blanches.
+      margins: { top: 0, bottom: 0, left: 0, right: 0 },
       bufferPages: true,
       info: {
         Title: `Kalamaki Troubas — Menu (${lang})`,
@@ -395,6 +491,10 @@ async function generatePDF(lang) {
       drawSectionPage(doc, lang, section, idx + 2, totalPages);
     });
 
+    // Gallery page (4 photos emblématiques)
+    doc.addPage();
+    drawGalleryPage(doc, lang);
+
     // Back cover
     doc.addPage();
     drawBackCover(doc, lang);
@@ -409,9 +509,24 @@ async function generatePDF(lang) {
   });
 }
 
+// Pré-charge les 4 photos de la galerie en JPEG (pdfkit ne supporte pas WebP)
+async function preloadGalleryImages() {
+  const PHOTOS_DIR = path.join(OUT_DIR, "photos", "efood");
+  const slugs = ["kalamaki-choirino-se-pita", "i-salata-tis-troympas", "patates-tiganites", "kalamaki-choirino"];
+  for (const slug of slugs) {
+    const p = path.join(PHOTOS_DIR, `${slug}-800w.webp`);
+    if (fs.existsSync(p)) {
+      const buf = await sharp(p).jpeg({ quality: 88 }).toBuffer();
+      _imgCache.set(p, buf);
+    }
+  }
+  console.log(`  Préchargé ${_imgCache.size} images galerie`);
+}
+
 (async () => {
   console.log("Generating menus...");
   if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
+  await preloadGalleryImages();
   for (const lang of LANGS) {
     await generatePDF(lang);
   }

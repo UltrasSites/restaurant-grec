@@ -1,9 +1,9 @@
 /**
  * POST /api/order
- * Reçoit une commande client, l'enregistre dans KV (binding ORDERS).
- * - Génère un ID court via counter KV (clé "counter").
- * - Rate-limit : max 5 commandes / IP / 10 min (clé "rate:<ip>").
- * - TTL : 24h sur la commande, 10min sur le rate-limit.
+ * Enregistre une commande client dans D1 (binding DB).
+ * - ID court via counter SQL (UPDATE ... RETURNING).
+ * - Rate-limit : max 5 commandes / IP / 10 min.
+ * - TTL logique 24h (expires_at), nettoyage à la lecture.
  */
 
 type OrderItem = { id: string; name: string; price: number; qty: number };
@@ -14,8 +14,8 @@ type OrderPayload = {
   total: number;
   pickup_time: string;
   lang: string;
-  mode: string;          // "takeaway" | "delivery"
-  payment: string;       // "cash" | "card"
+  mode: string;
+  payment: string;
   address?: string;
   floor?: string;
   bell?: string;
@@ -23,7 +23,7 @@ type OrderPayload = {
 };
 
 type Env = {
-  ORDERS?: KVNamespace;
+  DB?: D1Database;
 };
 
 const corsHeaders = {
@@ -34,7 +34,6 @@ const corsHeaders = {
 
 function sanitize(s: unknown, max = 200): string {
   if (typeof s !== "string") return "";
-  // Strip tags + control chars, limit length
   return s.replace(/[<>]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, max).trim();
 }
 
@@ -51,8 +50,8 @@ export const onRequestOptions = async () =>
 export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
   const { request, env } = ctx;
 
-  if (!env.ORDERS) {
-    return jsonResp({ ok: false, error: "ORDERS KV namespace not bound" }, 500);
+  if (!env.DB) {
+    return jsonResp({ ok: false, error: "DB binding missing" }, 500);
   }
 
   let body: Partial<OrderPayload>;
@@ -104,7 +103,6 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
 
   if (items.length === 0) return jsonResp({ ok: false, error: "Cart empty" }, 400);
 
-  // Recalcul du total côté serveur
   const total = Math.round(items.reduce((s, it) => s + it.price * it.qty, 0) * 100) / 100;
   if (total <= 0 || total > 500) {
     return jsonResp({ ok: false, error: "Invalid total" }, 400);
@@ -114,49 +112,65 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
   const cf = (request as Request & { cf?: { country?: string } }).cf;
   const country = cf?.country || "XX";
 
-  // Rate limiting : max 5 commandes / IP / 10 min
-  const rateKey = `rate:${ip}`;
-  const rateRaw = await env.ORDERS.get(rateKey);
-  const rateCount = rateRaw ? parseInt(rateRaw, 10) : 0;
-  if (rateCount >= 5) {
-    return jsonResp({ ok: false, error: "Too many orders. Try again in a few minutes." }, 429);
-  }
-  await env.ORDERS.put(rateKey, String(rateCount + 1), { expirationTtl: 600 });
-
-  // Generate short ID via counter
-  const counterRaw = await env.ORDERS.get("counter");
-  const counter = counterRaw ? parseInt(counterRaw, 10) : 0;
-  const nextNum = counter + 1;
-  await env.ORDERS.put("counter", String(nextNum));
-
-  const order_id = `K-${String(nextNum).padStart(3, "0")}`;
   const now = Date.now();
+  const expires = now + 24 * 60 * 60 * 1000;
 
-  const order = {
-    id: order_id,
-    name,
-    phone,
-    items,
-    total,
-    pickup_time,
-    lang,
-    mode,
-    payment,
-    address: mode === "delivery" ? address : "",
-    floor: mode === "delivery" ? floor : "",
-    bell: mode === "delivery" ? bell : "",
-    notes,
-    status: "new" as const,
-    created_at: now,
-    country,
-  };
+  // Rate limiting : max 5 commandes / IP / 10 min — atomique via UPSERT
+  const rateExpires = now + 10 * 60 * 1000;
+  const rateRow = await env.DB
+    .prepare(`SELECT count, expires_at FROM rate_limit WHERE ip = ?1`)
+    .bind(ip)
+    .first<{ count: number; expires_at: number }>();
 
-  // Key avec timestamp pour permettre listing chronologique
-  const orderKey = `order:${now}:${order_id}`;
-  await env.ORDERS.put(orderKey, JSON.stringify(order), { expirationTtl: 60 * 60 * 24 }); // 24h
+  if (rateRow && rateRow.expires_at > now) {
+    if (rateRow.count >= 5) {
+      return jsonResp({ ok: false, error: "Too many orders. Try again in a few minutes." }, 429);
+    }
+    await env.DB
+      .prepare(`UPDATE rate_limit SET count = count + 1 WHERE ip = ?1`)
+      .bind(ip)
+      .run();
+  } else {
+    await env.DB
+      .prepare(`INSERT OR REPLACE INTO rate_limit (ip, count, expires_at) VALUES (?1, 1, ?2)`)
+      .bind(ip, rateExpires)
+      .run();
+  }
 
-  // Marqueur séparé (small single key) — propage plus vite que list() pour signal au polling
-  await env.ORDERS.put("latest_order_ts", String(now), { expirationTtl: 60 * 60 * 24 });
+  // Increment counter et récupère valeur — atomique D1
+  const counterRow = await env.DB
+    .prepare(`UPDATE counters SET value = value + 1 WHERE name = 'orders' RETURNING value`)
+    .first<{ value: number }>();
+  const nextNum = counterRow?.value ?? 1;
+  const order_id = `K-${String(nextNum).padStart(3, "0")}`;
+
+  await env.DB
+    .prepare(
+      `INSERT INTO orders (
+        id, num, name, phone, total, pickup_time, lang, mode, payment,
+        address, floor, bell, notes, country, items_json, status, created_at, expires_at
+      ) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,'new',?16,?17)`
+    )
+    .bind(
+      order_id,
+      nextNum,
+      name,
+      phone,
+      total,
+      pickup_time,
+      lang,
+      mode,
+      payment,
+      mode === "delivery" ? address : "",
+      mode === "delivery" ? floor : "",
+      mode === "delivery" ? bell : "",
+      notes,
+      country,
+      JSON.stringify(items),
+      now,
+      expires
+    )
+    .run();
 
   return jsonResp({ ok: true, order_id });
 };

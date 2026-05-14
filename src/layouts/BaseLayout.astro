@@ -9,12 +9,14 @@ interface Props {
   title?: string;
   description?: string;
   lang?: Lang;
+  hideHeader?: boolean;
 }
 
 const {
   title = "Το Καλαμάκι Της Τρούμπας – Αυθεντικά Σουβλάκια Πειραιάς",
   description = "Αυθεντικά καλαμάκια, γύρος και πίτες στην καρδιά της Τρούμπας Πειραιά. Μπουμπουλίνας 8 & Νοταρά.",
   lang = "el",
+  hideHeader = false,
 } = Astro.props;
 const htmlLang = lang === 'en' ? 'en-GB' : 'el-GR';
 ---
@@ -146,7 +148,7 @@ const htmlLang = lang === 'en' ? 'en-GB' : 'el-GR';
     <script is:inline>
       (function(){ var L = document.documentElement.getAttribute('data-lang'); if(L) try { localStorage.setItem('lang', L); } catch(e) {} })();
     </script>
-    <Header lang={lang} />
+    {!hideHeader && <Header lang={lang} />}
     <main>
       <slot />
     </main>

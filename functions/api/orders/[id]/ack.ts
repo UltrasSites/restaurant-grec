@@ -5,7 +5,7 @@
  */
 
 type Env = {
-  ORDERS?: KVNamespace;
+  DB?: D1Database;
   ADMIN_KEY?: string;
 };
 
@@ -43,26 +43,18 @@ export const onRequestPost = async (ctx: { request: Request; env: Env; params: {
   const { request, env, params } = ctx;
 
   if (!isAuthed(request, env)) return jsonResp({ ok: false, error: "unauthorized" }, 401);
-  if (!env.ORDERS) return jsonResp({ ok: false, error: "ORDERS KV not bound" }, 500);
+  if (!env.DB) return jsonResp({ ok: false, error: "DB binding missing" }, 500);
 
   const id = String(params.id || "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 20);
   if (!id) return jsonResp({ ok: false, error: "Invalid id" }, 400);
 
-  // Find the key by listing (id suffix)
-  const listed = await env.ORDERS.list({ prefix: "order:", limit: 100 });
-  const match = listed.keys.find((k) => k.name.endsWith(":" + id));
-  if (!match) return jsonResp({ ok: false, error: "Order not found" }, 404);
+  const res = await env.DB
+    .prepare(`UPDATE orders SET status = 'seen', acked_at = ?1 WHERE id = ?2 AND status = 'new'`)
+    .bind(Date.now(), id)
+    .run();
 
-  const raw = await env.ORDERS.get(match.name);
-  if (!raw) return jsonResp({ ok: false, error: "Order missing" }, 404);
-
-  try {
-    const o = JSON.parse(raw) as Record<string, unknown>;
-    o.status = "seen";
-    o.acked_at = Date.now();
-    await env.ORDERS.put(match.name, JSON.stringify(o), { expirationTtl: 60 * 60 * 24 });
-  } catch {
-    return jsonResp({ ok: false, error: "Parse error" }, 500);
+  if (!res.meta || res.meta.changes === 0) {
+    return jsonResp({ ok: false, error: "Order not found or already seen" }, 404);
   }
 
   return jsonResp({ ok: true });

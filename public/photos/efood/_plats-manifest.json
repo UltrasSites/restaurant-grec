@@ -1,0 +1,925 @@
+{
+  "generated_at": "2026-05-14T15:25:24.433Z",
+  "count_plats": 76,
+  "count_failed": 0,
+  "count_boissons_excluded": 20,
+  "sizes": [
+    400,
+    800,
+    1600
+  ],
+  "plats": [
+    {
+      "slug": "soyvlakia",
+      "name_el": "Σουβλάκια",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/f=auto/shop/607761/cover?t=1715689840&platform=web",
+      "hd_src": "https://cdn.e-food.gr/shop/607761/cover?t=1715689840&platform=web",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "soyvlakia-400w.webp",
+        "soyvlakia-800w.webp",
+        "soyvlakia-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kalamaki-choirino",
+      "name_el": "Καλαμάκι χοιρινό",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000383?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000383?c=1755528382",
+      "orig_dimensions": "1919x1080",
+      "files": [
+        "kalamaki-choirino-400w.webp",
+        "kalamaki-choirino-800w.webp",
+        "kalamaki-choirino-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kalamaki-choirino-se-pita",
+      "name_el": "Καλαμάκι χοιρινό σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000390?c=1755523547",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000390?c=1755523547",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "kalamaki-choirino-se-pita-400w.webp",
+        "kalamaki-choirino-se-pita-800w.webp",
+        "kalamaki-choirino-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "pansetaki-choirino-se-pita",
+      "name_el": "Πανσετάκι χοιρινό σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000397?c=1755523547",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000397?c=1755523547",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "pansetaki-choirino-se-pita-400w.webp",
+        "pansetaki-choirino-se-pita-800w.webp",
+        "pansetaki-choirino-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kalamaki-kotopoylo-mpoyti-se-pita",
+      "name_el": "Καλαμάκι κοτόπουλο μπούτι σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000391?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000391?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "kalamaki-kotopoylo-mpoyti-se-pita-400w.webp",
+        "kalamaki-kotopoylo-mpoyti-se-pita-800w.webp",
+        "kalamaki-kotopoylo-mpoyti-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "mprizolaki-choirino-se-pita",
+      "name_el": "Μπριζολάκι χοιρινό σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000494?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000494?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "mprizolaki-choirino-se-pita-400w.webp",
+        "mprizolaki-choirino-se-pita-800w.webp",
+        "mprizolaki-choirino-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "patates-tiganites",
+      "name_el": "Πατάτες τηγανητές",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000371?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000371?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "patates-tiganites-400w.webp",
+        "patates-tiganites-800w.webp",
+        "patates-tiganites-1600w.webp"
+      ]
+    },
+    {
+      "slug": "special-mpifteki-tis-troympas",
+      "name_el": "Special μπιφτέκι της Τρούμπας",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000386?c=1755523547",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000386?c=1755523547",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "special-mpifteki-tis-troympas-400w.webp",
+        "special-mpifteki-tis-troympas-800w.webp",
+        "special-mpifteki-tis-troympas-1600w.webp"
+      ]
+    },
+    {
+      "slug": "mprizolaki-choirino",
+      "name_el": "Μπριζολάκι χοιρινό",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000496?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000496?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "mprizolaki-choirino-400w.webp",
+        "mprizolaki-choirino-800w.webp",
+        "mprizolaki-choirino-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kalamaki-kotopoylo-mpoyti",
+      "name_el": "Καλαμάκι κοτόπουλο μπούτι",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000384?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000384?c=1755528382",
+      "orig_dimensions": "1919x1080",
+      "files": [
+        "kalamaki-kotopoylo-mpoyti-400w.webp",
+        "kalamaki-kotopoylo-mpoyti-800w.webp",
+        "kalamaki-kotopoylo-mpoyti-1600w.webp"
+      ]
+    },
+    {
+      "slug": "mpifteki-moscharisio-se-pita",
+      "name_el": "Μπιφτέκι μοσχαρίσιο σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:mpiphteki-mosxarisio-se-pita?c=1755783394",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:mpiphteki-mosxarisio-se-pita?c=1755783394",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "mpifteki-moscharisio-se-pita-400w.webp",
+        "mpifteki-moscharisio-se-pita-800w.webp",
+        "mpifteki-moscharisio-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "feta",
+      "name_el": "Φέτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000372?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000372?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "feta-400w.webp",
+        "feta-800w.webp",
+        "feta-1600w.webp"
+      ]
+    },
+    {
+      "slug": "tzatziki",
+      "name_el": "Τζατζίκι",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000373?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000373?c=1755528382",
+      "orig_dimensions": "1919x1080",
+      "files": [
+        "tzatziki-400w.webp",
+        "tzatziki-800w.webp",
+        "tzatziki-1600w.webp"
+      ]
+    },
+    {
+      "slug": "tyrokayteri",
+      "name_el": "Τυροκαυτερή",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000374?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000374?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "tyrokayteri-400w.webp",
+        "tyrokayteri-800w.webp",
+        "tyrokayteri-1600w.webp"
+      ]
+    },
+    {
+      "slug": "patates-tiganites-parmezana",
+      "name_el": "Πατάτες τηγανητές παρμεζάνα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000437?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000437?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "patates-tiganites-parmezana-400w.webp",
+        "patates-tiganites-parmezana-800w.webp",
+        "patates-tiganites-parmezana-1600w.webp"
+      ]
+    },
+    {
+      "slug": "patates-tiganites-cheddar",
+      "name_el": "Πατάτες τηγανητές cheddar",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:patates-tiganites-cheddar?c=1762248142",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:patates-tiganites-cheddar?c=1762248142",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "patates-tiganites-cheddar-400w.webp",
+        "patates-tiganites-cheddar-800w.webp",
+        "patates-tiganites-cheddar-1600w.webp"
+      ]
+    },
+    {
+      "slug": "patates-tiganites-cheddar-mpeikon",
+      "name_el": "Πατάτες τηγανητές cheddar & μπέικον",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000438?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000438?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "patates-tiganites-cheddar-mpeikon-400w.webp",
+        "patates-tiganites-cheddar-mpeikon-800w.webp",
+        "patates-tiganites-cheddar-mpeikon-1600w.webp"
+      ]
+    },
+    {
+      "slug": "pita-sketi",
+      "name_el": "Πίτα σκέτη",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000452?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000452?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "pita-sketi-400w.webp",
+        "pita-sketi-800w.webp",
+        "pita-sketi-1600w.webp"
+      ]
+    },
+    {
+      "slug": "dip-ketchup",
+      "name_el": "Dip ketchup",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000449?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000449?c=1755528382",
+      "orig_dimensions": "1920x1079",
+      "files": [
+        "dip-ketchup-400w.webp",
+        "dip-ketchup-800w.webp",
+        "dip-ketchup-1600w.webp"
+      ]
+    },
+    {
+      "slug": "dip-moystarda",
+      "name_el": "Dip μουστάρδα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000450?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000450?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "dip-moystarda-400w.webp",
+        "dip-moystarda-800w.webp",
+        "dip-moystarda-1600w.webp"
+      ]
+    },
+    {
+      "slug": "dip-sos",
+      "name_el": "Dip σως",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000451?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000451?c=1755528382",
+      "orig_dimensions": "1920x1079",
+      "files": [
+        "dip-sos-400w.webp",
+        "dip-sos-800w.webp",
+        "dip-sos-1600w.webp"
+      ]
+    },
+    {
+      "slug": "dip-tzatziki",
+      "name_el": "Dip τζατζίκι",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000418?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000418?c=1755528382",
+      "orig_dimensions": "1919x1080",
+      "files": [
+        "dip-tzatziki-400w.webp",
+        "dip-tzatziki-800w.webp",
+        "dip-tzatziki-1600w.webp"
+      ]
+    },
+    {
+      "slug": "dip-tyrokayteri",
+      "name_el": "Dip τυροκαυτερή",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000453?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000453?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "dip-tyrokayteri-400w.webp",
+        "dip-tyrokayteri-800w.webp",
+        "dip-tyrokayteri-1600w.webp"
+      ]
+    },
+    {
+      "slug": "i-salata-tis-troympas",
+      "name_el": "Η σαλάτα της Τρούμπας",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000376?c=1755523547",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000376?c=1755523547",
+      "orig_dimensions": "800x450",
+      "files": [
+        "i-salata-tis-troympas-400w.webp",
+        "i-salata-tis-troympas-800w.webp",
+        "i-salata-tis-troympas-1600w.webp"
+      ]
+    },
+    {
+      "slug": "choriatiki",
+      "name_el": "Χωριάτικη",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000377?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000377?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "choriatiki-400w.webp",
+        "choriatiki-800w.webp",
+        "choriatiki-1600w.webp"
+      ]
+    },
+    {
+      "slug": "ntakos",
+      "name_el": "Ντάκος",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000382?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000382?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "ntakos-400w.webp",
+        "ntakos-800w.webp",
+        "ntakos-1600w.webp"
+      ]
+    },
+    {
+      "slug": "lachano-karoto",
+      "name_el": "Λάχανο & καρότο",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000378?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000378?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "lachano-karoto-400w.webp",
+        "lachano-karoto-800w.webp",
+        "lachano-karoto-1600w.webp"
+      ]
+    },
+    {
+      "slug": "maroyli",
+      "name_el": "Μαρούλι",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000380?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000380?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "maroyli-400w.webp",
+        "maroyli-800w.webp",
+        "maroyli-1600w.webp"
+      ]
+    },
+    {
+      "slug": "mpifteki-moscharisio",
+      "name_el": "Μπιφτέκι μοσχαρίσιο",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000385?c=1755523547",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000385?c=1755523547",
+      "orig_dimensions": "1919x1080",
+      "files": [
+        "mpifteki-moscharisio-400w.webp",
+        "mpifteki-moscharisio-800w.webp",
+        "mpifteki-moscharisio-1600w.webp"
+      ]
+    },
+    {
+      "slug": "pansetaki-choirino",
+      "name_el": "Πανσετάκι χοιρινό",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000456?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000456?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "pansetaki-choirino-400w.webp",
+        "pansetaki-choirino-800w.webp",
+        "pansetaki-choirino-1600w.webp"
+      ]
+    },
+    {
+      "slug": "loykaniko-choirino",
+      "name_el": "Λουκάνικο χοιρινό",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000430?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000430?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "loykaniko-choirino-400w.webp",
+        "loykaniko-choirino-800w.webp",
+        "loykaniko-choirino-1600w.webp"
+      ]
+    },
+    {
+      "slug": "mpifteki-lachanikon",
+      "name_el": "Μπιφτέκι λαχανικών",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:mpiphteki-laxanikwn?c=1741257083",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:mpiphteki-laxanikwn?c=1741257083",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "mpifteki-lachanikon-400w.webp",
+        "mpifteki-lachanikon-800w.webp",
+        "mpifteki-lachanikon-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kempap-philadelphia",
+      "name_el": "Κεμπάπ Philadelphia",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000465?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000465?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "kempap-philadelphia-400w.webp",
+        "kempap-philadelphia-800w.webp",
+        "kempap-philadelphia-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kotompeikon",
+      "name_el": "Κοτομπέικον",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000498?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000498?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "kotompeikon-400w.webp",
+        "kotompeikon-800w.webp",
+        "kotompeikon-1600w.webp"
+      ]
+    },
+    {
+      "slug": "revythokeftes",
+      "name_el": "Ρεβυθοκεφτές",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000524?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000524?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "revythokeftes-400w.webp",
+        "revythokeftes-800w.webp",
+        "revythokeftes-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kolokythokeftes",
+      "name_el": "Κολοκυθοκεφτές",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:kolokuthokephtes?c=1766504356",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:kolokuthokephtes?c=1766504356",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "kolokythokeftes-400w.webp",
+        "kolokythokeftes-800w.webp",
+        "kolokythokeftes-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kotompeikon-se-pita",
+      "name_el": "Κοτομπέικον σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000499?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000499?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "kotompeikon-se-pita-400w.webp",
+        "kotompeikon-se-pita-800w.webp",
+        "kotompeikon-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "special-mpifteki-tis-troympas-se-pita",
+      "name_el": "Special μπιφτέκι της Τρούμπας σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000393?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000393?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "special-mpifteki-tis-troympas-se-pita-400w.webp",
+        "special-mpifteki-tis-troympas-se-pita-800w.webp",
+        "special-mpifteki-tis-troympas-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "loykaniko-choirino-se-pita",
+      "name_el": "Λουκάνικο χοιρινό σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000431?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000431?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "loykaniko-choirino-se-pita-400w.webp",
+        "loykaniko-choirino-se-pita-800w.webp",
+        "loykaniko-choirino-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kolokythokeftedes-se-pita",
+      "name_el": "Κολοκυθοκεφτέδες σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:kolokuthokephtedes-se-pita?c=1755784055",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:kolokuthokephtedes-se-pita?c=1755784055",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "kolokythokeftedes-se-pita-400w.webp",
+        "kolokythokeftedes-se-pita-800w.webp",
+        "kolokythokeftedes-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "revythokeftedes-se-pita",
+      "name_el": "Ρεβυθοκεφτέδες σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000458?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000458?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "revythokeftedes-se-pita-400w.webp",
+        "revythokeftedes-se-pita-800w.webp",
+        "revythokeftedes-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "loykaniko-soypias-se-pita",
+      "name_el": "Λουκάνικο σουπιάς σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:loukaniko-soupias-se-pita?c=1776879475",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:loukaniko-soupias-se-pita?c=1776879475",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "loykaniko-soypias-se-pita-400w.webp",
+        "loykaniko-soypias-se-pita-800w.webp",
+        "loykaniko-soypias-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "mpifteki-lachanikon-se-pita",
+      "name_el": "Μπιφτέκι λαχανικών σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:mpiphteki-laxanikwn-se-pita?c=1759932488",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:mpiphteki-laxanikwn-se-pita?c=1759932488",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "mpifteki-lachanikon-se-pita-400w.webp",
+        "mpifteki-lachanikon-se-pita-800w.webp",
+        "mpifteki-lachanikon-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kempap-philadelhia-se-pita",
+      "name_el": "Κεμπάπ Philadelhia σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000466?c=1755523547",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000466?c=1755523547",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "kempap-philadelhia-se-pita-400w.webp",
+        "kempap-philadelhia-se-pita-800w.webp",
+        "kempap-philadelhia-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "oikologiko-se-pita",
+      "name_el": "Οικολογικό σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:oikologiko-se-pita?c=1755784478",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:oikologiko-se-pita?c=1755784478",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "oikologiko-se-pita-400w.webp",
+        "oikologiko-se-pita-800w.webp",
+        "oikologiko-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kalamaki-choirino-se-santoyits",
+      "name_el": "Καλαμάκι χοιρινό σε σάντουιτς",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:kalamaki-xoirino-se-santouits?c=1771574222",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:kalamaki-xoirino-se-santouits?c=1771574222",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "kalamaki-choirino-se-santoyits-400w.webp",
+        "kalamaki-choirino-se-santoyits-800w.webp",
+        "kalamaki-choirino-se-santoyits-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kalamaki-kotopoylo-mpoyti-se-santoyits",
+      "name_el": "Καλαμάκι κοτόπουλο μπούτι σε σάντουιτς",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:kalamaki-kotopoulo-mpouti-se-santouits?c=1756735280",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:kalamaki-kotopoulo-mpouti-se-santouits?c=1756735280",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "kalamaki-kotopoylo-mpoyti-se-santoyits-400w.webp",
+        "kalamaki-kotopoylo-mpoyti-se-santoyits-800w.webp",
+        "kalamaki-kotopoylo-mpoyti-se-santoyits-1600w.webp"
+      ]
+    },
+    {
+      "slug": "mpifteki-moscharisio-se-santoyits",
+      "name_el": "Μπιφτέκι μοσχαρίσιο σε σάντουιτς",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:mpiphteki-mosxarisio-se-santouits?c=1756735305",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:mpiphteki-mosxarisio-se-santouits?c=1756735305",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "mpifteki-moscharisio-se-santoyits-400w.webp",
+        "mpifteki-moscharisio-se-santoyits-800w.webp",
+        "mpifteki-moscharisio-se-santoyits-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kotompeikon-se-santoyits",
+      "name_el": "Κοτομπέικον σε σάντουιτς",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:kotompeikon-se-santouits?c=1709151992",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:kotompeikon-se-santouits?c=1709151992",
+      "orig_dimensions": "1280x719",
+      "files": [
+        "kotompeikon-se-santoyits-400w.webp",
+        "kotompeikon-se-santoyits-800w.webp",
+        "kotompeikon-se-santoyits-1600w.webp"
+      ]
+    },
+    {
+      "slug": "pansetaki-choirino-se-santoyits",
+      "name_el": "Πανσετάκι χοιρινό σε σάντουιτς",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:pansetaki-xoirino-se-santouits?c=1756735263",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:pansetaki-xoirino-se-santouits?c=1756735263",
+      "orig_dimensions": "1280x719",
+      "files": [
+        "pansetaki-choirino-se-santoyits-400w.webp",
+        "pansetaki-choirino-se-santoyits-800w.webp",
+        "pansetaki-choirino-se-santoyits-1600w.webp"
+      ]
+    },
+    {
+      "slug": "oikologiko-se-santoyits",
+      "name_el": "Οικολογικό σε σάντουιτς",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:oikologiko-se-santouits?c=1755256862",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:oikologiko-se-santouits?c=1755256862",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "oikologiko-se-santoyits-400w.webp",
+        "oikologiko-se-santoyits-800w.webp",
+        "oikologiko-se-santoyits-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kempap-philadelphia-se-santoyits",
+      "name_el": "Κεμπάπ Philadelphia σε σάντουιτς",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:kempap-philadelphia-se-santouits?c=1756735314",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:kempap-philadelphia-se-santouits?c=1756735314",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "kempap-philadelphia-se-santoyits-400w.webp",
+        "kempap-philadelphia-se-santoyits-800w.webp",
+        "kempap-philadelphia-se-santoyits-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kolokythokeftedes-se-santoyits",
+      "name_el": "Κολοκυθοκεφτέδες σε σάντουιτς",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:kolokuthokephtedes-se-santouits?c=1742812641",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:kolokuthokephtedes-se-santouits?c=1742812641",
+      "orig_dimensions": "1280x719",
+      "files": [
+        "kolokythokeftedes-se-santoyits-400w.webp",
+        "kolokythokeftedes-se-santoyits-800w.webp",
+        "kolokythokeftedes-se-santoyits-1600w.webp"
+      ]
+    },
+    {
+      "slug": "loykaniko-choirino-se-santoyits",
+      "name_el": "Λουκάνικο χοιρινό σε σάντουιτς",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000448?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000448?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "loykaniko-choirino-se-santoyits-400w.webp",
+        "loykaniko-choirino-se-santoyits-800w.webp",
+        "loykaniko-choirino-se-santoyits-1600w.webp"
+      ]
+    },
+    {
+      "slug": "mprizolaki-choirino-se-santoyits",
+      "name_el": "Μπριζολάκι χοιρινό σε σάντουιτς",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000497?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000497?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "mprizolaki-choirino-se-santoyits-400w.webp",
+        "mprizolaki-choirino-se-santoyits-800w.webp",
+        "mprizolaki-choirino-se-santoyits-1600w.webp"
+      ]
+    },
+    {
+      "slug": "skepasti-kalamaki-choirino",
+      "name_el": "Σκεπαστή καλαμάκι χοιρινό",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000469?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000469?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "skepasti-kalamaki-choirino-400w.webp",
+        "skepasti-kalamaki-choirino-800w.webp",
+        "skepasti-kalamaki-choirino-1600w.webp"
+      ]
+    },
+    {
+      "slug": "skepasti-kalamaki-kotopoylo-mpoyti",
+      "name_el": "Σκεπαστή καλαμάκι κοτόπουλο μπούτι",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000470?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000470?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "skepasti-kalamaki-kotopoylo-mpoyti-400w.webp",
+        "skepasti-kalamaki-kotopoylo-mpoyti-800w.webp",
+        "skepasti-kalamaki-kotopoylo-mpoyti-1600w.webp"
+      ]
+    },
+    {
+      "slug": "skepasti-kotompeikon",
+      "name_el": "Σκεπαστή κοτομπέικον",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000502?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000502?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "skepasti-kotompeikon-400w.webp",
+        "skepasti-kotompeikon-800w.webp",
+        "skepasti-kotompeikon-1600w.webp"
+      ]
+    },
+    {
+      "slug": "skepasti-mpifteki-moscharisio",
+      "name_el": "Σκεπαστή μπιφτέκι μοσχαρίσιο",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:skepasti-mpiphteki-mosxarisio?c=1742813025",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:skepasti-mpiphteki-mosxarisio?c=1742813025",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "skepasti-mpifteki-moscharisio-400w.webp",
+        "skepasti-mpifteki-moscharisio-800w.webp",
+        "skepasti-mpifteki-moscharisio-1600w.webp"
+      ]
+    },
+    {
+      "slug": "skepasti-special-mpifteki-tis-troympas",
+      "name_el": "Σκεπαστή Special μπιφτέκι της Τρούμπας",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000472?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000472?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "skepasti-special-mpifteki-tis-troympas-400w.webp",
+        "skepasti-special-mpifteki-tis-troympas-800w.webp",
+        "skepasti-special-mpifteki-tis-troympas-1600w.webp"
+      ]
+    },
+    {
+      "slug": "skepasti-pansetaki-choirino",
+      "name_el": "Σκεπαστή πανσετάκι χοιρινό",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000474?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000474?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "skepasti-pansetaki-choirino-400w.webp",
+        "skepasti-pansetaki-choirino-800w.webp",
+        "skepasti-pansetaki-choirino-1600w.webp"
+      ]
+    },
+    {
+      "slug": "skepasti-loykaniko-choirino",
+      "name_el": "Σκεπαστή Λουκάνικο χοιρινό",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000475?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000475?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "skepasti-loykaniko-choirino-400w.webp",
+        "skepasti-loykaniko-choirino-800w.webp",
+        "skepasti-loykaniko-choirino-1600w.webp"
+      ]
+    },
+    {
+      "slug": "skepasti-kempap-philadelphia",
+      "name_el": "Σκεπαστή κεμπάπ Philadelphia",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000476?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000476?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "skepasti-kempap-philadelphia-400w.webp",
+        "skepasti-kempap-philadelphia-800w.webp",
+        "skepasti-kempap-philadelphia-1600w.webp"
+      ]
+    },
+    {
+      "slug": "skepasti-mprizolaki",
+      "name_el": "Σκεπαστή μπριζολάκι",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000537?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000537?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "skepasti-mprizolaki-400w.webp",
+        "skepasti-mprizolaki-800w.webp",
+        "skepasti-mprizolaki-1600w.webp"
+      ]
+    },
+    {
+      "slug": "burger-moscharisio",
+      "name_el": "Burger μοσχαρίσιο",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000479?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000479?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "burger-moscharisio-400w.webp",
+        "burger-moscharisio-800w.webp",
+        "burger-moscharisio-1600w.webp"
+      ]
+    },
+    {
+      "slug": "veggie-burger",
+      "name_el": "Veggie burger",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:veggie-burger?c=1769177952",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:veggie-burger?c=1769177952",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "veggie-burger-400w.webp",
+        "veggie-burger-800w.webp",
+        "veggie-burger-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kalamaki-choirino-merida",
+      "name_el": "Καλαμάκι χοιρινό μερίδα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000413?c=1755528382",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000413?c=1755528382",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "kalamaki-choirino-merida-400w.webp",
+        "kalamaki-choirino-merida-800w.webp",
+        "kalamaki-choirino-merida-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kalamaki-kotopoylo-mpoyti-merida",
+      "name_el": "Καλαμάκι κοτόπουλο μπούτι μερίδα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/restaurants/607761/menu_item/000000000414?c=1755523547",
+      "hd_src": "https://cdn.e-food.gr/restaurants/607761/menu_item/000000000414?c=1755523547",
+      "orig_dimensions": "1920x1080",
+      "files": [
+        "kalamaki-kotopoylo-mpoyti-merida-400w.webp",
+        "kalamaki-kotopoylo-mpoyti-merida-800w.webp",
+        "kalamaki-kotopoylo-mpoyti-merida-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kotompeikon-merida",
+      "name_el": "Κοτομπέικον μερίδα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:kotompeikon-merida?c=1776879571",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:kotompeikon-merida?c=1776879571",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "kotompeikon-merida-400w.webp",
+        "kotompeikon-merida-800w.webp",
+        "kotompeikon-merida-1600w.webp"
+      ]
+    },
+    {
+      "slug": "mpifteki-moscharisio-merida",
+      "name_el": "Μπιφτέκι μοσχαρίσιο μερίδα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:mpiphteki-mosxarisio-merida?c=1754593685",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:mpiphteki-mosxarisio-merida?c=1754593685",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "mpifteki-moscharisio-merida-400w.webp",
+        "mpifteki-moscharisio-merida-800w.webp",
+        "mpifteki-moscharisio-merida-1600w.webp"
+      ]
+    },
+    {
+      "slug": "special-mpifteki-tis-troympas-merida",
+      "name_el": "Special μπιφτέκι της Τρούμπας μερίδα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:special-mpiphteki-tis-troumpas-merida?c=1754593685",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:special-mpiphteki-tis-troumpas-merida?c=1754593685",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "special-mpifteki-tis-troympas-merida-400w.webp",
+        "special-mpifteki-tis-troympas-merida-800w.webp",
+        "special-mpifteki-tis-troympas-merida-1600w.webp"
+      ]
+    },
+    {
+      "slug": "pansetakia-choirina-merida",
+      "name_el": "Πανσετάκια χοιρινά μερίδα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:pansetakia-xoirina-merida?c=1746095196",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:pansetakia-xoirina-merida?c=1746095196",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "pansetakia-choirina-merida-400w.webp",
+        "pansetakia-choirina-merida-800w.webp",
+        "pansetakia-choirina-merida-1600w.webp"
+      ]
+    },
+    {
+      "slug": "mprizolaki-choirino-merida",
+      "name_el": "Μπριζολάκι χοιρινό μερίδα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:mprizolaki-xoirino-merida?c=1754590525",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:mprizolaki-xoirino-merida?c=1754590525",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "mprizolaki-choirino-merida-400w.webp",
+        "mprizolaki-choirino-merida-800w.webp",
+        "mprizolaki-choirino-merida-1600w.webp"
+      ]
+    },
+    {
+      "slug": "loykaniko-choirino-merida",
+      "name_el": "Λουκάνικο χοιρινό μερίδα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:loukaniko-xoirino-merida?c=1776879594",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:loukaniko-xoirino-merida?c=1776879594",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "loykaniko-choirino-merida-400w.webp",
+        "loykaniko-choirino-merida-800w.webp",
+        "loykaniko-choirino-merida-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kempap-seitan-se-pita",
+      "name_el": "Κεμπάπ σεϊτάν σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:kempap-seitan-se-pita?c=1755784046",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:kempap-seitan-se-pita?c=1755784046",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "kempap-seitan-se-pita-400w.webp",
+        "kempap-seitan-se-pita-800w.webp",
+        "kempap-seitan-se-pita-1600w.webp"
+      ]
+    },
+    {
+      "slug": "kalamaki-seitan-se-pita",
+      "name_el": "Καλαμάκι σεϊτάν σε πίτα",
+      "original_src": "https://cdn.e-food.gr/cdn-cgi/image/h=160,fit=cover,f=auto/global_assets/vertical:food:kalamaki-seitan-se-pita?c=1757866289",
+      "hd_src": "https://cdn.e-food.gr/global_assets/vertical:food:kalamaki-seitan-se-pita?c=1757866289",
+      "orig_dimensions": "1280x720",
+      "files": [
+        "kalamaki-seitan-se-pita-400w.webp",
+        "kalamaki-seitan-se-pita-800w.webp",
+        "kalamaki-seitan-se-pita-1600w.webp"
+      ]
+    }
+  ]
+}

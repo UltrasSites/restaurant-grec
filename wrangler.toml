@@ -1,0 +1,16 @@
+name = "restaurant-grec"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-05-14"
+compatibility_flags = ["nodejs_compat"]
+
+# === Bindings ===
+# D1 = nouvelle source de vérité (strongly consistent, plus de délai)
+[[d1_databases]]
+binding = "DB"
+database_name = "trouba-orders"
+database_id = "f766195d-b607-48e9-90c8-98bc999cd54e"
+
+# KV ORDERS gardé pour migration douce + rollback éventuel
+[[kv_namespaces]]
+binding = "ORDERS"
+id = "6c96f8a4906746348277bf0ca43b473b"
