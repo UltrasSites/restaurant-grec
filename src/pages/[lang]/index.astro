@@ -305,21 +305,39 @@ const baseUrl = `/${currentLang}`;
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto">
         <video
-          src="/videos/trouba-cuisson-1-720.mp4"
+          data-src="/videos/trouba-cuisson-1-720.mp4"
           poster="/videos/trouba-cuisson-1-poster.jpg"
-          autoplay muted loop playsinline preload="metadata"
-          class="w-full aspect-[9/16] md:aspect-[464/848] object-cover rounded-2xl shadow-2xl border border-white/10 max-h-[480px] mx-auto"
+          muted loop playsinline preload="none"
+          class="lazy-video w-full aspect-[9/16] md:aspect-[464/848] object-cover rounded-2xl shadow-2xl border border-white/10 max-h-[480px] mx-auto"
           aria-label="Ψήσιμο στα κάρβουνα — Καλαμάκι Της Τρούμπας"
         ></video>
         <video
-          src="/videos/trouba-cuisson-2-720.mp4"
+          data-src="/videos/trouba-cuisson-2-720.mp4"
           poster="/videos/trouba-cuisson-2-poster.jpg"
-          autoplay muted loop playsinline preload="metadata"
-          class="w-full aspect-[9/16] md:aspect-[464/848] object-cover rounded-2xl shadow-2xl border border-white/10 max-h-[480px] mx-auto"
+          muted loop playsinline preload="none"
+          class="lazy-video w-full aspect-[9/16] md:aspect-[464/848] object-cover rounded-2xl shadow-2xl border border-white/10 max-h-[480px] mx-auto"
           aria-label="Καλαμάκια στη σχάρα — Καλαμάκι Της Τρούμπας"
         ></video>
       </div>
     </div>
+    <script is:inline>
+      (function() {
+        const vids = document.querySelectorAll('video.lazy-video');
+        if (!vids.length) return;
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            const v = e.target;
+            if (e.isIntersecting) {
+              if (!v.src && v.dataset.src) v.src = v.dataset.src;
+              v.play().catch(() => {});
+            } else {
+              v.pause();
+            }
+          });
+        }, { rootMargin: '200px 0px', threshold: 0.1 });
+        vids.forEach((v) => io.observe(v));
+      })();
+    </script>
   </section>
 
   <!-- HISTOIRE -->
