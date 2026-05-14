@@ -1,6 +1,6 @@
 ---
-// Page admin caisse (FR — pour l'employé / le patron).
-// Non liée à l'i18n du site public.
+// Σελίδα ταμείου — για τον υπάλληλο / το αφεντικό (στα ελληνικά).
+// Δεν συνδέεται με το i18n του δημόσιου site.
 ---
 <!doctype html>
 <html lang="el">
@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0a0a" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Caisse — Κaλαμάκι Της Τρούμπας</title>
+  <title>Ταμείο — Καλαμάκι Της Τρούμπας</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style>
     :root { --gold: #E5B32A; --bg: #0a0a0a; }
@@ -191,6 +191,16 @@
     .sound-toggle.muted { background: #3a1a1a; color: #ef4444; border-color: #7a2d2d; }
     .sound-toggle:hover { background: #333; }
 
+    .lang-toggle {
+      padding: 0.5rem 0.7rem; font-size: 0.8rem;
+      background: #222; color: #ccc; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.4rem; cursor: pointer;
+      letter-spacing: 0.05em; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .lang-toggle:hover { background: #333; }
+    .lang-toggle img { width: 14px; height: 10px; display: inline-block; object-fit: cover; border-radius: 2px; }
+
     @media (max-width: 700px) {
       .topbar { padding: 0.85rem 1rem; }
       .topbar h1 { font-size: 0.95rem; }
@@ -203,12 +213,15 @@
 </head>
 <body>
 
-  <!-- ÉCRAN LOGIN -->
+  <!-- LOGIN SCREEN -->
   <div id="login-screen" class="login-wrap">
     <form class="login-box" id="login-form">
-      <h1>CAISSE — TROUMPAS</h1>
-      <input type="password" name="password" id="login-pw" placeholder="Password" autocomplete="current-password" required />
-      <button type="submit">Connexion</button>
+      <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
+        <button type="button" id="login-lang-toggle" class="lang-toggle" aria-label="Language"></button>
+      </div>
+      <h1 id="login-title">ΤΑΜΕΙΟ — ΤΡΟΥΜΠΑΣ</h1>
+      <input type="password" name="password" id="login-pw" autocomplete="current-password" required />
+      <button type="submit" id="login-btn">Σύνδεση</button>
       <p id="login-error" class="login-error" style="display:none;"></p>
     </form>
   </div>
@@ -216,25 +229,129 @@
   <!-- DASHBOARD -->
   <div id="dashboard" class="dashboard">
     <div class="topbar">
-      <h1>📟 ΚΑΛΑΜΑΚΙ — CAISSE</h1>
+      <h1 id="topbar-title">📟 ΚΑΛΑΜΑΚΙ — ΤΑΜΕΙΟ</h1>
       <div class="status" id="conn-status">
         <span class="dot"></span>
         <span class="clock" id="clock">--:--</span>
-        <button type="button" id="sound-toggle" class="sound-toggle" aria-pressed="false">🔊 SON</button>
+        <button type="button" id="lang-toggle" class="lang-toggle" aria-label="Language"></button>
+        <button type="button" id="sound-toggle" class="sound-toggle" aria-pressed="false"></button>
       </div>
     </div>
     <div class="orders-area">
       <div id="order-list" class="order-list"></div>
       <div id="empty-state" class="empty-state">
         <div class="big">🍴</div>
-        <p>Aucune commande en attente.</p>
-        <p style="font-size: 0.85rem; opacity: 0.6; margin-top: 1rem;">Le système écoute en continu. Le son se déclenchera automatiquement à la première commande.</p>
+        <p id="empty-title"></p>
+        <p id="empty-sub" style="font-size: 0.85rem; opacity: 0.6; margin-top: 1rem;"></p>
       </div>
     </div>
   </div>
 
   <script is:inline>
   (function() {
+    // ═══ I18N — EL/EN toggle ═══
+    var I18N = {
+      el: {
+        loginTitle: 'ΤΑΜΕΙΟ — ΤΡΟΥΜΠΑΣ',
+        loginPw: 'Κωδικός πρόσβασης',
+        loginBtn: 'Σύνδεση',
+        loginErrorDefault: 'Σφάλμα',
+        loginErrorWrong: 'Λάθος κωδικός',
+        topbarTitle: '📟 ΚΑΛΑΜΑΚΙ — ΤΑΜΕΙΟ',
+        soundOn: '🔊 ΗΧΟΣ',
+        soundOff: '🔇 ΣΙΓΗ',
+        emptyTitle: 'Καμία παραγγελία σε αναμονή.',
+        emptySub: 'Το σύστημα ακούει συνεχώς. Ο ήχος θα ξεκινήσει αυτόματα με την πρώτη παραγγελία.',
+        modeDelivery: '🛵 ΠΑΡΑΔΟΣΗ',
+        modeTakeaway: '🥡 ΠΑΡΑΛΑΒΗ',
+        payCard: '💳 ΚΑΡΤΑ',
+        payCash: '💶 ΜΕΤΡΗΤΑ',
+        payAtCounter: 'ΣΤΟ ΤΑΜΕΙΟ',
+        payAtCourier: 'ΣΤΟΝ ΔΙΑΝΟΜΕΑ',
+        pickupIn: 'Παραλαβή σε',
+        deliveryIn: 'Παράδοση σε',
+        deliveryLabel: '📍 ΔΙΕΥΘΥΝΣΗ ΠΑΡΑΔΟΣΗΣ',
+        floor: 'Όροφος',
+        bell: 'Κουδούνι',
+        receivedAt: 'Ώρα παραλαβής:',
+        total: 'ΣΥΝΟΛΟ',
+        ackBtn: '✓ ΕΛΗΦΘΗ — ΣΕ ΠΡΟΕΤΟΙΜΑΣΙΑ',
+        ackError: 'Σφάλμα: ',
+        min: 'λεπτά',
+        hour: 'ώρα',
+      },
+      en: {
+        loginTitle: 'CHECKOUT — TROUMPAS',
+        loginPw: 'Password',
+        loginBtn: 'Sign in',
+        loginErrorDefault: 'Error',
+        loginErrorWrong: 'Wrong password',
+        topbarTitle: '📟 KALAMAKI — CHECKOUT',
+        soundOn: '🔊 SOUND',
+        soundOff: '🔇 MUTE',
+        emptyTitle: 'No pending orders.',
+        emptySub: 'The system is listening continuously. Sound will play automatically on the first order.',
+        modeDelivery: '🛵 DELIVERY',
+        modeTakeaway: '🥡 TAKE-AWAY',
+        payCard: '💳 CARD',
+        payCash: '💶 CASH',
+        payAtCounter: 'AT COUNTER',
+        payAtCourier: 'TO COURIER',
+        pickupIn: 'Pickup in',
+        deliveryIn: 'Delivery in',
+        deliveryLabel: '📍 DELIVERY ADDRESS',
+        floor: 'Floor',
+        bell: 'Bell',
+        receivedAt: 'Pickup time:',
+        total: 'TOTAL',
+        ackBtn: '✓ RECEIVED — PREPARING',
+        ackError: 'Error: ',
+        min: 'min',
+        hour: 'h',
+      },
+    };
+
+    function getLang() {
+      try { return localStorage.getItem('caisse_lang') || 'el'; }
+      catch (e) { return 'el'; }
+    }
+    function setLang(l) {
+      try { localStorage.setItem('caisse_lang', l); } catch (e) {}
+      lang = l;
+      t = I18N[l];
+      applyI18n();
+    }
+    var lang = getLang();
+    var t = I18N[lang] || I18N.el;
+
+    function flagSvg(code) {
+      return '<img src="/flags/' + code + '.svg" alt="" />';
+    }
+    function applyI18n() {
+      // Login screen
+      var loginTitle = document.getElementById('login-title');
+      var loginPw = document.getElementById('login-pw');
+      var loginBtn = document.getElementById('login-btn');
+      var loginLangToggle = document.getElementById('login-lang-toggle');
+      if (loginTitle) loginTitle.textContent = t.loginTitle;
+      if (loginPw) loginPw.placeholder = t.loginPw;
+      if (loginBtn) loginBtn.textContent = t.loginBtn;
+      if (loginLangToggle) loginLangToggle.innerHTML = (lang === 'el' ? flagSvg('gr') + 'EL' : flagSvg('gb') + 'EN');
+      // Dashboard
+      var topbarTitle = document.getElementById('topbar-title');
+      var langToggle = document.getElementById('lang-toggle');
+      var emptyTitle = document.getElementById('empty-title');
+      var emptySub = document.getElementById('empty-sub');
+      if (topbarTitle) topbarTitle.textContent = t.topbarTitle;
+      if (langToggle) langToggle.innerHTML = (lang === 'el' ? flagSvg('gr') + 'EL' : flagSvg('gb') + 'EN');
+      if (emptyTitle) emptyTitle.textContent = t.emptyTitle;
+      if (emptySub) emptySub.textContent = t.emptySub;
+      // Sound button
+      if (soundToggle) soundToggle.textContent = soundOn ? t.soundOn : t.soundOff;
+      // Re-render orders if any
+      renderOrders();
+    }
+
     var loginScreen = document.getElementById('login-screen');
     var dashboard = document.getElementById('dashboard');
     var loginForm = document.getElementById('login-form');
@@ -244,6 +361,12 @@
     var clockEl = document.getElementById('clock');
     var connEl = document.getElementById('conn-status');
     var soundToggle = document.getElementById('sound-toggle');
+    var langToggleBtn = document.getElementById('lang-toggle');
+    var loginLangToggleBtn = document.getElementById('login-lang-toggle');
+
+    function toggleLang() { setLang(lang === 'el' ? 'en' : 'el'); }
+    if (langToggleBtn) langToggleBtn.addEventListener('click', toggleLang);
+    if (loginLangToggleBtn) loginLangToggleBtn.addEventListener('click', toggleLang);
 
     var orders = {}; // id -> order
     var since = 0;
@@ -300,7 +423,7 @@
 
     soundToggle.addEventListener('click', function() {
       soundOn = !soundOn;
-      soundToggle.textContent = soundOn ? '🔊 SON' : '🔇 MUET';
+      soundToggle.textContent = soundOn ? t.soundOn : t.soundOff;
       soundToggle.classList.toggle('muted', !soundOn);
       soundToggle.setAttribute('aria-pressed', String(!soundOn));
       if (soundOn) {
@@ -325,11 +448,8 @@
 
     function pickupLabel(p) {
       var v = String(p);
-      if (v === '15') return '15 min';
-      if (v === '30') return '30 min';
-      if (v === '45') return '45 min';
-      if (v === '60') return '1 h';
-      return v + ' min';
+      if (v === '60') return '1 ' + t.hour;
+      return v + ' ' + t.min;
     }
 
     function renderOrders() {
@@ -359,23 +479,22 @@
         var time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
 
         var isDelivery = o.mode === 'delivery';
+        var payLoc = isDelivery ? t.payAtCourier : t.payAtCounter;
         var modePill = isDelivery
-          ? '<span class="pill pill-delivery">🛵 LIVRAISON</span>'
-          : '<span class="pill pill-takeaway">🥡 À EMPORTER</span>';
+          ? '<span class="pill pill-delivery">' + t.modeDelivery + '</span>'
+          : '<span class="pill pill-takeaway">' + t.modeTakeaway + '</span>';
         var payPill = o.payment === 'card'
-          ? '<span class="pill pill-card">💳 CARTE ' + (isDelivery ? 'AU LIVREUR' : 'AU COMPTOIR') + '</span>'
-          : '<span class="pill pill-cash">💶 ESPÈCES ' + (isDelivery ? 'AU LIVREUR' : 'AU COMPTOIR') + '</span>';
-        var pickupText = isDelivery
-          ? '⏱ Παράδοση σε ' + pickupLabel(o.pickup_time)
-          : '⏱ Παραλαβή σε ' + pickupLabel(o.pickup_time);
+          ? '<span class="pill pill-card">' + t.payCard + ' ' + payLoc + '</span>'
+          : '<span class="pill pill-cash">' + t.payCash + ' ' + payLoc + '</span>';
+        var pickupText = '⏱ ' + (isDelivery ? t.deliveryIn : t.pickupIn) + ' ' + pickupLabel(o.pickup_time);
 
         var deliveryBlock = '';
         if (isDelivery && o.address) {
           var extra = [];
-          if (o.floor) extra.push('Όροφος : ' + escapeHtml(o.floor));
-          if (o.bell)  extra.push('Κουδούνι : ' + escapeHtml(o.bell));
+          if (o.floor) extra.push(t.floor + ' : ' + escapeHtml(o.floor));
+          if (o.bell)  extra.push(t.bell + ' : ' + escapeHtml(o.bell));
           deliveryBlock = '<div class="delivery-box">'
-            + '<div class="deliv-label">📍 ADRESSE DE LIVRAISON</div>'
+            + '<div class="deliv-label">' + t.deliveryLabel + '</div>'
             + '<div class="deliv-addr">' + escapeHtml(o.address) + '</div>'
             + (extra.length ? '<div class="deliv-extra">' + extra.join(' · ') + '</div>' : '')
             + (o.notes ? '<div class="deliv-notes">📝 ' + escapeHtml(o.notes) + '</div>' : '')
@@ -386,15 +505,15 @@
 
         html += '<article class="order-card" data-order="' + escapeHtml(o.id) + '">'
           + '<div class="order-head">'
-          + '<div><div class="order-id">' + escapeHtml(o.id) + '</div><div style="font-size:0.8rem;color:#999;margin-top:0.25rem;">reçue à ' + time + '</div></div>'
+          + '<div><div class="order-id">' + escapeHtml(o.id) + '</div><div style="font-size:0.8rem;color:#999;margin-top:0.25rem;">' + t.receivedAt + ' ' + time + '</div></div>'
           + '<div class="order-meta"><div class="name">' + escapeHtml(o.name) + '</div><div class="phone">📞 <a href="tel:' + encodeURIComponent(o.phone) + '" style="color:inherit;text-decoration:none;">' + escapeHtml(o.phone) + '</a></div></div>'
           + '</div>'
           + '<div class="order-mode-row">' + modePill + payPill + '</div>'
           + '<div class="order-pickup">' + pickupText + '</div>'
           + deliveryBlock
           + '<ul class="order-items">' + itemsHtml + '</ul>'
-          + '<div class="order-total"><span>TOTAL</span><span>' + fmt(o.total) + '</span></div>'
-          + '<button type="button" class="ack-btn" data-ack="' + escapeHtml(o.id) + '">✓ COMMANDE PRISE EN CHARGE</button>'
+          + '<div class="order-total"><span>' + t.total + '</span><span>' + fmt(o.total) + '</span></div>'
+          + '<button type="button" class="ack-btn" data-ack="' + escapeHtml(o.id) + '">' + t.ackBtn + '</button>'
           + '</article>';
       });
       orderListEl.innerHTML = html;
@@ -419,8 +538,8 @@
         renderOrders();
       } catch (err) {
         t.disabled = false;
-        t.textContent = '✓ COMMANDE PRISE EN CHARGE';
-        alert('Erreur ack: ' + (err && err.message ? err.message : err));
+        t.textContent = I18N[lang].ackBtn;
+        alert(I18N[lang].ackError + (err && err.message ? err.message : err));
       }
     });
 
@@ -482,7 +601,9 @@
         if (!res.ok || !data.ok) throw new Error(data.error || 'Wrong password');
         showDashboard();
       } catch (err) {
-        loginError.textContent = (err && err.message) || 'Erreur';
+        var msg = (err && err.message) || t.loginErrorDefault;
+        if (/wrong\s*password/i.test(msg)) msg = t.loginErrorWrong;
+        loginError.textContent = msg;
         loginError.style.display = 'block';
       }
     });
