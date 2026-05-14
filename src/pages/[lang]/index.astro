@@ -131,6 +131,15 @@ const baseUrl = `/${currentLang}`;
   @media (min-width: 768px) {
     .hero-photo-strip { height: 90px; margin-bottom: 1rem; }
   }
+
+  /* Sur mobile, on remonte la carte CTA du hero pour la rendre visible dès le chargement */
+  @media (max-width: 767px) {
+    .mobile-hero-card-shift {
+      margin-top: -2cm;
+      position: relative;
+      z-index: 5;
+    }
+  }
   .strip-track {
     display: flex;
     gap: 6px;
@@ -229,7 +238,7 @@ const baseUrl = `/${currentLang}`;
             <p class="hidden md:block text-xs text-gray-300 italic">{t.hero_demo_note}</p>
           </div>
 
-          <aside class="w-full md:mt-0 mt-1">
+          <aside class="w-full md:mt-0 mt-1 mobile-hero-card-shift">
             <div class="resa-card-inner-mobile bg-gradient-to-b from-[#E5B32A]/12 to-black/70 border border-[#E5B32A]/30 rounded-3xl p-8 md:p-10 backdrop-blur-xl shadow-2xl w-full max-w-lg ml-auto">
               <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2 md:mb-4">{t.resa_title}</p>
               <h2 class="hidden md:block text-2xl font-serif text-white mb-6">{t.resa_subtitle}</h2>

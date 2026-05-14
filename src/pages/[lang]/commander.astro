@@ -34,6 +34,12 @@ const flatItems = menuPages.flatMap((p, pi) =>
   <section class="order-page bg-[#0a0a0a] pt-28 pb-40 px-4">
     <div class="max-w-5xl mx-auto">
 
+      {/* Bouton retour vers la home — toujours visible */}
+      <a href={`/${currentLang}/`} class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/15 text-white/80 hover:bg-white/10 hover:text-white text-xs font-bold uppercase tracking-widest mb-6 transition-colors">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        {isEl ? 'Πίσω στην αρχική' : 'Back to home'}
+      </a>
+
       <header class="text-center mb-10">
         <p class="text-[10px] uppercase tracking-[0.35em] text-[#E5B32A] font-bold mb-2">{t.order_title}</p>
         <h1 class="text-3xl md:text-4xl font-serif italic text-white mb-3">{isEl ? "Παραγγελία online" : "Order online"}</h1>
