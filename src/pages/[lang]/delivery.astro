@@ -3,6 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getLangFromParam } from "../../i18n/utils";
 import { translations } from "../../i18n/translations";
 import { menuPages, parsePrice, itemId } from "../../data/menu-data";
+import { getPhotoData } from "../../data/efood-photos-map.mjs";
 
 export function getStaticPaths() {
   return [
@@ -60,9 +61,28 @@ const flatItems = menuPages.flatMap((p, pi) =>
                 {p.items.map((it, ii) => {
                   const id = itemId(pi, ii);
                   const isExtra = it.price.startsWith("+");
+                  const photo = getPhotoData(it.el);
                   return (
                     <li class="flex items-start gap-3 py-3" data-item-row={id}>
-                      <img src={p.photo} alt="" class="shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-lg object-cover border border-white/10" loading="lazy" />
+                      {photo ? (
+                        <img
+                          src={photo.src}
+                          srcset={photo.srcset}
+                          sizes="80px"
+                          alt={it.el}
+                          width="80" height="80"
+                          loading="lazy" decoding="async"
+                          class="shrink-0 w-20 h-20 rounded-lg object-cover border border-white/10"
+                        />
+                      ) : (
+                        <div
+                          class="shrink-0 w-20 h-20 rounded-lg border border-[#E5B32A]/25 flex items-center justify-center"
+                          style="background: linear-gradient(135deg, rgba(229,179,42,0.18) 0%, rgba(0,0,0,0.9) 80%);"
+                          aria-hidden="true"
+                        >
+                          <svg viewBox="0 0 24 24" class="w-6 h-6 text-[#E5B32A]/60" fill="currentColor"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+                        </div>
+                      )}
                       <div class="flex-1 min-w-0">
                         <p class="text-sm md:text-base text-white font-medium leading-snug">{isEl ? it.el : it.en}</p>
                         {(isEl ? it.desc_el : it.desc_en) && (

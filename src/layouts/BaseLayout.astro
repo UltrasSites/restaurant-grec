@@ -2,6 +2,7 @@
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import ScrollToTop from "../components/ScrollToTop.astro";
+import CookieConsent from "../components/CookieConsent.astro";
 import "../styles/global.css";
 import type { Lang } from "../i18n/utils";
 
@@ -154,5 +155,6 @@ const htmlLang = lang === 'en' ? 'en-GB' : 'el-GR';
     </main>
     <Footer lang={lang} />
     <ScrollToTop />
+    <CookieConsent lang={lang} />
   </body>
 </html>

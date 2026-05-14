@@ -14,6 +14,7 @@ import ReviewsSection from "../../components/ReviewsSection.astro";
 import Flag from "../../components/Flag.astro";
 import { getLangFromParam } from "../../i18n/utils";
 import { translations, getMenu } from "../../i18n/translations";
+import { SPECIALITIES } from "../../data/efood-photos-map.mjs";
 
 const currentLang = getLangFromParam(Astro.params.lang);
 const t = translations[currentLang];
@@ -313,6 +314,73 @@ const baseUrl = `/${currentLang}`;
         />
       </div>
     </div>
+  </section>
+
+  <!-- SPÉCIALITÉS — Nos plats phares (photos HD e-food) -->
+  <section id="specialites" class="bg-[#070707] py-24 px-6 border-t border-white/5">
+    <div class="max-w-7xl mx-auto text-center mb-12">
+      <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mb-3">
+        {currentLang === 'el' ? 'Οι σπεσιαλιτέ μας' : 'Our specialities'}
+      </p>
+      <h2 class="text-3xl md:text-4xl font-serif italic text-white mb-3 gold-shine-text">
+        {currentLang === 'el' ? 'Τα πιάτα που μας έκαναν γνωστούς' : 'The dishes that built our name'}
+      </h2>
+      <p class="text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
+        {currentLang === 'el'
+          ? 'Φρέσκα υλικά, σχάρα στα κάρβουνα — κάθε μέρα από την ώρα που ανοίγουμε.'
+          : 'Fresh ingredients, charcoal grill — every day from open to close.'}
+      </p>
+    </div>
+
+    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      {SPECIALITIES.map((p) => (
+        <figure class="speciality-card group relative overflow-hidden rounded-xl border border-white/10 bg-black/40">
+          <img
+            src={`/photos/efood/${p.slug}-800w.webp`}
+            srcset={`/photos/efood/${p.slug}-400w.webp 400w, /photos/efood/${p.slug}-800w.webp 800w, /photos/efood/${p.slug}-1600w.webp 1600w`}
+            sizes="(max-width: 767px) 50vw, 25vw"
+            alt={`${p.name_el} — ${p.name_en}`}
+            width="800" height="600"
+            loading="lazy" decoding="async"
+            class="speciality-img w-full h-full object-cover"
+          />
+          <div class="speciality-overlay absolute inset-0 flex flex-col items-center justify-end p-3 md:p-4 text-center">
+            <p class="speciality-name-el text-white font-serif italic text-sm md:text-base leading-tight drop-shadow-lg">{p.name_el}</p>
+            {currentLang === 'en' && (
+              <p class="speciality-name-en text-[#E5B32A] text-[10px] md:text-xs uppercase tracking-widest font-bold mt-1 drop-shadow">{p.name_en}</p>
+            )}
+          </div>
+        </figure>
+      ))}
+    </div>
+
+    <style>
+      .speciality-card {
+        height: 200px;
+        transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+        will-change: transform;
+      }
+      @media (min-width: 768px) {
+        .speciality-card { height: 240px; }
+      }
+      .speciality-img {
+        transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .speciality-overlay {
+        background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.85) 100%);
+        transition: background 0.35s ease;
+      }
+      .speciality-card:hover {
+        border-color: rgba(229, 179, 42, 0.65);
+        box-shadow: 0 18px 40px -20px rgba(229, 179, 42, 0.45);
+      }
+      .speciality-card:hover .speciality-img {
+        transform: scale(1.08);
+      }
+      .speciality-card:hover .speciality-overlay {
+        background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.9) 100%);
+      }
+    </style>
   </section>
 
   <!-- BLOG / AMBIANCE CARDS -->

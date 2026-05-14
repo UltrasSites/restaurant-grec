@@ -1,0 +1,202 @@
+---
+// Page historique caisse — auth via cookie caisse_auth (vérifié côté endpoint).
+// Données 100% anonymisées : ID, date/heure, prix, statut.
+---
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Historique — Caisse Trouba</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    :root { --gold: #E5B32A; --bg: #0a0a0a; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; min-height: 100vh; }
+    body { overflow-x: hidden; }
+
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.5rem; background: #000;
+      border-bottom: 2px solid rgba(229,179,42,0.4);
+      position: sticky; top: 0; z-index: 10; gap: 1rem; flex-wrap: wrap;
+    }
+    .topbar h1 { margin: 0; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.05em; }
+    .topbar .actions { display: flex; gap: 0.5rem; align-items: center; }
+    .btn {
+      padding: 0.5rem 0.85rem; font-size: 0.85rem;
+      background: #222; color: #ccc; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.4rem; cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      letter-spacing: 0.05em; font-weight: 600;
+    }
+    .btn:hover { background: #333; }
+    .btn-primary { background: rgba(229,179,42,0.12); color: var(--gold); border-color: rgba(229,179,42,0.4); }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+    .meta-row {
+      display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;
+      margin-bottom: 1rem; color: #aaa; font-size: 0.85rem;
+    }
+    .meta-row strong { color: var(--gold); font-weight: 700; }
+
+    table.history {
+      width: 100%; border-collapse: collapse;
+      background: #111;
+      border-radius: 0.75rem; overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    table.history thead th {
+      background: #000;
+      color: var(--gold);
+      font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+      font-weight: 700;
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 2px solid rgba(229,179,42,0.3);
+    }
+    table.history tbody td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.95rem;
+    }
+    table.history tbody tr:hover { background: rgba(229,179,42,0.04); }
+    table.history tbody tr:last-child td { border-bottom: none; }
+    .col-id { color: var(--gold); font-weight: 800; font-variant-numeric: tabular-nums; }
+    .col-total { color: #fff; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+    .col-date, .col-time { color: #ccc; font-variant-numeric: tabular-nums; }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.2rem 0.65rem; border-radius: 999px;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .status-new       { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.4); }
+    .status-seen      { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
+    .status-completed { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
+    .status-cancelled { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
+
+    .empty { padding: 4rem 1rem; text-align: center; color: #555; font-size: 1.1rem; }
+    .error { padding: 2rem 1rem; text-align: center; color: #f87171; }
+
+    @media (max-width: 600px) {
+      table.history thead th, table.history tbody td { padding: 0.55rem 0.6rem; font-size: 0.85rem; }
+      .col-date { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <h1>📋 ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ — 50 ημέρες</h1>
+    <div class="actions">
+      <a href="/cashd" class="btn">← Retour caisse</a>
+      <button type="button" id="refresh-btn" class="btn btn-primary">↻ Rafraîchir</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="meta-row">
+      <div>Historique anonymisé (sans nom/téléphone/adresse)</div>
+      <div>Total affiché : <strong id="meta-count">—</strong> ligne(s)</div>
+      <div>Mis à jour : <strong id="meta-time">—</strong></div>
+    </div>
+
+    <div id="content">
+      <div class="empty">Chargement…</div>
+    </div>
+  </div>
+
+  <script is:inline>
+  (function() {
+    var content = document.getElementById('content');
+    var metaCount = document.getElementById('meta-count');
+    var metaTime = document.getElementById('meta-time');
+    var refreshBtn = document.getElementById('refresh-btn');
+
+    function fmtPrice(n) {
+      var v = Number(n) || 0;
+      return (Math.round(v * 100) / 100).toFixed(2).replace('.', ',') + '€';
+    }
+    function pad2(n) { return String(n).padStart(2, '0'); }
+    function fmtDate(ts) {
+      var d = new Date(ts);
+      return pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + '/' + d.getFullYear();
+    }
+    function fmtTime(ts) {
+      var d = new Date(ts);
+      return pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    }
+    function statusLabel(s) {
+      var map = {
+        'new': '🟠 En attente',
+        'seen': '✅ Acquittée',
+        'completed': '✅ Terminée',
+        'cancelled': '❌ Annulée'
+      };
+      return map[s] || s;
+    }
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, function(c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+
+    async function load() {
+      content.innerHTML = '<div class="empty">Chargement…</div>';
+      try {
+        var res = await fetch('/api/orders/history', {
+          credentials: 'include',
+          cache: 'no-store'
+        });
+        if (res.status === 401) {
+          content.innerHTML = '<div class="error">Non autorisé. <a href="/cashd" style="color:var(--gold);">Se reconnecter</a></div>';
+          return;
+        }
+        var data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'Erreur serveur');
+        var rows = data.rows || [];
+        metaCount.textContent = String(rows.length);
+        var now = new Date(data.now || Date.now());
+        metaTime.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
+
+        if (rows.length === 0) {
+          content.innerHTML = '<div class="empty">Aucune commande dans l\'historique.</div>';
+          return;
+        }
+
+        var html = '<table class="history">'
+          + '<thead><tr>'
+            + '<th>ID</th>'
+            + '<th class="col-date">Date</th>'
+            + '<th>Heure</th>'
+            + '<th>Statut</th>'
+            + '<th style="text-align:right;">Total</th>'
+          + '</tr></thead>'
+          + '<tbody>';
+        rows.forEach(function(r) {
+          var st = String(r.status || 'new');
+          html += '<tr>'
+            + '<td class="col-id">' + escapeHtml(r.id) + '</td>'
+            + '<td class="col-date">' + fmtDate(r.created_at) + '</td>'
+            + '<td class="col-time">' + fmtTime(r.created_at) + '</td>'
+            + '<td><span class="status-pill status-' + escapeHtml(st) + '">' + statusLabel(st) + '</span></td>'
+            + '<td class="col-total">' + fmtPrice(r.total) + '</td>'
+            + '</tr>';
+        });
+        html += '</tbody></table>';
+        content.innerHTML = html;
+      } catch (err) {
+        content.innerHTML = '<div class="error">Erreur : ' + escapeHtml((err && err.message) || err) + '</div>';
+      }
+    }
+
+    refreshBtn.addEventListener('click', load);
+    load();
+  })();
+  </script>
+</body>
+</html>

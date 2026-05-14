@@ -60,9 +60,11 @@ const isEl = lang === 'el';
     <p class="text-[10px] text-gray-400 uppercase tracking-widest font-medium">
       © {currentYear} Το Καλαμάκι Της Τρούμπας
     </p>
-    <nav class="flex gap-6 text-[10px] text-gray-400 uppercase tracking-widest font-medium" aria-label="Legal">
+    <nav class="flex flex-wrap justify-center gap-6 text-[10px] text-gray-400 uppercase tracking-widest font-medium" aria-label="Legal">
+      <a href={`${base}/avis/`} class="text-[#E5B32A] hover:text-white transition-colors font-bold">{isEl ? '⭐ Αφήστε κριτική' : '⭐ Leave a review'}</a>
       <a href={`${base}/mentions/`} class="hover:text-[#E5B32A] transition-colors">{isEl ? 'Νομικές πληροφορίες' : 'Legal notice'}</a>
       <a href={`${base}/cgv/`} class="hover:text-[#E5B32A] transition-colors">{isEl ? 'Όροι χρήσης' : 'Terms'}</a>
+      <a href={`${base}/privacy/`} class="hover:text-[#E5B32A] transition-colors">{isEl ? 'Πολιτική απορρήτου' : 'Privacy policy'}</a>
     </nav>
     <p class="text-[10px] text-white/70 uppercase tracking-widest font-medium flex items-center gap-1.5">
       <span>{isEl ? 'Φτιαγμένο με' : 'Made with'}</span>

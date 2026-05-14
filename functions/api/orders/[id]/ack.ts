@@ -48,14 +48,22 @@ export const onRequestPost = async (ctx: { request: Request; env: Env; params: {
   const id = String(params.id || "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 20);
   if (!id) return jsonResp({ ok: false, error: "Invalid id" }, 400);
 
+  const nowTs = Date.now();
   const res = await env.DB
     .prepare(`UPDATE orders SET status = 'seen', acked_at = ?1 WHERE id = ?2 AND status = 'new'`)
-    .bind(Date.now(), id)
+    .bind(nowTs, id)
     .run();
 
   if (!res.meta || res.meta.changes === 0) {
     return jsonResp({ ok: false, error: "Order not found or already seen" }, 404);
   }
+
+  // Miroir dans l'historique anonymisé (best-effort)
+  await env.DB
+    .prepare(`UPDATE orders_history SET status = 'seen', acked_at = ?1 WHERE id = ?2`)
+    .bind(nowTs, id)
+    .run()
+    .catch(() => {});
 
   return jsonResp({ ok: true });
 };

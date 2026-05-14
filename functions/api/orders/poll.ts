@@ -136,7 +136,7 @@ export const onRequestGet = async (ctx: { request: Request; env: Env }) => {
   const sinceParam = url.searchParams.get("since");
   const since = sinceParam ? parseInt(sinceParam, 10) : 0;
 
-  // Cleanup opportuniste : supprime expired rows (rate_limit + orders > 24h)
+  // Cleanup opportuniste : supprime expired rows (rate_limit + orders > 24h + history > 50j)
   const now = Date.now();
   await env.DB
     .prepare(`DELETE FROM orders WHERE expires_at < ?1`)
@@ -145,6 +145,11 @@ export const onRequestGet = async (ctx: { request: Request; env: Env }) => {
     .catch(() => {});
   await env.DB
     .prepare(`DELETE FROM rate_limit WHERE expires_at < ?1`)
+    .bind(now)
+    .run()
+    .catch(() => {});
+  await env.DB
+    .prepare(`DELETE FROM orders_history WHERE expires_at < ?1`)
     .bind(now)
     .run()
     .catch(() => {});

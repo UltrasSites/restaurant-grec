@@ -172,5 +172,16 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
     )
     .run();
 
+  // Historique anonymisé (50 jours) — best-effort, ne bloque pas la commande
+  const historyExpires = now + 50 * 24 * 60 * 60 * 1000;
+  await env.DB
+    .prepare(
+      `INSERT OR IGNORE INTO orders_history (id, total, created_at, status, expires_at)
+       VALUES (?1, ?2, ?3, 'new', ?4)`
+    )
+    .bind(order_id, total, now, historyExpires)
+    .run()
+    .catch(() => {});
+
   return jsonResp({ ok: true, order_id });
 };

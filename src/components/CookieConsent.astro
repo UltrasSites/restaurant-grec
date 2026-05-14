@@ -1,0 +1,63 @@
+---
+import type { Lang } from "../i18n/utils";
+
+interface Props { lang?: Lang; }
+const { lang = "el" } = Astro.props;
+
+// Textes par langue
+const COPY: Record<string, { text: string; accept: string; more: string }> = {
+  el: {
+    text: "Χρησιμοποιούμε μόνο τα απαραίτητα cookies για τη σωστή λειτουργία του ιστότοπου και την υπηρεσία παραγγελίας online.",
+    accept: "Αποδοχή",
+    more: "Περισσότερες πληροφορίες",
+  },
+  en: {
+    text: "We only use essential cookies needed for the website to function and for the online ordering service.",
+    accept: "Accept",
+    more: "More info",
+  },
+  fr: {
+    text: "Nous utilisons uniquement des cookies essentiels pour le bon fonctionnement du site et le service de commande.",
+    accept: "Accepter",
+    more: "Plus d'infos",
+  },
+};
+const t = COPY[lang] || COPY.el;
+const privacyHref = `/${lang}/privacy/`;
+---
+
+<div id="cookie-consent" class="fixed inset-x-0 bottom-0 z-[60] hidden" aria-live="polite">
+  <div class="mx-auto max-w-5xl m-3 md:m-4 rounded-xl bg-black/95 backdrop-blur border border-[#E5B32A]/40 shadow-2xl px-4 py-3 md:px-6 md:py-4 flex flex-col md:flex-row items-stretch md:items-center gap-3 md:gap-4">
+    <p class="text-[13px] md:text-sm text-gray-200 leading-snug flex-1">
+      {t.text}
+    </p>
+    <div class="flex gap-2 justify-end shrink-0">
+      <a href={privacyHref} class="px-3 py-2 rounded-md border border-white/15 text-gray-300 hover:text-white hover:border-white/40 text-xs md:text-sm font-medium uppercase tracking-wider transition-colors whitespace-nowrap">
+        {t.more}
+      </a>
+      <button type="button" id="cookie-accept" class="px-4 py-2 rounded-md bg-[#E5B32A] hover:bg-[#f0c447] text-black text-xs md:text-sm font-bold uppercase tracking-wider transition-colors whitespace-nowrap">
+        {t.accept}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    var KEY = "trouba_cookie_consent_v1";
+    var banner = document.getElementById("cookie-consent");
+    if (!banner) return;
+    try {
+      if (localStorage.getItem(KEY) === "accepted") return;
+    } catch (e) { /* localStorage indispo => on affiche */ }
+    // Délai très court pour éviter flash au chargement
+    setTimeout(function () { banner.classList.remove("hidden"); }, 400);
+    var btn = document.getElementById("cookie-accept");
+    if (btn) {
+      btn.addEventListener("click", function () {
+        try { localStorage.setItem(KEY, "accepted"); } catch (e) {}
+        banner.classList.add("hidden");
+      });
+    }
+  })();
+</script>

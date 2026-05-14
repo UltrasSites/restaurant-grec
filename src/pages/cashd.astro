@@ -52,8 +52,9 @@
     }
     .topbar h1 { margin: 0; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.05em; }
     .topbar .status {
-      display: flex; align-items: center; gap: 0.75rem;
+      display: flex; align-items: center; gap: 0.5rem;
       font-size: 0.85rem; color: #aaa;
+      flex-wrap: wrap; justify-content: flex-end;
     }
     .status .dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; }
     .status.disconnected .dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
@@ -191,6 +192,32 @@
     .sound-toggle.muted { background: #3a1a1a; color: #ef4444; border-color: #7a2d2d; }
     .sound-toggle:hover { background: #333; }
 
+    .sound-select {
+      padding: 0.5rem 0.6rem; font-size: 0.8rem;
+      background: #222; color: #ccc;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.4rem; cursor: pointer;
+      max-width: 150px;
+    }
+    .sound-select:focus { outline: none; border-color: var(--gold); }
+    .sound-test {
+      padding: 0.5rem 0.7rem; font-size: 0.8rem;
+      background: #222; color: var(--gold);
+      border: 1px solid rgba(229,179,42,0.4);
+      border-radius: 0.4rem; cursor: pointer;
+    }
+    .sound-test:hover { background: rgba(229,179,42,0.15); }
+
+    .history-btn {
+      padding: 0.5rem 0.85rem; font-size: 0.8rem;
+      background: #1a1a1a; color: var(--gold);
+      border: 1px solid rgba(229,179,42,0.45);
+      border-radius: 0.4rem; cursor: pointer;
+      font-weight: 700; letter-spacing: 0.05em;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;
+    }
+    .history-btn:hover { background: rgba(229,179,42,0.12); }
+
     .lang-toggle {
       padding: 0.5rem 0.7rem; font-size: 0.8rem;
       background: #222; color: #ccc; border: 1px solid rgba(255,255,255,0.1);
@@ -236,7 +263,10 @@
         <span class="dot"></span>
         <span class="clock" id="clock">--:--</span>
         <button type="button" id="lang-toggle" class="lang-toggle" aria-label="Language"></button>
+        <select id="sound-select" class="sound-select" aria-label="Son d'alerte"></select>
+        <button type="button" id="sound-test" class="sound-test" title="Test">🔊 Test</button>
         <button type="button" id="sound-toggle" class="sound-toggle" aria-pressed="false"></button>
+        <a href="/cashd/history" id="history-btn" class="history-btn" title="Historique">📋 Historique</a>
       </div>
     </div>
     <div class="orders-area">
@@ -249,6 +279,7 @@
     </div>
   </div>
 
+  <script is:inline src="/sounds/sounds.js"></script>
   <script is:inline>
   (function() {
     // ═══ I18N — EL/EN toggle ═══
@@ -377,6 +408,19 @@
     var beepInterval = null;
     var audioCtx = null;
 
+    // ═══ Sound selection (localStorage) ═══
+    var SOUND_KEY = 'caisse_sound';
+    var DEFAULT_SOUND = 'ding';
+    function getSoundChoice() {
+      try {
+        var v = localStorage.getItem(SOUND_KEY);
+        return v || DEFAULT_SOUND;
+      } catch (e) { return DEFAULT_SOUND; }
+    }
+    function setSoundChoice(v) {
+      try { localStorage.setItem(SOUND_KEY, v); } catch (e) {}
+    }
+
     function tickClock() {
       var d = new Date();
       var hh = String(d.getHours()).padStart(2, '0');
@@ -387,6 +431,9 @@
     setInterval(tickClock, 1000); tickClock();
 
     function ensureAudio() {
+      if (window.TroubaSounds && typeof window.TroubaSounds.unlock === 'function') {
+        try { window.TroubaSounds.unlock(); } catch (e) {}
+      }
       if (!audioCtx) {
         try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
         catch (e) { audioCtx = null; }
@@ -399,6 +446,12 @@
     function beep() {
       if (!soundOn) return;
       ensureAudio();
+      // Utilise la lib synthétique commune
+      if (window.TroubaSounds && typeof window.TroubaSounds.play === 'function') {
+        try { window.TroubaSounds.play(getSoundChoice()); } catch (e) {}
+        return;
+      }
+      // Fallback : ding inline si TroubaSounds non chargé
       if (!audioCtx) return;
       try {
         var osc = audioCtx.createOscillator();
@@ -435,6 +488,31 @@
         stopBeeping();
       }
     });
+
+    // ═══ Sound selector (préférence patron) ═══
+    var soundSelect = document.getElementById('sound-select');
+    var soundTest = document.getElementById('sound-test');
+    if (soundSelect && window.TroubaSounds && Array.isArray(window.TroubaSounds.list)) {
+      var current = getSoundChoice();
+      var optsHtml = '';
+      window.TroubaSounds.list.forEach(function(s) {
+        var sel = s.value === current ? ' selected' : '';
+        optsHtml += '<option value="' + s.value + '"' + sel + '>' + s.label + '</option>';
+      });
+      soundSelect.innerHTML = optsHtml;
+      soundSelect.addEventListener('change', function() {
+        setSoundChoice(soundSelect.value);
+        ensureAudio();
+        // Preview immédiat
+        if (window.TroubaSounds) window.TroubaSounds.play(soundSelect.value);
+      });
+    }
+    if (soundTest) {
+      soundTest.addEventListener('click', function() {
+        ensureAudio();
+        if (window.TroubaSounds) window.TroubaSounds.play(getSoundChoice());
+      });
+    }
 
     function hasPending() {
       return Object.keys(orders).length > 0;
