@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  site: 'https://modele.ultras-sites.com',
+  site: 'https://kalamakitroubas.gr',
   output: 'static',
   compressHTML: true,
   build: {

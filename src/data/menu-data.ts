@@ -1,4 +1,4 @@
-// Données menu partagées entre MenuBook (visuel) et /commander (panier).
+// Données menu partagées entre MenuBook (visuel) et /delivery (panier).
 // IMPORTANT : single source of truth. Si tu modifies les prix ici, le panier suit.
 
 export type MenuItem = {

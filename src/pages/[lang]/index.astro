@@ -260,7 +260,7 @@ const baseUrl = `/${currentLang}`;
                 </p>
               </div>
               <div class="flex flex-col gap-3">
-                <a href={`${baseUrl}/commander`} class="w-full px-8 py-3 bg-[#E5B32A] text-black text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg shadow-[0_8px_24px_rgba(229,179,42,0.28)] hover:bg-white hover:shadow-[0_12px_32px_rgba(229,179,42,0.45)] transition-all duration-300">
+                <a href={`${baseUrl}/delivery`} class="w-full px-8 py-3 bg-[#E5B32A] text-black text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg shadow-[0_8px_24px_rgba(229,179,42,0.28)] hover:bg-white hover:shadow-[0_12px_32px_rgba(229,179,42,0.45)] transition-all duration-300">
                   {t.order_cta} <span class="ml-1 text-[9px] opacity-70">· 0%</span>
                 </a>
                 {/* Partenaires delivery — logos brand-colored */}
@@ -428,7 +428,7 @@ const baseUrl = `/${currentLang}`;
               href={`/menu-${l.code}.pdf`}
               target="_blank"
               rel="noopener"
-              aria-label={`${currentLang === 'el' ? 'Κατέβασε τον κατάλογο' : 'Download menu'} — ${l.label}`}
+              title={`${currentLang === 'el' ? 'Κατέβασε τον κατάλογο' : 'Download menu'} — ${l.label}`}
               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/75 text-[11px] font-semibold hover:bg-[#E5B32A]/15 hover:border-[#E5B32A]/50 hover:text-white transition-all duration-200"
             >
               <Flag code={l.code} size={18} rounded />
@@ -475,7 +475,7 @@ const baseUrl = `/${currentLang}`;
           <span class="text-base">🛵</span>
           <span>Box.gr</span>
         </a>
-        <a href={`/${currentLang}/commander`} class="inline-flex items-center gap-2 px-5 py-3 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors shadow-[0_8px_20px_rgba(229,179,42,0.4)]">
+        <a href={`/${currentLang}/delivery`} class="inline-flex items-center gap-2 px-5 py-3 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors shadow-[0_8px_20px_rgba(229,179,42,0.4)]">
           <span class="text-base">🥡</span>
           <span>{currentLang === 'el' ? 'Άμεση παραγγελία' : 'Order direct'}</span>
           <span class="text-[10px] opacity-80">{currentLang === 'el' ? '0% προμήθεια' : '0% fees'}</span>
@@ -615,7 +615,7 @@ const baseUrl = `/${currentLang}`;
         title={t.order_cta}
         loading="lazy"
         src=""
-        data-src={`${baseUrl}/commander?embed=1`}
+        data-src={`${baseUrl}/delivery?embed=1`}
       ></iframe>
     </div>
   </div>
