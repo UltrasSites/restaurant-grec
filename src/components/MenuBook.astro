@@ -500,15 +500,15 @@ const totalPages = pages.length + 1;
   .book-swipe-hint {
     font-family: 'Space Grotesk', sans-serif;
     font-size: 0.7rem;
-    color: rgba(229,179,42,0.95);
+    color: rgb(229,179,42);
     letter-spacing: 0.25em;
     text-transform: uppercase;
     animation: swipe-hint 2.4s ease-in-out infinite;
     margin: 0;
   }
   @keyframes swipe-hint {
-    0%, 100% { opacity: 0.4; transform: translateX(0); }
-    50%      { opacity: 0.9; transform: translateX(2px); }
+    0%, 100% { opacity: 0.92; transform: translateX(0); }
+    50%      { opacity: 1; transform: translateX(2px); }
   }
   .mobile-only { display: none; }
   @media (max-width: 720px) {
