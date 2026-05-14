@@ -394,11 +394,40 @@ const baseUrl = `/${currentLang}`;
     </div>
   </div>
 
-  <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pb-10 px-4">
-    <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" class="px-6 py-3 border border-white/30 text-white text-xs font-bold uppercase tracking-widest rounded-full hover:bg-white/10 transition-colors">
-      {currentLang === 'el' ? 'Παραγγελία e-food' : 'Order on e-food'}
-    </a>
-  </div>
+  <section class="bg-[#050505] py-14 px-6 border-t border-white/5">
+    <div class="max-w-5xl mx-auto text-center">
+      <p class="text-[10px] uppercase tracking-[0.35em] text-[#E5B32A] font-bold mb-3">
+        {currentLang === 'el' ? 'Παράδοση κατ\'οίκον' : 'Home delivery'}
+      </p>
+      <h2 class="text-2xl md:text-3xl font-serif italic text-white mb-3">
+        {currentLang === 'el' ? 'Παραγγείλετε από τους συνεργάτες παράδοσης' : 'Order via our delivery partners'}
+      </h2>
+      <p class="text-gray-400 text-sm mb-8 max-w-xl mx-auto">
+        {currentLang === 'el'
+          ? 'Επιλέξτε την εφαρμογή σας — ή χρησιμοποιήστε τη δική μας online παραγγελία χωρίς προμήθεια.'
+          : 'Pick your preferred app — or use our own online ordering with zero commission.'}
+      </p>
+      <div class="flex flex-wrap items-stretch justify-center gap-3">
+        <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 bg-[#e8326a] text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-[#d12659] transition-colors shadow-[0_8px_20px_rgba(232,50,106,0.35)]">
+          <span class="text-base">🛵</span>
+          <span>e-food</span>
+        </a>
+        <a href="https://wolt.com/el/grc/piraeus/restaurant/to-kalamaki-tis-troumpas" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 bg-[#00c2e8] text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-[#00a8c8] transition-colors shadow-[0_8px_20px_rgba(0,194,232,0.35)]">
+          <span class="text-base">🛵</span>
+          <span>Wolt</span>
+        </a>
+        <a href="https://box.gr" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 bg-[#ff6f00] text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-[#e65f00] transition-colors shadow-[0_8px_20px_rgba(255,111,0,0.35)]">
+          <span class="text-base">🛵</span>
+          <span>Box.gr</span>
+        </a>
+        <a href={`/${currentLang}/commander`} class="inline-flex items-center gap-2 px-5 py-3 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors shadow-[0_8px_20px_rgba(229,179,42,0.4)]">
+          <span class="text-base">🥡</span>
+          <span>{currentLang === 'el' ? 'Άμεση παραγγελία' : 'Order direct'}</span>
+          <span class="text-[10px] opacity-80">{currentLang === 'el' ? '0% προμήθεια' : '0% fees'}</span>
+        </a>
+      </div>
+    </div>
+  </section>
 
   <!-- AVIS GOOGLE -->
   <ReviewsSection lang={currentLang} />
