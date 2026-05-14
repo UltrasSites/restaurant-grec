@@ -249,7 +249,8 @@ const baseUrl = `/${currentLang}`;
                 </p>
                 <p>
                   <span class="font-semibold text-white">{t.resa_label_phone} :</span><br />
-                  <a href="tel:+302104222233" class="font-medium text-[#E5B32A] hover:underline">{t.resa_phone}</a>
+                  <a href="tel:+302104222233" class="font-medium text-[#E5B32A] hover:underline block">{t.resa_phone}</a>
+                  <a href="tel:+302104222273" class="font-medium text-[#E5B32A] hover:underline block mt-1">+30 210 422 2273</a>
                 </p>
               </div>
               {/* Horaires : visible aussi sur mobile (assez de place) */}
@@ -278,9 +279,6 @@ const baseUrl = `/${currentLang}`;
                     <span class="font-black text-[12px] tracking-tight" style="font-family:'Arial',sans-serif;">Box</span>
                   </a>
                 </div>
-                <a href={`${baseUrl}/#contact`} class="w-full px-8 py-2.5 bg-transparent border-2 border-[#E5B32A]/45 text-white text-[10px] font-bold uppercase tracking-[0.2em] text-center rounded-lg hover:bg-white/5 hover:border-[#E5B32A]/70 transition-all duration-300">
-                  {t.resa_cta2}
-                </a>
                 <a href={`${baseUrl}/#carte`} class="w-full px-8 py-2.5 bg-transparent border border-white/15 text-white/80 text-[10px] font-bold uppercase tracking-[0.2em] text-center rounded-lg hover:bg-white/5 transition-all duration-300">
                   {t.resa_cta3}
                 </a>
@@ -292,52 +290,6 @@ const baseUrl = `/${currentLang}`;
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- VIDEO CUISSON — sous le hero -->
-  <section class="bg-[#050505] py-12 px-6 border-t border-white/5">
-    <div class="max-w-6xl mx-auto text-center">
-      <p class="text-[10px] uppercase tracking-[0.35em] text-[#E5B32A] font-bold mb-3">
-        {currentLang === 'el' ? 'Στην κουζίνα μας' : 'In our kitchen'}
-      </p>
-      <h2 class="text-2xl md:text-3xl font-serif italic text-white mb-6">
-        {currentLang === 'el' ? 'Ζωντανή σχάρα · κάθε μέρα · στα κάρβουνα' : 'Live charcoal grill · every day · over coals'}
-      </h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-5xl mx-auto">
-        <video
-          data-src="/videos/trouba-cuisson-1-720.mp4"
-          poster="/videos/trouba-cuisson-1-poster.jpg"
-          muted loop playsinline preload="none"
-          class="lazy-video w-full aspect-[9/16] md:aspect-[464/848] object-cover rounded-2xl shadow-2xl border border-white/10 max-h-[480px] mx-auto"
-          aria-label="Ψήσιμο στα κάρβουνα — Καλαμάκι Της Τρούμπας"
-        ></video>
-        <video
-          data-src="/videos/trouba-cuisson-2-720.mp4"
-          poster="/videos/trouba-cuisson-2-poster.jpg"
-          muted loop playsinline preload="none"
-          class="lazy-video w-full aspect-[9/16] md:aspect-[464/848] object-cover rounded-2xl shadow-2xl border border-white/10 max-h-[480px] mx-auto"
-          aria-label="Καλαμάκια στη σχάρα — Καλαμάκι Της Τρούμπας"
-        ></video>
-      </div>
-    </div>
-    <script is:inline>
-      (function() {
-        const vids = document.querySelectorAll('video.lazy-video');
-        if (!vids.length) return;
-        const io = new IntersectionObserver((entries) => {
-          entries.forEach((e) => {
-            const v = e.target;
-            if (e.isIntersecting) {
-              if (!v.src && v.dataset.src) v.src = v.dataset.src;
-              v.play().catch(() => {});
-            } else {
-              v.pause();
-            }
-          });
-        }, { rootMargin: '200px 0px', threshold: 0.1 });
-        vids.forEach((v) => io.observe(v));
-      })();
-    </script>
   </section>
 
   <!-- HISTOIRE -->
@@ -505,6 +457,72 @@ const baseUrl = `/${currentLang}`;
   <!-- AVIS GOOGLE -->
   <ReviewsSection lang={currentLang} />
 
+  <!-- GALERIE — photos + vidéos cuisson (tout en bas) -->
+  <section id="galerie" class="bg-[#050505] py-16 px-6 border-t border-white/5">
+    <div class="max-w-6xl mx-auto text-center mb-10">
+      <p class="text-[10px] uppercase tracking-[0.35em] text-[#E5B32A] font-bold mb-3">
+        {currentLang === 'el' ? 'Γκαλερί' : 'Gallery'}
+      </p>
+      <h2 class="text-2xl md:text-3xl font-serif italic text-white mb-3">
+        {currentLang === 'el' ? 'Ζωντανή σχάρα · κάθε μέρα · στα κάρβουνα' : 'Live charcoal grill · every day · over coals'}
+      </h2>
+      <p class="text-gray-400 text-sm max-w-xl mx-auto">
+        {currentLang === 'el' ? 'Φωτογραφίες και βίντεο από την κουζίνα μας.' : 'Photos and videos from our kitchen.'}
+      </p>
+    </div>
+
+    {/* Grid : 2 vidéos verticales + 2 photos */}
+    <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <video
+        data-src="/videos/trouba-cuisson-1-720.mp4"
+        poster="/videos/trouba-cuisson-1-poster.jpg"
+        muted loop playsinline preload="none"
+        class="lazy-video w-full aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/10"
+        aria-label={currentLang === 'el' ? 'Ψήσιμο στα κάρβουνα' : 'Charcoal grill cooking'}
+      ></video>
+      <video
+        data-src="/videos/trouba-cuisson-2-720.mp4"
+        poster="/videos/trouba-cuisson-2-poster.jpg"
+        muted loop playsinline preload="none"
+        class="lazy-video w-full aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/10"
+        aria-label={currentLang === 'el' ? 'Καλαμάκια στη σχάρα' : 'Skewers on the grill'}
+      ></video>
+      <img
+        src="/photos/trouba-grill-chops-800w.webp"
+        srcset="/photos/trouba-grill-chops-400w.webp 400w, /photos/trouba-grill-chops-800w.webp 800w, /photos/trouba-grill-chops-1600w.webp 1600w"
+        sizes="(max-width:767px) 50vw, 25vw"
+        alt={currentLang === 'el' ? 'Παϊδάκια στα κάρβουνα' : 'Charcoal-grilled chops'}
+        class="w-full aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/10"
+        width="800" height="1422" loading="lazy" decoding="async"
+      />
+      <img
+        src="/photos/trouba-grill-skewers-800w.webp"
+        srcset="/photos/trouba-grill-skewers-400w.webp 400w, /photos/trouba-grill-skewers-800w.webp 800w, /photos/trouba-grill-skewers-1600w.webp 1600w"
+        sizes="(max-width:767px) 50vw, 25vw"
+        alt={currentLang === 'el' ? 'Καλαμάκια κοτόπουλο' : 'Chicken skewers'}
+        class="w-full aspect-[9/16] object-cover rounded-2xl shadow-2xl border border-white/10"
+        width="800" height="1422" loading="lazy" decoding="async"
+      />
+    </div>
+
+    <script is:inline>
+      (function() {
+        const vids = document.querySelectorAll('video.lazy-video');
+        if (!vids.length) return;
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            const v = e.target;
+            if (e.isIntersecting) {
+              if (!v.src && v.dataset.src) v.src = v.dataset.src;
+              v.play().catch(() => {});
+            } else { v.pause(); }
+          });
+        }, { rootMargin: '200px 0px', threshold: 0.1 });
+        vids.forEach((v) => io.observe(v));
+      })();
+    </script>
+  </section>
+
   <!-- CONTACT — simple : mail + tel (pas de formulaire, c'est un resto take-away) -->
   <section id="contact" class="bg-[#050505] py-24 px-6 border-t border-white/5">
     <div class="max-w-3xl mx-auto text-center">
@@ -516,13 +534,17 @@ const baseUrl = `/${currentLang}`;
           : 'For reservations, questions or special orders — call us or send an email. Quick reply guaranteed.'}
       </p>
 
-      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-        <a href="tel:+302104222233" class="inline-flex items-center justify-center gap-3 px-8 py-4 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-[0.18em] rounded-full hover:bg-white transition-colors shadow-[0_12px_30px_rgba(229,179,42,0.35)]">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8 flex-wrap">
+        <a href="tel:+302104222233" class="inline-flex items-center justify-center gap-2 px-5 py-4 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:bg-white transition-colors shadow-[0_12px_30px_rgba(229,179,42,0.35)]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
           +30 210 422 2233
         </a>
-        <a href="mailto:kalamaki.troubas@gmail.com" class="inline-flex items-center justify-center gap-3 px-8 py-4 border-2 border-white/30 text-white text-sm font-bold uppercase tracking-[0.18em] rounded-full hover:border-[#E5B32A] hover:text-[#E5B32A] transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+        <a href="tel:+302104222273" class="inline-flex items-center justify-center gap-2 px-5 py-4 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:bg-white transition-colors shadow-[0_12px_30px_rgba(229,179,42,0.35)]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+          +30 210 422 2273
+        </a>
+        <a href="mailto:kalamaki.troubas@gmail.com" class="inline-flex items-center justify-center gap-2 px-6 py-4 border-2 border-white/30 text-white text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:border-[#E5B32A] hover:text-[#E5B32A] transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
           kalamaki.troubas@gmail.com
         </a>
       </div>
@@ -572,7 +594,8 @@ const baseUrl = `/${currentLang}`;
           </div>
           <div class="border-t border-white/10 pt-5">
             <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2">{t.resa_label_phone}</p>
-            <a href="tel:+302104222233" class="text-base text-[#E5B32A] hover:underline font-bold tracking-wide">+30 210 422 2233</a>
+            <a href="tel:+302104222233" class="text-base text-[#E5B32A] hover:underline font-bold tracking-wide block">+30 210 422 2233</a>
+            <a href="tel:+302104222273" class="text-base text-[#E5B32A] hover:underline font-bold tracking-wide block mt-1">+30 210 422 2273</a>
           </div>
           <div class="mt-auto flex flex-col sm:flex-row gap-3 pt-2">
             <a
@@ -600,52 +623,43 @@ const baseUrl = `/${currentLang}`;
     </div>
   </section>
 
-  {/* === FAB COMMANDER · côté droit, milieu de page === */}
-  <div class="order-fab-wrap" data-order-fab>
+  {/* === FAB COMMANDER · DESKTOP UNIQUEMENT · lien direct vers /delivery (pas de drawer) === */}
+  <a href={`${baseUrl}/delivery`} class="order-fab-link hidden md:flex" aria-label={t.order_cta}>
     <span class="order-pop" aria-hidden="true">
       <span class="order-pop-title">{currentLang === 'el' ? 'Παραγγείλετε' : 'Order online'}</span>
       <span class="order-pop-sub">{currentLang === 'el' ? 'και πληρώστε επί τόπου' : 'and pay in-store'}</span>
       <span class="order-pop-arrow" aria-hidden="true"></span>
     </span>
-    <button type="button" class="order-fab" aria-label={t.order_cta} data-order-open>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="order-fab-svg" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
-      </svg>
-    </button>
-  </div>
-
-  {/* === DRAWER chat · slide depuis la droite === */}
-  <div id="order-drawer" class="order-drawer" aria-hidden="true">
-    <div class="order-drawer-backdrop" data-order-close></div>
-    <div class="order-drawer-panel" role="dialog" aria-modal="true" aria-labelledby="order-drawer-title">
-      <div class="order-drawer-head">
-        <div>
-          <p class="order-drawer-eyebrow">{currentLang === 'el' ? 'Παραγγελία' : 'Order'}</p>
-          <h3 id="order-drawer-title" class="order-drawer-title">{currentLang === 'el' ? 'Επιλέξτε & πληρώστε επί τόπου' : 'Choose & pay in-store'}</h3>
-        </div>
-        <button type="button" class="order-drawer-close" data-order-close aria-label="Close">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-        </button>
-      </div>
-      <iframe
-        id="order-drawer-iframe"
-        class="order-drawer-iframe"
-        title={t.order_cta}
-        loading="lazy"
-        src=""
-        data-src={`${baseUrl}/delivery?embed=1`}
-      ></iframe>
-    </div>
-  </div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="order-fab-svg" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+    </svg>
+  </a>
 
   <style>
-    .order-fab-wrap {
+    .order-fab-link {
       position: fixed;
       right: 1.25rem;
       top: 50%;
       transform: translateY(-50%);
       z-index: 55;
-      display: flex; align-items: center; gap: 0.7rem;
+      align-items: center; gap: 0.7rem;
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #E5B32A 0%, #c89324 100%);
+      color: #0a0a0a;
+      text-decoration: none;
+      display: none; /* hidden on mobile, .md:flex shows on desktop */
+      justify-content: center;
+      box-shadow: 0 16px 36px rgba(229,179,42,0.45), 0 4px 14px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.3);
+      transition: transform 0.2s, box-shadow 0.25s;
+      animation: order-fab-pulse 2.6s ease-in-out infinite;
+    }
+    .order-fab-link:hover { transform: translateY(-50%) scale(1.07) rotate(-4deg); box-shadow: 0 20px 44px rgba(229,179,42,0.6), 0 6px 18px rgba(0,0,0,0.5); }
+    .order-fab-link .order-pop {
+      position: absolute;
+      right: calc(100% + 0.7rem);
+      top: 50%;
+      transform: translateY(-50%);
     }
     .order-pop {
       display: flex; flex-direction: column;
@@ -695,10 +709,7 @@ const baseUrl = `/${currentLang}`;
     }
 
     @media (max-width: 767px) {
-      .order-fab-wrap { right: 0.9rem; }
-      .order-pop { display: none; }
-      .order-fab { width: 56px; height: 56px; }
-      .order-fab-svg { width: 22px; height: 22px; }
+      .order-fab-link { display: none !important; }
     }
 
     /* Drawer */
