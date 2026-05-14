@@ -533,18 +533,60 @@ const flatItems = menuPages.flatMap((p, pi) =>
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
+    // CSS injecté pour les boutons +/- du checkout
+    (function() {
+      var s = document.createElement('style');
+      s.textContent = '.checkout-qty-btn { width: 28px; height: 28px; border-radius: 9999px; border: 1px solid rgba(229,179,42,0.4); background: rgba(229,179,42,0.08); color: #E5B32A; font-size: 1.1rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; line-height: 1; transition: background .15s, transform .15s; } .checkout-qty-btn:hover { background: rgba(229,179,42,0.25); transform: scale(1.05); } .checkout-qty-btn:active { transform: scale(0.92); }';
+      document.head.appendChild(s);
+    })();
+
     function renderCheckoutSummary() {
       var box = $('#checkout-cart-summary');
-      var html = '<ul class="space-y-1 text-gray-300">';
+      if (totalCount() === 0) {
+        box.innerHTML = '<p class="text-center text-gray-400 py-4">' + (i18n.isEl ? 'Άδειο καλάθι. Επιστρέψτε στο μενού.' : 'Empty cart. Go back to menu.') + '</p>';
+        return;
+      }
+      var html = '<p class="text-[10px] uppercase tracking-widest text-[#E5B32A]/80 font-bold mb-2">' + (i18n.isEl ? 'Το καλάθι σας (επεξεργάσιμο)' : 'Your cart (editable)') + '</p>';
+      html += '<ul class="space-y-2">';
       Object.keys(cart).forEach(function(id) {
         var q = cart[id]; if (!q) return;
         var it = byId[id]; if (!it) return;
         var name = i18n.isEl ? it.name_el : it.name_en;
-        html += '<li class="flex justify-between"><span>' + name + ' <span class="text-[#E5B32A]">×' + q + '</span></span><span class="text-[#E5B32A] font-bold">' + fmt(it.price * q) + '</span></li>';
+        html += '<li class="flex items-center justify-between gap-2 p-2 rounded-lg bg-black/30 border border-white/8">'
+          + '<span class="flex-1 text-sm text-gray-200">' + name + '</span>'
+          + '<div class="flex items-center gap-1 shrink-0">'
+          + '<button type="button" class="checkout-qty-btn" data-act="minus" data-id="' + id + '" aria-label="-">−</button>'
+          + '<span class="w-7 text-center text-white font-bold text-base">' + q + '</span>'
+          + '<button type="button" class="checkout-qty-btn" data-act="plus" data-id="' + id + '" aria-label="+">+</button>'
+          + '</div>'
+          + '<span class="text-[#E5B32A] font-bold w-20 text-right shrink-0">' + fmt(it.price * q) + '</span>'
+          + '</li>';
       });
       html += '</ul>';
       html += '<div class="flex justify-between mt-3 pt-3 border-t border-white/10 text-base"><span class="text-white font-bold uppercase text-xs tracking-wider">' + (i18n.isEl ? 'Σύνολο' : 'Total') + '</span><span class="text-2xl font-bold text-[#E5B32A]">' + fmt(totalAmount()) + '</span></div>';
       box.innerHTML = html;
+
+      // Wire up the +/- buttons
+      box.querySelectorAll('.checkout-qty-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var id = btn.getAttribute('data-id');
+          var act = btn.getAttribute('data-act');
+          if (act === 'plus') {
+            cart[id] = (cart[id] || 0) + 1;
+          } else {
+            cart[id] = Math.max(0, (cart[id] || 0) - 1);
+            if (cart[id] === 0) delete cart[id];
+          }
+          updateCart();
+          renderCheckoutSummary();
+          if (totalCount() === 0) {
+            // Si plus rien dans le panier, retour au menu
+            viewCheckout.hidden = true;
+            viewMenu.hidden = false;
+            floater.hidden = true;
+          }
+        });
+      });
     }
 
     // Submit
