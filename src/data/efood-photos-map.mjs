@@ -23,6 +23,8 @@ export const NAME_TO_SLUG = {
   "Η σαλάτα της Τρούμπας": "i-salata-tis-troympas",
   "Λάχανο-Καρότο": "lachano-karoto",
   "Μαρούλι": "maroyli",
+  "Χωριάτικη": "choriatiki",
+  "Ντάκος": "ntakos",
 
   // === Πίτες τυλιχτές ===
   "Καλαμάκι χοιρινό": "kalamaki-choirino-se-pita",
@@ -71,12 +73,40 @@ export const NAME_TO_SLUG = {
   "Καλαμάκι Σεϊτάν τμχ": "kalamaki-seitan-se-pita",
   "Κεμπάπ Σεϊτάν": "kempap-seitan-se-pita",
   "Τυλιχτό Σεϊτάν": "kalamaki-seitan-se-pita",
+  "Τυλιχτό Σεϊτάν Κεμπάπ": "kempap-seitan-se-pita",
+  "Τυλιχτό Σεϊτάν Καλαμάκι": "kalamaki-seitan-se-pita",
+  "Τυλιχτό Κολοκυθο-Ρεβυθοκεφτές": "revythokeftedes-se-pita",
 
   // === Σάντουιτς & Σκεπαστή ===
   "Σάντουιτς με κρέας της επιλογής σας": "kalamaki-choirino-se-santoyits",
   "Σάντουιτς με διπλό κρέας": "kalamaki-choirino-se-santoyits",
   "Σκεπαστή με κρέας της επιλογής σας": "skepasti-kalamaki-choirino",
   "Σκεπαστή με κρέας της επιλογής σας (διπλό)": "skepasti-mpifteki-moscharisio",
+
+  // === Ορεκτικά Ι (extra) ===
+  // Φέτα ψητή = même base que la φέτα classique (mais grillée), réutilise feta
+  "Φέτα ψητή με ντομάτα & πιπεριά": "feta",
+
+  // === Αναψυκτικά & Νερό ===
+  // Αναψυκτικά 330ml = Coca-Cola par défaut (la plus représentative)
+  "Αναψυκτικά 330ml": "coca-cola-330ml",
+  "Αναψυκτικά 1.5L": "coca-cola-330ml", // pas de 1.5L scrappé, fallback Coca
+  "Νερό 500ml": "nero-500ml",
+  "Νερό 1L": "nero-1lt",
+
+  // === Κρασιά & Μπύρες ===
+  "Κρασί 500ml": "krasi-kokkino-imixiro-500ml",
+  "Κρασί 1L": "krasi-kokkino-imixiro-1lt",
+  "Amstel 330ml": "amstel-330ml",
+  "Amstel 500ml": "amstel-fiali-500ml",
+  "Alfa 330ml": "alfa-330ml",
+  "Alfa 500ml": "alfa-fiali-500ml",
+  "Fix 330ml": "fix-330ml",
+  "Fix 500ml": "fix-aney-500ml",
+  "Heineken 330ml": "heineken-330ml",
+  "Heineken 500ml": "heineken-fiali-500ml",
+  "Mythos 330ml": "mythos-300ml", // 300ml seul scrap
+  "Mythos 500ml": "mythos-500ml",
 };
 
 // Plats vedettes pour la section "Nos Spécialités" (HOME)

@@ -1,0 +1,90 @@
+{
+  "zh": {
+    "pages": 14,
+    "blank": [],
+    "found": "4/4",
+    "missing": [],
+    "prices": 67,
+    "galleryFound": true,
+    "galleryPage": null,
+    "sample_p2": "Τ Ο Κ Α Λ Α Μ \u0000 Κ Ι Τ Η Σ Τ Ρ Ο \u0000 Μ Π Α Σ Μπουμπουλ\u0000νας 8 & Νοταρ\u0000 — Πειραι\u0000ς 饮料 软饮 330ml 1,60€ 软饮 500ml 1,60€ 软饮 1.5L 2,50€ 矿泉水 500ml 0,50€ 矿泉水 1L 1,"
+  },
+  "el": {
+    "pages": 14,
+    "blank": [],
+    "found": "5/5",
+    "missing": [],
+    "prices": 67,
+    "galleryFound": false,
+    "galleryPage": null,
+    "sample_p2": "Τ Ο Κ Α Λ Α Μ Ά Κ Ι Τ Η Σ Τ Ρ Ο Ύ Μ Π Α Σ Μπουμπουλίνας 8 & Νοταρά — Πειραιάς Ποτά Αναψυκτικά 330ml 1,60€ Αναψυκτικά 500ml 1,60€ Αναψυκτικά 1.5L 2,50€"
+  },
+  "en": {
+    "pages": 14,
+    "blank": [],
+    "found": "4/4",
+    "missing": [],
+    "prices": 67,
+    "galleryFound": false,
+    "galleryPage": null,
+    "sample_p2": "Τ Ο Κ Α Λ Α Μ Ά Κ Ι Τ Η Σ Τ Ρ Ο Ύ Μ Π Α Σ Μπουμπουλίνας 8 & Νοταρά — Πειραιάς Drinks Αναψυκτικά 330ml 1,60€ Αναψυκτικά 500ml 1,60€ Αναψυκτικά 1.5L 2,5"
+  },
+  "fr": {
+    "pages": 14,
+    "blank": [],
+    "found": "4/5",
+    "missing": [
+      "Carte"
+    ],
+    "prices": 67,
+    "galleryFound": false,
+    "galleryPage": null,
+    "sample_p2": "Τ Ο Κ Α Λ Α Μ Ά Κ Ι Τ Η Σ Τ Ρ Ο Ύ Μ Π Α Σ Μπουμπουλίνας 8 & Νοταρά — Πειραιάς Boissons Soda 330ml 1,60€ Soda 500ml 1,60€ Soda 1.5L 2,50€ Eau minérale "
+  },
+  "pt": {
+    "pages": 14,
+    "blank": [],
+    "found": "3/4",
+    "missing": [
+      "Cardápio"
+    ],
+    "prices": 67,
+    "galleryFound": false,
+    "galleryPage": null,
+    "sample_p2": "Τ Ο Κ Α Λ Α Μ Ά Κ Ι Τ Η Σ Τ Ρ Ο Ύ Μ Π Α Σ Μπουμπουλίνας 8 & Νοταρά — Πειραιάς Bebidas Refrigerantes 330ml 1,60€ Refrigerantes 500ml 1,60€ Refrigerante"
+  },
+  "it": {
+    "pages": 14,
+    "blank": [],
+    "found": "4/4",
+    "missing": [],
+    "prices": 67,
+    "galleryFound": false,
+    "galleryPage": null,
+    "sample_p2": "Τ Ο Κ Α Λ Α Μ Ά Κ Ι Τ Η Σ Τ Ρ Ο Ύ Μ Π Α Σ Μπουμπουλίνας 8 & Νοταρά — Πειραιάς Bevande Bibite 330ml 1,60€ Bibite 500ml 1,60€ Bibite 1.5L 2,50€ Acqua mi"
+  },
+  "es": {
+    "pages": 14,
+    "blank": [],
+    "found": "3/4",
+    "missing": [
+      "Carta"
+    ],
+    "prices": 67,
+    "galleryFound": false,
+    "galleryPage": null,
+    "sample_p2": "Τ Ο Κ Α Λ Α Μ Ά Κ Ι Τ Η Σ Τ Ρ Ο Ύ Μ Π Α Σ Μπουμπουλίνας 8 & Νοταρά — Πειραιάς Bebidas Refrescos 330ml 1,60€ Refrescos 500ml 1,60€ Refrescos 1.5L 2,50€"
+  },
+  "de": {
+    "pages": 14,
+    "blank": [],
+    "found": "3/4",
+    "missing": [
+      "Speisekarte"
+    ],
+    "prices": 67,
+    "galleryFound": false,
+    "galleryPage": null,
+    "sample_p2": "Τ Ο Κ Α Λ Α Μ Ά Κ Ι Τ Η Σ Τ Ρ Ο Ύ Μ Π Α Σ Μπουμπουλίνας 8 & Νοταρά — Πειραιάς Getränke Erfrischungsgetränke 330ml 1,60€ Erfrischungsgetränke 500ml 1,6"
+  }
+}

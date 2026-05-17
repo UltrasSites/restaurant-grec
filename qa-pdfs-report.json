@@ -1,0 +1,290 @@
+{
+  "zh": {
+    "fileSize": "449.7 KB",
+    "totalPages": 15,
+    "totalImageRefs": 0,
+    "blankPages": 0,
+    "blankPageNumbers": [],
+    "keywordsFound": "0/3 ()",
+    "pagesWithImages": [],
+    "sample": [
+      {
+        "page": 1,
+        "ops": 11,
+        "imgs": 0
+      },
+      {
+        "page": 2,
+        "ops": 29,
+        "imgs": 0
+      },
+      {
+        "page": 3,
+        "ops": 19,
+        "imgs": 0
+      },
+      {
+        "page": 4,
+        "ops": 15,
+        "imgs": 0
+      },
+      {
+        "page": 5,
+        "ops": 13,
+        "imgs": 0
+      }
+    ]
+  },
+  "el": {
+    "fileSize": "417.8 KB",
+    "totalPages": 15,
+    "totalImageRefs": 0,
+    "blankPages": 0,
+    "blankPageNumbers": [],
+    "keywordsFound": "0/3 ()",
+    "pagesWithImages": [],
+    "sample": [
+      {
+        "page": 1,
+        "ops": 9,
+        "imgs": 0
+      },
+      {
+        "page": 2,
+        "ops": 29,
+        "imgs": 0
+      },
+      {
+        "page": 3,
+        "ops": 19,
+        "imgs": 0
+      },
+      {
+        "page": 4,
+        "ops": 15,
+        "imgs": 0
+      },
+      {
+        "page": 5,
+        "ops": 13,
+        "imgs": 0
+      }
+    ]
+  },
+  "en": {
+    "fileSize": "419.7 KB",
+    "totalPages": 15,
+    "totalImageRefs": 0,
+    "blankPages": 0,
+    "blankPageNumbers": [],
+    "keywordsFound": "0/3 ()",
+    "pagesWithImages": [],
+    "sample": [
+      {
+        "page": 1,
+        "ops": 11,
+        "imgs": 0
+      },
+      {
+        "page": 2,
+        "ops": 29,
+        "imgs": 0
+      },
+      {
+        "page": 3,
+        "ops": 19,
+        "imgs": 0
+      },
+      {
+        "page": 4,
+        "ops": 15,
+        "imgs": 0
+      },
+      {
+        "page": 5,
+        "ops": 13,
+        "imgs": 0
+      }
+    ]
+  },
+  "fr": {
+    "fileSize": "420.0 KB",
+    "totalPages": 15,
+    "totalImageRefs": 0,
+    "blankPages": 0,
+    "blankPageNumbers": [],
+    "keywordsFound": "0/3 ()",
+    "pagesWithImages": [],
+    "sample": [
+      {
+        "page": 1,
+        "ops": 11,
+        "imgs": 0
+      },
+      {
+        "page": 2,
+        "ops": 29,
+        "imgs": 0
+      },
+      {
+        "page": 3,
+        "ops": 19,
+        "imgs": 0
+      },
+      {
+        "page": 4,
+        "ops": 15,
+        "imgs": 0
+      },
+      {
+        "page": 5,
+        "ops": 13,
+        "imgs": 0
+      }
+    ]
+  },
+  "pt": {
+    "fileSize": "420.0 KB",
+    "totalPages": 15,
+    "totalImageRefs": 0,
+    "blankPages": 0,
+    "blankPageNumbers": [],
+    "keywordsFound": "0/3 ()",
+    "pagesWithImages": [],
+    "sample": [
+      {
+        "page": 1,
+        "ops": 11,
+        "imgs": 0
+      },
+      {
+        "page": 2,
+        "ops": 29,
+        "imgs": 0
+      },
+      {
+        "page": 3,
+        "ops": 19,
+        "imgs": 0
+      },
+      {
+        "page": 4,
+        "ops": 15,
+        "imgs": 0
+      },
+      {
+        "page": 5,
+        "ops": 13,
+        "imgs": 0
+      }
+    ]
+  },
+  "it": {
+    "fileSize": "418.1 KB",
+    "totalPages": 15,
+    "totalImageRefs": 0,
+    "blankPages": 0,
+    "blankPageNumbers": [],
+    "keywordsFound": "0/3 ()",
+    "pagesWithImages": [],
+    "sample": [
+      {
+        "page": 1,
+        "ops": 11,
+        "imgs": 0
+      },
+      {
+        "page": 2,
+        "ops": 29,
+        "imgs": 0
+      },
+      {
+        "page": 3,
+        "ops": 19,
+        "imgs": 0
+      },
+      {
+        "page": 4,
+        "ops": 15,
+        "imgs": 0
+      },
+      {
+        "page": 5,
+        "ops": 13,
+        "imgs": 0
+      }
+    ]
+  },
+  "es": {
+    "fileSize": "420.0 KB",
+    "totalPages": 15,
+    "totalImageRefs": 0,
+    "blankPages": 0,
+    "blankPageNumbers": [],
+    "keywordsFound": "0/3 ()",
+    "pagesWithImages": [],
+    "sample": [
+      {
+        "page": 1,
+        "ops": 11,
+        "imgs": 0
+      },
+      {
+        "page": 2,
+        "ops": 29,
+        "imgs": 0
+      },
+      {
+        "page": 3,
+        "ops": 19,
+        "imgs": 0
+      },
+      {
+        "page": 4,
+        "ops": 15,
+        "imgs": 0
+      },
+      {
+        "page": 5,
+        "ops": 13,
+        "imgs": 0
+      }
+    ]
+  },
+  "de": {
+    "fileSize": "421.4 KB",
+    "totalPages": 15,
+    "totalImageRefs": 0,
+    "blankPages": 0,
+    "blankPageNumbers": [],
+    "keywordsFound": "0/3 ()",
+    "pagesWithImages": [],
+    "sample": [
+      {
+        "page": 1,
+        "ops": 11,
+        "imgs": 0
+      },
+      {
+        "page": 2,
+        "ops": 29,
+        "imgs": 0
+      },
+      {
+        "page": 3,
+        "ops": 19,
+        "imgs": 0
+      },
+      {
+        "page": 4,
+        "ops": 15,
+        "imgs": 0
+      },
+      {
+        "page": 5,
+        "ops": 13,
+        "imgs": 0
+      }
+    ]
+  }
+}
