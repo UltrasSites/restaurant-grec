@@ -6,6 +6,9 @@ export function getStaticPaths() {
   return [
     { params: { lang: "el" } },
     { params: { lang: "en" } },
+    { params: { lang: "de" } },
+    { params: { lang: "ru" } },
+    { params: { lang: "ja" } },
   ];
 }
 
@@ -14,7 +17,15 @@ const isEl = currentLang === "el";
 const title = isEl ? "Νομικές πληροφορίες" : "Legal notice";
 ---
 
-<BaseLayout lang={currentLang} title={`${title} — Το Καλαμάκι Της Τρούμπας`} description={title}>
+<BaseLayout
+  lang={currentLang}
+  title={`${title} — Το Καλαμάκι Της Τρούμπας`}
+  description={isEl ? 'Νομικές πληροφορίες για το Καλαμάκι Της Τρούμπας — επωνυμία, διεύθυνση, υπεύθυνος δημοσίευσης.' : 'Legal notice for Trouba Souvlaki — company details, address, publisher.'}
+  breadcrumbs={[
+    { name: currentLang === 'el' ? 'Αρχική' : 'Home', path: `/${currentLang}/` },
+    { name: title, path: `/${currentLang}/mentions/` },
+  ]}
+>
   <section class="bg-[#0a0a0a] pt-32 pb-24 px-6">
     <div class="max-w-3xl mx-auto">
       <h1 class="text-3xl md:text-4xl font-serif italic text-white mb-8">{title}</h1>

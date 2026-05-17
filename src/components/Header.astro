@@ -19,12 +19,12 @@ const links = [
 
 <header
     id="desktop-header"
-    class="hidden md:flex fixed top-0 left-0 right-0 w-full z-50 h-16 items-center justify-between px-6 lg:px-10 bg-black/25 backdrop-blur-sm border-b border-white/10 transition-all duration-300 opacity-0 -translate-y-full pointer-events-none"
-    style="will-change: transform, opacity;"
+    class="hidden md:flex fixed top-0 left-0 right-0 w-full z-50 h-16 items-center justify-between px-6 lg:px-10 bg-transparent border-b border-transparent transition-all duration-500"
+    style="will-change: background-color, border-color;"
 >
     <a href={`${base}/#home`} class="flex items-center group" aria-label="Το Καλαμάκι Τρούμπας">
         <img
-            src="/photos/logo-main.png"
+            src="/photos/logo-main-200w.webp"
             alt="Το Καλαμάκι Τρούμπας"
             class="h-11 lg:h-12 w-auto select-none"
             width="200"
@@ -94,17 +94,17 @@ const links = [
 
         <a
             id="desktop-reserver-link"
-            href={`${base}/#contact`}
+            href={`${base}/delivery`}
             class="px-6 lg:px-8 py-3 bg-[#E5B32A] text-black text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-white transition-colors hidden lg:inline"
-        >{t.nav_reserver}</a>
+        >{t.order_cta}</a>
     </div>
 </header>
 
-{/* Logo flottant mobile — visible apres scroll past hero */}
-<div id="mobile-logo-float" class="md:hidden fixed top-3 left-4 z-40 pointer-events-none drop-shadow-xl opacity-0 transition-opacity duration-300">
+{/* Logo flottant mobile — centre en haut apres scroll past hero */}
+<div id="mobile-logo-float" class="md:hidden fixed top-3 left-1/2 -translate-x-1/2 z-40 pointer-events-none drop-shadow-xl opacity-0 transition-opacity duration-300">
     <a href={`${base}/#home`} class="pointer-events-auto inline-flex items-center" aria-label="Το Καλαμάκι Τρούμπας">
         <img
-            src="/photos/logo-main.png"
+            src="/photos/logo-main-200w.webp"
             alt="Το Καλαμάκι Τρούμπας"
             class="h-9 w-auto"
             width="100"
@@ -130,16 +130,25 @@ const links = [
                     {link.name}
                 </a>
             ))}
-            <a href={`${base}/#contact`} class="drawer-link text-2xl sm:text-3xl font-serif italic text-[#E5B32A] hover:text-white transition-colors hover:translate-x-2 duration-300 mt-4 flex items-center gap-4 group">
-                <span class="text-xs font-sans text-white font-bold opacity-0 group-hover:opacity-100 transition-opacity">05</span>
-                {t.nav_reserver}
-            </a>
         </nav>
-        <LanguageSwitcher currentLang={lang} variant="drawer" />
-        <div class="mt-auto mb-8 border-t border-white/10 pt-6">
-            <button type="button" id="drawer-theme-btn" class="w-full py-2 text-[10px] uppercase tracking-widest text-white/50 hover:text-white transition-colors text-left">{t.drawer_theme}</button>
-        </div>
-        <div class="text-[10px] text-white/30 uppercase tracking-widest text-center">{t.drawer_brand}</div>
+
+        {/* CTA principal — Commander en ligne */}
+        <a
+            href={`${base}/delivery`}
+            class="drawer-link mt-8 w-full text-center font-bold bg-[#E5B32A] text-black text-base uppercase tracking-[0.18em] py-5 px-6 rounded-full shadow-[0_12px_30px_rgba(229,179,42,0.35)] hover:bg-white transition-colors"
+        >
+            {t.order_cta}
+        </a>
+
+        {/* CTA secondaire — Reservation */}
+        <a
+            href={`${base}/#contact`}
+            class="drawer-link mt-4 w-full text-center text-sm font-semibold uppercase tracking-[0.2em] text-white/60 hover:text-white py-3 transition-colors"
+        >
+            {t.nav_reserver}
+        </a>
+
+        <div class="mt-auto pt-8 text-[10px] text-white/30 uppercase tracking-widest text-center">{t.drawer_brand}</div>
     </div>
 </div>
 
@@ -170,19 +179,15 @@ const links = [
     const desktopHeader = document.getElementById("desktop-header");
     window.addEventListener("scroll", () => {
         if (!desktopHeader) return;
-        if (window.scrollY > 80) {
-            // Apparaît au scroll : slide-down + fade-in
-            desktopHeader.classList.remove("opacity-0", "-translate-y-full", "pointer-events-none");
-            desktopHeader.classList.add("opacity-100", "translate-y-0");
-            desktopHeader.classList.add("bg-black/95", "backdrop-blur-xl");
-            desktopHeader.classList.remove("bg-black/25", "backdrop-blur-sm");
+        if (window.scrollY > 60) {
+            // Au scroll : barre apparaît (bg sombre opaque + border)
+            desktopHeader.classList.add("bg-black/95", "backdrop-blur-xl", "border-white/10");
+            desktopHeader.classList.remove("bg-transparent", "border-transparent");
             desktopHeader.style.height = "3.25rem";
         } else {
-            // Top de page : invisible (pattern Sara/Ultras-Sites/modèles)
-            desktopHeader.classList.add("opacity-0", "-translate-y-full", "pointer-events-none");
-            desktopHeader.classList.remove("opacity-100", "translate-y-0");
-            desktopHeader.classList.add("bg-black/25", "backdrop-blur-sm");
-            desktopHeader.classList.remove("bg-black/95", "backdrop-blur-xl");
+            // Top de page : barre invisible — seuls les liens flottent sur le hero (pattern Sara/Ultras-Sites)
+            desktopHeader.classList.add("bg-transparent", "border-transparent");
+            desktopHeader.classList.remove("bg-black/95", "backdrop-blur-xl", "border-white/10");
             desktopHeader.style.height = "4rem";
         }
     }, { passive: true });
@@ -191,15 +196,54 @@ const links = [
     const backdrop = document.getElementById("menu-overlay");
     const drawerLinks = document.querySelectorAll(".drawer-link");
     let drawerOpen = false;
-    function openDrawer() { if (!drawer || !backdrop) return; drawerOpen = true; backdrop.classList.add("open"); drawer.classList.add("open"); document.body.style.overflow = "hidden"; }
-    function closeDrawer() { if (!drawer || !backdrop) return; drawerOpen = false; backdrop.classList.remove("open"); drawer.classList.remove("open"); document.body.style.overflow = ""; }
+    let savedScrollY = 0;
+
+    function lockBodyScroll() {
+        savedScrollY = window.scrollY;
+        document.body.style.overflow = "hidden";
+        document.body.style.position = "fixed";
+        document.body.style.top = `-${savedScrollY}px`;
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.width = "100%";
+    }
+    function unlockBodyScroll() {
+        document.body.style.overflow = "";
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.width = "";
+        // Restaurer la position scroll EXACTEMENT ou on etait
+        window.scrollTo(0, savedScrollY);
+    }
+    function unlockBodyScrollNoRestore() {
+        // Pour fermeture suite a clic ancre — laisse le browser scroll vers l'ancre
+        document.body.style.overflow = "";
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.width = "";
+    }
+    function openDrawer() { if (!drawer || !backdrop) return; drawerOpen = true; backdrop.classList.add("open"); drawer.classList.add("open"); lockBodyScroll(); }
+    function closeDrawer() { if (!drawer || !backdrop) return; drawerOpen = false; backdrop.classList.remove("open"); drawer.classList.remove("open"); unlockBodyScroll(); }
     const drawerCloseBtn = document.getElementById("drawer-close-btn");
     if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", closeDrawer);
     document.addEventListener("open-drawer", openDrawer);
     backdrop?.addEventListener("click", () => { if (drawerOpen) closeDrawer(); });
-    drawerLinks.forEach((l) => l.addEventListener("click", () => { if (drawerOpen) closeDrawer(); }));
-    const drawerThemeBtn = document.getElementById("drawer-theme-btn");
-    if (drawerThemeBtn) { drawerThemeBtn.addEventListener("click", function (e) { e.preventDefault(); e.stopPropagation(); if ((window as any).__toggleTheme) (window as any).__toggleTheme(); }); }
+    drawerLinks.forEach((l) => l.addEventListener("click", () => {
+        if (!drawerOpen) return;
+        const href = (l as HTMLAnchorElement).getAttribute("href") || "";
+        // Si lien d'ancre interne (commencant par `#` ou contenant `/#xxx` en fin),
+        // on laisse le browser scroller vers l'ancre — pas de restore
+        const isAnchor = href.startsWith("#") || /\/#[^/]*$/.test(href);
+        drawerOpen = false;
+        backdrop?.classList.remove("open");
+        drawer?.classList.remove("open");
+        if (isAnchor) unlockBodyScrollNoRestore();
+        else unlockBodyScroll();
+    }));
 
     // Swipe down depuis n'importe où dans le drawer pour fermer
     let swipeStartY = 0;

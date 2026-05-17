@@ -3,3 +3,15 @@
 /caisse  /cashd  301
 /el/commander  /el/delivery  301
 /en/commander  /en/delivery  301
+
+# Trailing-slash fix : Cloudflare Pages retourne du HTML 404 quand on ajoute un slash
+# a un fichier statique. Google Search Console et certains bots normalisent les URLs
+# avec slash final, donc on force le redirect 301 vers la version sans slash.
+/robots.txt/  /robots.txt  301
+/sitemap.xml/  /sitemap.xml  301
+/sitemap-index.xml  /sitemap.xml  301
+/sitemap-index.xml/  /sitemap.xml  301
+/sitemap-images.xml  /sitemap.xml  301
+/sitemap-images.xml/  /sitemap.xml  301
+/manifest.webmanifest/  /manifest.webmanifest  301
+/favicon.svg/  /favicon.svg  301

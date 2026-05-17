@@ -1,11 +1,72 @@
+# =====================================================================
+# robots.txt — Το Καλαμάκι Της Τρούμπας
+# Optimised for maximum SEO + AI training opt-out
+# =====================================================================
+
+# --- Default policy : allow everything to standard crawlers
 User-agent: *
 Allow: /
+Disallow: /cashd
+Disallow: /cashd/
+Disallow: /api/
+Disallow: /sounds/
+Disallow: /qa-pdfs-
+Disallow: /_redirects
+Disallow: /_headers
+Disallow: /caisse-sw.js
 
-# Block AI training crawlers (preserve indexing for search)
+# --- Search engines we explicitly want (rassurant + verbose)
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Googlebot-Image
+Allow: /
+
+User-agent: Googlebot-News
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+User-agent: DuckDuckBot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 2
+
+User-agent: YandexBot
+Allow: /
+Crawl-delay: 2
+
+User-agent: Applebot
+Allow: /
+Crawl-delay: 1
+
+# --- Block AI training crawlers (preserve indexing for search)
 User-agent: GPTBot
 Disallow: /
 
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: OAI-SearchBot
+Disallow: /
+
 User-agent: ClaudeBot
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: anthropic-ai
 Disallow: /
 
 User-agent: Google-Extended
@@ -14,10 +75,74 @@ Disallow: /
 User-agent: CCBot
 Disallow: /
 
-User-agent: anthropic-ai
-Disallow: /
-
 User-agent: Bytespider
 Disallow: /
 
+User-agent: AI2Bot
+Disallow: /
+
+User-agent: FacebookBot
+Disallow: /
+
+User-agent: Meta-ExternalAgent
+Disallow: /
+
+User-agent: Meta-ExternalFetcher
+Disallow: /
+
+User-agent: ImagesiftBot
+Disallow: /
+
+User-agent: OmgiliBot
+Disallow: /
+
+User-agent: Omgili
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+User-agent: Perplexity-User
+Disallow: /
+
+User-agent: YouBot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: cohere-training-data-crawler
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: TimpiBot
+Disallow: /
+
+User-agent: Scrapy
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# --- Sitemap (single source of truth)
 Sitemap: https://kalamakitroubas.gr/sitemap.xml
+
+# Host
+Host: https://kalamakitroubas.gr

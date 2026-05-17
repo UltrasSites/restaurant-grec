@@ -51,7 +51,7 @@ const isEl = lang === 'el';
         <p class="text-gray-400 text-sm leading-relaxed font-light">{t.footer_find_lead}</p>
         <a href="tel:+302104222233" class="block text-[#E5B32A] hover:underline text-sm whitespace-nowrap">+30 210 422 2233</a>
         <a href="tel:+302104222273" class="block text-[#E5B32A] hover:underline text-sm whitespace-nowrap">+30 210 422 2273</a>
-        <a href="mailto:kalamaki.troubas@gmail.com" class="block text-[#E5B32A] hover:underline text-sm">kalamaki.troubas@gmail.com</a>
+        <a href="#" class="email-link block text-[#E5B32A] hover:underline text-sm" data-eu="kalamaki.troubas" data-ed="gmail.com" aria-label={isEl ? 'Email — υποσέλιδο' : 'Email — footer'}>email</a>
       </div>
     </div>
   </div>
@@ -74,3 +74,18 @@ const isEl = lang === 'el';
     </p>
   </div>
 </footer>
+
+<script is:inline>
+  // Anti-spam : reconstruit les emails depuis data-attributes (Google-friendly,
+  // les bots no-JS ne voient pas l'email en clair, Googlebot lui execute JS)
+  (function() {
+    document.querySelectorAll('a.email-link[data-eu][data-ed]').forEach(function(a) {
+      var u = a.getAttribute('data-eu');
+      var d = a.getAttribute('data-ed');
+      if (!u || !d) return;
+      var addr = u + '@' + d;
+      a.setAttribute('href', 'mailto:' + addr);
+      a.textContent = addr;
+    });
+  })();
+</script>

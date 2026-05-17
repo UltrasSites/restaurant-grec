@@ -1,14 +1,20 @@
 ---
 // Variante /el/avis et /en/avis (route directe sans query string)
 export function getStaticPaths() {
-  return [{ params: { lang: "el" } }, { params: { lang: "en" } }];
+  return [
+    { params: { lang: "el" } },
+    { params: { lang: "en" } },
+    { params: { lang: "de" } },
+    { params: { lang: "ru" } },
+    { params: { lang: "ja" } },
+  ];
 }
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const { lang } = Astro.params as { lang: "el" | "en" };
+const { lang } = Astro.params as { lang: "el" | "en" | "de" | "ru" | "ja" };
 
-const t = {
+const translations = {
   el: {
     title: "Άφησε μια κριτική",
     subtitle: "Η γνώμη σου μετράει",
@@ -27,19 +33,56 @@ const t = {
     thanks: "Thank you from the bottom of our hearts ❤️",
     back: "← Back to home",
   },
-}[lang];
+  de: {
+    title: "Bewertung hinterlassen",
+    subtitle: "Ihre Meinung zählt",
+    body: "Danke für Ihren Besuch! Wählen Sie, wo Sie Ihre Bewertung hinterlassen möchten:",
+    google: "Google-Bewertung abgeben",
+    tripadvisor: "TripAdvisor-Bewertung abgeben",
+    thanks: "Vielen Dank von Herzen ❤️",
+    back: "← Zurück zur Startseite",
+  },
+  ru: {
+    title: "Оставьте отзыв",
+    subtitle: "Ваше мнение важно",
+    body: "Спасибо за визит! Выберите, где вы хотите оставить отзыв:",
+    google: "Оставить отзыв в Google",
+    tripadvisor: "Оставить отзыв в TripAdvisor",
+    thanks: "Благодарим вас от всего сердца ❤️",
+    back: "← Назад на главную",
+  },
+  ja: {
+    title: "レビューを残す",
+    subtitle: "ご意見をお聞かせください",
+    body: "ご来店ありがとうございました！レビューを残す場所をお選びください：",
+    google: "Googleにレビューを書く",
+    tripadvisor: "TripAdvisorにレビューを書く",
+    thanks: "心より感謝いたします ❤️",
+    back: "← ホームに戻る",
+  },
+} as const;
+const t = translations[lang] ?? translations.en;
 
-const GOOGLE_REVIEW_URL = "https://maps.google.com/?cid=4117845882351786324";
+const GOOGLE_REVIEW_URL = "https://search.google.com/local/writereview?placeid=4117845882351786324";
 const TRIPADVISOR_URL = "https://www.tripadvisor.com/Restaurant_Review-g189403-d10042662-Reviews-To_Kalamaki_tis_Troumpas-Piraeus_Piraeus_Region_Attica.html";
 ---
 
-<BaseLayout lang={lang} title={`${t.title} — Το Καλαμάκι Της Τρούμπας`} description={t.body} hideHeader>
+<BaseLayout
+  lang={lang}
+  title={`${t.title} — Το Καλαμάκι Της Τρούμπας`}
+  description={t.body}
+  hideHeader
+  breadcrumbs={[
+    { name: lang === 'el' ? 'Αρχική' : 'Home', path: `/${lang}/` },
+    { name: t.title, path: `/${lang}/avis/` },
+  ]}
+>
   <main class="min-h-screen flex flex-col items-center justify-center px-4 py-12 bg-neutral-950">
     <div class="max-w-md w-full text-center">
       <a href={`/${lang}/#home`} class="inline-block mb-6 text-white/60 hover:text-[#E5B32A] text-sm transition-colors">{t.back}</a>
 
       <div class="mb-8">
-        <img src="/photos/logo-main.png" alt="Το Καλαμάκι Της Τρούμπας" class="h-20 mx-auto mb-4" width="200" height="80" />
+        <img src="/photos/logo-main.webp" alt="Το Καλαμάκι Της Τρούμπας" class="h-20 mx-auto mb-4" width="200" height="80" />
         <p class="text-[#E5B32A] uppercase tracking-[0.3em] text-xs font-bold mb-2">{t.subtitle}</p>
         <h1 class="text-3xl sm:text-4xl font-serif italic text-white mb-4">{t.title}</h1>
         <p class="text-white/70 text-sm">{t.body}</p>

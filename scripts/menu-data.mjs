@@ -1,8 +1,8 @@
-// Menu data for Kalamaki Troubas — 8 languages
+// Menu data for Kalamaki Troubas — 12 languages
 // Greek dish names are KEPT in Greek (gastronomic identity)
 // Only section titles + ingredient descriptions are translated.
 
-export const LANGS = ["zh", "el", "en", "fr", "pt", "it", "es", "de"];
+export const LANGS = ["zh", "el", "en", "fr", "pt", "it", "es", "de", "ru", "ja", "tr", "nl"];
 
 export const LANG_LABELS = {
   zh: "中文",
@@ -13,6 +13,10 @@ export const LANG_LABELS = {
   it: "Italiano",
   es: "Español",
   de: "Deutsch",
+  ru: "Русский",
+  ja: "日本語",
+  tr: "Türkçe",
+  nl: "Nederlands",
 };
 
 export const LANG_FLAGS = {
@@ -24,6 +28,10 @@ export const LANG_FLAGS = {
   it: "🇮🇹",
   es: "🇪🇸",
   de: "🇩🇪",
+  ru: "🇷🇺",
+  ja: "🇯🇵",
+  tr: "🇹🇷",
+  nl: "🇳🇱",
 };
 
 export const RESTAURANT = {
@@ -42,6 +50,10 @@ export const RESTAURANT = {
     it: "Lun–Gio 11:00–03:00 · Ven–Sab 11:00–06:00 · Dom Chiuso",
     es: "Lun–Jue 11:00–03:00 · Vie–Sáb 11:00–06:00 · Dom Cerrado",
     de: "Mo–Do 11:00–03:00 · Fr–Sa 11:00–06:00 · So Geschlossen",
+    ru: "Пн–Чт 11:00–03:00 · Пт–Сб 11:00–06:00 · Вс Закрыто",
+    ja: "月–木 11:00–03:00 · 金–土 11:00–06:00 · 日 定休",
+    tr: "Pzt–Per 11:00–03:00 · Cum–Cmt 11:00–06:00 · Paz Kapalı",
+    nl: "Ma–Do 11:00–03:00 · Vr–Za 11:00–06:00 · Zo Gesloten",
   },
   tagline: {
     zh: "比雷埃夫斯的地道风味",
@@ -52,6 +64,10 @@ export const RESTAURANT = {
     it: "Sapori Autentici del Pireo",
     es: "Sabores Auténticos del Pireo",
     de: "Authentischer Geschmack aus Piräus",
+    ru: "Подлинный вкус Пирея",
+    ja: "ピレウスの本場の味",
+    tr: "Pire'nin Otantik Lezzeti",
+    nl: "Authentieke smaak uit Piraeus",
   },
   menu_title: {
     zh: "我们的菜单",
@@ -62,6 +78,10 @@ export const RESTAURANT = {
     it: "Il Nostro Menu",
     es: "Nuestra Carta",
     de: "Unsere Speisekarte",
+    ru: "Наше меню",
+    ja: "メニュー",
+    tr: "Menümüz",
+    nl: "Onze menukaart",
   },
   footer_scan: {
     zh: "扫描二维码 · 在线查看菜单",
@@ -72,23 +92,27 @@ export const RESTAURANT = {
     it: "Scansiona il QR · Vedi il menu online",
     es: "Escanea el QR · Ver la carta online",
     de: "QR scannen · Speisekarte online ansehen",
+    ru: "Сканируйте QR · Меню онлайн",
+    ja: "QR をスキャン · オンラインメニュー",
+    tr: "QR'ı tara · Menüyü online gör",
+    nl: "Scan de QR · Bekijk de menukaart online",
   },
 };
 
 // Section titles per language
 const SECTIONS = {
-  drinks:        { zh: "饮料",       el: "Ποτά",                 en: "Drinks",                fr: "Boissons",              pt: "Bebidas",                  it: "Bevande",                 es: "Bebidas",                  de: "Getränke" },
-  appetizers1:   { zh: "开胃菜 I",   el: "Ορεκτικά Ι",           en: "Appetizers I",          fr: "Entrées I",             pt: "Entradas I",               it: "Antipasti I",             es: "Entrantes I",              de: "Vorspeisen I" },
-  appetizers2:   { zh: "开胃菜 II",  el: "Ορεκτικά ΙΙ",          en: "Appetizers II",         fr: "Entrées II",            pt: "Entradas II",              it: "Antipasti II",            es: "Entrantes II",             de: "Vorspeisen II" },
-  salads:        { zh: "沙拉",       el: "Σαλάτες",              en: "Salads",                fr: "Salades",               pt: "Saladas",                  it: "Insalate",                es: "Ensaladas",                de: "Salate" },
-  pita1:         { zh: "卷饼 I",     el: "Πίτες τυλιχτές",       en: "Pita Wraps",            fr: "Pitas Roulées",         pt: "Pitas Enroladas",          it: "Pita Arrotolate",         es: "Pitas Enrolladas",         de: "Pita-Wraps" },
-  pita2:         { zh: "卷饼 II",    el: "Πίτες τυλιχτές ΙΙ",    en: "Pita Wraps II",         fr: "Pitas Roulées II",      pt: "Pitas Enroladas II",       it: "Pita Arrotolate II",      es: "Pitas Enrolladas II",      de: "Pita-Wraps II" },
-  port_skew:     { zh: "份量 — 烤串", el: "Μερίδες — Καλαμάκια", en: "Portions — Skewers",    fr: "Portions — Brochettes", pt: "Doses — Espetadas",        it: "Porzioni — Spiedini",     es: "Raciones — Brochetas",     de: "Portionen — Spieße" },
-  port_special:  { zh: "份量 — 特色", el: "Μερίδες — Σπεσιαλιτέ", en: "Portions — Specialities", fr: "Portions — Spécialités", pt: "Doses — Especialidades", it: "Porzioni — Specialità", es: "Raciones — Especialidades", de: "Portionen — Spezialitäten" },
-  port_pork:     { zh: "份量 — 猪肉", el: "Μερίδες — Χοιρινά",    en: "Portions — Pork",       fr: "Portions — Porc",       pt: "Doses — Porco",            it: "Porzioni — Maiale",       es: "Raciones — Cerdo",         de: "Portionen — Schweinefleisch" },
-  burger:        { zh: "汉堡",       el: "Χάμπουργκερ",          en: "Hamburger",             fr: "Hamburger",             pt: "Hambúrguer",               it: "Hamburger",               es: "Hamburguesa",              de: "Hamburger" },
-  veggie:        { zh: "素食菜单",   el: "Veggie Menu",          en: "Veggie Menu",           fr: "Menu Végétarien",       pt: "Menu Vegetariano",         it: "Menu Vegetariano",        es: "Menú Vegetariano",         de: "Vegetarisches Menü" },
-  sandwich:      { zh: "三明治和 Skepasti", el: "Σάντουιτς & Σκεπαστή", en: "Sandwich & Skepasti", fr: "Sandwich & Skepasti", pt: "Sandes & Skepasti", it: "Panino & Skepasti", es: "Sándwich & Skepasti", de: "Sandwich & Skepasti" },
+  drinks:        { zh: "饮料",       el: "Ποτά",                 en: "Drinks",                fr: "Boissons",              pt: "Bebidas",                  it: "Bevande",                 es: "Bebidas",                  de: "Getränke",                       ru: "Напитки",                   ja: "ドリンク",          tr: "İçecekler",                nl: "Dranken" },
+  appetizers1:   { zh: "开胃菜 I",   el: "Ορεκτικά Ι",           en: "Appetizers I",          fr: "Entrées I",             pt: "Entradas I",               it: "Antipasti I",             es: "Entrantes I",              de: "Vorspeisen I",                   ru: "Закуски I",                 ja: "前菜 I",            tr: "Mezeler I",                nl: "Voorgerechten I" },
+  appetizers2:   { zh: "开胃菜 II",  el: "Ορεκτικά ΙΙ",          en: "Appetizers II",         fr: "Entrées II",            pt: "Entradas II",              it: "Antipasti II",            es: "Entrantes II",             de: "Vorspeisen II",                  ru: "Закуски II",                ja: "前菜 II",           tr: "Mezeler II",               nl: "Voorgerechten II" },
+  salads:        { zh: "沙拉",       el: "Σαλάτες",              en: "Salads",                fr: "Salades",               pt: "Saladas",                  it: "Insalate",                es: "Ensaladas",                de: "Salate",                         ru: "Салаты",                    ja: "サラダ",            tr: "Salatalar",                nl: "Salades" },
+  pita1:         { zh: "卷饼 I",     el: "Πίτες τυλιχτές",       en: "Pita Wraps",            fr: "Pitas Roulées",         pt: "Pitas Enroladas",          it: "Pita Arrotolate",         es: "Pitas Enrolladas",         de: "Pita-Wraps",                     ru: "Питы (роллы)",              ja: "ピタラップ",        tr: "Dürüm Pide",               nl: "Pita-wraps" },
+  pita2:         { zh: "卷饼 II",    el: "Πίτες τυλιχτές ΙΙ",    en: "Pita Wraps II",         fr: "Pitas Roulées II",      pt: "Pitas Enroladas II",       it: "Pita Arrotolate II",      es: "Pitas Enrolladas II",      de: "Pita-Wraps II",                  ru: "Питы (роллы) II",           ja: "ピタラップ II",     tr: "Dürüm Pide II",            nl: "Pita-wraps II" },
+  port_skew:     { zh: "份量 — 烤串", el: "Μερίδες — Καλαμάκια", en: "Portions — Skewers",    fr: "Portions — Brochettes", pt: "Doses — Espetadas",        it: "Porzioni — Spiedini",     es: "Raciones — Brochetas",     de: "Portionen — Spieße",             ru: "Порции — Шашлычки",         ja: "ポーション — 串焼き", tr: "Porsiyon — Şişler",       nl: "Porties — Spiesjes" },
+  port_special:  { zh: "份量 — 特色", el: "Μερίδες — Σπεσιαλιτέ", en: "Portions — Specialities", fr: "Portions — Spécialités", pt: "Doses — Especialidades", it: "Porzioni — Specialità", es: "Raciones — Especialidades", de: "Portionen — Spezialitäten",     ru: "Порции — Фирменные блюда",  ja: "ポーション — 特製",  tr: "Porsiyon — Özel",         nl: "Porties — Specialiteiten" },
+  port_pork:     { zh: "份量 — 猪肉", el: "Μερίδες — Χοιρινά",    en: "Portions — Pork",       fr: "Portions — Porc",       pt: "Doses — Porco",            it: "Porzioni — Maiale",       es: "Raciones — Cerdo",         de: "Portionen — Schweinefleisch",    ru: "Порции — Свинина",          ja: "ポーション — 豚肉",  tr: "Porsiyon — Domuz Eti",    nl: "Porties — Varkensvlees" },
+  burger:        { zh: "汉堡",       el: "Χάμπουργκερ",          en: "Hamburger",             fr: "Hamburger",             pt: "Hambúrguer",               it: "Hamburger",               es: "Hamburguesa",              de: "Hamburger",                      ru: "Гамбургер",                 ja: "ハンバーガー",      tr: "Hamburger",                nl: "Hamburger" },
+  veggie:        { zh: "素食菜单",   el: "Veggie Menu",          en: "Veggie Menu",           fr: "Menu Végétarien",       pt: "Menu Vegetariano",         it: "Menu Vegetariano",        es: "Menú Vegetariano",         de: "Vegetarisches Menü",             ru: "Вегетарианское меню",       ja: "ベジタリアン",      tr: "Vejetaryen Menü",          nl: "Vegetarisch menu" },
+  sandwich:      { zh: "三明治和 Skepasti", el: "Σάντουιτς & Σκεπαστή", en: "Sandwich & Skepasti", fr: "Sandwich & Skepasti", pt: "Sandes & Skepasti", it: "Panino & Skepasti", es: "Sándwich & Skepasti", de: "Sandwich & Skepasti",                   ru: "Сэндвич и Скепасти",        ja: "サンドイッチ & スケパスティ", tr: "Sandviç & Skepasti", nl: "Sandwich & Skepasti" },
 };
 
 // Description translations dictionary (descriptions reused across items)
@@ -242,7 +266,6 @@ export const PAGES = [
     title: SECTIONS.drinks,
     items: [
       { name: itemName("Αναψυκτικά 330ml", "Soft drinks 330ml", { zh: "软饮 330ml", fr: "Soda 330ml", pt: "Refrigerantes 330ml", it: "Bibite 330ml", es: "Refrescos 330ml", de: "Erfrischungsgetränke 330ml" }), price: "1,60€" },
-      { name: itemName("Αναψυκτικά 500ml", "Soft drinks 500ml", { zh: "软饮 500ml", fr: "Soda 500ml", pt: "Refrigerantes 500ml", it: "Bibite 500ml", es: "Refrescos 500ml", de: "Erfrischungsgetränke 500ml" }), price: "1,60€" },
       { name: itemName("Αναψυκτικά 1.5L",  "Soft drinks 1.5L",  { zh: "软饮 1.5L",  fr: "Soda 1.5L",  pt: "Refrigerantes 1.5L",  it: "Bibite 1.5L",  es: "Refrescos 1.5L", de: "Erfrischungsgetränke 1.5L" }),  price: "2,50€" },
       { name: itemName("Νερό 500ml",       "Mineral Water 500ml", { zh: "矿泉水 500ml", fr: "Eau minérale 500ml", pt: "Água mineral 500ml", it: "Acqua minerale 500ml", es: "Agua mineral 500ml", de: "Mineralwasser 500ml" }), price: "0,50€" },
       { name: itemName("Νερό 1L",          "Mineral Water 1L",    { zh: "矿泉水 1L",    fr: "Eau minérale 1L",    pt: "Água mineral 1L",    it: "Acqua minerale 1L",    es: "Agua mineral 1L", de: "Mineralwasser 1L" }),    price: "1,00€" },
@@ -284,6 +307,8 @@ export const PAGES = [
     imageSlug: "i-salata-tis-troympas",
     items: [
       { name: itemName("Η σαλάτα της Τρούμπας", "Trouba's salad", { zh: "Trouba 特色沙拉", fr: "Salade de la Trouba", pt: "Salada da Trouba", it: "Insalata della Trouba", es: "Ensalada de la Trouba", de: "Trouba-Salat" }), desc: D("lettuce, cabbage, tomato, cucumber, onion, peppers, olives, capers & mustard sauce"), price: "7,50€" },
+      { name: itemName("Χωριάτικη", "Greek Salad (Choriatiki)", { zh: "希腊村庄沙拉 (Choriatiki)", fr: "Salade grecque (Choriatiki)", pt: "Salada grega (Choriatiki)", it: "Insalata greca (Choriatiki)", es: "Ensalada griega (Choriatiki)", de: "Griechischer Bauernsalat (Choriatiki)" }), desc: { zh: "番茄、黄瓜、洋葱、彩椒、卡拉马塔橄榄、PDO 菲达奶酪、牛至、橄榄油", fr: "tomate, concombre, oignon, poivrons, olives Kalamata, feta AOP, origan, huile d'olive", pt: "tomate, pepino, cebola, pimentos, azeitonas Kalamata, queijo feta DOP, orégãos, azeite", it: "pomodoro, cetriolo, cipolla, peperoni, olive Kalamata, feta DOP, origano, olio d'oliva", es: "tomate, pepino, cebolla, pimientos, aceitunas Kalamata, queso feta DOP, orégano, aceite de oliva", de: "Tomate, Gurke, Zwiebel, Paprika, Kalamata-Oliven, Feta g.U., Oregano, Olivenöl", en: "tomato, cucumber, onion, peppers, Kalamata olives, PDO feta, oregano, olive oil" }, price: "7,50€" },
+      { name: itemName("Ντάκος", "Cretan Dakos", { zh: "克里特岛 Dakos 沙拉", fr: "Dakos crétois", pt: "Dakos cretense", it: "Dakos cretese", es: "Dakos cretense", de: "Kretischer Dakos" }), desc: { zh: "大麦面包、磨碎番茄、xinomizithra 奶酪、橄榄、牛至、橄榄油", fr: "biscotte d'orge, tomate râpée, xinomizithra, olives, origan, huile d'olive", pt: "tosta de cevada, tomate ralado, xinomizithra, azeitonas, orégãos, azeite", it: "frisella d'orzo, pomodoro grattugiato, xinomizithra, olive, origano, olio d'oliva", es: "tosta de cebada, tomate rallado, xinomizithra, aceitunas, orégano, aceite de oliva", de: "Gerstenzwieback, geriebene Tomate, Xinomizithra, Oliven, Oregano, Olivenöl", en: "barley rusk, grated tomato, xinomizithra, olives, oregano, olive oil" }, price: "6,50€" },
       { name: itemName("Λάχανο-Καρότο", "Cabbage-Carrot Salad", { zh: "卷心菜胡萝卜沙拉", fr: "Salade chou-carotte", pt: "Salada de couve e cenoura", it: "Insalata di cavolo cappuccio e carote", es: "Ensalada de col y zanahoria", de: "Krautsalat mit Karotten" }), price: "4,50€" },
       { name: itemName("Μαρούλι", "Lettuce Salad", { zh: "生菜沙拉", fr: "Salade verte", pt: "Salada de alface", it: "Insalata di lattuga", es: "Ensalada de lechuga", de: "Blattsalat" }), desc: D("lettuce, fresh onion, dill"), price: "4,50€" },
     ],
@@ -362,7 +387,8 @@ export const PAGES = [
       { name: itemName("Veggie Burger", "Veggie Burger", { zh: "素食汉堡", fr: "Veggie Burger", pt: "Hambúrguer vegetariano", it: "Burger vegetariano", es: "Hamburguesa vegetariana", de: "Veggie-Burger" }), desc: D("tomato, lettuce, vegan cheese, ketchup, mustard, fries"), price: "7,00€" },
       { name: itemName("Καλαμάκι Σεϊτάν τμχ", "Seitan skewer pc", { zh: "面筋烤串(单个)", fr: "Brochette de seitan (pièce)", pt: "Espetada de seitan (un)", it: "Spiedino di seitan (pz)", es: "Brocheta de seitán (ud)", de: "Seitan-Spieß (Stk)" }), desc: D("plant-based meat-like protein"), price: "2,60€" },
       { name: itemName("Κεμπάπ Σεϊτάν", "Seitan kebab", { zh: "面筋烤肉串", fr: "Kebab de seitan", pt: "Kebab de seitan", it: "Kebab di seitan", es: "Kebab de seitán", de: "Seitan-Kebab" }), price: "2,60€" },
-      { name: itemName("Τυλιχτό Σεϊτάν", "Wrapped Seitan", { zh: "面筋卷饼", fr: "Pita roulée au seitan", pt: "Pita enrolada de seitan", it: "Pita arrotolata con seitan", es: "Pita enrollada de seitán", de: "Pita-Wrap mit Seitan" }), price: "3,80€" },
+      { name: itemName("Τυλιχτό Σεϊτάν Κεμπάπ", "Wrapped Seitan Kebab", { zh: "面筋烤肉串卷饼", fr: "Pita roulée au kebab de seitan", pt: "Pita enrolada com kebab de seitan", it: "Pita arrotolata con kebab di seitan", es: "Pita enrollada con kebab de seitán", de: "Pita-Wrap mit Seitan-Kebab" }), desc: D("tomato, lettuce, fries"), price: "3,80€" },
+      { name: itemName("Τυλιχτό Σεϊτάν Καλαμάκι", "Wrapped Seitan Skewer", { zh: "面筋烤串卷饼", fr: "Pita roulée à la brochette de seitan", pt: "Pita enrolada com espetada de seitan", it: "Pita arrotolata con spiedino di seitan", es: "Pita enrollada con brocheta de seitán", de: "Pita-Wrap mit Seitan-Spieß" }), desc: D("tomato, lettuce, fries"), price: "3,80€" },
     ],
   },
   {

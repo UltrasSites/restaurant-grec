@@ -3,6 +3,9 @@ export function getStaticPaths() {
   return [
     { params: { lang: "el" } },
     { params: { lang: "en" } },
+    { params: { lang: "de" } },
+    { params: { lang: "ru" } },
+    { params: { lang: "ja" } },
   ];
 }
 
@@ -27,8 +30,8 @@ const baseUrl = `/${currentLang}`;
   @media (max-width: 767px) {
     .hero-card-viewport {
       perspective: 2000px;
-      padding: 0.75rem;
-      margin-top: 0.75rem;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
       width: 100%;
       box-sizing: border-box;
     }
@@ -38,7 +41,7 @@ const baseUrl = `/${currentLang}`;
       -webkit-backdrop-filter: blur(25px);
       border: 1px solid rgba(229, 179, 42, 0.4);
       border-radius: 2rem;
-      padding: 1.5rem 1.25rem !important;
+      padding: 2rem 1.5rem !important;
       width: 100%;
       box-sizing: border-box;
       overflow: hidden;
@@ -61,16 +64,16 @@ const baseUrl = `/${currentLang}`;
       box-sizing: border-box !important;
     }
     .hero-card-3d h1 {
-      font-size: 1.75rem !important;
+      font-size: 2.1rem !important;
       white-space: nowrap;
       margin-bottom: 0.35rem !important;
       text-align: center !important;
     }
     .hero-card-3d p {
-      font-size: 0.75rem !important;
+      font-size: 0.85rem !important;
       margin-bottom: 0.4rem !important;
       text-align: center !important;
-      line-height: 1.4 !important;
+      line-height: 1.5 !important;
     }
     .hero-card-3d .flex.mb-1 {
       margin-bottom: 0.25rem !important;
@@ -84,8 +87,12 @@ const baseUrl = `/${currentLang}`;
       margin-top: 0.25rem !important;
     }
     .hero-card-3d aside .flex.flex-col.gap-3 a {
-      padding: 0.6rem 1rem !important;
-      font-size: 10px !important;
+      padding: 0.85rem 1.25rem !important;
+      font-size: 12px !important;
+    }
+    .resa-card-inner-mobile a {
+      padding: 0.85rem 1.25rem !important;
+      font-size: 12px !important;
     }
     /* Badge smaller */
     .hero-card-3d span[class*="tracking"] {
@@ -136,7 +143,7 @@ const baseUrl = `/${currentLang}`;
   /* Sur mobile, on remonte la carte CTA du hero pour la rendre visible dès le chargement */
   @media (max-width: 767px) {
     .mobile-hero-card-shift {
-      margin-top: -2cm;
+      margin-top: -3.5cm;
       position: relative;
       z-index: 5;
     }
@@ -180,7 +187,15 @@ const baseUrl = `/${currentLang}`;
   }
 </style>
 
-<BaseLayout lang={currentLang} title={t.meta_title} description={t.meta_description}>
+<BaseLayout
+  lang={currentLang}
+  title={t.meta_title}
+  description={t.meta_description}
+  includeMenu={true}
+  breadcrumbs={[
+    { name: currentLang === 'el' ? 'Αρχική' : 'Home', path: `/${currentLang}/` },
+  ]}
+>
 
   <!-- HERO -->
   <section id="home" class="relative min-h-screen w-full flex flex-col overflow-x-hidden bg-neutral-950">
@@ -208,21 +223,29 @@ const baseUrl = `/${currentLang}`;
               {t.hero_badge}
             </span>
 
-            {/* Carrousel hero — photos haute résolution du resto */}
+            {/* Carrousel hero — photos haute résolution du resto.
+                Affichage 120px (mobile) / 170px (desktop) → 400w est suffisant + 800w pour retina. */}
             <div class="hero-photo-strip">
               <div class="strip-track">
                 {[
-                  "/photos/trouba-storefront-800w.webp",
-                  "/photos/trouba-grill-skewers-800w.webp",
-                  "/photos/trouba-grill-chops-800w.webp",
-                  "/photos/efood-00-800w.webp",
-                  "/photos/trouba-storefront-800w.webp",
-                  "/photos/trouba-grill-skewers-800w.webp",
-                  "/photos/trouba-grill-chops-800w.webp",
-                  "/photos/efood-25-800w.webp",
-                  "/photos/trouba-storefront-800w.webp",
-                ].map((src) => (
-                  <img src={src} alt="" loading="lazy" decoding="async" />
+                  "trouba-storefront",
+                  "trouba-grill-skewers",
+                  "trouba-grill-chops",
+                  "efood-00",
+                  "trouba-storefront",
+                  "trouba-grill-skewers",
+                  "trouba-grill-chops",
+                  "efood-25",
+                  "trouba-storefront",
+                ].map((stem) => (
+                  <img
+                    src={`/photos/${stem}-400w.webp`}
+                    srcset={`/photos/${stem}-400w.webp 400w, /photos/${stem}-800w.webp 800w`}
+                    sizes="(max-width: 767px) 120px, 170px"
+                    alt=""
+                    width="400" height="300"
+                    loading="lazy" decoding="async"
+                  />
                 ))}
               </div>
             </div>
@@ -240,25 +263,25 @@ const baseUrl = `/${currentLang}`;
           </div>
 
           <aside class="w-full md:mt-0 mt-1 mobile-hero-card-shift">
-            <div class="resa-card-inner-mobile bg-gradient-to-b from-[#E5B32A]/12 to-black/70 border border-[#E5B32A]/30 rounded-3xl p-8 md:p-10 backdrop-blur-xl shadow-2xl w-full max-w-lg ml-auto">
-              <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2 md:mb-4">{t.resa_title}</p>
-              <h2 class="hidden md:block text-2xl font-serif text-white mb-6">{t.resa_subtitle}</h2>
-              <div class="mobile-hide-details space-y-3 text-sm text-gray-300 mb-6">
-                <p>
-                  <span class="font-semibold text-white">{t.resa_label_address} :</span><br />
-                  <span class="font-medium text-white/90">{t.resa_address}</span>
+            <div class="resa-card-inner-mobile bg-gradient-to-b from-[#E5B32A]/12 to-black/70 border border-[#E5B32A]/30 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl w-full max-w-md ml-auto">
+              <p class="text-[9px] md:text-[9px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2 md:mb-3">{t.resa_title}</p>
+              <h2 class="hidden md:block text-lg font-serif text-white mb-4">{t.resa_subtitle}</h2>
+              <div class="mobile-hide-details space-y-2 text-xs text-gray-300 mb-4">
+                <p class="leading-snug">
+                  <span class="font-semibold text-white text-[10px] uppercase tracking-wider">{t.resa_label_address}</span><br />
+                  <span class="font-medium text-white/90 text-[11px]">{t.resa_address}</span>
                 </p>
-                <p>
-                  <span class="font-semibold text-white">{t.resa_label_phone} :</span><br />
-                  <a href="tel:+302104222233" class="font-medium text-[#E5B32A] hover:underline block">{t.resa_phone}</a>
-                  <a href="tel:+302104222273" class="font-medium text-[#E5B32A] hover:underline block mt-1">+30 210 422 2273</a>
+                <p class="leading-snug">
+                  <span class="font-semibold text-white text-[10px] uppercase tracking-wider">{t.resa_label_phone}</span><br />
+                  <a href="tel:+302104222233" aria-label={currentLang === 'el' ? 'Τηλέφωνο 1 — Καλαμάκι Της Τρούμπας' : 'Phone 1 — Kalamaki Tis Troumpas'} class="font-medium text-[#E5B32A] hover:underline block text-[11px] tabular-nums py-1.5 -my-1.5 px-2 -mx-2">{t.resa_phone}</a>
+                  <a href="tel:+302104222273" aria-label={currentLang === 'el' ? 'Τηλέφωνο 2 — Καλαμάκι Της Τρούμπας' : 'Phone 2 — Kalamaki Tis Troumpas'} class="font-medium text-[#E5B32A] hover:underline block text-[11px] tabular-nums mt-0.5 py-1.5 -my-1.5 px-2 -mx-2">+30 210 422 2273</a>
                 </p>
               </div>
               {/* Horaires : visible aussi sur mobile (assez de place) */}
-              <div class="space-y-3 text-sm text-gray-300 mb-6">
-                <p>
-                  <span class="font-semibold text-white">{t.resa_label_hours} :</span><br />
-                  <span class="font-medium text-white/90">{t.resa_hours}</span>
+              <div class="space-y-2 text-xs text-gray-300 mb-4">
+                <p class="leading-snug">
+                  <span class="font-semibold text-white text-[10px] uppercase tracking-wider">{t.resa_label_hours}</span><br />
+                  <span class="font-medium text-white/90 text-[11px]">{t.resa_hours}</span>
                 </p>
               </div>
               <div class="flex flex-col gap-3">
@@ -305,7 +328,9 @@ const baseUrl = `/${currentLang}`;
       <div class="flex justify-center items-center relative">
         <div class="absolute inset-0 bg-gradient-to-tr from-[#E5B32A]/20 to-transparent rounded-2xl blur-2xl -z-10"></div>
         <img
-          src="/photos/trouba-storefront-1600w.webp"
+          src="/photos/trouba-storefront-800w.webp"
+          srcset="/photos/trouba-storefront-400w.webp 400w, /photos/trouba-storefront-800w.webp 800w, /photos/trouba-storefront-1600w.webp 1600w"
+          sizes="(max-width: 767px) 90vw, 640px"
           alt={currentLang === 'el' ? 'Καλαμάκι Της Τρούμπας — η είσοδος του μαγαζιού, Πειραιάς' : 'Kalamaki Tis Troumpas — shopfront in Piraeus'}
           class="histoire-img no-invert w-full max-w-md object-cover rounded-2xl shadow-2xl border border-white/10"
           width="800" height="600"
@@ -615,6 +640,7 @@ const baseUrl = `/${currentLang}`;
           href={currentLang === 'el'
             ? 'mailto:kalamaki.troubas@gmail.com?subject=Επικοινωνία%20—%20Το%20Καλαμάκι%20Της%20Τρούμπας'
             : 'mailto:kalamaki.troubas@gmail.com?subject=Contact%20—%20To%20Kalamaki%20Tis%20Troumpas'}
+          aria-label={currentLang === 'el' ? 'Email επικοινωνίας — αρχικό' : 'Contact email — primary'}
           class="inline-flex items-center justify-center gap-2 px-6 py-4 border-2 border-white/30 text-white text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:border-[#E5B32A] hover:text-[#E5B32A] transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
           kalamaki.troubas@gmail.com
@@ -720,7 +746,7 @@ const baseUrl = `/${currentLang}`;
       background: linear-gradient(135deg, #E5B32A 0%, #c89324 100%);
       color: #0a0a0a;
       text-decoration: none;
-      display: none; /* hidden on mobile, .md:flex shows on desktop */
+      display: flex !important; /* override Tailwind .hidden — visible desktop, caché mobile via media query plus bas */
       justify-content: center;
       box-shadow: 0 16px 36px rgba(229,179,42,0.45), 0 4px 14px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.3);
       transition: transform 0.2s, box-shadow 0.25s;

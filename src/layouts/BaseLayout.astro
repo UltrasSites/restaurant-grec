@@ -2,15 +2,19 @@
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import ScrollToTop from "../components/ScrollToTop.astro";
-import CookieConsent from "../components/CookieConsent.astro";
 import "../styles/global.css";
 import type { Lang } from "../i18n/utils";
+import { menuPages, parsePrice } from "../data/menu-data";
 
 interface Props {
   title?: string;
   description?: string;
   lang?: Lang;
   hideHeader?: boolean;
+  /** Optional BreadcrumbList items (label + path). When provided, BreadcrumbList JSON-LD is emitted. */
+  breadcrumbs?: { name: string; path: string }[];
+  /** When true, includes the Menu schema (only on pages that show the menu). */
+  includeMenu?: boolean;
 }
 
 const {
@@ -18,8 +22,195 @@ const {
   description = "Αυθεντικά καλαμάκια, γύρος και πίτες στην καρδιά της Τρούμπας Πειραιά. Μπουμπουλίνας 8 & Νοταρά.",
   lang = "el",
   hideHeader = false,
+  breadcrumbs = [],
+  includeMenu = false,
 } = Astro.props;
-const htmlLang = lang === 'en' ? 'en-GB' : 'el-GR';
+const HTML_LANG_MAP: Record<string, string> = { el: 'el-GR', en: 'en-GB', de: 'de-DE', ru: 'ru-RU', ja: 'ja-JP' };
+const htmlLang = HTML_LANG_MAP[lang] ?? 'el-GR';
+const origin = Astro.url.origin;
+
+// ===== JSON-LD : Restaurant (with @id) =====
+const restaurantSchema = {
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "@id": `${origin}/#restaurant`,
+  "name": "Το Καλαμάκι Της Τρούμπας",
+  "alternateName": ["To Kalamaki Tis Troumpas", "Trouba Souvlaki", "Kalamaki Troumpa"],
+  "description": description,
+  "url": origin,
+  "image": [
+    `${origin}/photos/efood-00-1600w.webp`,
+    `${origin}/photos/efood-00-800w.webp`,
+    `${origin}/photos/trouba-storefront-1600w.webp`,
+    `${origin}/photos/trouba-grill-skewers-1600w.webp`,
+    `${origin}/photos/logo-main.png`,
+  ],
+  "logo": `${origin}/photos/logo-main.png`,
+  "telephone": "+302104222233",
+  "email": "kalamaki.troubas@gmail.com",
+  "priceRange": "€",
+  "currenciesAccepted": "EUR",
+  "paymentAccepted": "Cash, Credit Card, Debit Card",
+  "servesCuisine": ["Greek", "Mediterranean", "Souvlaki", "Gyros"],
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Μπουμπουλίνας 8 & Νοταρά",
+    "addressLocality": "Πειραιάς",
+    "postalCode": "18535",
+    "addressRegion": "Αττική",
+    "addressCountry": "GR",
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 37.9419284,
+    "longitude": 23.6439786,
+  },
+  "hasMap": "https://maps.app.goo.gl/kuNXzqB7Yiknasgk9",
+  "areaServed": [
+    { "@type": "City", "name": "Πειραιάς" },
+    { "@type": "City", "name": "Piraeus" },
+  ],
+  "openingHoursSpecification": [
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday"], "opens": "13:00", "closes": "02:30" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "13:00", "closes": "04:00" },
+    { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "20:00", "closes": "05:00" },
+  ],
+  "menu": `${origin}/menu-${lang}.pdf`,
+  "hasMenu": `${origin}/menu/`,
+  "acceptsReservations": "False",
+  "takeaway": "True",
+  "delivery": "True",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.3",
+    "reviewCount": "200",
+    "bestRating": "5",
+    "worstRating": "1",
+  },
+  "sameAs": [
+    "https://www.facebook.com/to.kalamaki.tis.troumpas/",
+    "https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas",
+    "https://wolt.com/el/grc/piraeus/restaurant/to-kalamaki-tis-troumpas",
+    "https://www.tripadvisor.com/Restaurant_Review-g189403-d10042662-Reviews-To_Kalamaki_tis_Troumpas-Piraeus_Piraeus_Region_Attica.html",
+  ],
+};
+
+// ===== JSON-LD : WebSite + SearchAction =====
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${origin}/#website`,
+  "url": `${origin}/`,
+  "name": "Το Καλαμάκι Της Τρούμπας",
+  "alternateName": "Trouba Souvlaki",
+  "description": "Αυθεντικά σουβλάκια στην Τρούμπα, Πειραιάς.",
+  "publisher": { "@id": `${origin}/#restaurant` },
+  "inLanguage": ["el-GR", "en-GB"],
+};
+
+// ===== JSON-LD : BreadcrumbList (optional, per page) =====
+const breadcrumbSchema = breadcrumbs.length
+  ? {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": breadcrumbs.map((b, i) => ({
+        "@type": "ListItem",
+        "position": i + 1,
+        "name": b.name,
+        "item": `${origin}${b.path.startsWith('/') ? b.path : '/' + b.path}`,
+      })),
+    }
+  : null;
+
+// ===== JSON-LD : Menu (sections + sample items + prices) =====
+const menuSchema = includeMenu
+  ? {
+      "@context": "https://schema.org",
+      "@type": "Menu",
+      "@id": `${origin}/#menu`,
+      "name": lang === 'en' ? "Trouba Souvlaki menu" : "Κατάλογος Καλαμάκι Της Τρούμπας",
+      "inLanguage": lang === 'en' ? 'en-GB' : 'el-GR',
+      "url": `${origin}/menu/`,
+      "provider": { "@id": `${origin}/#restaurant` },
+      "hasMenuSection": menuPages.map((page) => ({
+        "@type": "MenuSection",
+        "name": lang === 'en' ? page.title_en : page.title_el,
+        "description": lang === 'en' ? (page.note_en || undefined) : (page.note_el || undefined),
+        "image": `${origin}${page.photo}`,
+        "hasMenuItem": page.items
+          .filter((it) => !it.price.startsWith('+'))
+          .map((it) => ({
+            "@type": "MenuItem",
+            "name": lang === 'en' ? it.en : it.el,
+            "description": lang === 'en' ? (it.desc_en || undefined) : (it.desc_el || undefined),
+            "offers": {
+              "@type": "Offer",
+              "price": parsePrice(it.price).toFixed(2),
+              "priceCurrency": "EUR",
+              "availability": "https://schema.org/InStock",
+            },
+          })),
+      })),
+    }
+  : null;
+
+// ===== JSON-LD : FAQPage (always included on all pages — boosts SERP coverage) =====
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": lang === 'en' ? "Where is Trouba Souvlaki located?" : "Πού βρίσκεται το Καλαμάκι Της Τρούμπας;",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": lang === 'en'
+          ? "Bouboulinas 8 & Notara, in the heart of Troumpa, Piraeus 185 35, Greece. A 5-minute walk from the central port."
+          : "Μπουμπουλίνας 8 & Νοταρά, στην καρδιά της Τρούμπας, Πειραιάς 185 35. 5 λεπτά από το κεντρικό λιμάνι.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": lang === 'en' ? "What are your opening hours?" : "Ποιες είναι οι ώρες λειτουργίας;",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": lang === 'en'
+          ? "Monday to Thursday 13:00–02:30, Friday 13:00–04:00, Saturday 20:00–05:00."
+          : "Δευτέρα έως Πέμπτη 13:00–02:30, Παρασκευή 13:00–04:00, Σάββατο 20:00–05:00.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": lang === 'en' ? "Can I order online?" : "Μπορώ να παραγγείλω online;",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": lang === 'en'
+          ? "Yes — order direct on our website (no commission), or via e-food, Wolt and Box.gr."
+          : "Ναι — παραγγείλτε απευθείας από εμάς (χωρίς προμήθεια), ή μέσω e-food, Wolt και Box.gr.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": lang === 'en' ? "Do you have vegetarian options?" : "Έχετε χορτοφαγικές επιλογές;",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": lang === 'en'
+          ? "Yes — full vegetarian and vegan menu: zucchini and chickpea fritters, seitan skewers, veggie burger and more."
+          : "Ναι — πλήρες veggie & vegan μενού: κολοκυθοκεφτέδες, ρεβυθοκεφτέδες, καλαμάκι σεϊτάν, veggie burger και άλλα.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": lang === 'en' ? "Is the souvlaki really cooked over charcoal?" : "Τα σουβλάκια ψήνονται πραγματικά στα κάρβουνα;",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": lang === 'en'
+          ? "Yes — every skewer, every chop and every pita is grilled over real charcoal, every day from open to close."
+          : "Ναι — κάθε καλαμάκι, κάθε μπριζολάκι και κάθε πίτα ψήνονται πάνω από αληθινά κάρβουνα, κάθε μέρα.",
+      },
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -29,82 +220,74 @@ const htmlLang = lang === 'en' ? 'en-GB' : 'el-GR';
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0a0a0a" />
     <meta name="description" content={description} />
-    <meta name="robots" content="index, follow" />
-    <meta name="keywords" content="σουβλάκι πειραιάς, καλαμάκι τρούμπα, γύρος πειραιάς, souvlaki piraeus, kalamaki troumpa" />
+    <meta name="author" content="Το Καλαμάκι Της Τρούμπας — Πειραιάς" />
+    <meta name="publisher" content="Το Καλαμάκι Της Τρούμπας" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow" />
+    <meta name="rating" content="general" />
+    <meta name="distribution" content="global" />
+    <meta name="revisit-after" content="7 days" />
+    <meta name="keywords" content="σουβλάκι πειραιάς, καλαμάκι τρούμπα, γύρος πειραιάς, σουβλατζίδικο πειραιάς, ψητοπωλείο τρούμπα, παραγγελία σουβλάκι online, souvlaki piraeus, kalamaki troumpa, greek souvlaki piraeus, gyros piraeus, charcoal souvlaki, troumpa restaurant, best souvlaki piraeus" />
     <meta name="geo.region" content="GR-I" />
     <meta name="geo.placename" content="Piraeus" />
     <meta name="geo.position" content="37.9419284;23.6439786" />
+    <meta name="ICBM" content="37.9419284, 23.6439786" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="apple-mobile-web-app-title" content="Καλαμάκι Τρούμπας" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Καλαμάκι Της Τρούμπας" />
+    <meta name="msapplication-TileColor" content="#0a0a0a" />
     <link rel="canonical" href={Astro.url.href} />
-    <link rel="alternate" hreflang="el" href={new URL('/el/', Astro.url.origin).href} />
-    <link rel="alternate" hreflang="en" href={new URL('/en/', Astro.url.origin).href} />
-    <link rel="alternate" hreflang="x-default" href={new URL('/el/', Astro.url.origin).href} />
-    <meta property="og:type" content="restaurant" />
+    <link rel="alternate" hreflang="el" href={new URL('/el/', origin).href} />
+    <link rel="alternate" hreflang="en" href={new URL('/en/', origin).href} />
+    <link rel="alternate" hreflang="de" href={new URL('/de/', origin).href} />
+    <link rel="alternate" hreflang="ru" href={new URL('/ru/', origin).href} />
+    <link rel="alternate" hreflang="ja" href={new URL('/ja/', origin).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL('/el/', origin).href} />
+    <link rel="manifest" href="/manifest.webmanifest" />
+
+    <meta property="og:type" content="restaurant.restaurant" />
     <meta property="og:site_name" content="Το Καλαμάκι Της Τρούμπας" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={Astro.url.href} />
-    <meta property="og:locale" content={lang === 'en' ? 'en_GB' : 'el_GR'} />
-    <meta property="og:locale:alternate" content={lang === 'en' ? 'el_GR' : 'en_GB'} />
+    <meta property="og:locale" content={({el:'el_GR',en:'en_GB',de:'de_DE',ru:'ru_RU',ja:'ja_JP'} as Record<string,string>)[lang] ?? 'el_GR'} />
+    <meta property="og:locale:alternate" content={lang === 'el' ? 'en_GB' : 'el_GR'} />
     <meta property="og:image" content={new URL('/photos/efood-00-1600w.webp', Astro.url).href} />
+    <meta property="og:image:secure_url" content={new URL('/photos/efood-00-1600w.webp', Astro.url).href} />
     <meta property="og:image:alt" content="Το Καλαμάκι Της Τρούμπας — Αυθεντικά Σουβλάκια Πειραιάς" />
+    <meta property="og:image:type" content="image/webp" />
     <meta property="og:image:width" content="1600" />
     <meta property="og:image:height" content="900" />
+    <meta property="restaurant:contact_info:street_address" content="Μπουμπουλίνας 8 & Νοταρά" />
+    <meta property="restaurant:contact_info:locality" content="Πειραιάς" />
+    <meta property="restaurant:contact_info:region" content="Αττική" />
+    <meta property="restaurant:contact_info:postal_code" content="18535" />
+    <meta property="restaurant:contact_info:country_name" content="Ελλάδα" />
+    <meta property="restaurant:contact_info:phone_number" content="+30 210 422 2233" />
+    <meta property="place:location:latitude" content="37.9419284" />
+    <meta property="place:location:longitude" content="23.6439786" />
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL('/photos/efood-00-1600w.webp', Astro.url).href} />
     <meta name="twitter:image:alt" content="Το Καλαμάκι Της Τρούμπας" />
 
-    {/* JSON-LD : Restaurant schema for Google rich results + local SEO */}
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "Restaurant",
-      "name": "Το Καλαμάκι Της Τρούμπας",
-      "alternateName": "To Kalamaki Tis Troumpas",
-      "description": description,
-      "url": Astro.url.origin,
-      "image": [
-        new URL('/photos/efood-00-1600w.webp', Astro.url).href,
-        new URL('/photos/efood-00-800w.webp', Astro.url).href,
-        new URL('/photos/logo-main.png', Astro.url).href
-      ],
-      "logo": new URL('/photos/logo-main.png', Astro.url).href,
-      "telephone": "+302104222233",
-      "priceRange": "€",
-      "servesCuisine": ["Greek", "Mediterranean", "Souvlaki", "Gyros"],
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "Μπουμπουλίνας 8 & Νοταρά",
-        "addressLocality": "Πειραιάς",
-        "postalCode": "18535",
-        "addressRegion": "Αττική",
-        "addressCountry": "GR"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 37.9419284,
-        "longitude": 23.6439786
-      },
-      "hasMap": "https://maps.app.goo.gl/kuNXzqB7Yiknasgk9",
-      "openingHoursSpecification": [
-        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday"], "opens": "13:00", "closes": "02:30" },
-        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "13:00", "closes": "04:00" },
-        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "20:00", "closes": "05:00" }
-      ],
-      "menu": new URL(`/menu-${lang}.pdf`, Astro.url).href,
-      "acceptsReservations": "False",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.3",
-        "reviewCount": "200",
-        "bestRating": "5",
-        "worstRating": "1"
-      },
-      "sameAs": [
-        "https://www.facebook.com/to.kalamaki.tis.troumpas/",
-        "https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas"
-      ]
-    })}></script>
+    {/* === JSON-LD : Restaurant + WebSite + (BreadcrumbList) + (Menu) + FAQPage === */}
+    <script type="application/ld+json" set:html={JSON.stringify(restaurantSchema)}></script>
+    <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)}></script>
+    {breadcrumbSchema && (
+      <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
+    )}
+    {menuSchema && (
+      <script type="application/ld+json" set:html={JSON.stringify(menuSchema)}></script>
+    )}
+    <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
+
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="192x192" href="/photos/logo-favicon.png" />
     <link rel="apple-touch-icon" href="/photos/logo-favicon.png" />
@@ -114,6 +297,8 @@ const htmlLang = lang === 'en' ? 'en-GB' : 'el-GR';
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Preload critical font CSS for FCP */}
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" media="print" onload="this.media='all';this.onload=null;" />
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" /></noscript>
 
@@ -154,7 +339,6 @@ const htmlLang = lang === 'en' ? 'en-GB' : 'el-GR';
       <slot />
     </main>
     <Footer lang={lang} />
-    <ScrollToTop />
-    <CookieConsent lang={lang} />
+    <ScrollToTop lang={lang} />
   </body>
 </html>

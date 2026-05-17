@@ -6,6 +6,9 @@ export function getStaticPaths() {
   return [
     { params: { lang: "el" } },
     { params: { lang: "en" } },
+    { params: { lang: "de" } },
+    { params: { lang: "ru" } },
+    { params: { lang: "ja" } },
   ];
 }
 
@@ -23,7 +26,15 @@ const TITLES: Record<string, string> = {
 const title = TITLES[param] || TITLES.el;
 ---
 
-<BaseLayout lang={layoutLang} title={`${title} — Το Καλαμάκι Της Τρούμπας`} description={title}>
+<BaseLayout
+  lang={layoutLang}
+  title={`${title} — Το Καλαμάκι Της Τρούμπας`}
+  description={isEl ? 'Πολιτική απορρήτου και προστασίας προσωπικών δεδομένων (GDPR) — Καλαμάκι Της Τρούμπας.' : 'Privacy policy and personal data protection (GDPR) — Trouba Souvlaki.'}
+  breadcrumbs={[
+    { name: layoutLang === 'el' ? 'Αρχική' : 'Home', path: `/${layoutLang}/` },
+    { name: title, path: `/${layoutLang}/privacy/` },
+  ]}
+>
   <section class="bg-[#0a0a0a] pt-32 pb-24 px-6">
     <div class="max-w-3xl mx-auto">
       <h1 class="text-3xl md:text-4xl font-serif italic text-white mb-8">{title}</h1>
