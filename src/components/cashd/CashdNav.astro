@@ -1,0 +1,193 @@
+---
+// Sidebar + topbar mobile drawer pour toutes les pages /cashd/*.
+// Non-intrusif : injecte un overlay fixed + applique padding-left au body via CSS global.
+// Le drawer mobile utilise un checkbox hack pour zero-JS.
+// Lien actif : determine via Astro.url.pathname.
+const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/cashd";
+function isActive(href: string) {
+  const target = href.replace(/\/$/, "") || "/cashd";
+  if (target === "/cashd") return currentPath === "/cashd" || currentPath === "";
+  return currentPath === target || currentPath.startsWith(target + "/");
+}
+const items = [
+  { href: "/cashd",        label: "Caisse",          icon: "🛒", elLabel: "Ταμείο" },
+  { href: "/cashd/live",   label: "Commandes live",  icon: "⚡", elLabel: "Παραγγελίες" },
+  { href: "/cashd/history",label: "Historique",      icon: "📋", elLabel: "Ιστορικό" },
+  { href: "/cashd/admin",  label: "Admin",           icon: "⚙️", elLabel: "Admin" },
+];
+---
+<style is:global>
+  /* ====== Layout shell global (sidebar desktop + drawer mobile) ====== */
+  body { padding-left: 0; }
+  @media (min-width: 769px) {
+    body { padding-left: 220px; }
+  }
+
+  .cashd-nav-burger-input { display: none; }
+
+  /* Sidebar desktop / drawer mobile */
+  .cashd-sidebar {
+    position: fixed; top: 0; left: 0; bottom: 0;
+    width: 220px;
+    background: #050505;
+    border-right: 1px solid rgba(229,179,42,0.25);
+    z-index: 90;
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+    transition: transform 0.22s ease;
+  }
+  .cashd-sidebar .cs-logo {
+    padding: 1rem 1rem 0.85rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; gap: 0.55rem;
+    color: #E5B32A;
+    font-weight: 800; letter-spacing: 0.06em; font-size: 0.78rem;
+    text-transform: uppercase;
+  }
+  .cashd-sidebar .cs-logo .cs-logo-icon {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(229,179,42,0.15); color: #E5B32A;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+  }
+  .cashd-sidebar .cs-logo .cs-logo-text { line-height: 1.15; }
+  .cashd-sidebar .cs-logo .cs-logo-text small { display: block; font-size: 0.6rem; color: #888; letter-spacing: 0.08em; }
+
+  .cashd-sidebar nav { flex: 1; padding: 0.55rem 0.5rem; display: flex; flex-direction: column; gap: 0.2rem; }
+  .cashd-sidebar nav a {
+    display: flex; align-items: center; gap: 0.65rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0.55rem;
+    color: #bbb; text-decoration: none;
+    font-weight: 600; font-size: 0.92rem;
+    letter-spacing: 0.02em;
+    min-height: 48px;
+    border: 1px solid transparent;
+  }
+  .cashd-sidebar nav a .cs-ic { font-size: 1.1rem; width: 1.4rem; text-align: center; }
+  .cashd-sidebar nav a:hover { background: rgba(255,255,255,0.04); color: #fff; }
+  .cashd-sidebar nav a.active {
+    background: rgba(229,179,42,0.12);
+    color: #E5B32A;
+    border-color: rgba(229,179,42,0.35);
+  }
+
+  .cashd-sidebar .cs-bottom {
+    padding: 0.55rem 0.5rem 0.85rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .cashd-sidebar .cs-bottom button {
+    width: 100%; padding: 0.7rem 0.85rem;
+    background: transparent; color: #f87171;
+    border: 1px solid rgba(239,68,68,0.4);
+    border-radius: 0.55rem;
+    font-weight: 700; font-size: 0.85rem; cursor: pointer;
+    letter-spacing: 0.05em;
+    min-height: 44px;
+  }
+  .cashd-sidebar .cs-bottom button:hover { background: rgba(239,68,68,0.1); color: #fca5a5; }
+
+  /* ====== Topbar mobile (burger) ====== */
+  .cashd-mobile-topbar {
+    display: none;
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 52px;
+    background: #050505;
+    border-bottom: 1px solid rgba(229,179,42,0.25);
+    z-index: 89;
+    align-items: center; padding: 0 0.65rem;
+    gap: 0.6rem;
+  }
+  .cashd-mobile-topbar .cs-burger-label {
+    width: 48px; height: 48px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent; color: #E5B32A;
+    border: 1px solid rgba(229,179,42,0.35);
+    border-radius: 0.5rem;
+    cursor: pointer; font-size: 1.4rem;
+    line-height: 1;
+  }
+  .cashd-mobile-topbar .cs-mobile-title {
+    color: #E5B32A; font-weight: 800; font-size: 0.85rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+
+  .cashd-drawer-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 88;
+  }
+
+  @media (max-width: 768px) {
+    body { padding-top: 52px; padding-left: 0; }
+    .cashd-mobile-topbar { display: flex; }
+    .cashd-sidebar {
+      transform: translateX(-100%);
+      width: 250px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.7);
+    }
+    .cashd-nav-burger-input:checked ~ .cashd-sidebar { transform: translateX(0); }
+    .cashd-nav-burger-input:checked ~ .cashd-drawer-backdrop { display: block; }
+  }
+
+  /* Ne JAMAIS apparaitre en mode print */
+  @media print {
+    body { padding: 0 !important; }
+    .cashd-sidebar, .cashd-mobile-topbar, .cashd-drawer-backdrop, .cashd-nav-burger-input { display: none !important; }
+  }
+</style>
+
+<input type="checkbox" id="cashd-burger" class="cashd-nav-burger-input" aria-hidden="true" />
+
+<header class="cashd-mobile-topbar">
+  <label for="cashd-burger" class="cs-burger-label" aria-label="Menu">☰</label>
+  <span class="cs-mobile-title">Kalamaki</span>
+</header>
+
+<label for="cashd-burger" class="cashd-drawer-backdrop" aria-hidden="true"></label>
+
+<aside class="cashd-sidebar" aria-label="Navigation caisse">
+  <div class="cs-logo">
+    <span class="cs-logo-icon">🥙</span>
+    <span class="cs-logo-text">Kalamaki<small>Trouba</small></span>
+  </div>
+  <nav>
+    {items.map((it) => (
+      <a href={it.href} class={isActive(it.href) ? "active" : ""}>
+        <span class="cs-ic">{it.icon}</span>
+        <span>{it.label}</span>
+      </a>
+    ))}
+  </nav>
+  <div class="cs-bottom">
+    <button type="button" id="cashd-logout-btn">Déconnexion</button>
+  </div>
+</aside>
+
+<script is:inline>
+  (function() {
+    // Auto-close drawer mobile on nav click
+    var burger = document.getElementById('cashd-burger');
+    document.querySelectorAll('.cashd-sidebar nav a').forEach(function(a) {
+      a.addEventListener('click', function() {
+        if (burger) burger.checked = false;
+      });
+    });
+    // Backdrop click handled via label, but also escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && burger && burger.checked) burger.checked = false;
+    });
+    // Logout : clear cookie via endpoint si dispo, sinon fetch + reload
+    var logoutBtn = document.getElementById('cashd-logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function() {
+        if (!confirm('Se déconnecter ?')) return;
+        // Best-effort : suppression cookie client-side
+        document.cookie = 'caisse_auth=; Path=/; Max-Age=0; SameSite=Lax';
+        document.cookie = 'caisse_auth=; Path=/; Max-Age=0; SameSite=Lax; Secure';
+        window.location.href = '/cashd';
+      });
+    }
+  })();
+</script>

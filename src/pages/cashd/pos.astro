@@ -3,6 +3,7 @@
 // Auth : réutilise le cookie caisse_auth (déjà posé par /cashd via /api/caisse-login).
 // Si pas de cookie → redirige vers /cashd (qui demande le mot de passe).
 import PosCaisse from "../../components/pos/PosCaisse.astro";
+import CashdNav from "../../components/cashd/CashdNav.astro";
 import { kalamakiPosConfig, getKalamakiProducts } from "../../data/pos-config";
 
 const products = getKalamakiProducts();
@@ -54,6 +55,7 @@ const products = getKalamakiProducts();
   </style>
 </head>
 <body>
+  <CashdNav />
   <header class="pos-topbar">
     <h1>🧾 POS — ΚΑΛΑΜΑΚΙ</h1>
     <div class="links">

@@ -1,0 +1,168 @@
+---
+// Page Admin — section centrale pour outils annexes (POS in-store, deconnexion, futurs reglages).
+// Auth via cookie caisse_auth (verifie cote endpoints, ici on check juste avec /api/orders/poll).
+import CashdNav from "../../../components/cashd/CashdNav.astro";
+---
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin — Kalamaki Trouba</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    :root { --gold: #E5B32A; --bg: #0a0a0a; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; min-height: 100dvh; }
+
+    .auth-gate {
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--bg);
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem; padding: 1.5rem;
+      text-align: center;
+      margin-left: -220px;
+    }
+    @media (max-width: 768px) { .auth-gate { margin-left: 0; margin-top: -52px; } }
+    .auth-gate.show { display: flex; }
+    .auth-gate p { color: #ccc; max-width: 360px; margin: 0; }
+    .auth-gate a {
+      padding: 0.85rem 1.4rem; background: var(--gold); color: #000;
+      border-radius: 0.5rem; text-decoration: none; font-weight: 800;
+      letter-spacing: 0.05em; min-height: 48px; display: inline-flex; align-items: center;
+    }
+
+    .wrap {
+      max-width: 920px; margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+    .page-title {
+      margin: 0 0 0.35rem; color: var(--gold);
+      font-size: 1.25rem; letter-spacing: 0.05em;
+    }
+    .page-sub { color: #999; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+    .grid {
+      display: grid; gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+    .card {
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.85rem;
+      padding: 1.1rem 1.15rem;
+      display: flex; flex-direction: column; gap: 0.65rem;
+    }
+    .card h3 {
+      margin: 0; color: var(--gold);
+      font-size: 0.95rem; letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .card p { margin: 0; color: #bbb; font-size: 0.88rem; line-height: 1.45; flex: 1; }
+    .card a, .card button {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 0.4rem;
+      padding: 0.75rem 1rem;
+      background: rgba(229,179,42,0.12);
+      color: var(--gold);
+      border: 1px solid rgba(229,179,42,0.4);
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 700; font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      min-height: 44px; cursor: pointer;
+    }
+    .card a:hover, .card button:hover {
+      background: rgba(229,179,42,0.22);
+      color: #fff;
+    }
+    .card.danger a, .card.danger button {
+      background: transparent; color: #f87171;
+      border-color: rgba(239,68,68,0.4);
+    }
+    .card.danger a:hover, .card.danger button:hover {
+      background: rgba(239,68,68,0.12); color: #fca5a5;
+    }
+
+    .info-block {
+      margin-top: 2rem;
+      padding: 1rem 1.15rem;
+      background: rgba(229,179,42,0.06);
+      border: 1px solid rgba(229,179,42,0.2);
+      border-radius: 0.7rem;
+      color: #ddd; font-size: 0.85rem; line-height: 1.55;
+    }
+    .info-block strong { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+  <CashdNav />
+
+  <div class="auth-gate" id="auth-gate">
+    <p>Acces reserve. Connexion requise.</p>
+    <a href="/cashd">Se connecter</a>
+  </div>
+
+  <div class="wrap">
+    <h1 class="page-title">Admin</h1>
+    <p class="page-sub">Outils annexes et configuration de la caisse Kalamaki.</p>
+
+    <div class="grid">
+      <div class="card">
+        <h3>POS in-store</h3>
+        <p>Caisse boutique pour commandes au comptoir : selection produits, totaux, paiement, ticket thermique.</p>
+        <a href="/cashd/pos">Ouvrir le POS</a>
+      </div>
+
+      <div class="card">
+        <h3>Historique 60 jours</h3>
+        <p>Toutes les commandes (cloturees, paiements, modes) pour comptabilite et litiges.</p>
+        <a href="/cashd/history">Voir l'historique</a>
+      </div>
+
+      <div class="card">
+        <h3>Commandes live</h3>
+        <p>Vue patron simplifiee : nouvelles commandes en attente de validation, ETA, chat client.</p>
+        <a href="/cashd/live">Vue commandes live</a>
+      </div>
+
+      <div class="card danger">
+        <h3>Deconnexion</h3>
+        <p>Termine la session courante (cookie caisse_auth). Vous reviendrez sur l'ecran de login.</p>
+        <button type="button" id="logout-btn">Se deconnecter</button>
+      </div>
+    </div>
+
+    <div class="info-block">
+      <strong>Aide :</strong> Si une page reste bloquee sur le login, verifier le cookie <code>caisse_auth</code>.
+      Le mot de passe se gere dans les variables d'environnement Cloudflare Pages (<code>CAISSE_PASSWORD</code>).
+    </div>
+  </div>
+
+  <script is:inline>
+    (function() {
+      // Auth check leger via poll endpoint
+      fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' })
+        .then(function(r) {
+          if (r.status === 401) {
+            document.getElementById('auth-gate').classList.add('show');
+          }
+        })
+        .catch(function() { /* offline = on laisse passer (PWA) */ });
+
+      var btn = document.getElementById('logout-btn');
+      if (btn) {
+        btn.addEventListener('click', function() {
+          if (!confirm('Se deconnecter ?')) return;
+          document.cookie = 'caisse_auth=; Path=/; Max-Age=0; SameSite=Lax';
+          document.cookie = 'caisse_auth=; Path=/; Max-Age=0; SameSite=Lax; Secure';
+          window.location.href = '/cashd';
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

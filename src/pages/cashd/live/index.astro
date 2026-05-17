@@ -1,9 +1,10 @@
 ---
-// Interface PATRON — vue mobile-first dédiée pour usage en cuisine sur téléphone.
+// Interface PATRON commandes live — vue mobile-first dédiée pour usage en cuisine.
 // Différente de /cashd : ultra simple, gros boutons, focus sur valider + ETA.
 // Reuse les endpoints existants (caisse-login, poll, ack, eta, message-patron, status).
-// FR uniquement (c'est le patron qui l'utilise — pas besoin d'i18n).
-// Cookie partagé "caisse_auth" avec cashd : si déjà loggé sur cashd, accès direct.
+// FR uniquement (c'est le patron qui l'utilise).
+// Cookie partagé "caisse_auth" avec /cashd : si déjà loggé sur cashd, accès direct.
+import CashdNav from "../../../components/cashd/CashdNav.astro";
 ---
 <!doctype html>
 <html lang="fr">
@@ -20,7 +21,16 @@
     html, body { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; min-height: 100dvh; overscroll-behavior-y: none; }
 
     /* LOGIN */
-    .login-wrap { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .login-wrap {
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--bg);
+      min-height: 100dvh;
+      display: flex; align-items: center; justify-content: center; padding: 1.5rem;
+      margin-left: -220px;
+    }
+    @media (max-width: 768px) {
+      .login-wrap { margin-left: 0; margin-top: -52px; }
+    }
     .login-box { width: 100%; max-width: 360px; background: #111; border: 1px solid rgba(229,179,42,0.3); border-radius: 1rem; padding: 1.5rem; }
     .login-box h1 { margin: 0 0 1.25rem; font-size: 1.15rem; color: var(--gold); text-align: center; letter-spacing: 0.05em; }
     .login-box input { width: 100%; padding: 1rem; background: #000; border: 1.5px solid rgba(255,255,255,0.15); border-radius: 0.6rem; color: #fff; font-size: 1.1rem; margin-bottom: 1rem; }
@@ -266,6 +276,8 @@
   </style>
 </head>
 <body>
+
+  <CashdNav />
 
   <!-- LOGIN -->
   <div id="login" class="login-wrap">

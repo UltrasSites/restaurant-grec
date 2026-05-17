@@ -1,6 +1,7 @@
 ---
 // Σελίδα ταμείου — για τον υπάλληλο / το αφεντικό (στα ελληνικά).
 // Δεν συνδέεται με το i18n του δημόσιου site.
+import CashdNav from "../../components/cashd/CashdNav.astro";
 ---
 <!doctype html>
 <html lang="el">
@@ -18,7 +19,16 @@
     body { overflow-x: hidden; }
 
     /* ====== LOGIN ====== */
-    .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .login-wrap {
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 2rem;
+      margin-left: -220px; /* compense le padding-left du body desktop */
+    }
+    @media (max-width: 768px) {
+      .login-wrap { margin-left: 0; margin-top: -52px; }
+    }
     .login-box {
       width: 100%; max-width: 380px;
       background: #111; border: 1px solid rgba(229,179,42,0.3);
@@ -786,6 +796,8 @@
   </style>
 </head>
 <body>
+
+  <CashdNav />
 
   <!-- LOGIN SCREEN -->
   <div id="login-screen" class="login-wrap" style="display:none;">

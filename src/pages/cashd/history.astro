@@ -1,6 +1,7 @@
 ---
 // Page historique caisse — auth via cookie caisse_auth (vérifié côté endpoint).
 // 60 jours de rétention (conformité comptable).
+import CashdNav from "../../components/cashd/CashdNav.astro";
 ---
 <!doctype html>
 <html lang="el">
@@ -173,6 +174,8 @@
   </style>
 </head>
 <body>
+
+  <CashdNav />
 
   <div class="topbar">
     <h1 id="page-title">📋 ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ — 60 ημέρες</h1>
