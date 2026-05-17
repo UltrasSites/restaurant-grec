@@ -81,16 +81,26 @@ export const onRequestGet = async (ctx: { request: Request; env: Env }) => {
 
   const res = await env.DB
     .prepare(
-      `SELECT id, created_at, updated_at, name, phone, mode, payment,
-              address, floor, bell, notes, items_json, total, status,
-              delivery_zone, prep_minutes
-       FROM orders
-       WHERE created_at > ?1
-       ORDER BY created_at DESC
+      `SELECT o.id, o.created_at, o.updated_at, o.name, o.phone, o.mode, o.payment,
+              o.address, o.floor, o.bell, o.notes, o.items_json, o.total, o.status,
+              o.delivery_zone, o.prep_minutes,
+              (SELECT COUNT(*) FROM order_messages m
+                WHERE m.order_id = o.id AND m.sender IN ('patron','client')
+              ) AS msg_total,
+              (SELECT COUNT(*) FROM order_messages mc
+                WHERE mc.order_id = o.id AND mc.sender = 'client'
+                  AND mc.created_at > COALESCE(
+                    (SELECT MAX(created_at) FROM order_messages mp
+                       WHERE mp.order_id = o.id AND mp.sender = 'patron'),
+                    0)
+              ) AS msg_unread_client
+       FROM orders o
+       WHERE o.created_at > ?1
+       ORDER BY o.created_at DESC
        LIMIT 1000`
     )
     .bind(cutoff)
-    .all<HistoryRow>();
+    .all<HistoryRow & { msg_total: number; msg_unread_client: number }>();
 
   // Parse items_json côté serveur pour simplifier le client.
   const rows = (res.results || []).map((r) => {
@@ -114,6 +124,8 @@ export const onRequestGet = async (ctx: { request: Request; env: Env }) => {
       status: r.status,
       delivery_zone: r.delivery_zone || null,
       prep_minutes: r.prep_minutes,
+      msg_total: Number((r as any).msg_total) || 0,
+      msg_unread_client: Number((r as any).msg_unread_client) || 0,
     };
   });
 
