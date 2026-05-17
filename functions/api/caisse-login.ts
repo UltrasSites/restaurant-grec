@@ -44,11 +44,11 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
     });
   }
 
-  // Cookie 12h, Secure, SameSite=Lax (HttpOnly = false pour permettre read côté client si besoin, mais on garde HttpOnly)
+  // Cookie 1 an persistent — zero re-login sur l'espace patron Tiago
   const cookie = [
     `caisse_auth=${encodeURIComponent(env.ADMIN_KEY)}`,
     "Path=/",
-    "Max-Age=43200", // 12h
+    "Max-Age=31536000", // 1 an
     "HttpOnly",
     "Secure",
     "SameSite=Lax",
