@@ -1,15 +1,15 @@
 ---
 // Page historique caisse — auth via cookie caisse_auth (vérifié côté endpoint).
-// Données 100% anonymisées : ID, date/heure, prix, statut.
+// 60 jours de rétention (conformité comptable).
 ---
 <!doctype html>
-<html lang="fr">
+<html lang="el">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#0a0a0a" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Historique — Caisse Trouba</title>
+  <title>Ιστορικό — Καλαμάκι Της Τρούμπας</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <style>
     :root { --gold: #E5B32A; --bg: #0a0a0a; }
@@ -23,8 +23,8 @@
       border-bottom: 2px solid rgba(229,179,42,0.4);
       position: sticky; top: 0; z-index: 10; gap: 1rem; flex-wrap: wrap;
     }
-    .topbar h1 { margin: 0; font-size: 1.1rem; color: var(--gold); letter-spacing: 0.05em; }
-    .topbar .actions { display: flex; gap: 0.5rem; align-items: center; }
+    .topbar h1 { margin: 0; font-size: 1.05rem; color: var(--gold); letter-spacing: 0.05em; }
+    .topbar .actions { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
     .btn {
       padding: 0.5rem 0.85rem; font-size: 0.85rem;
       background: #222; color: #ccc; border: 1px solid rgba(255,255,255,0.1);
@@ -34,13 +34,23 @@
     }
     .btn:hover { background: #333; }
     .btn-primary { background: rgba(229,179,42,0.12); color: var(--gold); border-color: rgba(229,179,42,0.4); }
+    .btn-print { background: rgba(34,197,94,0.12); color: #4ade80; border-color: rgba(34,197,94,0.4); }
+    .btn-print:hover { background: rgba(34,197,94,0.22); }
+    .lang-toggle {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-weight: 700;
+    }
+    .lang-toggle img { width: 14px; height: 10px; display: inline-block; object-fit: cover; border-radius: 2px; }
 
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+    .wrap { max-width: 1400px; margin: 0 auto; padding: 1.25rem; }
     .meta-row {
       display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;
       margin-bottom: 1rem; color: #aaa; font-size: 0.85rem;
     }
     .meta-row strong { color: var(--gold); font-weight: 700; }
+    .legal {
+      font-size: 0.8rem; color: #888; margin-top: 0.25rem;
+    }
 
     table.history {
       width: 100%; border-collapse: collapse;
@@ -51,71 +61,272 @@
     table.history thead th {
       background: #000;
       color: var(--gold);
-      font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+      font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
       font-weight: 700;
-      padding: 0.85rem 1rem;
+      padding: 0.7rem 0.6rem;
       text-align: left;
       border-bottom: 2px solid rgba(229,179,42,0.3);
+      white-space: nowrap;
     }
     table.history tbody td {
-      padding: 0.75rem 1rem;
+      padding: 0.6rem 0.6rem;
       border-bottom: 1px solid rgba(255,255,255,0.05);
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      vertical-align: top;
     }
     table.history tbody tr:hover { background: rgba(229,179,42,0.04); }
     table.history tbody tr:last-child td { border-bottom: none; }
-    .col-id { color: var(--gold); font-weight: 800; font-variant-numeric: tabular-nums; }
-    .col-total { color: #fff; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
-    .col-date, .col-time { color: #ccc; font-variant-numeric: tabular-nums; }
+    .col-id { color: var(--gold); font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .col-total { color: #fff; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .col-date, .col-time { color: #ccc; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .col-name { color: #fff; font-weight: 600; }
+    .col-phone { color: #ccc; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .col-address { color: #bbb; max-width: 240px; }
+    .col-mode { white-space: nowrap; }
+    .col-items { color: #ccc; font-variant-numeric: tabular-nums; cursor: help; }
+
+    .pill-mini {
+      display: inline-block; padding: 0.12rem 0.55rem; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; white-space: nowrap;
+    }
+    .pill-takeaway { background: rgba(229,179,42,0.18); color: var(--gold); border: 1px solid rgba(229,179,42,0.45); }
+    .pill-delivery { background: rgba(59,130,246,0.18); color: #60a5fa; border: 1px solid rgba(59,130,246,0.45); }
+    .pill-cash     { background: rgba(34,197,94,0.15); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
+    .pill-card     { background: rgba(168,85,247,0.18); color: #c084fc; border: 1px solid rgba(168,85,247,0.45); }
 
     .status-pill {
       display: inline-flex; align-items: center; gap: 0.35rem;
-      padding: 0.2rem 0.65rem; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em;
-      text-transform: uppercase;
+      padding: 0.18rem 0.6rem; border-radius: 999px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+      text-transform: uppercase; white-space: nowrap;
     }
     .status-new       { background: rgba(251,146,60,0.15); color: #fb923c; border: 1px solid rgba(251,146,60,0.4); }
-    .status-seen      { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
+    .status-seen      { background: rgba(229,179,42,0.15); color: var(--gold); border: 1px solid rgba(229,179,42,0.4); }
+    .status-ready     { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.4); }
+    .status-paid      { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
     .status-completed { background: rgba(34,197,94,0.15);  color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
     .status-cancelled { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.4); }
 
     .empty { padding: 4rem 1rem; text-align: center; color: #555; font-size: 1.1rem; }
     .error { padding: 2rem 1rem; text-align: center; color: #f87171; }
 
-    @media (max-width: 600px) {
-      table.history thead th, table.history tbody td { padding: 0.55rem 0.6rem; font-size: 0.85rem; }
-      .col-date { display: none; }
+    @media (max-width: 700px) {
+      table.history thead th, table.history tbody td { padding: 0.45rem 0.45rem; font-size: 0.8rem; }
+      .col-date, .col-address { display: none; }
+      .col-address-th { display: none; }
+      .col-date-th { display: none; }
     }
+
+    /* ====== PRINT ====== */
+    @page { size: A4 landscape; margin: 1cm; }
+
+    @media print {
+      :root { --gold: #000; }
+      html, body {
+        background: #fff !important; color: #000 !important;
+        min-height: 0 !important; height: auto !important;
+        overflow: visible !important;
+        margin: 0 !important; padding: 0 !important;
+      }
+      body { overflow-x: visible !important; }
+      .topbar, .meta-row, .btn, .lang-toggle, #refresh-btn, #print-btn, .actions, .legal { display: none !important; }
+      .topbar { position: static !important; }
+      .wrap { max-width: none !important; padding: 0 !important; margin: 0 !important; }
+      #content { overflow: visible !important; height: auto !important; }
+      .empty, .error { display: none !important; }
+
+      table.history {
+        background: #fff !important; box-shadow: none !important;
+        border: 1px solid #000;
+        page-break-inside: auto;
+        border-radius: 0 !important;
+        overflow: visible !important;
+      }
+      table.history thead { display: table-header-group; }
+      table.history tbody { display: table-row-group; }
+      table.history tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      table.history thead th {
+        background: #fff !important; color: #000 !important;
+        border-bottom: 2px solid #000 !important;
+      }
+      table.history tbody td {
+        color: #000 !important; border-bottom: 1px solid #999 !important;
+      }
+      .col-id, .col-total, .col-name { color: #000 !important; }
+      .col-date, .col-time, .col-phone, .col-address, .col-items { color: #000 !important; }
+      .pill-mini, .status-pill {
+        background: #fff !important; color: #000 !important; border: 1px solid #000 !important;
+      }
+      .col-date, .col-address, .col-date-th, .col-address-th { display: table-cell !important; }
+      .print-title {
+        display: block !important;
+        font-size: 1.1rem; font-weight: 800; margin: 0 0 0.5rem 0;
+        color: #000 !important; text-align: center;
+        page-break-after: avoid;
+      }
+    }
+    .print-title { display: none; }
   </style>
 </head>
 <body>
 
   <div class="topbar">
-    <h1>📋 ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ — 50 ημέρες</h1>
+    <h1 id="page-title">📋 ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ — 60 ημέρες</h1>
     <div class="actions">
-      <a href="/cashd" class="btn">← Retour caisse</a>
-      <button type="button" id="refresh-btn" class="btn btn-primary">↻ Rafraîchir</button>
+      <button type="button" id="lang-toggle" class="btn lang-toggle" aria-label="Language"></button>
+      <a href="/cashd" id="back-btn" class="btn">← Πίσω</a>
+      <button type="button" id="refresh-btn" class="btn btn-primary" id="refresh-btn">↻ Ανανέωση</button>
+      <button type="button" id="print-btn" class="btn btn-print">🖨 Εκτύπωση</button>
     </div>
   </div>
 
   <div class="wrap">
     <div class="meta-row">
-      <div>Historique anonymisé (sans nom/téléphone/adresse)</div>
-      <div>Total affiché : <strong id="meta-count">—</strong> ligne(s)</div>
-      <div>Mis à jour : <strong id="meta-time">—</strong></div>
+      <div id="meta-anonym">Πλήρες ιστορικό για λογιστικά / διαφορές</div>
+      <div><span id="meta-count-label">Σύνολο</span> : <strong id="meta-count">—</strong></div>
+      <div><span id="meta-time-label">Ενημέρωση</span> : <strong id="meta-time">—</strong></div>
     </div>
+    <div class="legal" id="legal-note">Νόμιμη διατήρηση 60 ημερών — επιτρέπεται για λογιστικά</div>
+
+    <h2 class="print-title" id="print-title">ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ — 60 ημέρες</h2>
 
     <div id="content">
-      <div class="empty">Chargement…</div>
+      <div class="empty" id="loading-msg">Φόρτωση…</div>
     </div>
   </div>
 
   <script is:inline>
   (function() {
+    var I18N = {
+      el: {
+        title:        '📋 ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ — 60 ημέρες',
+        printTitle:   'ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ — 60 ημέρες',
+        back:         '← Πίσω',
+        refresh:      '↻ Ανανέωση',
+        print:        '🖨 Εκτύπωση',
+        anonym:       'Πλήρες ιστορικό για λογιστικά / διαφορές',
+        countLabel:   'Σύνολο',
+        timeLabel:    'Ενημέρωση',
+        legal:        'Νόμιμη διατήρηση 60 ημερών — επιτρέπεται για λογιστικά',
+        loading:      'Φόρτωση…',
+        empty:        'Καμία παραγγελία στο ιστορικό.',
+        unauthorized: 'Μη εξουσιοδοτημένη πρόσβαση.',
+        reLogin:      'Σύνδεση ξανά',
+        errorPrefix:  'Σφάλμα : ',
+        thId:         'ID',
+        thDate:       'Ημερ.',
+        thTime:       'Ώρα',
+        thMode:       'Τύπος',
+        thName:       'Όνομα',
+        thPhone:      'Τηλ.',
+        thAddress:    'Διεύθυνση',
+        thItems:      'Είδη',
+        thTotal:      'Σύνολο',
+        thStatus:     'Κατάσταση',
+        modeTakeaway: 'Παραλαβή',
+        modeDelivery: 'Παράδοση',
+        payCash:      'Μετρητά',
+        payCard:      'Κάρτα',
+        statusNew:       'Σε αναμονή',
+        statusSeen:      'Σε προετοιμασία',
+        statusReady:     'Έτοιμο',
+        statusPaid:      'Πληρώθηκε',
+        statusCompleted: 'Ολοκληρώθηκε',
+        statusCancelled: 'Ακυρώθηκε',
+      },
+      en: {
+        title:        '📋 ORDERS HISTORY — 60 days',
+        printTitle:   'ORDERS HISTORY — 60 days',
+        back:         '← Back',
+        refresh:      '↻ Refresh',
+        print:        '🖨 Print',
+        anonym:       'Full history for accounting / disputes',
+        countLabel:   'Total',
+        timeLabel:    'Updated',
+        legal:        'Legal 60-day retention — allowed for accounting',
+        loading:      'Loading…',
+        empty:        'No orders in history.',
+        unauthorized: 'Unauthorized.',
+        reLogin:      'Sign in again',
+        errorPrefix:  'Error: ',
+        thId:         'ID',
+        thDate:       'Date',
+        thTime:       'Time',
+        thMode:       'Mode',
+        thName:       'Name',
+        thPhone:      'Phone',
+        thAddress:    'Address',
+        thItems:      'Items',
+        thTotal:      'Total',
+        thStatus:     'Status',
+        modeTakeaway: 'Pickup',
+        modeDelivery: 'Delivery',
+        payCash:      'Cash',
+        payCard:      'Card',
+        statusNew:       'Pending',
+        statusSeen:      'Preparing',
+        statusReady:     'Ready',
+        statusPaid:      'Paid',
+        statusCompleted: 'Completed',
+        statusCancelled: 'Cancelled',
+      },
+    };
+
+    function getLang() {
+      try { return localStorage.getItem('caisse_lang') || 'el'; }
+      catch (e) { return 'el'; }
+    }
+    function setLang(l) {
+      try { localStorage.setItem('caisse_lang', l); } catch (e) {}
+      lang = l; t = I18N[l]; applyI18n();
+      // Re-render rows si déjà chargées
+      if (lastData) renderTable(lastData);
+    }
+    var lang = getLang();
+    var t = I18N[lang] || I18N.el;
+    var lastData = null;
+
+    function flagSvg(code) {
+      return '<img src="/flags/' + code + '.svg" alt="" />';
+    }
+
+    function applyI18n() {
+      var pageTitle = document.getElementById('page-title');
+      var printTitle = document.getElementById('print-title');
+      var backBtn = document.getElementById('back-btn');
+      var refreshBtn = document.getElementById('refresh-btn');
+      var printBtn = document.getElementById('print-btn');
+      var langToggle = document.getElementById('lang-toggle');
+      var anonym = document.getElementById('meta-anonym');
+      var countLabel = document.getElementById('meta-count-label');
+      var timeLabel = document.getElementById('meta-time-label');
+      var legal = document.getElementById('legal-note');
+      var loading = document.getElementById('loading-msg');
+
+      if (pageTitle) pageTitle.textContent = t.title;
+      if (printTitle) printTitle.textContent = t.printTitle;
+      if (backBtn) backBtn.textContent = t.back;
+      if (refreshBtn) refreshBtn.textContent = t.refresh;
+      if (printBtn) printBtn.textContent = t.print;
+      if (langToggle) langToggle.innerHTML = (lang === 'el' ? flagSvg('gr') + 'EL' : flagSvg('gb') + 'EN');
+      if (anonym) anonym.textContent = t.anonym;
+      if (countLabel) countLabel.textContent = t.countLabel;
+      if (timeLabel) timeLabel.textContent = t.timeLabel;
+      if (legal) legal.textContent = t.legal;
+      if (loading) loading.textContent = t.loading;
+      document.documentElement.lang = lang;
+    }
+
     var content = document.getElementById('content');
     var metaCount = document.getElementById('meta-count');
     var metaTime = document.getElementById('meta-time');
     var refreshBtn = document.getElementById('refresh-btn');
+    var printBtn = document.getElementById('print-btn');
+    var langToggleBtn = document.getElementById('lang-toggle');
 
     function fmtPrice(n) {
       var v = Number(n) || 0;
@@ -132,69 +343,109 @@
     }
     function statusLabel(s) {
       var map = {
-        'new': '🟠 En attente',
-        'seen': '✅ Acquittée',
-        'completed': '✅ Terminée',
-        'cancelled': '❌ Annulée'
+        'new':       t.statusNew,
+        'seen':      t.statusSeen,
+        'ready':     t.statusReady,
+        'paid':      t.statusPaid,
+        'completed': t.statusCompleted,
+        'cancelled': t.statusCancelled,
       };
       return map[s] || s;
     }
     function escapeHtml(s) {
-      return String(s || '').replace(/[&<>"']/g, function(c) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
         return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
       });
     }
+    function modePill(m) {
+      if (m === 'delivery') return '<span class="pill-mini pill-delivery">' + t.modeDelivery + '</span>';
+      return '<span class="pill-mini pill-takeaway">' + t.modeTakeaway + '</span>';
+    }
+    function payPill(p) {
+      if (p === 'card') return '<span class="pill-mini pill-card">' + t.payCard + '</span>';
+      return '<span class="pill-mini pill-cash">' + t.payCash + '</span>';
+    }
+    function itemsTooltip(items) {
+      if (!Array.isArray(items)) return '';
+      return items.map(function(it) {
+        return '×' + it.qty + ' ' + (it.name || '');
+      }).join('\n');
+    }
+
+    function renderTable(data) {
+      lastData = data;
+      var rows = data.rows || [];
+      metaCount.textContent = String(rows.length);
+      var nowD = new Date(data.now || Date.now());
+      metaTime.textContent = pad2(nowD.getHours()) + ':' + pad2(nowD.getMinutes()) + ':' + pad2(nowD.getSeconds());
+
+      if (rows.length === 0) {
+        content.innerHTML = '<div class="empty">' + escapeHtml(t.empty) + '</div>';
+        return;
+      }
+
+      var html = '<table class="history">'
+        + '<thead><tr>'
+          + '<th>' + escapeHtml(t.thId) + '</th>'
+          + '<th class="col-date-th">' + escapeHtml(t.thDate) + '</th>'
+          + '<th>' + escapeHtml(t.thTime) + '</th>'
+          + '<th>' + escapeHtml(t.thMode) + '</th>'
+          + '<th>' + escapeHtml(t.thName) + '</th>'
+          + '<th>' + escapeHtml(t.thPhone) + '</th>'
+          + '<th class="col-address-th">' + escapeHtml(t.thAddress) + '</th>'
+          + '<th>' + escapeHtml(t.thItems) + '</th>'
+          + '<th style="text-align:right;">' + escapeHtml(t.thTotal) + '</th>'
+          + '<th>' + escapeHtml(t.thStatus) + '</th>'
+        + '</tr></thead>'
+        + '<tbody>';
+      rows.forEach(function(r) {
+        var st = String(r.status || 'new');
+        var addr = r.address || '';
+        if (addr && r.floor) addr += ' · ' + r.floor;
+        if (addr && r.bell)  addr += ' · ' + r.bell;
+        var itemsCount = Number(r.items_count || 0);
+        var tooltip = itemsTooltip(r.items || []);
+        html += '<tr>'
+          + '<td class="col-id">' + escapeHtml(r.id) + '</td>'
+          + '<td class="col-date">' + fmtDate(r.created_at) + '</td>'
+          + '<td class="col-time">' + fmtTime(r.created_at) + '</td>'
+          + '<td class="col-mode">' + modePill(r.mode) + ' ' + payPill(r.payment) + '</td>'
+          + '<td class="col-name">' + escapeHtml(r.name) + '</td>'
+          + '<td class="col-phone">' + escapeHtml(r.phone) + '</td>'
+          + '<td class="col-address">' + escapeHtml(addr) + (r.notes ? '<br><span style="color:#fbbf24;font-size:0.8rem;">📝 ' + escapeHtml(r.notes) + '</span>' : '') + '</td>'
+          + '<td class="col-items" title="' + escapeHtml(tooltip) + '">' + itemsCount + '</td>'
+          + '<td class="col-total">' + fmtPrice(r.total) + '</td>'
+          + '<td><span class="status-pill status-' + escapeHtml(st) + '">' + escapeHtml(statusLabel(st)) + '</span></td>'
+          + '</tr>';
+      });
+      html += '</tbody></table>';
+      content.innerHTML = html;
+    }
 
     async function load() {
-      content.innerHTML = '<div class="empty">Chargement…</div>';
+      content.innerHTML = '<div class="empty">' + escapeHtml(t.loading) + '</div>';
       try {
         var res = await fetch('/api/orders/history', {
           credentials: 'include',
           cache: 'no-store'
         });
         if (res.status === 401) {
-          content.innerHTML = '<div class="error">Non autorisé. <a href="/cashd" style="color:var(--gold);">Se reconnecter</a></div>';
+          content.innerHTML = '<div class="error">' + escapeHtml(t.unauthorized) + ' <a href="/cashd" style="color:var(--gold);">' + escapeHtml(t.reLogin) + '</a></div>';
           return;
         }
         var data = await res.json();
-        if (!data.ok) throw new Error(data.error || 'Erreur serveur');
-        var rows = data.rows || [];
-        metaCount.textContent = String(rows.length);
-        var now = new Date(data.now || Date.now());
-        metaTime.textContent = pad2(now.getHours()) + ':' + pad2(now.getMinutes()) + ':' + pad2(now.getSeconds());
-
-        if (rows.length === 0) {
-          content.innerHTML = '<div class="empty">Aucune commande dans l\'historique.</div>';
-          return;
-        }
-
-        var html = '<table class="history">'
-          + '<thead><tr>'
-            + '<th>ID</th>'
-            + '<th class="col-date">Date</th>'
-            + '<th>Heure</th>'
-            + '<th>Statut</th>'
-            + '<th style="text-align:right;">Total</th>'
-          + '</tr></thead>'
-          + '<tbody>';
-        rows.forEach(function(r) {
-          var st = String(r.status || 'new');
-          html += '<tr>'
-            + '<td class="col-id">' + escapeHtml(r.id) + '</td>'
-            + '<td class="col-date">' + fmtDate(r.created_at) + '</td>'
-            + '<td class="col-time">' + fmtTime(r.created_at) + '</td>'
-            + '<td><span class="status-pill status-' + escapeHtml(st) + '">' + statusLabel(st) + '</span></td>'
-            + '<td class="col-total">' + fmtPrice(r.total) + '</td>'
-            + '</tr>';
-        });
-        html += '</tbody></table>';
-        content.innerHTML = html;
+        if (!data.ok) throw new Error(data.error || 'Server error');
+        renderTable(data);
       } catch (err) {
-        content.innerHTML = '<div class="error">Erreur : ' + escapeHtml((err && err.message) || err) + '</div>';
+        content.innerHTML = '<div class="error">' + escapeHtml(t.errorPrefix) + escapeHtml((err && err.message) || err) + '</div>';
       }
     }
 
     refreshBtn.addEventListener('click', load);
+    printBtn.addEventListener('click', function() { window.print(); });
+    langToggleBtn.addEventListener('click', function() { setLang(lang === 'el' ? 'en' : 'el'); });
+
+    applyI18n();
     load();
   })();
   </script>

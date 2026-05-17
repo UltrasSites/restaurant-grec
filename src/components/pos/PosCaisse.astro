@@ -1,0 +1,1369 @@
+---
+// ════════════════════════════════════════════════════════════════════════════
+// PosCaisse — Drop-in POS component for any Astro project.
+//
+// USAGE :
+//   import PosCaisse from "../components/pos/PosCaisse.astro";
+//   import { kalamakiPosConfig, getKalamakiProducts } from "../data/pos-config";
+//   const products = getKalamakiProducts();
+//   <PosCaisse products={products} config={kalamakiPosConfig} />
+//
+// All logic in the inline script — fully client-side (no server, no DB).
+// Sales saved to localStorage per shop (config.storageKey).
+// ════════════════════════════════════════════════════════════════════════════
+import type { PosProduct, PosConfig } from "../../data/pos-config";
+
+export interface Props {
+  products: PosProduct[];
+  config: PosConfig;
+}
+
+const { products, config } = Astro.props;
+
+// Pre-compute categories preserving first-occurrence order
+const categories: string[] = [];
+for (const p of products) {
+  if (!categories.includes(p.category)) categories.push(p.category);
+}
+
+// Serialise data for client (avoids re-fetch)
+const dataPayload = JSON.stringify({ products, config, categories });
+---
+
+<div class="pos-root" data-pos-payload={dataPayload}>
+
+  <!-- OPENING MODAL : float + server name -->
+  <div class="pos-modal-back" id="pos-open-modal" role="dialog" aria-modal="true">
+    <div class="pos-modal">
+      <h2>📦 Άνοιγμα ταμείου / Open till</h2>
+      <p class="pos-sub">Εισάγετε αρχικό κεφάλαιο / Enter opening float</p>
+      <label class="pos-field">
+        <span>Όνομα υπαλλήλου / Server name</span>
+        <input type="text" id="pos-open-server" maxlength="40" placeholder="Νίκος" />
+      </label>
+      <label class="pos-field">
+        <span>Αρχικό κεφάλαιο / Opening float</span>
+        <input type="number" id="pos-open-float" step="0.01" min="0" />
+      </label>
+      <div class="pos-modal-actions">
+        <button type="button" id="pos-open-confirm" class="pos-btn-primary">✓ Άνοιγμα</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN LAYOUT : LEFT = products | RIGHT = cart -->
+  <div class="pos-layout" id="pos-layout" style="display:none;">
+
+    <!-- LEFT : product grid -->
+    <section class="pos-left">
+      <div class="pos-search-row">
+        <input type="search" id="pos-search" placeholder="🔍 Αναζήτηση / Search…" autocomplete="off" />
+        <button type="button" class="pos-icon-btn" id="pos-stats-btn" title="Στατιστικά">📊</button>
+        <button type="button" class="pos-icon-btn" id="pos-archive-btn" title="Αρχείο">📅</button>
+        <button type="button" class="pos-icon-btn" id="pos-close-btn" title="Κλείσιμο ταμείου">🔒</button>
+      </div>
+      <div class="pos-cats" id="pos-cats"></div>
+      <div class="pos-grid" id="pos-grid"></div>
+    </section>
+
+    <!-- RIGHT : cart + totals + pay -->
+    <aside class="pos-right">
+      <div class="pos-cart-head">
+        <div class="pos-shop-name" id="pos-shop-name"></div>
+        <div class="pos-clock" id="pos-clock">--:--</div>
+      </div>
+      <div class="pos-cart-meta">
+        <span id="pos-server-display"></span>
+        <button type="button" id="pos-clear-cart" class="pos-text-btn">🗑 Άδειο</button>
+      </div>
+
+      <div class="pos-cart" id="pos-cart">
+        <div class="pos-cart-empty">Πατήστε προϊόντα / Tap products</div>
+      </div>
+
+      <div class="pos-totals" id="pos-totals">
+        <div class="pos-totals-row"><span>Υποσύνολο HT</span><span id="pos-sub-ht">0,00</span></div>
+        <div class="pos-totals-row"><span id="pos-vat-label">ΦΠΑ</span><span id="pos-sub-vat">0,00</span></div>
+        <div class="pos-totals-row pos-grand"><span>ΣΥΝΟΛΟ</span><span id="pos-grand-total">0,00</span></div>
+      </div>
+
+      <button type="button" id="pos-pay-btn" class="pos-pay-cta" disabled>💰 Πληρωμή</button>
+    </aside>
+  </div>
+
+  <!-- PAYMENT MODAL -->
+  <div class="pos-modal-back" id="pos-pay-modal" role="dialog" aria-modal="true">
+    <div class="pos-modal pos-modal-wide">
+      <h2 id="pos-pay-title">💰 Πληρωμή</h2>
+      <div class="pos-pay-total">
+        <span>Σύνολο</span>
+        <strong id="pos-pay-amount">0,00</strong>
+      </div>
+
+      <div class="pos-pay-modes" id="pos-pay-modes"></div>
+
+      <div class="pos-pay-split" id="pos-pay-split">
+        <!-- payment lines added dynamically -->
+      </div>
+
+      <div class="pos-pay-summary">
+        <div class="pos-pay-row"><span>Πληρωμένα</span><span id="pos-pay-paid">0,00</span></div>
+        <div class="pos-pay-row"><span>Υπόλοιπο</span><span id="pos-pay-remaining">0,00</span></div>
+      </div>
+
+      <div class="pos-pay-cash-block" id="pos-pay-cash-block" style="display:none;">
+        <label class="pos-field">
+          <span>Δόθηκαν μετρητά / Cash given</span>
+          <input type="number" id="pos-pay-given" step="0.01" min="0" />
+        </label>
+        <div class="pos-pay-change">Ρέστα / Change : <strong id="pos-pay-change">0,00</strong></div>
+        <div class="pos-quick-cash" id="pos-quick-cash"></div>
+      </div>
+
+      <div class="pos-time-block" id="pos-time-block" style="display:none;">
+        <div class="pos-time-head">
+          <span>⏱️ Χρόνος / Time</span>
+          <button type="button" id="pos-time-auto" class="pos-btn-mini">↻ Auto</button>
+        </div>
+        <div class="pos-time-row">
+          <span class="pos-time-label">Ετοιμασία / Prep</span>
+          <div class="pos-time-ctrl">
+            <button type="button" data-prep="-5">−5</button>
+            <button type="button" data-prep="-1">−1</button>
+            <input type="number" id="pos-time-prep" min="0" max="120" step="1" />
+            <span class="pos-time-unit">min</span>
+            <button type="button" data-prep="1">+1</button>
+            <button type="button" data-prep="5">+5</button>
+          </div>
+        </div>
+        <div class="pos-time-row" id="pos-time-delivery-row" style="display:none;">
+          <span class="pos-time-label">Διανομή / Delivery</span>
+          <div class="pos-time-ctrl">
+            <button type="button" data-deliv="-5">−5</button>
+            <button type="button" data-deliv="-1">−1</button>
+            <input type="number" id="pos-time-delivery" min="0" max="120" step="1" />
+            <span class="pos-time-unit">min</span>
+            <button type="button" data-deliv="1">+1</button>
+            <button type="button" data-deliv="5">+5</button>
+          </div>
+        </div>
+        <div class="pos-time-eta" id="pos-time-eta"></div>
+      </div>
+
+      <div class="pos-modal-actions">
+        <button type="button" id="pos-pay-cancel" class="pos-btn-cancel">Άκυρο</button>
+        <button type="button" id="pos-pay-confirm" class="pos-btn-primary" disabled>✓ Ολοκλήρωση & Εκτύπωση</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLOSE TILL MODAL -->
+  <div class="pos-modal-back" id="pos-close-modal" role="dialog" aria-modal="true">
+    <div class="pos-modal">
+      <h2>🔒 Κλείσιμο ταμείου / Close till</h2>
+      <div id="pos-close-summary"></div>
+      <label class="pos-field">
+        <span>Μετρητά στο κουτί τώρα / Cash counted now</span>
+        <input type="number" id="pos-close-counted" step="0.01" min="0" />
+      </label>
+      <div class="pos-close-gap" id="pos-close-gap"></div>
+      <div class="pos-modal-actions">
+        <button type="button" id="pos-close-cancel" class="pos-btn-cancel">Άκυρο</button>
+        <button type="button" id="pos-close-csv" class="pos-btn-secondary">📥 CSV</button>
+        <button type="button" id="pos-close-confirm" class="pos-btn-primary">✓ Κλείσιμο</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS MODAL -->
+  <div class="pos-modal-back" id="pos-stats-modal" role="dialog" aria-modal="true">
+    <div class="pos-modal pos-modal-wide">
+      <h2>📊 Στατιστικά συνεδρίας</h2>
+      <div id="pos-stats-body"></div>
+      <div class="pos-modal-actions">
+        <button type="button" id="pos-stats-close" class="pos-btn-cancel">Κλείσιμο</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHIVE MODAL -->
+  <div class="pos-modal-back" id="pos-archive-modal" role="dialog" aria-modal="true">
+    <div class="pos-modal pos-modal-wide">
+      <h2>📅 Αρχείο κλεισιμάτων</h2>
+      <div id="pos-archive-body"></div>
+      <div class="pos-modal-actions">
+        <button type="button" id="pos-archive-close" class="pos-btn-cancel">Κλείσιμο</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN TICKET (printed via window.print on a clone) -->
+  <div id="pos-ticket-host" style="display:none;"></div>
+</div>
+
+<style>
+  .pos-root {
+    --gold: #E5B32A;
+    --bg: #0a0a0a;
+    --bg-card: #111;
+    --bg-soft: #1a1a1a;
+    --border: rgba(255,255,255,0.08);
+    --txt: #fff;
+    --txt-dim: #aaa;
+    color: var(--txt);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+
+  /* ───── Modals ───── */
+  .pos-modal-back {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(4px);
+    display: none; align-items: center; justify-content: center;
+    padding: 1rem; z-index: 200;
+  }
+  .pos-modal-back.show { display: flex; }
+  .pos-modal {
+    width: 100%; max-width: 460px;
+    background: var(--bg-card);
+    border: 1px solid rgba(229,179,42,0.4);
+    border-radius: 1rem; padding: 1.5rem;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+    max-height: 92vh; overflow-y: auto;
+  }
+  .pos-modal-wide { max-width: 640px; }
+  .pos-modal h2 { margin: 0 0 0.5rem; color: var(--gold); font-size: 1.15rem; letter-spacing: 0.05em; }
+  .pos-sub { color: var(--txt-dim); font-size: 0.85rem; margin-bottom: 1rem; }
+
+  .pos-field { display: block; margin-bottom: 1rem; }
+  .pos-field span { display: block; font-size: 0.78rem; color: var(--txt-dim); margin-bottom: 0.3rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .pos-field input {
+    width: 100%; padding: 0.8rem 1rem;
+    background: #000; color: var(--txt);
+    border: 1.5px solid var(--border);
+    border-radius: 0.5rem; font-size: 1rem;
+  }
+  .pos-field input:focus { outline: none; border-color: var(--gold); }
+
+  .pos-modal-actions {
+    display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap;
+    margin-top: 0.75rem;
+  }
+  .pos-btn-primary {
+    padding: 0.85rem 1.4rem; background: var(--gold); color: #000;
+    border: none; border-radius: 0.5rem;
+    font-weight: 900; cursor: pointer; letter-spacing: 0.05em;
+    font-size: 0.95rem; text-transform: uppercase;
+  }
+  .pos-btn-primary:hover:not(:disabled) { background: #fff; }
+  .pos-btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .pos-btn-cancel {
+    padding: 0.85rem 1.2rem; background: transparent; color: var(--txt-dim);
+    border: 1px solid var(--border); border-radius: 0.5rem; cursor: pointer;
+  }
+  .pos-btn-cancel:hover { color: var(--txt); }
+  .pos-btn-secondary {
+    padding: 0.85rem 1.2rem; background: var(--bg-soft); color: var(--gold);
+    border: 1px solid rgba(229,179,42,0.4); border-radius: 0.5rem; cursor: pointer; font-weight: 700;
+  }
+  .pos-btn-secondary:hover { background: rgba(229,179,42,0.12); }
+
+  /* ───── Main layout : grid + cart ───── */
+  .pos-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 1rem;
+    height: calc(100vh - 1rem);
+    max-height: calc(100vh - 1rem);
+    padding: 0.5rem;
+  }
+  @media (max-width: 900px) {
+    .pos-layout { grid-template-columns: 1fr; height: auto; max-height: none; }
+  }
+
+  /* LEFT */
+  .pos-left { display: flex; flex-direction: column; min-height: 0; gap: 0.6rem; }
+  .pos-search-row {
+    display: flex; gap: 0.5rem; align-items: center;
+  }
+  .pos-search-row input {
+    flex: 1; padding: 0.75rem 1rem;
+    background: #000; color: var(--txt);
+    border: 1px solid var(--border);
+    border-radius: 0.55rem; font-size: 0.95rem;
+  }
+  .pos-search-row input:focus { outline: none; border-color: var(--gold); }
+  .pos-icon-btn {
+    width: 46px; height: 46px;
+    background: var(--bg-soft); color: var(--txt);
+    border: 1px solid var(--border);
+    border-radius: 0.55rem; cursor: pointer;
+    font-size: 1.15rem;
+  }
+  .pos-icon-btn:hover { background: rgba(229,179,42,0.12); color: var(--gold); border-color: rgba(229,179,42,0.4); }
+
+  .pos-cats {
+    display: flex; gap: 0.4rem; overflow-x: auto;
+    padding-bottom: 0.4rem;
+  }
+  .pos-cats::-webkit-scrollbar { height: 6px; }
+  .pos-cats::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+  .pos-cat-btn {
+    padding: 0.6rem 0.95rem;
+    background: var(--bg-soft); color: var(--txt-dim);
+    border: 1px solid var(--border);
+    border-radius: 999px; cursor: pointer;
+    white-space: nowrap;
+    font-size: 0.82rem; font-weight: 600;
+  }
+  .pos-cat-btn.active {
+    background: var(--gold); color: #000; border-color: var(--gold);
+    font-weight: 800;
+  }
+
+  .pos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.6rem;
+    overflow-y: auto;
+    padding: 0.25rem 0.1rem 1rem;
+    flex: 1;
+    min-height: 0;
+  }
+  .pos-grid::-webkit-scrollbar { width: 8px; }
+  .pos-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+  .pos-prod {
+    background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+    border: 1px solid var(--border);
+    border-radius: 0.7rem;
+    padding: 0.75rem 0.7rem;
+    cursor: pointer;
+    text-align: left;
+    color: var(--txt);
+    transition: transform 0.1s, border-color 0.15s;
+    display: flex; flex-direction: column; gap: 0.3rem;
+    min-height: 88px;
+  }
+  .pos-prod:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .pos-prod:active { transform: scale(0.97); }
+  .pos-prod .p-name {
+    font-size: 0.85rem; font-weight: 700; line-height: 1.25;
+    color: var(--txt);
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .pos-prod .p-alt {
+    font-size: 0.7rem; color: var(--txt-dim);
+    display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .pos-prod .p-price {
+    margin-top: auto;
+    font-size: 1rem; font-weight: 900; color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* RIGHT */
+  .pos-right {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    padding: 0.85rem;
+    display: flex; flex-direction: column;
+    min-height: 0;
+  }
+  .pos-cart-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+  }
+  .pos-shop-name { font-weight: 800; color: var(--gold); font-size: 0.9rem; letter-spacing: 0.04em; }
+  .pos-clock { font-variant-numeric: tabular-nums; color: var(--txt-dim); font-weight: 700; font-size: 0.85rem; }
+  .pos-cart-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.45rem 0; font-size: 0.78rem; color: var(--txt-dim);
+  }
+  .pos-text-btn {
+    background: transparent; color: var(--txt-dim);
+    border: none; cursor: pointer; font-size: 0.78rem;
+    text-decoration: underline;
+  }
+  .pos-text-btn:hover { color: #ef4444; }
+
+  .pos-cart {
+    flex: 1; overflow-y: auto;
+    background: rgba(0,0,0,0.25);
+    border-radius: 0.55rem;
+    padding: 0.4rem;
+    min-height: 100px;
+  }
+  .pos-cart-empty {
+    text-align: center; color: #555; padding: 2rem 1rem; font-style: italic;
+  }
+  .pos-line {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.3rem;
+    padding: 0.5rem 0.55rem;
+    border-bottom: 1px dashed var(--border);
+  }
+  .pos-line:last-child { border-bottom: none; }
+  .pos-line .l-name { font-weight: 700; font-size: 0.88rem; line-height: 1.2; }
+  .pos-line .l-price-unit { font-size: 0.72rem; color: var(--txt-dim); }
+  .pos-line .l-tot { font-weight: 800; color: var(--gold); font-variant-numeric: tabular-nums; align-self: start; }
+  .pos-line-ctrls {
+    grid-column: 1 / -1;
+    display: flex; gap: 0.4rem; align-items: center;
+    margin-top: 0.35rem;
+  }
+  .pos-qty-btn {
+    width: 30px; height: 30px;
+    background: var(--bg-soft); color: var(--txt);
+    border: 1px solid var(--border);
+    border-radius: 0.4rem; cursor: pointer;
+    font-size: 1rem; font-weight: 800;
+  }
+  .pos-qty-btn:hover { background: rgba(229,179,42,0.18); color: var(--gold); }
+  .pos-qty-val { min-width: 28px; text-align: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .pos-line-del {
+    margin-left: auto;
+    background: transparent; color: #777; border: none; cursor: pointer; font-size: 1rem;
+  }
+  .pos-line-del:hover { color: #ef4444; }
+
+  .pos-totals {
+    border-top: 1px solid var(--border);
+    padding-top: 0.6rem; margin-top: 0.4rem;
+    font-size: 0.85rem;
+  }
+  .pos-totals-row {
+    display: flex; justify-content: space-between;
+    padding: 0.18rem 0;
+    color: var(--txt-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .pos-totals-row.pos-grand {
+    border-top: 1px solid var(--border);
+    margin-top: 0.4rem; padding-top: 0.55rem;
+    color: var(--gold); font-size: 1.4rem; font-weight: 900;
+  }
+
+  .pos-pay-cta {
+    margin-top: 0.65rem;
+    padding: 1.1rem; background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+    color: #fff; border: none; border-radius: 0.7rem;
+    font-size: 1.15rem; font-weight: 900; letter-spacing: 0.06em;
+    cursor: pointer; text-transform: uppercase;
+    box-shadow: 0 8px 22px rgba(34,197,94,0.4);
+  }
+  .pos-pay-cta:hover:not(:disabled) { box-shadow: 0 12px 28px rgba(34,197,94,0.55); }
+  .pos-pay-cta:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+
+  /* ── Pay modal specifics ── */
+  .pos-pay-total {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 0.7rem 1rem; background: rgba(229,179,42,0.1);
+    border: 1px solid rgba(229,179,42,0.3);
+    border-radius: 0.55rem; margin-bottom: 1rem;
+  }
+  .pos-pay-total strong { font-size: 1.6rem; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .pos-pay-modes {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0.5rem; margin-bottom: 1rem;
+  }
+  .pos-pay-mode {
+    padding: 0.8rem 0.5rem;
+    background: var(--bg-soft); color: var(--txt);
+    border: 2px solid var(--border);
+    border-radius: 0.55rem; cursor: pointer;
+    font-weight: 700; font-size: 0.85rem;
+  }
+  .pos-pay-mode:hover { border-color: var(--gold); color: var(--gold); }
+  .pos-pay-split-line {
+    display: grid; grid-template-columns: auto 1fr auto;
+    gap: 0.4rem; align-items: center;
+    padding: 0.5rem; background: rgba(0,0,0,0.3);
+    border-radius: 0.4rem; margin-bottom: 0.4rem;
+  }
+  .pos-pay-split-line .mode { font-weight: 700; padding: 0 0.5rem; }
+  .pos-pay-split-line input {
+    padding: 0.5rem 0.7rem; background: #000;
+    border: 1px solid var(--border); border-radius: 0.35rem;
+    color: var(--txt); font-size: 0.95rem; width: 100%;
+  }
+  .pos-pay-split-line input:focus { outline: none; border-color: var(--gold); }
+  .pos-pay-split-line button {
+    background: transparent; color: #777; border: none; cursor: pointer; font-size: 1rem; padding: 0 0.5rem;
+  }
+  .pos-pay-split-line button:hover { color: #ef4444; }
+
+  .pos-pay-summary {
+    background: rgba(0,0,0,0.3); border-radius: 0.45rem;
+    padding: 0.55rem 0.7rem; margin-bottom: 0.7rem;
+    font-size: 0.9rem;
+  }
+  .pos-pay-row {
+    display: flex; justify-content: space-between;
+    padding: 0.18rem 0; font-variant-numeric: tabular-nums;
+  }
+  .pos-pay-row span:last-child { font-weight: 800; }
+  .pos-pay-cash-block {
+    margin-bottom: 0.7rem;
+    padding: 0.75rem; background: rgba(34,197,94,0.06);
+    border: 1px solid rgba(34,197,94,0.25);
+    border-radius: 0.55rem;
+  }
+  .pos-pay-change { margin-top: 0.4rem; font-size: 1rem; color: #4ade80; }
+  .pos-pay-change strong { font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+  .pos-quick-cash {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+    gap: 0.35rem; margin-top: 0.55rem;
+  }
+  .pos-quick-cash button {
+    padding: 0.5rem 0.3rem;
+    background: var(--bg-soft); color: var(--gold);
+    border: 1px solid rgba(229,179,42,0.4);
+    border-radius: 0.4rem; cursor: pointer;
+    font-size: 0.8rem; font-weight: 800;
+  }
+  .pos-quick-cash button:hover { background: rgba(229,179,42,0.18); }
+
+  /* Time block */
+  .pos-time-block {
+    margin-bottom: 0.7rem;
+    padding: 0.75rem; background: rgba(229,179,42,0.07);
+    border: 1px solid rgba(229,179,42,0.32);
+    border-radius: 0.55rem;
+  }
+  .pos-time-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.5rem;
+    color: var(--gold); font-weight: 800;
+    font-size: 0.92rem; letter-spacing: 0.04em;
+  }
+  .pos-btn-mini {
+    padding: 0.32rem 0.65rem;
+    background: var(--bg-soft); color: var(--gold);
+    border: 1px solid rgba(229,179,42,0.4);
+    border-radius: 0.4rem; cursor: pointer;
+    font-size: 0.72rem; font-weight: 800; letter-spacing: 0.04em;
+  }
+  .pos-btn-mini:hover { background: rgba(229,179,42,0.18); }
+  .pos-time-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 0.35rem; gap: 0.55rem;
+  }
+  .pos-time-label {
+    font-size: 0.78rem; color: var(--txt-dim); letter-spacing: 0.03em;
+    flex-shrink: 0;
+  }
+  .pos-time-ctrl {
+    display: flex; align-items: center; gap: 0.25rem;
+  }
+  .pos-time-ctrl button {
+    width: 36px; height: 34px;
+    background: var(--bg-soft); color: var(--gold);
+    border: 1px solid rgba(229,179,42,0.35);
+    border-radius: 0.35rem; cursor: pointer;
+    font-size: 0.78rem; font-weight: 800;
+  }
+  .pos-time-ctrl button:hover { background: rgba(229,179,42,0.18); }
+  .pos-time-ctrl input {
+    width: 56px; height: 34px;
+    padding: 0 0.35rem;
+    background: #000; color: var(--txt);
+    border: 1.5px solid rgba(229,179,42,0.5);
+    border-radius: 0.35rem;
+    font-size: 0.95rem; font-weight: 800;
+    text-align: center; font-variant-numeric: tabular-nums;
+  }
+  .pos-time-ctrl input:focus { outline: none; border-color: var(--gold); }
+  .pos-time-unit { font-size: 0.72rem; color: var(--txt-dim); }
+  .pos-time-eta {
+    margin-top: 0.55rem; padding-top: 0.45rem;
+    border-top: 1px dashed rgba(229,179,42,0.25);
+    font-size: 0.85rem; color: var(--gold); font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Stats */
+  .pos-stats-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.6rem; margin-bottom: 1rem;
+  }
+  .pos-stat {
+    padding: 0.7rem; background: var(--bg-soft);
+    border: 1px solid var(--border); border-radius: 0.55rem;
+  }
+  .pos-stat .l { font-size: 0.7rem; color: var(--txt-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+  .pos-stat .v { font-size: 1.4rem; font-weight: 900; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .pos-stat .s { font-size: 0.75rem; color: var(--txt-dim); }
+  .pos-top-list { font-size: 0.85rem; }
+  .pos-top-list .row {
+    display: grid; grid-template-columns: 1fr auto auto;
+    gap: 0.5rem;
+    padding: 0.3rem 0; border-bottom: 1px dashed var(--border);
+  }
+  .pos-top-list .row .n { color: var(--txt); font-weight: 600; }
+  .pos-top-list .row .q { color: var(--gold); font-variant-numeric: tabular-nums; font-weight: 800; }
+  .pos-top-list .row .r { color: var(--txt-dim); font-variant-numeric: tabular-nums; min-width: 60px; text-align: right; }
+
+  /* Close gap */
+  .pos-close-gap {
+    margin: 0.5rem 0; padding: 0.55rem 0.75rem;
+    background: rgba(0,0,0,0.4); border-radius: 0.4rem;
+    font-size: 0.9rem;
+  }
+  .pos-close-gap.ok { color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+  .pos-close-gap.bad { color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+
+  /* Archive list */
+  .pos-archive-list { font-size: 0.85rem; }
+  .pos-archive-row {
+    display: grid; grid-template-columns: auto 1fr auto auto;
+    gap: 0.5rem; padding: 0.5rem 0.6rem;
+    background: var(--bg-soft); border-radius: 0.45rem;
+    margin-bottom: 0.35rem;
+  }
+  .pos-archive-row .d { color: var(--gold); font-weight: 800; }
+  .pos-archive-row .ca { color: var(--gold); font-weight: 800; font-variant-numeric: tabular-nums; }
+  .pos-archive-row .g { font-variant-numeric: tabular-nums; }
+
+  /* ───── PRINT TICKET ───── */
+  @page { size: 80mm auto; margin: 0; }
+  @media print {
+    html, body {
+      background: #fff !important; color: #000 !important;
+      margin: 0 !important; padding: 0 !important;
+      height: auto !important; min-height: 0 !important;
+      overflow: hidden !important;
+    }
+    body * { visibility: hidden !important; }
+    #pos-ticket-host { display: block !important; height: auto !important; }
+    #pos-ticket-print, #pos-ticket-print * { visibility: visible !important; }
+    #pos-ticket-print {
+      position: absolute; left: 0; top: 0; width: 80mm;
+      color: #000 !important; background: #fff !important;
+      font-family: "Courier New", monospace; font-size: 12px;
+      padding: 4mm;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    #pos-ticket-print .t-center { text-align: center; }
+    #pos-ticket-print .t-row { display: flex; justify-content: space-between; }
+    #pos-ticket-print hr { border: none; border-top: 1px dashed #000; margin: 4px 0; }
+    #pos-ticket-print .t-grand { font-weight: 900; font-size: 14px; }
+  }
+</style>
+
+<script is:inline define:vars={{ POS_PAYLOAD: dataPayload }}>
+(function() {
+  // ════════════════════════════════════════════════════════════════════════
+  // Bootstrap : read config + products from data-attr (no fetch).
+  // ════════════════════════════════════════════════════════════════════════
+  var root = document.currentScript.closest('.pos-root') || document.querySelector('.pos-root');
+  var payload = JSON.parse(POS_PAYLOAD);
+  var products = payload.products;
+  var config = payload.config;
+  var categories = payload.categories;
+
+  // ────── Small helpers ──────
+  function $(id) { return document.getElementById(id); }
+  function round2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
+  function fmt(n) {
+    var v = round2(n).toFixed(2);
+    return (config.decimalSeparator === ',' ? v.replace('.', ',') : v) + config.currency;
+  }
+  function fmtNoCurr(n) {
+    var v = round2(n).toFixed(2);
+    return config.decimalSeparator === ',' ? v.replace('.', ',') : v;
+  }
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function nowDateKey() {
+    var d = new Date();
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+    });
+  }
+
+  // ────── Storage keys ──────
+  var SK = config.storageKey;
+  var KEY_SESSION = SK + ':session';
+  var KEY_ARCHIVE = function(day) { return SK + ':archive:' + day; };
+  var KEY_INDEX = SK + ':archive:index';
+
+  function loadSession() {
+    try {
+      var raw = localStorage.getItem(KEY_SESSION);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+  function saveSession(s) {
+    try { localStorage.setItem(KEY_SESSION, JSON.stringify(s)); } catch (e) {}
+  }
+  function loadArchive() {
+    try {
+      var idx = JSON.parse(localStorage.getItem(KEY_INDEX) || '[]');
+      var out = [];
+      for (var i = 0; i < idx.length; i++) {
+        var raw = localStorage.getItem(KEY_ARCHIVE(idx[i]));
+        if (raw) out.push(JSON.parse(raw));
+      }
+      return out.sort(function(a, b) { return b.openedAt - a.openedAt; });
+    } catch (e) { return []; }
+  }
+
+  // ────── State ──────
+  var session = loadSession();
+  var cart = [];       // [{productId,name,unitPrice,qty,vat}]
+  var activeCategory = categories[0] || null;
+  var searchQuery = '';
+  var payments = [];   // [{mode, amount}]
+  var cashGiven = 0;
+
+  // ────── Cart math ──────
+  function lineTtc(l) { return round2(l.unitPrice * l.qty); }
+  function totals() {
+    var ttc = 0, ht = 0, vat = 0;
+    for (var i = 0; i < cart.length; i++) {
+      var l = cart[i];
+      var t = lineTtc(l);
+      var lineHt, lineVat;
+      if (config.pricesIncludeVat) {
+        lineHt = round2(t / (1 + l.vat));
+        lineVat = round2(t - lineHt);
+      } else {
+        lineHt = t;
+        lineVat = round2(t * l.vat);
+      }
+      ttc += t; ht += lineHt; vat += lineVat;
+    }
+    return { ttc: round2(ttc), ht: round2(ht), vat: round2(vat) };
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // OPEN SESSION FLOW
+  // ════════════════════════════════════════════════════════════════════════
+  function showOpenModal() {
+    $('pos-open-server').value = '';
+    $('pos-open-float').value = String(config.defaultOpeningFloat);
+    $('pos-open-modal').classList.add('show');
+    $('pos-layout').style.display = 'none';
+    setTimeout(function() { $('pos-open-server').focus(); }, 60);
+  }
+  function hideOpenModal() { $('pos-open-modal').classList.remove('show'); }
+  $('pos-open-confirm').addEventListener('click', function() {
+    var server = ($('pos-open-server').value || '').trim();
+    var fl = parseFloat($('pos-open-float').value);
+    if (isNaN(fl) || fl < 0) fl = 0;
+    if (config.askServerName && !server) {
+      $('pos-open-server').focus();
+      return;
+    }
+    session = {
+      dateKey: nowDateKey(),
+      openedAt: Date.now(),
+      openingFloat: round2(fl),
+      sales: [],
+      server: server || undefined
+    };
+    saveSession(session);
+    hideOpenModal();
+    showLayout();
+  });
+
+  // ════════════════════════════════════════════════════════════════════════
+  // MAIN LAYOUT
+  // ════════════════════════════════════════════════════════════════════════
+  function showLayout() {
+    $('pos-layout').style.display = 'grid';
+    $('pos-shop-name').textContent = config.shopName;
+    $('pos-server-display').textContent = session && session.server ? ('👤 ' + session.server) : '';
+    $('pos-vat-label').textContent = config.vatLabel;
+    renderCats();
+    renderGrid();
+    renderCart();
+  }
+
+  function renderCats() {
+    var html = '';
+    for (var i = 0; i < categories.length; i++) {
+      var c = categories[i];
+      html += '<button type="button" class="pos-cat-btn' + (c === activeCategory ? ' active' : '') + '" data-cat="' + esc(c) + '">' + esc(c) + '</button>';
+    }
+    var el = $('pos-cats');
+    el.innerHTML = html;
+    el.querySelectorAll('.pos-cat-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        activeCategory = btn.getAttribute('data-cat');
+        searchQuery = '';
+        $('pos-search').value = '';
+        renderCats();
+        renderGrid();
+      });
+    });
+  }
+
+  function renderGrid() {
+    var q = (searchQuery || '').trim().toLowerCase();
+    var list = products.filter(function(p) {
+      if (q) {
+        return (p.name && p.name.toLowerCase().indexOf(q) >= 0) ||
+               (p.name_alt && p.name_alt.toLowerCase().indexOf(q) >= 0);
+      }
+      return p.category === activeCategory;
+    });
+    var html = '';
+    for (var i = 0; i < list.length; i++) {
+      var p = list[i];
+      html += '<button type="button" class="pos-prod" data-pid="' + esc(p.id) + '">'
+        + '<div class="p-name">' + esc(p.name) + '</div>'
+        + (p.name_alt ? '<div class="p-alt">' + esc(p.name_alt) + '</div>' : '')
+        + '<div class="p-price">' + fmt(p.price) + '</div>'
+        + '</button>';
+    }
+    if (html === '') html = '<div style="grid-column:1/-1; padding:2rem; text-align:center; color:#555;">Κανένα προϊόν.</div>';
+    var el = $('pos-grid');
+    el.innerHTML = html;
+    el.querySelectorAll('.pos-prod').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var pid = btn.getAttribute('data-pid');
+        var prod = products.find(function(x) { return x.id === pid; });
+        if (prod) addToCart(prod);
+      });
+    });
+  }
+
+  $('pos-search').addEventListener('input', function() {
+    searchQuery = $('pos-search').value;
+    renderGrid();
+  });
+
+  function addToCart(prod) {
+    var idx = -1;
+    for (var i = 0; i < cart.length; i++) if (cart[i].productId === prod.id) { idx = i; break; }
+    if (idx >= 0) cart[idx].qty++;
+    else cart.push({
+      productId: prod.id,
+      name: prod.name,
+      unitPrice: prod.price,
+      qty: 1,
+      vat: (prod.vat != null ? prod.vat : config.defaultVat)
+    });
+    renderCart();
+  }
+  function changeQty(pid, delta) {
+    var idx = -1;
+    for (var i = 0; i < cart.length; i++) if (cart[i].productId === pid) { idx = i; break; }
+    if (idx < 0) return;
+    cart[idx].qty += delta;
+    if (cart[idx].qty <= 0) cart.splice(idx, 1);
+    renderCart();
+  }
+  function removeLine(pid) {
+    cart = cart.filter(function(l) { return l.productId !== pid; });
+    renderCart();
+  }
+
+  function renderCart() {
+    var el = $('pos-cart');
+    if (cart.length === 0) {
+      el.innerHTML = '<div class="pos-cart-empty">Πατήστε προϊόντα / Tap products</div>';
+    } else {
+      var html = '';
+      for (var i = 0; i < cart.length; i++) {
+        var l = cart[i];
+        html += '<div class="pos-line" data-pid="' + esc(l.productId) + '">'
+          + '<div><div class="l-name">' + esc(l.name) + '</div>'
+          + '<div class="l-price-unit">' + fmt(l.unitPrice) + ' × ' + l.qty + '</div></div>'
+          + '<div class="l-tot">' + fmt(lineTtc(l)) + '</div>'
+          + '<div class="pos-line-ctrls">'
+            + '<button type="button" class="pos-qty-btn" data-act="minus">−</button>'
+            + '<span class="pos-qty-val">' + l.qty + '</span>'
+            + '<button type="button" class="pos-qty-btn" data-act="plus">+</button>'
+            + '<button type="button" class="pos-line-del" data-act="del" title="Αφαίρεση">✕</button>'
+          + '</div>'
+        + '</div>';
+      }
+      el.innerHTML = html;
+      el.querySelectorAll('.pos-line').forEach(function(line) {
+        var pid = line.getAttribute('data-pid');
+        line.querySelector('[data-act="minus"]').addEventListener('click', function() { changeQty(pid, -1); });
+        line.querySelector('[data-act="plus"]').addEventListener('click', function() { changeQty(pid, 1); });
+        line.querySelector('[data-act="del"]').addEventListener('click', function() { removeLine(pid); });
+      });
+    }
+    var t = totals();
+    $('pos-sub-ht').textContent = fmtNoCurr(t.ht);
+    $('pos-sub-vat').textContent = fmtNoCurr(t.vat);
+    $('pos-grand-total').textContent = fmt(t.ttc);
+    $('pos-pay-btn').disabled = (cart.length === 0);
+  }
+
+  $('pos-clear-cart').addEventListener('click', function() {
+    if (cart.length === 0) return;
+    if (confirm('Άδειασμα καλαθιού;')) { cart = []; renderCart(); }
+  });
+
+  // ════════════════════════════════════════════════════════════════════════
+  // PAYMENT FLOW
+  // ════════════════════════════════════════════════════════════════════════
+  function openPayModal() {
+    var t = totals();
+    payments = [];
+    cashGiven = 0;
+    $('pos-pay-amount').textContent = fmt(t.ttc);
+    renderPayModes();
+    renderPaySplit();
+    renderPaySummary();
+    renderQuickCash(t.ttc);
+    $('pos-pay-modal').classList.add('show');
+  }
+  function closePayModal() {
+    $('pos-pay-modal').classList.remove('show');
+  }
+  $('pos-pay-btn').addEventListener('click', openPayModal);
+  $('pos-pay-cancel').addEventListener('click', closePayModal);
+
+  function renderPayModes() {
+    var html = '';
+    for (var i = 0; i < config.paymentModes.length; i++) {
+      var m = config.paymentModes[i];
+      html += '<button type="button" class="pos-pay-mode" data-mode="' + esc(m.id) + '">'
+        + (m.icon ? m.icon + ' ' : '') + esc(m.label) + '</button>';
+    }
+    var el = $('pos-pay-modes');
+    el.innerHTML = html;
+    el.querySelectorAll('.pos-pay-mode').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var mid = btn.getAttribute('data-mode');
+        addPaymentLine(mid);
+      });
+    });
+  }
+
+  function addPaymentLine(modeId) {
+    var t = totals();
+    var paidSoFar = payments.reduce(function(s, p) { return s + p.amount; }, 0);
+    var remaining = round2(Math.max(0, t.ttc - paidSoFar));
+    // If single-mode behaviour (no mixed), reset
+    if (!config.allowMixedPayment) { payments = []; remaining = t.ttc; }
+    payments.push({ mode: modeId, amount: remaining });
+    renderPaySplit();
+    renderPaySummary();
+  }
+
+  function renderPaySplit() {
+    var el = $('pos-pay-split');
+    if (payments.length === 0) { el.innerHTML = ''; return; }
+    var html = '';
+    for (var i = 0; i < payments.length; i++) {
+      var p = payments[i];
+      var mode = config.paymentModes.find(function(m) { return m.id === p.mode; });
+      html += '<div class="pos-pay-split-line" data-i="' + i + '">'
+        + '<span class="mode">' + (mode ? (mode.icon || '') + ' ' + esc(mode.label) : esc(p.mode)) + '</span>'
+        + '<input type="number" step="0.01" min="0" value="' + p.amount.toFixed(2) + '" />'
+        + '<button type="button" title="Αφαίρεση">✕</button>'
+        + '</div>';
+    }
+    el.innerHTML = html;
+    el.querySelectorAll('.pos-pay-split-line').forEach(function(line) {
+      var i = Number(line.getAttribute('data-i'));
+      line.querySelector('input').addEventListener('input', function(e) {
+        var v = parseFloat(e.target.value);
+        payments[i].amount = isNaN(v) ? 0 : round2(v);
+        renderPaySummary();
+      });
+      line.querySelector('button').addEventListener('click', function() {
+        payments.splice(i, 1);
+        renderPaySplit();
+        renderPaySummary();
+      });
+    });
+  }
+
+  function renderPaySummary() {
+    var t = totals();
+    var paid = round2(payments.reduce(function(s, p) { return s + p.amount; }, 0));
+    var remaining = round2(t.ttc - paid);
+    $('pos-pay-paid').textContent = fmt(paid);
+    $('pos-pay-remaining').textContent = fmt(remaining);
+
+    // Show cash block only if there's a cash payment that needs change
+    var cashPay = payments.find(function(p) { return p.mode === 'cash'; });
+    var cashMode = config.paymentModes.find(function(m) { return m.id === 'cash' && m.needsChange; });
+    if (cashPay && cashMode) {
+      $('pos-pay-cash-block').style.display = 'block';
+      var g = parseFloat($('pos-pay-given').value);
+      if (isNaN(g) || g < cashPay.amount) {
+        $('pos-pay-given').value = cashPay.amount.toFixed(2);
+        cashGiven = cashPay.amount;
+      } else {
+        cashGiven = g;
+      }
+      var change = round2(Math.max(0, cashGiven - cashPay.amount));
+      $('pos-pay-change').textContent = fmt(change);
+    } else {
+      $('pos-pay-cash-block').style.display = 'none';
+      cashGiven = 0;
+    }
+
+    // Confirm only if total paid >= total ttc and not over-paid (allow exact)
+    var canConfirm = Math.abs(paid - t.ttc) < 0.005 && payments.length > 0;
+    $('pos-pay-confirm').disabled = !canConfirm;
+  }
+
+  $('pos-pay-given').addEventListener('input', function() {
+    var v = parseFloat($('pos-pay-given').value);
+    cashGiven = isNaN(v) ? 0 : round2(v);
+    var cashPay = payments.find(function(p) { return p.mode === 'cash'; });
+    if (cashPay) {
+      var change = round2(Math.max(0, cashGiven - cashPay.amount));
+      $('pos-pay-change').textContent = fmt(change);
+    }
+  });
+
+  function renderQuickCash(total) {
+    var rounded = Math.ceil(total / 5) * 5;
+    var candidates = [total, rounded, rounded + 5, rounded + 10, 20, 50, 100];
+    // dedupe + sort ascending
+    candidates = candidates.filter(function(v, i, a) { return v >= total && a.indexOf(v) === i; })
+      .sort(function(a, b) { return a - b; }).slice(0, 6);
+    var html = '';
+    for (var i = 0; i < candidates.length; i++) {
+      html += '<button type="button" data-q="' + candidates[i] + '">' + fmt(candidates[i]) + '</button>';
+    }
+    var el = $('pos-quick-cash');
+    el.innerHTML = html;
+    el.querySelectorAll('button').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        $('pos-pay-given').value = btn.getAttribute('data-q');
+        $('pos-pay-given').dispatchEvent(new Event('input'));
+      });
+    });
+  }
+
+  $('pos-pay-confirm').addEventListener('click', function() {
+    completeSale();
+  });
+
+  function makeSaleId() {
+    var d = new Date();
+    var seq = String((session && session.sales ? session.sales.length : 0) + 1).padStart(3, '0');
+    return 'T' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + seq;
+  }
+
+  function completeSale() {
+    var t = totals();
+    var cashPay = payments.find(function(p) { return p.mode === 'cash'; });
+    var sale = {
+      id: makeSaleId(),
+      ts: Date.now(),
+      server: session ? session.server : undefined,
+      lines: JSON.parse(JSON.stringify(cart)),
+      subtotalHt: t.ht,
+      vatTotal: t.vat,
+      total: t.ttc,
+      payments: JSON.parse(JSON.stringify(payments)),
+      given: cashPay ? cashGiven : 0,
+      change: cashPay ? round2(Math.max(0, cashGiven - cashPay.amount)) : 0
+    };
+    session.sales = session.sales || [];
+    session.sales.push(sale);
+    saveSession(session);
+
+    // Print
+    printTicket(sale);
+
+    // Reset
+    cart = [];
+    payments = [];
+    cashGiven = 0;
+    renderCart();
+    closePayModal();
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // TICKET PRINT
+  // ════════════════════════════════════════════════════════════════════════
+  function printTicket(sale) {
+    var host = $('pos-ticket-host');
+    host.style.display = 'block';
+    var d = new Date(sale.ts);
+    var ts = pad(d.getDate()) + '/' + pad(d.getMonth() + 1) + '/' + d.getFullYear()
+      + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    var lines = '';
+    sale.lines.forEach(function(l) {
+      lines += '<div class="t-row"><span>' + l.qty + '× ' + esc(l.name) + '</span><span>' + fmt(lineTtc(l)) + '</span></div>';
+    });
+    var paid = '';
+    sale.payments.forEach(function(p) {
+      var m = config.paymentModes.find(function(mm) { return mm.id === p.mode; });
+      paid += '<div class="t-row"><span>' + (m ? esc(m.label) : esc(p.mode)) + '</span><span>' + fmt(p.amount) + '</span></div>';
+    });
+    var changeHtml = sale.change > 0
+      ? '<div class="t-row"><span>Δόθηκαν</span><span>' + fmt(sale.given) + '</span></div>'
+        + '<div class="t-row"><span>Ρέστα</span><span>' + fmt(sale.change) + '</span></div>'
+      : '';
+
+    host.innerHTML = ''
+      + '<div id="pos-ticket-print">'
+      + '<div class="t-center"><strong>' + esc(config.shopName) + '</strong></div>'
+      + (config.shopSubtitle ? '<div class="t-center">' + esc(config.shopSubtitle) + '</div>' : '')
+      + (config.vatNumber ? '<div class="t-center">' + esc(config.vatLabel) + ' : ' + esc(config.vatNumber) + '</div>' : '')
+      + '<hr/>'
+      + '<div class="t-row"><span>' + esc(sale.id) + '</span><span>' + ts + '</span></div>'
+      + (sale.server ? '<div>👤 ' + esc(sale.server) + '</div>' : '')
+      + '<hr/>'
+      + lines
+      + '<hr/>'
+      + '<div class="t-row"><span>HT</span><span>' + fmt(sale.subtotalHt) + '</span></div>'
+      + '<div class="t-row"><span>' + esc(config.vatLabel) + '</span><span>' + fmt(sale.vatTotal) + '</span></div>'
+      + '<div class="t-row t-grand"><span>ΣΥΝΟΛΟ</span><span>' + fmt(sale.total) + '</span></div>'
+      + '<hr/>'
+      + paid
+      + changeHtml
+      + '<hr/>'
+      + '<div class="t-center">Ευχαριστούμε! / Thank you!</div>'
+      + '</div>';
+    setTimeout(function() {
+      window.print();
+      setTimeout(function() {
+        host.style.display = 'none';
+        host.innerHTML = '';
+      }, 600);
+    }, 80);
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // STATS
+  // ════════════════════════════════════════════════════════════════════════
+  $('pos-stats-btn').addEventListener('click', function() {
+    if (!session) return;
+    renderStats();
+    $('pos-stats-modal').classList.add('show');
+  });
+  $('pos-stats-close').addEventListener('click', function() {
+    $('pos-stats-modal').classList.remove('show');
+  });
+
+  function renderStats() {
+    var sales = session.sales || [];
+    var ca = 0, cash = 0, card = 0, other = 0, items = 0;
+    var byP = {};
+    sales.forEach(function(s) {
+      ca += s.total;
+      s.payments.forEach(function(p) {
+        if (p.mode === 'cash') cash += p.amount;
+        else if (p.mode === 'card') card += p.amount;
+        else other += p.amount;
+      });
+      s.lines.forEach(function(l) {
+        items += l.qty;
+        if (!byP[l.productId]) byP[l.productId] = { name: l.name, qty: 0, rev: 0 };
+        byP[l.productId].qty += l.qty;
+        byP[l.productId].rev += lineTtc(l);
+      });
+    });
+    var top = Object.values(byP).sort(function(a, b) { return b.qty - a.qty; }).slice(0, 10);
+    var avg = sales.length ? round2(ca / sales.length) : 0;
+
+    var html = '<div class="pos-stats-grid">'
+      + '<div class="pos-stat"><div class="l">Πωλήσεις</div><div class="v">' + sales.length + '</div></div>'
+      + '<div class="pos-stat"><div class="l">Σύνολο CA</div><div class="v">' + fmt(ca) + '</div></div>'
+      + '<div class="pos-stat"><div class="l">Μέσος όρος</div><div class="v">' + fmt(avg) + '</div></div>'
+      + '<div class="pos-stat"><div class="l">Είδη που πωλήθηκαν</div><div class="v">' + items + '</div></div>'
+      + '<div class="pos-stat"><div class="l">💶 Μετρητά</div><div class="v">' + fmt(cash) + '</div></div>'
+      + '<div class="pos-stat"><div class="l">💳 Κάρτα</div><div class="v">' + fmt(card) + '</div></div>'
+      + (other > 0 ? '<div class="pos-stat"><div class="l">Άλλο</div><div class="v">' + fmt(other) + '</div></div>' : '')
+      + '</div>';
+    html += '<h3 style="color:var(--gold); margin: 1rem 0 0.5rem; font-size: 0.9rem;">🏆 Top προϊόντα</h3>';
+    html += '<div class="pos-top-list">';
+    if (top.length === 0) html += '<div style="color:#555; text-align:center; padding:1rem;">Κανένα ακόμη.</div>';
+    top.forEach(function(p) {
+      html += '<div class="row"><span class="n">' + esc(p.name) + '</span><span class="q">×' + p.qty + '</span><span class="r">' + fmt(p.rev) + '</span></div>';
+    });
+    html += '</div>';
+    $('pos-stats-body').innerHTML = html;
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // ARCHIVE
+  // ════════════════════════════════════════════════════════════════════════
+  $('pos-archive-btn').addEventListener('click', function() {
+    renderArchive();
+    $('pos-archive-modal').classList.add('show');
+  });
+  $('pos-archive-close').addEventListener('click', function() {
+    $('pos-archive-modal').classList.remove('show');
+  });
+
+  function renderArchive() {
+    var arch = loadArchive();
+    var html = '';
+    if (arch.length === 0) html = '<div style="color:#555; text-align:center; padding:1.5rem;">Κανένα κλείσιμο ακόμη.</div>';
+    else {
+      html = '<div class="pos-archive-list">';
+      arch.forEach(function(s) {
+        var ca = (s.sales || []).reduce(function(a, x) { return a + x.total; }, 0);
+        var gap = s.cashGap == null ? '—' : (s.cashGap >= 0 ? '+' : '') + fmt(s.cashGap);
+        html += '<div class="pos-archive-row">'
+          + '<span class="d">' + esc(s.dateKey) + '</span>'
+          + '<span>' + (s.sales ? s.sales.length : 0) + ' πωλήσεις · ' + (s.server || '—') + '</span>'
+          + '<span class="ca">' + fmt(ca) + '</span>'
+          + '<span class="g">Διαφ.: ' + gap + '</span>'
+          + '</div>';
+      });
+      html += '</div>';
+    }
+    $('pos-archive-body').innerHTML = html;
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // CLOSE SESSION
+  // ════════════════════════════════════════════════════════════════════════
+  $('pos-close-btn').addEventListener('click', function() {
+    if (!session) return;
+    var sales = session.sales || [];
+    var cashTakings = 0;
+    sales.forEach(function(s) {
+      s.payments.forEach(function(p) { if (p.mode === 'cash') cashTakings += p.amount; });
+    });
+    var expected = round2(session.openingFloat + cashTakings);
+    $('pos-close-summary').innerHTML = ''
+      + '<div class="pos-pay-row"><span>Άνοιγμα</span><span>' + fmt(session.openingFloat) + '</span></div>'
+      + '<div class="pos-pay-row"><span>Εισπράξεις μετρητά</span><span>' + fmt(cashTakings) + '</span></div>'
+      + '<div class="pos-pay-row" style="border-top:1px solid var(--border); padding-top:0.4rem; margin-top:0.4rem;"><span><strong>Αναμενόμενο</strong></span><span><strong>' + fmt(expected) + '</strong></span></div>';
+    $('pos-close-counted').value = expected.toFixed(2);
+    updateCloseGap(expected);
+    $('pos-close-modal').classList.add('show');
+  });
+
+  function updateCloseGap(expected) {
+    var counted = parseFloat($('pos-close-counted').value);
+    if (isNaN(counted)) counted = 0;
+    var gap = round2(counted - expected);
+    var el = $('pos-close-gap');
+    if (gap === 0) {
+      el.className = 'pos-close-gap ok';
+      el.textContent = '✓ Καμία διαφορά';
+    } else if (gap > 0) {
+      el.className = 'pos-close-gap ok';
+      el.textContent = '+ ' + fmt(gap) + ' υπερβολή';
+    } else {
+      el.className = 'pos-close-gap bad';
+      el.textContent = fmt(gap) + ' λείπει';
+    }
+  }
+  $('pos-close-counted').addEventListener('input', function() {
+    var sales = session.sales || [];
+    var cashTakings = 0;
+    sales.forEach(function(s) { s.payments.forEach(function(p) { if (p.mode === 'cash') cashTakings += p.amount; }); });
+    var expected = round2(session.openingFloat + cashTakings);
+    updateCloseGap(expected);
+  });
+
+  $('pos-close-cancel').addEventListener('click', function() {
+    $('pos-close-modal').classList.remove('show');
+  });
+
+  $('pos-close-csv').addEventListener('click', function() {
+    exportCsv(session);
+  });
+
+  $('pos-close-confirm').addEventListener('click', function() {
+    var sales = session.sales || [];
+    var cashTakings = 0;
+    sales.forEach(function(s) { s.payments.forEach(function(p) { if (p.mode === 'cash') cashTakings += p.amount; }); });
+    var expected = round2(session.openingFloat + cashTakings);
+    var counted = parseFloat($('pos-close-counted').value);
+    if (isNaN(counted)) counted = 0;
+    session.closedAt = Date.now();
+    session.closingFloat = round2(counted);
+    session.expectedCash = expected;
+    session.cashGap = round2(counted - expected);
+
+    // archive
+    try {
+      localStorage.setItem(KEY_ARCHIVE(session.dateKey), JSON.stringify(session));
+      var idx = JSON.parse(localStorage.getItem(KEY_INDEX) || '[]');
+      if (idx.indexOf(session.dateKey) < 0) {
+        idx.push(session.dateKey);
+        localStorage.setItem(KEY_INDEX, JSON.stringify(idx));
+      }
+      localStorage.removeItem(KEY_SESSION);
+    } catch (e) {}
+
+    // Auto CSV download
+    exportCsv(session);
+
+    session = null;
+    cart = [];
+    $('pos-close-modal').classList.remove('show');
+    showOpenModal();
+  });
+
+  function exportCsv(s) {
+    if (!s) return;
+    var sep = ';';
+    var rows = [];
+    rows.push(['sale_id', 'datetime', 'server', 'items_count', 'subtotal_ht', 'vat', 'total_ttc', 'payment_modes', 'currency'].join(sep));
+    (s.sales || []).forEach(function(sale) {
+      var d = new Date(sale.ts);
+      var dt = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+        + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+      var items = sale.lines.reduce(function(a, l) { return a + l.qty; }, 0);
+      var pay = sale.payments.map(function(p) { return p.mode + ':' + p.amount.toFixed(2); }).join('|');
+      rows.push([
+        sale.id, dt,
+        (sale.server || '').replace(/[;\n]/g, ' '),
+        items, sale.subtotalHt.toFixed(2), sale.vatTotal.toFixed(2), sale.total.toFixed(2),
+        pay, config.currencyCode
+      ].join(sep));
+    });
+    var csv = rows.join('\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = (SK + '-' + s.dateKey + '.csv');
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() { URL.revokeObjectURL(url); a.remove(); }, 200);
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // Clock
+  // ════════════════════════════════════════════════════════════════════════
+  function tickClock() {
+    var d = new Date();
+    $('pos-clock').textContent = pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+  }
+  setInterval(tickClock, 1000); tickClock();
+
+  // ════════════════════════════════════════════════════════════════════════
+  // BOOT : if existing session for today -> resume, else open modal
+  // ════════════════════════════════════════════════════════════════════════
+  if (session && session.dateKey === nowDateKey() && !session.closedAt) {
+    showLayout();
+  } else {
+    if (session && session.dateKey !== nowDateKey() && !session.closedAt) {
+      // Stale session from another day : auto-archive without closing fund
+      try {
+        session.closedAt = Date.now();
+        localStorage.setItem(KEY_ARCHIVE(session.dateKey), JSON.stringify(session));
+        var idx = JSON.parse(localStorage.getItem(KEY_INDEX) || '[]');
+        if (idx.indexOf(session.dateKey) < 0) {
+          idx.push(session.dateKey);
+          localStorage.setItem(KEY_INDEX, JSON.stringify(idx));
+        }
+        localStorage.removeItem(KEY_SESSION);
+      } catch (e) {}
+      session = null;
+    }
+    showOpenModal();
+  }
+})();
+</script>
