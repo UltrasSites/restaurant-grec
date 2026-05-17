@@ -60,47 +60,311 @@
     .status.disconnected .dot { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
     .clock { font-variant-numeric: tabular-nums; font-weight: 700; color: #fff; }
 
-    .orders-area { flex: 1; padding: 1.5rem; }
-    .empty-state {
-      text-align: center; padding: 4rem 1rem;
-      color: #555; font-size: 1.2rem; letter-spacing: 0.05em;
+    .orders-area { flex: 1; padding: 1.25rem; }
+
+    /* ====== 3 colonnes : En attente | En préparation | Historique ====== */
+    .columns {
+      display: grid;
+      grid-template-columns: 1.1fr 1.1fr 0.85fr;
+      gap: 1.25rem;
+      max-width: 1900px; margin: 0 auto;
     }
-    .empty-state .big { font-size: 4rem; opacity: 0.3; margin-bottom: 1rem; }
+    .column { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+    .col-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.85rem 1.1rem; border-radius: 0.85rem;
+      font-size: 1.1rem; font-weight: 900; letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .col-head .count {
+      background: rgba(0,0,0,0.35); padding: 0.15rem 0.65rem;
+      border-radius: 999px; font-size: 0.9rem; min-width: 2.2rem; text-align: center;
+    }
+    .col-pending .col-head { background: rgba(239,68,68,0.18); color: #fca5a5; border: 2px solid rgba(239,68,68,0.55); }
+    .col-prep .col-head    { background: rgba(229,179,42,0.18); color: var(--gold); border: 2px solid rgba(229,179,42,0.55); }
+    .col-history .col-head { background: rgba(148,163,184,0.15); color: #cbd5e1; border: 2px solid rgba(148,163,184,0.45); }
 
-    .order-list { display: grid; gap: 1.5rem; grid-template-columns: 1fr; max-width: 1000px; margin: 0 auto; }
+    /* History column : scroll indépendant */
+    .col-history { max-height: calc(100vh - 8rem); }
+    .col-history .col-body {
+      flex: 1; overflow-y: auto;
+      background: #0d0d0d; border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.7rem; padding: 0.5rem;
+    }
+    .history-actions { display: flex; gap: 0.4rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    .history-actions .btn-mini {
+      padding: 0.4rem 0.7rem; font-size: 0.78rem;
+      background: #1a1a1a; color: #cbd5e1;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.4rem; cursor: pointer;
+      font-weight: 700;
+    }
+    .history-actions .btn-mini:hover { background: #222; color: #fff; }
+    .history-actions .lang-toggle-mini {
+      padding: 0.4rem 0.5rem; font-size: 0.78rem;
+      background: #1a1a1a; color: #cbd5e1;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.4rem; cursor: pointer;
+      font-weight: 700;
+      display: inline-flex; align-items: center; gap: 0.3rem;
+    }
+    .history-actions .lang-toggle-mini img {
+      width: 12px; height: 9px; object-fit: cover; border-radius: 2px;
+    }
 
+    .hist-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 0.45rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 0.5rem;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.04);
+      margin-bottom: 0.35rem;
+      font-size: 0.82rem;
+      align-items: center;
+    }
+    .hist-row:hover { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
+    .hist-row .h-id { color: var(--gold); font-weight: 800; font-size: 0.82rem; }
+    .hist-row .h-name { color: #fff; font-weight: 600; font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .hist-row .h-meta { color: #888; font-size: 0.72rem; margin-top: 0.1rem; }
+    .hist-row .h-total { color: var(--gold); font-weight: 700; text-align: right; white-space: nowrap; font-size: 0.85rem; }
+    .hist-row .h-status {
+      display: inline-block; padding: 0.1rem 0.45rem;
+      border-radius: 999px; font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.04em; text-transform: uppercase;
+      margin-top: 0.15rem;
+    }
+    .hist-row .h-status.s-paid { background: rgba(34,197,94,0.15); color: #4ade80; }
+    .hist-row .h-status.s-ready { background: rgba(96,165,250,0.15); color: #60a5fa; }
+    .hist-row .h-status.s-cancelled { background: rgba(239,68,68,0.15); color: #f87171; }
+    .hist-row .h-actions { display: flex; gap: 0.3rem; margin-top: 0.3rem; }
+    .hist-row .h-act {
+      width: 28px; height: 28px; border-radius: 0.35rem;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent; color: #888;
+      cursor: pointer; font-size: 0.85rem;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .hist-row .h-act:hover { color: #fff; background: rgba(255,255,255,0.06); }
+    .hist-row .h-act.danger:hover { color: #f87171; border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.08); }
+    .hist-empty { color: #555; text-align: center; padding: 2rem 1rem; font-size: 0.85rem; }
+
+    /* ====== POPUPS (acceptation temps + modif ETA) ====== */
+    .modal-back {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1rem; z-index: 100;
+    }
+    .modal-back.show { display: flex; }
+    .modal {
+      width: 100%; max-width: 460px;
+      background: #111; border: 1px solid rgba(229,179,42,0.4);
+      border-radius: 1rem; padding: 1.5rem;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+    }
+    .modal h2 {
+      margin: 0 0 0.5rem; color: var(--gold);
+      font-size: 1.1rem; letter-spacing: 0.05em;
+    }
+    .modal .modal-sub { color: #999; font-size: 0.85rem; margin-bottom: 1rem; }
+    .modal .time-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 0.6rem; margin-bottom: 0.85rem;
+    }
+    .modal .time-btn {
+      padding: 1rem 0.5rem; border-radius: 0.6rem;
+      background: rgba(229,179,42,0.12); color: var(--gold);
+      border: 2px solid rgba(229,179,42,0.4);
+      font-weight: 900; font-size: 1.15rem; cursor: pointer;
+      transition: all 0.12s;
+    }
+    .modal .time-btn:hover { background: var(--gold); color: #000; }
+    .modal .custom-row {
+      display: flex; gap: 0.5rem; align-items: stretch;
+      margin-bottom: 1rem;
+    }
+    .modal .custom-row input {
+      flex: 1; padding: 0.85rem 1rem;
+      background: #000; color: #fff;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 0.5rem; font-size: 1rem;
+    }
+    .modal .custom-row input:focus { outline: none; border-color: var(--gold); }
+    .modal .custom-row button {
+      padding: 0.85rem 1.2rem;
+      background: var(--gold); color: #000;
+      border: none; border-radius: 0.5rem;
+      font-weight: 900; cursor: pointer;
+    }
+    .modal .reason-row {
+      margin-bottom: 1rem;
+    }
+    .modal .reason-row input {
+      width: 100%; padding: 0.7rem 1rem;
+      background: #000; color: #fff;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.5rem; font-size: 0.9rem;
+    }
+    .modal .modal-actions {
+      display: flex; gap: 0.5rem; justify-content: flex-end;
+    }
+    .modal .btn-cancel {
+      padding: 0.7rem 1.2rem;
+      background: transparent; color: #999;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.5rem; cursor: pointer;
+    }
+    .modal .btn-cancel:hover { color: #fff; }
+
+    /* ====== Bouton "Modifier temps" (sur carte prep) ====== */
+    .btn-eta {
+      background: linear-gradient(180deg, #6366f1 0%, #4338ca 100%);
+      box-shadow: 0 6px 16px rgba(99,102,241,0.4);
+    }
+    .btn-eta:hover { background: linear-gradient(180deg, #818cf8 0%, #6366f1 100%); }
+
+    /* ====== CHAT par carte ====== */
+    .chat-wrap {
+      margin-top: 0.85rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.6rem;
+      background: rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+    .chat-toggle {
+      width: 100%; padding: 0.7rem 0.85rem;
+      background: rgba(99,102,241,0.1); color: #a5b4fc;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between;
+      font-weight: 700; font-size: 0.9rem; letter-spacing: 0.04em;
+    }
+    .chat-toggle:hover { background: rgba(99,102,241,0.18); color: #c7d2fe; }
+    .chat-toggle .unread-badge {
+      display: inline-block; min-width: 1.4rem; padding: 0 0.4rem;
+      background: #ef4444; color: #fff;
+      border-radius: 999px; font-size: 0.75rem;
+      font-weight: 800; text-align: center;
+    }
+    .chat-body { display: none; padding: 0.7rem 0.85rem; }
+    .chat-body.open { display: block; }
+    .chat-messages {
+      max-height: 220px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 0.4rem;
+      margin-bottom: 0.6rem;
+    }
+    .chat-msg {
+      max-width: 85%; padding: 0.5rem 0.7rem;
+      border-radius: 0.6rem; font-size: 0.88rem; line-height: 1.35;
+      word-wrap: break-word;
+    }
+    .chat-msg.from-patron { align-self: flex-end; background: rgba(229,179,42,0.18); color: var(--gold); border: 1px solid rgba(229,179,42,0.35); }
+    .chat-msg.from-client { align-self: flex-start; background: rgba(99,102,241,0.18); color: #c7d2fe; border: 1px solid rgba(99,102,241,0.35); }
+    .chat-msg.from-system { align-self: center; background: rgba(255,255,255,0.05); color: #999; font-style: italic; font-size: 0.78rem; border: 1px dashed rgba(255,255,255,0.1); }
+    .chat-msg .meta { font-size: 0.65rem; opacity: 0.7; margin-top: 0.15rem; }
+    .chat-input-row { display: flex; gap: 0.4rem; }
+    .chat-input-row input {
+      flex: 1; padding: 0.6rem 0.85rem;
+      background: #000; color: #fff;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.45rem; font-size: 0.88rem;
+    }
+    .chat-input-row input:focus { outline: none; border-color: rgba(99,102,241,0.5); }
+    .chat-input-row button {
+      padding: 0.6rem 1rem;
+      background: rgba(99,102,241,0.25); color: #c7d2fe;
+      border: 1px solid rgba(99,102,241,0.4);
+      border-radius: 0.45rem; cursor: pointer;
+      font-weight: 700; font-size: 0.85rem;
+    }
+    .chat-input-row button:hover { background: rgba(99,102,241,0.45); color: #fff; }
+
+    .col-empty {
+      padding: 2rem 1rem; text-align: center;
+      border: 2px dashed rgba(255,255,255,0.08);
+      border-radius: 0.85rem; color: #555; font-size: 0.95rem;
+    }
+
+    /* ====== CARDS ====== */
     .order-card {
       background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+      border-radius: 1.1rem;
+      padding: 1.1rem 1.2rem;
+      box-shadow: 0 18px 36px rgba(0,0,0,0.55);
+    }
+    .card-pending {
       border: 3px solid #ef4444;
-      border-radius: 1.25rem;
-      padding: 1.5rem 1.75rem;
-      box-shadow: 0 0 0 4px rgba(239,68,68,0.18), 0 24px 48px rgba(0,0,0,0.6);
+      box-shadow: 0 0 0 4px rgba(239,68,68,0.18), 0 18px 36px rgba(0,0,0,0.55);
       animation: pulse-red 1.6s ease-in-out infinite;
     }
     @keyframes pulse-red {
-      0%, 100% { box-shadow: 0 0 0 4px rgba(239,68,68,0.18), 0 24px 48px rgba(0,0,0,0.6); border-color: #ef4444; }
-      50%      { box-shadow: 0 0 0 8px rgba(239,68,68,0.45), 0 24px 56px rgba(0,0,0,0.7); border-color: #ff6666; }
+      0%, 100% { box-shadow: 0 0 0 4px rgba(239,68,68,0.18), 0 18px 36px rgba(0,0,0,0.55); border-color: #ef4444; }
+      50%      { box-shadow: 0 0 0 8px rgba(239,68,68,0.45), 0 18px 44px rgba(0,0,0,0.65); border-color: #ff6666; }
+    }
+    .card-prep {
+      border: 3px solid var(--gold);
+      box-shadow: 0 0 0 4px rgba(229,179,42,0.15), 0 18px 36px rgba(0,0,0,0.55);
     }
 
-    .order-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
-    .order-id { font-size: 2.5rem; font-weight: 900; color: var(--gold); letter-spacing: 0.05em; line-height: 1; }
+    /* === Boutons d'action TOUJOURS visibles en haut === */
+    .actions {
+      display: grid; gap: 0.6rem;
+      margin-bottom: 1rem;
+    }
+    .actions.two { grid-template-columns: 1fr 1fr; }
+
+    .btn-action {
+      width: 100%; padding: 1.15rem 0.6rem;
+      border: none; border-radius: 0.75rem;
+      font-size: 1.15rem; font-weight: 900;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      cursor: pointer; transition: transform 0.12s, box-shadow 0.18s, filter 0.18s;
+      color: #fff;
+    }
+    .btn-action:hover { transform: translateY(-2px); }
+    .btn-action:active { transform: scale(0.98); }
+    .btn-action:disabled { opacity: 0.6; cursor: wait; }
+
+    .btn-prepare {
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
+      box-shadow: 0 8px 22px rgba(34,197,94,0.45);
+      font-size: 1.35rem; padding: 1.4rem 0.6rem;
+    }
+    .btn-prepare:hover { box-shadow: 0 12px 28px rgba(34,197,94,0.6); }
+
+    .btn-ready {
+      background: linear-gradient(180deg, #4b5563 0%, #1f2937 100%);
+      box-shadow: 0 8px 22px rgba(31,41,55,0.55);
+    }
+    .btn-ready:hover { background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 12px 28px rgba(34,197,94,0.55); }
+
+    .btn-paid {
+      background: linear-gradient(180deg, #E5B32A 0%, #b8901c 100%);
+      color: #000;
+      box-shadow: 0 8px 22px rgba(229,179,42,0.5);
+    }
+    .btn-paid:hover { background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); color: #fff; box-shadow: 0 12px 28px rgba(34,197,94,0.55); }
+
+    .order-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.85rem; }
+    .order-id { font-size: 2.2rem; font-weight: 900; color: var(--gold); letter-spacing: 0.05em; line-height: 1; }
     .order-meta { font-size: 0.95rem; color: #ccc; text-align: right; }
-    .order-meta .name { font-size: 1.4rem; color: #fff; font-weight: 700; }
+    .order-meta .name { font-size: 1.25rem; color: #fff; font-weight: 700; }
     .order-meta .phone { color: var(--gold); font-weight: 700; margin-top: 0.25rem; }
 
     .order-pickup {
-      display: inline-block; padding: 0.4rem 0.9rem;
+      display: inline-block; padding: 0.35rem 0.8rem;
       background: rgba(229,179,42,0.18); color: var(--gold);
       border: 2px solid var(--gold); border-radius: 999px;
-      font-weight: 800; font-size: 1.05rem;
-      margin-bottom: 1rem;
+      font-weight: 800; font-size: 0.95rem;
+      margin-bottom: 0.85rem;
     }
 
-    .order-mode-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; align-items: center; }
+    .order-mode-row { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.85rem; align-items: center; }
     .pill {
       display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.4rem 0.85rem; border-radius: 999px;
-      font-weight: 800; font-size: 0.95rem; letter-spacing: 0.04em;
+      padding: 0.35rem 0.8rem; border-radius: 999px;
+      font-weight: 800; font-size: 0.9rem; letter-spacing: 0.04em;
     }
     .pill-takeaway { background: rgba(229,179,42,0.18); color: var(--gold); border: 2px solid var(--gold); }
     .pill-delivery { background: rgba(59,130,246,0.18); color: #60a5fa; border: 2px solid #3b82f6; }
@@ -110,9 +374,9 @@
     .delivery-box {
       background: rgba(59,130,246,0.08);
       border: 2px solid rgba(59,130,246,0.35);
-      border-radius: 0.75rem;
-      padding: 0.85rem 1rem;
-      margin-bottom: 1rem;
+      border-radius: 0.7rem;
+      padding: 0.75rem 0.9rem;
+      margin-bottom: 0.85rem;
     }
     .delivery-box .deliv-label {
       font-size: 0.7rem; color: #60a5fa;
@@ -120,7 +384,7 @@
       font-weight: 800; margin-bottom: 0.35rem;
     }
     .delivery-box .deliv-addr {
-      font-size: 1.2rem; color: #fff; font-weight: 700;
+      font-size: 1.1rem; color: #fff; font-weight: 700;
       line-height: 1.35;
     }
     .delivery-box .deliv-extra {
@@ -132,13 +396,13 @@
     }
 
     .order-items {
-      list-style: none; padding: 0; margin: 0 0 1rem;
-      background: rgba(0,0,0,0.4); border-radius: 0.75rem; padding: 0.85rem 1rem;
+      list-style: none; padding: 0; margin: 0 0 0.85rem;
+      background: rgba(0,0,0,0.4); border-radius: 0.7rem; padding: 0.75rem 0.9rem;
       border: 1px solid rgba(255,255,255,0.06);
     }
     .order-items li {
       display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
-      padding: 0.4rem 0; font-size: 1.15rem;
+      padding: 0.35rem 0; font-size: 1.05rem;
       border-bottom: 1px dashed rgba(255,255,255,0.08);
     }
     .order-items li:last-child { border-bottom: none; }
@@ -146,31 +410,18 @@
       display: inline-block; min-width: 2.3rem; text-align: center;
       background: var(--gold); color: #000; font-weight: 900;
       border-radius: 0.4rem; padding: 0.1rem 0.4rem; margin-right: 0.5rem;
-      font-size: 1rem;
+      font-size: 0.95rem;
     }
     .order-items .item-name { flex: 1; color: #fff; font-weight: 600; }
     .order-items .item-total { color: var(--gold); font-weight: 700; min-width: 80px; text-align: right; }
 
     .order-total {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0.75rem 0;
-      font-size: 1.5rem; font-weight: 900;
+      padding: 0.5rem 0 0.2rem;
+      font-size: 1.4rem; font-weight: 900;
       color: var(--gold);
     }
-    .order-total span:first-child { color: #fff; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
-
-    .ack-btn {
-      width: 100%; padding: 1.5rem;
-      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%);
-      color: #fff; border: none; border-radius: 0.85rem;
-      font-size: 1.4rem; font-weight: 900;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      cursor: pointer; transition: transform 0.15s, box-shadow 0.2s;
-      box-shadow: 0 8px 24px rgba(34,197,94,0.35);
-    }
-    .ack-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(34,197,94,0.5); }
-    .ack-btn:active { transform: scale(0.98); }
-    .ack-btn:disabled { opacity: 0.6; cursor: wait; }
+    .order-total span:first-child { color: #fff; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; }
 
     /* CLIGNOTEMENT GLOBAL quand commande non acquittée */
     body.has-pending::before {
@@ -228,20 +479,24 @@
     .lang-toggle:hover { background: #333; }
     .lang-toggle img { width: 14px; height: 10px; display: inline-block; object-fit: cover; border-radius: 2px; }
 
+    @media (max-width: 900px) {
+      .columns { grid-template-columns: 1fr; }
+    }
     @media (max-width: 700px) {
       .topbar { padding: 0.85rem 1rem; }
       .topbar h1 { font-size: 0.95rem; }
-      .order-id { font-size: 2rem; }
-      .order-meta .name { font-size: 1.2rem; }
-      .order-items li { font-size: 1.05rem; }
-      .ack-btn { font-size: 1.2rem; padding: 1.25rem; }
+      .order-id { font-size: 1.9rem; }
+      .order-meta .name { font-size: 1.15rem; }
+      .order-items li { font-size: 1rem; }
+      .btn-action { font-size: 1.05rem; padding: 1rem 0.5rem; }
+      .btn-prepare { font-size: 1.2rem; padding: 1.25rem 0.5rem; }
     }
   </style>
 </head>
 <body>
 
   <!-- LOGIN SCREEN -->
-  <div id="login-screen" class="login-wrap">
+  <div id="login-screen" class="login-wrap" style="display:none;">
     <form class="login-box" id="login-form" method="post" action="#" autocomplete="on">
       <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
         <button type="button" id="login-lang-toggle" class="lang-toggle" aria-label="Language"></button>
@@ -249,7 +504,7 @@
       <h1 id="login-title">ΤΑΜΕΙΟ — ΤΡΟΥΜΠΑΣ</h1>
       {/* Hidden username pour permettre au navigateur d'enregistrer le mot de passe */}
       <input type="text" name="username" id="login-user" value="kalamaki-caisse" autocomplete="username" readonly hidden aria-hidden="true" tabindex="-1" />
-      <input type="password" name="password" id="login-pw" autocomplete="current-password" required autofocus />
+      <input type="password" name="password" id="login-pw" autocomplete="current-password" required />
       <button type="submit" id="login-btn">Σύνδεση</button>
       <p id="login-error" class="login-error" style="display:none;"></p>
     </form>
@@ -263,18 +518,90 @@
         <span class="dot"></span>
         <span class="clock" id="clock">--:--</span>
         <button type="button" id="lang-toggle" class="lang-toggle" aria-label="Language"></button>
-        <select id="sound-select" class="sound-select" aria-label="Son d'alerte"></select>
+        <a href="/cashd/pos" class="history-btn" title="Ταμείο POS (in-store)">🧾 POS</a>
+        <select id="sound-select" class="sound-select" aria-label="Ήχος ειδοποίησης"></select>
         <button type="button" id="sound-test" class="sound-test" title="Test">🔊 Test</button>
         <button type="button" id="sound-toggle" class="sound-toggle" aria-pressed="false"></button>
-        <a href="/cashd/history" id="history-btn" class="history-btn" title="Historique">📋 Historique</a>
       </div>
     </div>
     <div class="orders-area">
-      <div id="order-list" class="order-list"></div>
-      <div id="empty-state" class="empty-state">
-        <div class="big">🍴</div>
-        <p id="empty-title"></p>
-        <p id="empty-sub" style="font-size: 0.85rem; opacity: 0.6; margin-top: 1rem;"></p>
+      <div class="columns">
+        <section class="column col-pending">
+          <div class="col-head">
+            <span id="col-pending-title">Σε αναμονή</span>
+            <span class="count" id="col-pending-count">0</span>
+          </div>
+          <div id="list-pending"></div>
+          <div id="empty-pending" class="col-empty"></div>
+        </section>
+        <section class="column col-prep">
+          <div class="col-head">
+            <span id="col-prep-title">Σε προετοιμασία</span>
+            <span class="count" id="col-prep-count">0</span>
+          </div>
+          <div id="list-prep"></div>
+          <div id="empty-prep" class="col-empty"></div>
+        </section>
+        <section class="column col-history">
+          <div class="col-head">
+            <span id="col-history-title">Ιστορικό</span>
+            <span class="count" id="col-history-count">0</span>
+          </div>
+          <div class="history-actions">
+            <button type="button" id="hist-refresh" class="btn-mini" title="↻"></button>
+            <button type="button" id="hist-print-all" class="btn-mini" title="🖨"></button>
+          </div>
+          <div class="col-body" id="list-history"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP : Accepter commande avec temps -->
+  <div id="accept-modal" class="modal-back" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h2 id="accept-title">Accepter la commande</h2>
+      <p class="modal-sub" id="accept-sub"></p>
+      <div class="time-grid" id="accept-grid">
+        <button type="button" class="time-btn" data-min="10">10 min</button>
+        <button type="button" class="time-btn" data-min="15">15 min</button>
+        <button type="button" class="time-btn" data-min="20">20 min</button>
+        <button type="button" class="time-btn" data-min="30">30 min</button>
+        <button type="button" class="time-btn" data-min="45">45 min</button>
+        <button type="button" class="time-btn" data-min="60">60 min</button>
+      </div>
+      <div class="custom-row">
+        <input type="number" id="accept-custom" min="1" max="180" placeholder="" />
+        <button type="button" id="accept-custom-go">✓</button>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="accept-cancel" class="btn-cancel">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- POPUP : Modifier ETA -->
+  <div id="eta-modal" class="modal-back" role="dialog" aria-modal="true">
+    <div class="modal">
+      <h2 id="eta-title">Modifier le temps</h2>
+      <p class="modal-sub" id="eta-sub"></p>
+      <div class="time-grid" id="eta-grid">
+        <button type="button" class="time-btn" data-delta="+5">+5 min</button>
+        <button type="button" class="time-btn" data-delta="+10">+10 min</button>
+        <button type="button" class="time-btn" data-delta="+15">+15 min</button>
+        <button type="button" class="time-btn" data-delta="+20">+20 min</button>
+        <button type="button" class="time-btn" data-delta="-5">-5 min</button>
+        <button type="button" class="time-btn" data-delta="-10">-10 min</button>
+      </div>
+      <div class="custom-row">
+        <input type="number" id="eta-custom" min="1" max="180" placeholder="" />
+        <button type="button" id="eta-custom-go">✓</button>
+      </div>
+      <div class="reason-row">
+        <input type="text" id="eta-reason" maxlength="120" placeholder="" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="eta-cancel" class="btn-cancel">Annuler</button>
       </div>
     </div>
   </div>
@@ -293,8 +620,13 @@
         topbarTitle: '📟 ΚΑΛΑΜΑΚΙ — ΤΑΜΕΙΟ',
         soundOn: '🔊 ΗΧΟΣ',
         soundOff: '🔇 ΣΙΓΗ',
-        emptyTitle: 'Καμία παραγγελία σε αναμονή.',
-        emptySub: 'Το σύστημα ακούει συνεχώς. Ο ήχος θα ξεκινήσει αυτόματα με την πρώτη παραγγελία.',
+        historyLabel: 'Ιστορικό',
+        colPendingTitle: 'Σε αναμονή',
+        colPrepTitle: 'Σε προετοιμασία',
+        colHistoryTitle: 'Ιστορικό',
+        emptyPending: 'Καμία νέα παραγγελία.',
+        emptyPrep: 'Καμία παραγγελία σε προετοιμασία.',
+        emptyHistory: 'Κανένα ιστορικό.',
         modeDelivery: '🛵 ΠΑΡΑΔΟΣΗ',
         modeTakeaway: '🥡 ΠΑΡΑΛΑΒΗ',
         payCard: '💳 ΚΑΡΤΑ',
@@ -308,10 +640,41 @@
         bell: 'Κουδούνι',
         receivedAt: 'Ώρα παραλαβής:',
         total: 'ΣΥΝΟΛΟ',
-        ackBtn: '✓ ΕΛΗΦΘΗ — ΣΕ ΠΡΟΕΤΟΙΜΑΣΙΑ',
-        ackError: 'Σφάλμα: ',
+        btnPrepare: 'Αποδοχή',
+        btnReady: 'Έτοιμο',
+        btnPaid: 'Πληρώθηκε',
+        btnEta: '⏱ Νέος χρόνος',
+        actionError: 'Σφάλμα: ',
         min: 'λεπτά',
         hour: 'ώρα',
+        // Popups
+        acceptTitle: 'Αποδοχή παραγγελίας',
+        acceptSub: 'Έτοιμο σε :',
+        acceptCustomPh: 'Άλλος χρόνος (λεπτά)',
+        etaTitle: 'Νέος χρόνος',
+        etaSub: 'Τρέχων χρόνος :',
+        etaCustomPh: 'Νέος χρόνος (λεπτά)',
+        etaReasonPh: 'Λόγος (προαιρετικό) - π.χ. κίνηση στο δρόμο',
+        modalCancel: 'Άκυρο',
+        // Chat
+        chatToggle: '💬 Συνομιλία με τον πελάτη',
+        chatPlaceholder: 'Γράψε στον πελάτη...',
+        chatSend: 'Αποστολή',
+        chatFromPatron: 'Εσείς',
+        chatFromClient: 'Πελάτης',
+        chatSystemAccepted: 'Παραγγελία αποδέχθηκε — έτοιμο σε ',
+        chatSystemEta: 'Νέος χρόνος : ',
+        // History
+        histRefresh: '↻ Ανανέωση',
+        histPrintAll: '🖨 Όλα',
+        histPrint: '🖨',
+        histDelete: '🗑',
+        histDeleteConfirm: 'Διαγραφή παραγγελίας ',
+        histStatusPaid: 'Πληρώθηκε',
+        histStatusReady: 'Έτοιμο',
+        histStatusCancelled: 'Ακύρωση',
+        histStatusSeen: 'Σε προετοιμασία',
+        histStatusNew: 'Σε αναμονή',
       },
       en: {
         loginTitle: 'CHECKOUT — TROUMPAS',
@@ -322,8 +685,13 @@
         topbarTitle: '📟 KALAMAKI — CHECKOUT',
         soundOn: '🔊 SOUND',
         soundOff: '🔇 MUTE',
-        emptyTitle: 'No pending orders.',
-        emptySub: 'The system is listening continuously. Sound will play automatically on the first order.',
+        historyLabel: 'History',
+        colPendingTitle: 'Pending',
+        colPrepTitle: 'Preparing',
+        colHistoryTitle: 'History',
+        emptyPending: 'No pending orders.',
+        emptyPrep: 'No orders being prepared.',
+        emptyHistory: 'No history yet.',
         modeDelivery: '🛵 DELIVERY',
         modeTakeaway: '🥡 TAKE-AWAY',
         payCard: '💳 CARD',
@@ -337,10 +705,38 @@
         bell: 'Bell',
         receivedAt: 'Pickup time:',
         total: 'TOTAL',
-        ackBtn: '✓ RECEIVED — PREPARING',
-        ackError: 'Error: ',
+        btnPrepare: 'Accept',
+        btnReady: 'Ready',
+        btnPaid: 'Paid',
+        btnEta: '⏱ Change ETA',
+        actionError: 'Error: ',
         min: 'min',
         hour: 'h',
+        acceptTitle: 'Accept order',
+        acceptSub: 'Ready in :',
+        acceptCustomPh: 'Other time (minutes)',
+        etaTitle: 'Update ETA',
+        etaSub: 'Current ETA :',
+        etaCustomPh: 'New ETA (minutes)',
+        etaReasonPh: 'Reason (optional) - e.g. traffic jam',
+        modalCancel: 'Cancel',
+        chatToggle: '💬 Chat with customer',
+        chatPlaceholder: 'Write to the customer...',
+        chatSend: 'Send',
+        chatFromPatron: 'You',
+        chatFromClient: 'Customer',
+        chatSystemAccepted: 'Order accepted — ready in ',
+        chatSystemEta: 'New ETA : ',
+        histRefresh: '↻ Refresh',
+        histPrintAll: '🖨 All',
+        histPrint: '🖨',
+        histDelete: '🗑',
+        histDeleteConfirm: 'Delete order ',
+        histStatusPaid: 'Paid',
+        histStatusReady: 'Ready',
+        histStatusCancelled: 'Cancelled',
+        histStatusSeen: 'Preparing',
+        histStatusNew: 'Pending',
       },
     };
 
@@ -373,35 +769,89 @@
       // Dashboard
       var topbarTitle = document.getElementById('topbar-title');
       var langToggle = document.getElementById('lang-toggle');
-      var emptyTitle = document.getElementById('empty-title');
-      var emptySub = document.getElementById('empty-sub');
+      var colPendingTitle = document.getElementById('col-pending-title');
+      var colPrepTitle = document.getElementById('col-prep-title');
+      var colHistoryTitle = document.getElementById('col-history-title');
+      var histRefreshBtn = document.getElementById('hist-refresh');
+      var histPrintAllBtn = document.getElementById('hist-print-all');
       if (topbarTitle) topbarTitle.textContent = t.topbarTitle;
       if (langToggle) langToggle.innerHTML = (lang === 'el' ? flagSvg('gr') + 'EL' : flagSvg('gb') + 'EN');
-      if (emptyTitle) emptyTitle.textContent = t.emptyTitle;
-      if (emptySub) emptySub.textContent = t.emptySub;
+      if (colPendingTitle) colPendingTitle.textContent = t.colPendingTitle;
+      if (colPrepTitle) colPrepTitle.textContent = t.colPrepTitle;
+      if (colHistoryTitle) colHistoryTitle.textContent = t.colHistoryTitle;
+      if (histRefreshBtn) histRefreshBtn.textContent = t.histRefresh;
+      if (histPrintAllBtn) histPrintAllBtn.textContent = t.histPrintAll;
+      // Popups
+      var aTitle = document.getElementById('accept-title');
+      var aSub = document.getElementById('accept-sub');
+      var aCustom = document.getElementById('accept-custom');
+      var aCancel = document.getElementById('accept-cancel');
+      var eTitle = document.getElementById('eta-title');
+      var eCustom = document.getElementById('eta-custom');
+      var eReason = document.getElementById('eta-reason');
+      var eCancel = document.getElementById('eta-cancel');
+      if (aTitle) aTitle.textContent = t.acceptTitle;
+      if (aSub) aSub.textContent = t.acceptSub;
+      if (aCustom) aCustom.placeholder = t.acceptCustomPh;
+      if (aCancel) aCancel.textContent = t.modalCancel;
+      if (eTitle) eTitle.textContent = t.etaTitle;
+      if (eCustom) eCustom.placeholder = t.etaCustomPh;
+      if (eReason) eReason.placeholder = t.etaReasonPh;
+      if (eCancel) eCancel.textContent = t.modalCancel;
       // Sound button
       if (soundToggle) soundToggle.textContent = soundOn ? t.soundOn : t.soundOff;
-      // Re-render orders if any
+      // Re-render orders + history if any
       renderOrders();
+      renderHistory();
     }
 
     var loginScreen = document.getElementById('login-screen');
     var dashboard = document.getElementById('dashboard');
     var loginForm = document.getElementById('login-form');
     var loginError = document.getElementById('login-error');
-    var orderListEl = document.getElementById('order-list');
-    var emptyEl = document.getElementById('empty-state');
+    var listPending = document.getElementById('list-pending');
+    var listPrep = document.getElementById('list-prep');
+    var listHistory = document.getElementById('list-history');
+    var emptyPending = document.getElementById('empty-pending');
+    var emptyPrep = document.getElementById('empty-prep');
+    var countPending = document.getElementById('col-pending-count');
+    var countPrep = document.getElementById('col-prep-count');
+    var countHistory = document.getElementById('col-history-count');
     var clockEl = document.getElementById('clock');
     var connEl = document.getElementById('conn-status');
     var soundToggle = document.getElementById('sound-toggle');
     var langToggleBtn = document.getElementById('lang-toggle');
     var loginLangToggleBtn = document.getElementById('login-lang-toggle');
+    // Popups
+    var acceptModal = document.getElementById('accept-modal');
+    var acceptGrid = document.getElementById('accept-grid');
+    var acceptCustom = document.getElementById('accept-custom');
+    var acceptCustomGo = document.getElementById('accept-custom-go');
+    var acceptCancelBtn = document.getElementById('accept-cancel');
+    var acceptSubEl = document.getElementById('accept-sub');
+    var etaModal = document.getElementById('eta-modal');
+    var etaGrid = document.getElementById('eta-grid');
+    var etaCustom = document.getElementById('eta-custom');
+    var etaCustomGo = document.getElementById('eta-custom-go');
+    var etaCancelBtn = document.getElementById('eta-cancel');
+    var etaReason = document.getElementById('eta-reason');
+    var etaSubEl = document.getElementById('eta-sub');
+    var histRefresh = document.getElementById('hist-refresh');
+    var histPrintAll = document.getElementById('hist-print-all');
+
+    // State
+    var historyRows = [];    // commandes terminées (status NOT IN new/seen)
+    var openChats = {};      // id -> bool (carte chat ouvert)
+    var lastSeenMsgId = {};  // id -> last message id rendered (pour notif son nouveau msg)
+    var pendingAcceptId = null; // id en cours d'acceptation (popup)
+    var pendingEtaId = null;    // id en cours de modif ETA (popup)
+    var pendingEtaCurrent = 0;  // valeur actuelle prep_minutes
 
     function toggleLang() { setLang(lang === 'el' ? 'en' : 'el'); }
     if (langToggleBtn) langToggleBtn.addEventListener('click', toggleLang);
     if (loginLangToggleBtn) loginLangToggleBtn.addEventListener('click', toggleLang);
 
-    var orders = {}; // id -> order
+    var orders = {}; // id -> order (status 'new' ou 'seen' uniquement)
     var since = 0;
     var polling = false;
     var soundOn = true;
@@ -483,7 +933,7 @@
       soundToggle.setAttribute('aria-pressed', String(!soundOn));
       if (soundOn) {
         ensureAudio();
-        if (hasPending()) startBeeping();
+        if (hasNewPending()) startBeeping();
       } else {
         stopBeeping();
       }
@@ -503,7 +953,6 @@
       soundSelect.addEventListener('change', function() {
         setSoundChoice(soundSelect.value);
         ensureAudio();
-        // Preview immédiat
         if (window.TroubaSounds) window.TroubaSounds.play(soundSelect.value);
       });
     }
@@ -514,8 +963,9 @@
       });
     }
 
-    function hasPending() {
-      return Object.keys(orders).length > 0;
+    function hasNewPending() {
+      for (var k in orders) if (orders[k].status === 'new') return true;
+      return false;
     }
 
     function escapeHtml(s) {
@@ -532,96 +982,624 @@
       return v + ' ' + t.min;
     }
 
-    function renderOrders() {
-      var ids = Object.keys(orders).sort(function(a, b) { return orders[a].created_at - orders[b].created_at; });
-      if (ids.length === 0) {
-        orderListEl.innerHTML = '';
-        emptyEl.style.display = 'block';
-        document.body.classList.remove('has-pending');
-        stopBeeping();
-        return;
-      }
-      emptyEl.style.display = 'none';
-      document.body.classList.add('has-pending');
-      if (soundOn) startBeeping();
+    function buildCardBody(o) {
+      var itemsHtml = '';
+      (o.items || []).forEach(function(it) {
+        itemsHtml += '<li>'
+          + '<span><span class="qty">×' + it.qty + '</span><span class="item-name">' + escapeHtml(it.name) + '</span></span>'
+          + '<span class="item-total">' + fmt(it.price * it.qty) + '</span>'
+          + '</li>';
+      });
+      var d = new Date(o.created_at);
+      var time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
 
-      var html = '';
-      ids.forEach(function(id) {
-        var o = orders[id];
-        var itemsHtml = '';
-        (o.items || []).forEach(function(it) {
-          itemsHtml += '<li>'
-            + '<span><span class="qty">×' + it.qty + '</span><span class="item-name">' + escapeHtml(it.name) + '</span></span>'
-            + '<span class="item-total">' + fmt(it.price * it.qty) + '</span>'
-            + '</li>';
-        });
-        var d = new Date(o.created_at);
-        var time = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+      var isDelivery = o.mode === 'delivery';
+      var payLoc = isDelivery ? t.payAtCourier : t.payAtCounter;
+      var modePill = isDelivery
+        ? '<span class="pill pill-delivery">' + t.modeDelivery + '</span>'
+        : '<span class="pill pill-takeaway">' + t.modeTakeaway + '</span>';
+      var payPill = o.payment === 'card'
+        ? '<span class="pill pill-card">' + t.payCard + ' ' + payLoc + '</span>'
+        : '<span class="pill pill-cash">' + t.payCash + ' ' + payLoc + '</span>';
+      var pickupText = '⏱ ' + (isDelivery ? t.deliveryIn : t.pickupIn) + ' ' + pickupLabel(o.pickup_time);
+      // Si pickup_time vide ou "0" (option supprimée côté form), on n'affiche pas le bloc
+      var hasPickup = o.pickup_time && String(o.pickup_time) !== '0';
 
-        var isDelivery = o.mode === 'delivery';
-        var payLoc = isDelivery ? t.payAtCourier : t.payAtCounter;
-        var modePill = isDelivery
-          ? '<span class="pill pill-delivery">' + t.modeDelivery + '</span>'
-          : '<span class="pill pill-takeaway">' + t.modeTakeaway + '</span>';
-        var payPill = o.payment === 'card'
-          ? '<span class="pill pill-card">' + t.payCard + ' ' + payLoc + '</span>'
-          : '<span class="pill pill-cash">' + t.payCash + ' ' + payLoc + '</span>';
-        var pickupText = '⏱ ' + (isDelivery ? t.deliveryIn : t.pickupIn) + ' ' + pickupLabel(o.pickup_time);
-
-        var deliveryBlock = '';
-        if (isDelivery && o.address) {
-          var extra = [];
-          if (o.floor) extra.push(t.floor + ' : ' + escapeHtml(o.floor));
-          if (o.bell)  extra.push(t.bell + ' : ' + escapeHtml(o.bell));
-          deliveryBlock = '<div class="delivery-box">'
-            + '<div class="deliv-label">' + t.deliveryLabel + '</div>'
-            + '<div class="deliv-addr">' + escapeHtml(o.address) + '</div>'
-            + (extra.length ? '<div class="deliv-extra">' + extra.join(' · ') + '</div>' : '')
-            + (o.notes ? '<div class="deliv-notes">📝 ' + escapeHtml(o.notes) + '</div>' : '')
-            + '</div>';
-        } else if (o.notes) {
-          deliveryBlock = '<div class="delivery-box"><div class="deliv-notes">📝 ' + escapeHtml(o.notes) + '</div></div>';
+      // Note client : si traduction grecque dispo et différente de l'original,
+      // on affiche la traduction en gros + l'original en petit. Sinon note brute.
+      var notesHtml = '';
+      if (o.notes) {
+        var hasTrans = o.notes_translated && o.notes_translated !== o.notes;
+        if (hasTrans) {
+          notesHtml = '<div class="deliv-notes" style="font-size:1.1rem;color:#fbbf24;font-weight:700;font-style:normal;">📝 ' + escapeHtml(o.notes_translated) + '</div>'
+            + '<div style="font-size:0.78rem;color:#888;margin-top:0.25rem;font-style:italic;">(' + (lang === 'el' ? 'Αρχικό' : 'Original') + ': ' + escapeHtml(o.notes) + ')</div>';
+        } else {
+          notesHtml = '<div class="deliv-notes">📝 ' + escapeHtml(o.notes) + '</div>';
         }
+      }
 
-        html += '<article class="order-card" data-order="' + escapeHtml(o.id) + '">'
-          + '<div class="order-head">'
+      var deliveryBlock = '';
+      if (isDelivery && o.address) {
+        var extra = [];
+        if (o.floor) extra.push(t.floor + ' : ' + escapeHtml(o.floor));
+        if (o.bell)  extra.push(t.bell + ' : ' + escapeHtml(o.bell));
+        deliveryBlock = '<div class="delivery-box">'
+          + '<div class="deliv-label">' + t.deliveryLabel + '</div>'
+          + '<div class="deliv-addr">' + escapeHtml(o.address) + '</div>'
+          + (extra.length ? '<div class="deliv-extra">' + extra.join(' · ') + '</div>' : '')
+          + notesHtml
+          + '</div>';
+      } else if (notesHtml) {
+        deliveryBlock = '<div class="delivery-box">' + notesHtml + '</div>';
+      }
+
+      return ''
+        + '<div class="order-head">'
           + '<div><div class="order-id">' + escapeHtml(o.id) + '</div><div style="font-size:0.8rem;color:#999;margin-top:0.25rem;">' + t.receivedAt + ' ' + time + '</div></div>'
           + '<div class="order-meta"><div class="name">' + escapeHtml(o.name) + '</div><div class="phone">📞 <a href="tel:' + encodeURIComponent(o.phone) + '" style="color:inherit;text-decoration:none;">' + escapeHtml(o.phone) + '</a></div></div>'
-          + '</div>'
-          + '<div class="order-mode-row">' + modePill + payPill + '</div>'
-          + '<div class="order-pickup">' + pickupText + '</div>'
-          + deliveryBlock
-          + '<ul class="order-items">' + itemsHtml + '</ul>'
-          + '<div class="order-total"><span>' + t.total + '</span><span>' + fmt(o.total) + '</span></div>'
-          + '<button type="button" class="ack-btn" data-ack="' + escapeHtml(o.id) + '">' + t.ackBtn + '</button>'
-          + '</article>';
-      });
-      orderListEl.innerHTML = html;
+        + '</div>'
+        + '<div class="order-mode-row">' + modePill + payPill + '</div>'
+        + (hasPickup ? '<div class="order-pickup">' + pickupText + '</div>' : '')
+        + deliveryBlock
+        + '<ul class="order-items">' + itemsHtml + '</ul>'
+        + '<div class="order-total"><span>' + t.total + '</span><span>' + fmt(o.total) + '</span></div>';
     }
 
-    orderListEl.addEventListener('click', async function(e) {
-      var t = e.target;
-      if (!(t instanceof Element)) return;
-      if (!t.hasAttribute('data-ack')) return;
-      var id = t.getAttribute('data-ack');
-      t.disabled = true;
-      t.textContent = '…';
+    function buildChatHtml(o) {
+      var unread = Number(o.unread_client_messages) || 0;
+      var badge = unread > 0 ? '<span class="unread-badge">' + unread + '</span>' : '';
+      var isOpen = !!openChats[o.id];
+      return ''
+        + '<div class="chat-wrap" data-chat-wrap="' + escapeHtml(o.id) + '">'
+          + '<button type="button" class="chat-toggle" data-action="toggle-chat" data-id="' + escapeHtml(o.id) + '">'
+            + '<span>' + t.chatToggle + '</span>'
+            + badge
+          + '</button>'
+          + '<div class="chat-body' + (isOpen ? ' open' : '') + '" data-chat-body="' + escapeHtml(o.id) + '">'
+            + '<div class="chat-messages" data-chat-messages="' + escapeHtml(o.id) + '"></div>'
+            + '<div class="chat-input-row">'
+              + '<input type="text" placeholder="' + escapeHtml(t.chatPlaceholder) + '" data-chat-input="' + escapeHtml(o.id) + '" maxlength="500" />'
+              + '<button type="button" data-action="send-msg" data-id="' + escapeHtml(o.id) + '">' + t.chatSend + '</button>'
+            + '</div>'
+          + '</div>'
+        + '</div>';
+    }
+
+    function buildEtaBadge(o) {
+      if (!o.prep_minutes) return '';
+      var remaining = o.prep_minutes;
+      if (o.accepted_at) {
+        var elapsed = Math.floor((Date.now() - o.accepted_at) / 60000);
+        remaining = Math.max(0, o.prep_minutes - elapsed);
+      }
+      return '<div style="display:inline-block;padding:0.3rem 0.7rem;border-radius:999px;background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.4);font-weight:800;font-size:0.85rem;margin-left:0.5rem;">⏱ ' + remaining + ' ' + t.min + '</div>';
+    }
+
+    function renderOrders() {
+      var pending = [];
+      var prep = [];
+      Object.keys(orders).forEach(function(id) {
+        var o = orders[id];
+        if (o.status === 'new') pending.push(o);
+        else if (o.status === 'seen') prep.push(o);
+      });
+      pending.sort(function(a, b) { return a.created_at - b.created_at; });
+      prep.sort(function(a, b) { return a.created_at - b.created_at; });
+
+      countPending.textContent = String(pending.length);
+      countPrep.textContent = String(prep.length);
+
+      // Colonne EN ATTENTE : carte rouge clignotante + bouton "Accepter" → popup temps
+      if (pending.length === 0) {
+        listPending.innerHTML = '';
+        emptyPending.style.display = 'block';
+        emptyPending.textContent = t.emptyPending;
+      } else {
+        emptyPending.style.display = 'none';
+        var html = '';
+        pending.forEach(function(o) {
+          html += '<article class="order-card card-pending" data-order="' + escapeHtml(o.id) + '">'
+            + '<div class="actions">'
+              + '<button type="button" class="btn-action btn-prepare" data-action="open-accept" data-id="' + escapeHtml(o.id) + '">' + t.btnPrepare + '</button>'
+            + '</div>'
+            + buildCardBody(o)
+            + buildChatHtml(o)
+            + '</article>';
+        });
+        listPending.innerHTML = html;
+      }
+
+      // Colonne EN PREPARATION : gold + 3 boutons (ETA / Ready / Paid) + ETA badge dans head
+      if (prep.length === 0) {
+        listPrep.innerHTML = '';
+        emptyPrep.style.display = 'block';
+        emptyPrep.textContent = t.emptyPrep;
+      } else {
+        emptyPrep.style.display = 'none';
+        var html2 = '';
+        prep.forEach(function(o) {
+          html2 += '<article class="order-card card-prep" data-order="' + escapeHtml(o.id) + '">'
+            + '<div class="actions" style="grid-template-columns: 1fr 1fr 1fr;">'
+              + '<button type="button" class="btn-action btn-eta" data-action="open-eta" data-id="' + escapeHtml(o.id) + '">' + t.btnEta + '</button>'
+              + '<button type="button" class="btn-action btn-ready" data-action="ready" data-id="' + escapeHtml(o.id) + '">' + t.btnReady + '</button>'
+              + '<button type="button" class="btn-action btn-paid" data-action="paid" data-id="' + escapeHtml(o.id) + '">' + t.btnPaid + '</button>'
+            + '</div>'
+            + buildCardBody(o)
+            + buildChatHtml(o)
+            + '</article>';
+        });
+        listPrep.innerHTML = html2;
+      }
+
+      // Re-fetch messages des chats ouverts
+      Object.keys(openChats).forEach(function(id) {
+        if (openChats[id] && orders[id]) fetchChatMessages(id);
+      });
+
+      // Beep tant qu'il y a au moins une commande "new"
+      if (pending.length > 0) {
+        document.body.classList.add('has-pending');
+        if (soundOn) startBeeping();
+      } else {
+        document.body.classList.remove('has-pending');
+        stopBeeping();
+      }
+    }
+
+    // ═══ POPUPS (acceptation + ETA) ═══
+    function openAcceptModal(id) {
+      pendingAcceptId = id;
+      var o = orders[id];
+      var name = o ? (o.name || '') : '';
+      var total = o ? fmt(o.total || 0) : '';
+      acceptSubEl.textContent = t.acceptSub + ' ' + id + (name ? ' — ' + name : '') + (total ? ' · ' + total : '');
+      acceptCustom.value = '';
+      acceptModal.classList.add('show');
+      setTimeout(function() { acceptCustom.focus(); }, 50);
+    }
+    function closeAcceptModal() {
+      acceptModal.classList.remove('show');
+      pendingAcceptId = null;
+    }
+    function openEtaModal(id) {
+      pendingEtaId = id;
+      var o = orders[id];
+      pendingEtaCurrent = (o && o.prep_minutes) ? Number(o.prep_minutes) : 0;
+      etaSubEl.textContent = t.etaSub + ' ' + (pendingEtaCurrent || '?') + ' ' + t.min;
+      etaCustom.value = '';
+      etaReason.value = '';
+      etaModal.classList.add('show');
+      setTimeout(function() { etaCustom.focus(); }, 50);
+    }
+    function closeEtaModal() {
+      etaModal.classList.remove('show');
+      pendingEtaId = null;
+      pendingEtaCurrent = 0;
+    }
+
+    async function submitAccept(prepMin) {
+      if (!pendingAcceptId) return;
+      var id = pendingAcceptId;
       try {
         var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/ack', {
           method: 'POST',
           credentials: 'include',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prep_minutes: prepMin }),
         });
         var data = await res.json();
         if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
-        delete orders[id];
+        if (orders[id]) {
+          orders[id].status = 'seen';
+          orders[id].prep_minutes = data.prep_minutes || prepMin;
+          orders[id].accepted_at = Date.now();
+        }
+        closeAcceptModal();
         renderOrders();
       } catch (err) {
-        t.disabled = false;
-        t.textContent = I18N[lang].ackBtn;
-        alert(I18N[lang].ackError + (err && err.message ? err.message : err));
+        alert(t.actionError + (err && err.message ? err.message : err));
       }
+    }
+
+    async function submitEta(prepMin, reason) {
+      if (!pendingEtaId) return;
+      var id = pendingEtaId;
+      try {
+        var body = { prep_minutes: prepMin };
+        if (reason) body.reason = reason;
+        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/eta', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
+        if (orders[id]) {
+          orders[id].prep_minutes = data.prep_minutes || prepMin;
+          orders[id].eta_changed_at = Date.now();
+        }
+        closeEtaModal();
+        renderOrders();
+      } catch (err) {
+        alert(t.actionError + (err && err.message ? err.message : err));
+      }
+    }
+
+    // Listeners popups
+    if (acceptGrid) acceptGrid.addEventListener('click', function(e) {
+      var el = e.target;
+      if (!(el instanceof Element)) return;
+      var min = parseInt(el.getAttribute('data-min') || '0', 10);
+      if (min > 0) submitAccept(min);
     });
+    if (acceptCustomGo) acceptCustomGo.addEventListener('click', function() {
+      var v = parseInt(acceptCustom.value || '0', 10);
+      if (v >= 1 && v <= 180) submitAccept(v);
+    });
+    if (acceptCustom) acceptCustom.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); acceptCustomGo.click(); }
+    });
+    if (acceptCancelBtn) acceptCancelBtn.addEventListener('click', closeAcceptModal);
+    if (acceptModal) acceptModal.addEventListener('click', function(e) {
+      if (e.target === acceptModal) closeAcceptModal();
+    });
+
+    if (etaGrid) etaGrid.addEventListener('click', function(e) {
+      var el = e.target;
+      if (!(el instanceof Element)) return;
+      var delta = el.getAttribute('data-delta');
+      if (!delta) return;
+      var d = parseInt(delta, 10);
+      var newVal = Math.max(1, pendingEtaCurrent + d);
+      submitEta(newVal, etaReason.value.trim());
+    });
+    if (etaCustomGo) etaCustomGo.addEventListener('click', function() {
+      var v = parseInt(etaCustom.value || '0', 10);
+      if (v >= 1 && v <= 180) submitEta(v, etaReason.value.trim());
+    });
+    if (etaCustom) etaCustom.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); etaCustomGo.click(); }
+    });
+    if (etaCancelBtn) etaCancelBtn.addEventListener('click', closeEtaModal);
+    if (etaModal) etaModal.addEventListener('click', function(e) {
+      if (e.target === etaModal) closeEtaModal();
+    });
+
+    // ═══ CHAT (par carte) ═══
+    async function fetchChatMessages(id) {
+      try {
+        var res = await fetch('/api/orders/history', { credentials: 'include' });
+        // simplification : on lit via /api/orders/[id]/public mais en mode admin on n'a pas le phone.
+        // Solution : on récupère les messages directement via une route admin si dispo.
+        // Pour MVP : on lit via poll qui retourne unread_client_messages.
+        // Vrai fetch messages : on fait un endpoint /api/orders/[id]/messages (admin)
+        // Pour l'instant on utilise un fetch direct sur public avec le phone connu (récupéré de orders[id])
+      } catch (e) { /* ignore */ }
+    }
+
+    // Vrai fetch messages côté admin : on passe par /api/orders/[id]/public avec phone last4
+    async function loadChatForCard(id) {
+      var o = orders[id];
+      if (!o || !o.phone) return;
+      var phone4 = String(o.phone).replace(/\D/g, '').slice(-4);
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/public?phone=' + phone4, {
+          cache: 'no-store',
+        });
+        var data = await res.json();
+        if (!data.ok) return;
+        var container = document.querySelector('[data-chat-messages="' + cssId(id) + '"]');
+        if (!container) return;
+        renderChatMessages(container, data.messages || []);
+        // unread = 0 maintenant (chat ouvert = patron a lu)
+        if (o.unread_client_messages) {
+          o.unread_client_messages = 0;
+          // Update badge UI
+          var toggle = document.querySelector('[data-action="toggle-chat"][data-id="' + cssId(id) + '"]');
+          if (toggle) {
+            var badge = toggle.querySelector('.unread-badge');
+            if (badge) badge.remove();
+          }
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    function cssId(id) {
+      return String(id).replace(/[^A-Za-z0-9_-]/g, '');
+    }
+
+    function renderChatMessages(container, messages) {
+      var html = '';
+      messages.forEach(function(m) {
+        var d = new Date(m.created_at);
+        var time = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        var who, cls, text;
+        if (m.sender === 'patron') {
+          who = t.chatFromPatron; cls = 'from-patron'; text = m.text;
+        } else if (m.sender === 'client') {
+          who = t.chatFromClient; cls = 'from-client'; text = m.text;
+        } else {
+          // system : 'accepted:25' ou 'eta:30' ou 'eta:30:embouteillage'
+          cls = 'from-system';
+          who = '';
+          var raw = String(m.text || '');
+          if (raw.indexOf('accepted:') === 0) {
+            text = t.chatSystemAccepted + raw.slice(9) + ' ' + t.min;
+          } else if (raw.indexOf('eta:') === 0) {
+            var parts = raw.slice(4).split(':');
+            text = t.chatSystemEta + parts[0] + ' ' + t.min + (parts[1] ? ' (' + parts[1] + ')' : '');
+          } else {
+            text = raw;
+          }
+        }
+        html += '<div class="chat-msg ' + cls + '">'
+          + (who ? '<div style="font-size:0.7rem;opacity:0.7;margin-bottom:0.2rem;">' + escapeHtml(who) + '</div>' : '')
+          + escapeHtml(text)
+          + '<div class="meta">' + time + '</div>'
+          + '</div>';
+      });
+      container.innerHTML = html;
+      // scroll to bottom
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function toggleChat(id) {
+      openChats[id] = !openChats[id];
+      var body = document.querySelector('[data-chat-body="' + cssId(id) + '"]');
+      if (body) body.classList.toggle('open', !!openChats[id]);
+      if (openChats[id]) {
+        await loadChatForCard(id);
+      }
+    }
+
+    async function sendChatMessage(id) {
+      var input = document.querySelector('[data-chat-input="' + cssId(id) + '"]');
+      if (!input) return;
+      var text = (input.value || '').trim();
+      if (!text) return;
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/message-patron', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text }),
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
+        input.value = '';
+        await loadChatForCard(id);
+      } catch (err) {
+        alert(t.actionError + (err && err.message ? err.message : err));
+      }
+    }
+
+    // ═══ HISTORY (colonne droite) ═══
+    var historyPollIntervalMs = 30000;
+    var historyPollTimer = null;
+
+    async function fetchHistory() {
+      try {
+        var res = await fetch('/api/orders/history', {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+        if (res.status === 401) return;
+        var data = await res.json();
+        if (!data.ok) return;
+        // filtrer : on garde uniquement statuts terminés (pas new/seen qui sont dans les autres colonnes)
+        historyRows = (data.rows || []).filter(function(r) {
+          return r.status === 'ready' || r.status === 'paid' || r.status === 'cancelled' || r.status === 'completed';
+        });
+        renderHistory();
+      } catch (e) { /* ignore */ }
+    }
+
+    function histStatusLabel(s) {
+      if (s === 'paid') return t.histStatusPaid;
+      if (s === 'ready') return t.histStatusReady;
+      if (s === 'cancelled') return t.histStatusCancelled;
+      if (s === 'seen') return t.histStatusSeen;
+      if (s === 'completed') return t.histStatusPaid;
+      return t.histStatusNew;
+    }
+
+    function renderHistory() {
+      if (!listHistory) return;
+      countHistory.textContent = String(historyRows.length);
+      if (historyRows.length === 0) {
+        listHistory.innerHTML = '<div class="hist-empty">' + escapeHtml(t.emptyHistory) + '</div>';
+        return;
+      }
+      var html = '';
+      historyRows.forEach(function(r) {
+        var d = new Date(r.created_at);
+        var dd = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth()+1).padStart(2, '0');
+        var hh = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        var sCls = 's-' + r.status;
+        html += '<div class="hist-row" data-hist-id="' + escapeHtml(r.id) + '">'
+          + '<div>'
+            + '<div class="h-id">' + escapeHtml(r.id) + '</div>'
+            + '<div class="h-meta">' + dd + ' ' + hh + '</div>'
+          + '</div>'
+          + '<div>'
+            + '<div class="h-name">' + escapeHtml(r.name || '') + '</div>'
+            + '<div class="h-meta">' + (r.mode === 'delivery' ? '🛵' : '🥡') + ' · ' + Number(r.items_count || 0) + ' it.</div>'
+          + '</div>'
+          + '<div>'
+            + '<div class="h-total">' + fmt(r.total) + '</div>'
+            + '<span class="h-status ' + sCls + '">' + escapeHtml(histStatusLabel(r.status)) + '</span>'
+            + '<div class="h-actions">'
+              + '<button type="button" class="h-act" data-action="hist-print" data-id="' + escapeHtml(r.id) + '" title="' + escapeHtml(t.histPrint) + '">🖨</button>'
+              + '<button type="button" class="h-act danger" data-action="hist-delete" data-id="' + escapeHtml(r.id) + '" title="' + escapeHtml(t.histDelete) + '">🗑</button>'
+            + '</div>'
+          + '</div>'
+        + '</div>';
+      });
+      listHistory.innerHTML = html;
+    }
+
+    async function deleteHistoryRow(id) {
+      if (!confirm(t.histDeleteConfirm + id + ' ?')) return;
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/delete', {
+          method: 'POST',
+          credentials: 'include',
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
+        historyRows = historyRows.filter(function(r) { return r.id !== id; });
+        renderHistory();
+      } catch (err) {
+        alert(t.actionError + (err && err.message ? err.message : err));
+      }
+    }
+
+    function printOneHistory(id) {
+      var row = historyRows.find(function(r) { return r.id === id; });
+      if (!row) return;
+      var d = new Date(row.created_at);
+      var dd = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth()+1).padStart(2, '0') + '/' + d.getFullYear();
+      var hh = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      var addr = row.address || '';
+      if (addr && row.floor) addr += ' · ' + row.floor;
+      if (addr && row.bell) addr += ' · ' + row.bell;
+      var itemsHtml = '';
+      (row.items || []).forEach(function(it) {
+        itemsHtml += '<div>×' + it.qty + ' ' + escapeHtml(it.name || '') + ' — ' + fmt((it.price || 0) * (it.qty || 0)) + '</div>';
+      });
+      var html = '<!doctype html><html><head><meta charset="utf-8"><title>' + row.id + '</title>'
+        + '<style>'
+        + '@page { size: 80mm auto; margin: 0; }'
+        + 'html,body { width: 80mm; margin: 0; padding: 4mm; font-family: monospace; font-size: 11pt; color: #000; }'
+        + 'h1 { font-size: 14pt; margin: 0 0 4pt; text-align: center; }'
+        + '.sep { border-top: 1px dashed #000; margin: 4pt 0; }'
+        + '.row { display: flex; justify-content: space-between; }'
+        + '.bold { font-weight: bold; }'
+        + '.total { font-size: 13pt; margin-top: 4pt; }'
+        + '</style></head><body>'
+        + '<h1>ΚΑΛΑΜΑΚΙ ΤΡΟΥΜΠΑΣ</h1>'
+        + '<div class="row"><span class="bold">' + escapeHtml(row.id) + '</span><span>' + dd + ' ' + hh + '</span></div>'
+        + '<div>' + escapeHtml(row.name || '') + ' · ' + escapeHtml(row.phone || '') + '</div>'
+        + '<div>' + (row.mode === 'delivery' ? 'ΠΑΡΑΔΟΣΗ' : 'ΠΑΡΑΛΑΒΗ') + ' · ' + (row.payment === 'card' ? 'ΚΑΡΤΑ' : 'ΜΕΤΡΗΤΑ') + '</div>'
+        + (addr ? '<div>📍 ' + escapeHtml(addr) + '</div>' : '')
+        + (row.notes ? '<div>📝 ' + escapeHtml(row.notes) + '</div>' : '')
+        + '<div class="sep"></div>'
+        + itemsHtml
+        + '<div class="sep"></div>'
+        + '<div class="row total"><span class="bold">ΣΥΝΟΛΟ</span><span class="bold">' + fmt(row.total) + '</span></div>'
+        + '<div class="sep"></div>'
+        + '<div style="text-align:center;font-size:10pt;">Ευχαριστούμε!</div>'
+        + '</body></html>';
+      // Imprime 2 copies d'un coup en ouvrant 2 popups
+      function spawnPrint() {
+        var w = window.open('', '_blank', 'width=400,height=600');
+        if (!w) return;
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+        w.focus();
+        setTimeout(function() {
+          try { w.print(); } catch (e) {}
+          setTimeout(function() { try { w.close(); } catch(e) {} }, 800);
+        }, 250);
+      }
+      spawnPrint();
+      setTimeout(spawnPrint, 500); // 2e copie 500ms après
+    }
+
+    function printAllHistory() {
+      if (historyRows.length === 0) return;
+      // Liste compacte de toutes les lignes — utilise le print standard du document
+      // On laisse le @media print du history.astro existant. Ici on imprime juste la table compacte.
+      var html = '<!doctype html><html><head><meta charset="utf-8"><title>Ιστορικό</title>'
+        + '<style>'
+        + '@page { size: A4; margin: 8mm; }'
+        + 'body { font-family: monospace; font-size: 9pt; color: #000; }'
+        + 'h1 { font-size: 12pt; margin: 0 0 6pt; }'
+        + 'table { width: 100%; border-collapse: collapse; }'
+        + 'th, td { padding: 2pt 4pt; border-bottom: 1px solid #ccc; text-align: left; }'
+        + 'th { background: #eee; }'
+        + '.r { text-align: right; }'
+        + '</style></head><body>'
+        + '<h1>ΙΣΤΟΡΙΚΟ — ' + historyRows.length + ' ' + (lang === 'el' ? 'παραγγελίες' : 'orders') + '</h1>'
+        + '<table><thead><tr><th>ID</th><th>' + (lang === 'el' ? 'Ημερ.' : 'Date') + '</th><th>' + (lang === 'el' ? 'Όνομα' : 'Name') + '</th><th>' + (lang === 'el' ? 'Τηλ.' : 'Phone') + '</th><th>' + (lang === 'el' ? 'Είδη' : 'Items') + '</th><th class="r">' + (lang === 'el' ? 'Σύνολο' : 'Total') + '</th><th>' + (lang === 'el' ? 'Κατάσταση' : 'Status') + '</th></tr></thead><tbody>';
+      historyRows.forEach(function(r) {
+        var d = new Date(r.created_at);
+        var dd = String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth()+1).padStart(2, '0') + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        html += '<tr><td>' + escapeHtml(r.id) + '</td><td>' + dd + '</td><td>' + escapeHtml(r.name || '') + '</td><td>' + escapeHtml(r.phone || '') + '</td><td>' + Number(r.items_count || 0) + '</td><td class="r">' + fmt(r.total) + '</td><td>' + escapeHtml(histStatusLabel(r.status)) + '</td></tr>';
+      });
+      html += '</tbody></table></body></html>';
+      var w = window.open('', '_blank', 'width=800,height=900');
+      if (!w) return;
+      w.document.open(); w.document.write(html); w.document.close();
+      w.focus();
+      setTimeout(function() { try { w.print(); } catch(e) {} setTimeout(function(){ try { w.close(); } catch(e){} }, 800); }, 300);
+    }
+
+    // ═══ doAction dispatcher (toutes les actions sur cartes + history) ═══
+    async function doAction(id, action) {
+      if (action === 'open-accept') return openAcceptModal(id);
+      if (action === 'open-eta') return openEtaModal(id);
+      if (action === 'toggle-chat') return toggleChat(id);
+      if (action === 'send-msg') return sendChatMessage(id);
+      if (action === 'hist-print') return printOneHistory(id);
+      if (action === 'hist-delete') return deleteHistoryRow(id);
+
+      var btn = document.querySelector('button[data-action="' + action + '"][data-id="' + id + '"]');
+      if (btn) { btn.disabled = true; btn.dataset.prev = btn.textContent; btn.textContent = '…'; }
+      try {
+        if (action === 'ready' || action === 'paid' || action === 'cancelled') {
+          var res2 = await fetch('/api/orders/' + encodeURIComponent(id) + '/status', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: action })
+          });
+          var data2 = await res2.json();
+          if (!res2.ok || !data2.ok) throw new Error(data2.error || 'fail');
+          // sort de l'écran actif et apparaît dans l'history au prochain refresh
+          delete orders[id];
+          renderOrders();
+          fetchHistory();
+        }
+      } catch (err) {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = btn.dataset.prev || '';
+        }
+        alert(t.actionError + (err && err.message ? err.message : err));
+      }
+    }
+
+    function onActionClick(e) {
+      var el = e.target;
+      if (!(el instanceof Element)) return;
+      // remonte jusqu'au [data-action] le plus proche
+      var actionEl = el.closest ? el.closest('[data-action]') : null;
+      if (!actionEl) return;
+      var action = actionEl.getAttribute('data-action');
+      var id = actionEl.getAttribute('data-id');
+      if (!action || !id) return;
+      doAction(id, action);
+    }
+    listPending.addEventListener('click', onActionClick);
+    listPrep.addEventListener('click', onActionClick);
+    if (listHistory) listHistory.addEventListener('click', onActionClick);
+    // Enter dans chat input pour envoyer
+    function onChatKeydown(e) {
+      if (e.key !== 'Enter') return;
+      var el = e.target;
+      if (!el || !el.getAttribute) return;
+      var id = el.getAttribute('data-chat-input');
+      if (id) { e.preventDefault(); sendChatMessage(id); }
+    }
+    listPending.addEventListener('keydown', onChatKeydown);
+    listPrep.addEventListener('keydown', onChatKeydown);
+
+    // Buttons history actions globales
+    if (histRefresh) histRefresh.addEventListener('click', fetchHistory);
+    if (histPrintAll) histPrintAll.addEventListener('click', printAllHistory);
 
     async function pollLoop() {
       if (polling) return;
@@ -640,9 +1618,11 @@
           var data = await res.json();
           connEl.classList.remove('disconnected');
           if (data && Array.isArray(data.orders)) {
-            data.orders.forEach(function(o) {
-              if (!orders[o.id]) orders[o.id] = o;
-            });
+            // Le poll renvoie l'état COMPLET des commandes actives
+            // (status IN 'new','seen' depuis 24h). On reconstruit l'index local.
+            var nextOrders = {};
+            data.orders.forEach(function(o) { nextOrders[o.id] = o; });
+            orders = nextOrders;
             if (typeof data.now === 'number') since = data.now;
             renderOrders();
           }
@@ -650,7 +1630,6 @@
           connEl.classList.add('disconnected');
           await new Promise(function(r) { setTimeout(r, 3000); });
         }
-        // petite pause entre les long-polls
         await new Promise(function(r) { setTimeout(r, 500); });
       }
     }
@@ -660,10 +1639,21 @@
       dashboard.classList.add('show');
       ensureAudio();
       pollLoop();
+      // Démarre le polling history (toutes les 30s) + fetch immédiat
+      fetchHistory();
+      if (historyPollTimer) clearInterval(historyPollTimer);
+      historyPollTimer = setInterval(fetchHistory, historyPollIntervalMs);
     }
     function showLogin() {
+      polling = false;
+      if (historyPollTimer) { clearInterval(historyPollTimer); historyPollTimer = null; }
       loginScreen.style.display = 'flex';
       dashboard.classList.remove('show');
+      // Focus sur le champ password (élément masqué initialement → ne pas autofocus dans le HTML)
+      setTimeout(function() {
+        var pw = document.getElementById('login-pw');
+        if (pw) pw.focus();
+      }, 50);
     }
 
     loginForm.addEventListener('submit', async function(e) {
@@ -688,17 +1678,38 @@
       }
     });
 
-    // Auto-tentative : si déjà cookie valide, le poll va passer
-    fetch('/api/orders/poll?since=' + Date.now(), { credentials: 'include' })
-      .then(function(r) {
-        if (r.ok) {
-          // session OK
-          showDashboard();
-        } else {
-          showLogin();
+    // Auto-tentative : si déjà cookie valide, le poll va passer.
+    // since=0 -> le serveur renvoie immédiatement l'état complet (pas de long-poll bloquant).
+    // 200 OK = cookie valide, on va direct sur le dashboard.
+    fetch('/api/orders/poll?since=0', {
+      credentials: 'include',
+      cache: 'no-store'
+    })
+      .then(async function(r) {
+        if (r.status === 200) {
+          var d = null;
+          try { d = await r.json(); } catch (e) { d = null; }
+          if (d && d.ok) {
+            // Pre-charge les commandes dès le boot pour éviter un flash vide
+            if (Array.isArray(d.orders)) {
+              var pre = {};
+              d.orders.forEach(function(o) { pre[o.id] = o; });
+              orders = pre;
+              if (typeof d.now === 'number') since = d.now;
+            }
+            applyI18n();
+            showDashboard();
+            renderOrders();
+            return;
+          }
         }
+        applyI18n();
+        showLogin();
       })
-      .catch(function() { showLogin(); });
+      .catch(function() {
+        applyI18n();
+        showLogin();
+      });
 
     // Service Worker pour PWA (best-effort)
     if ('serviceWorker' in navigator) {

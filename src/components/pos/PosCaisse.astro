@@ -722,6 +722,20 @@ const dataPayload = JSON.stringify({ products, config, categories });
   var searchQuery = '';
   var payments = [];   // [{mode, amount}]
   var cashGiven = 0;
+  var prepMinutes = 0;       // resolved prep time for the current sale
+  var deliveryMinutes = 0;   // resolved delivery time for the current sale
+  var timeOverridden = false; // patron manually edited the auto value
+  var TIME_ENABLED = config.hasTimeEstimate !== false; // default ON
+  var TIME_HAS_DELIVERY = !!config.hasDelivery;
+  var AUTO_PER_ITEM = typeof config.autoTimePerItem === 'number' ? config.autoTimePerItem : 2;
+  var AUTO_MIN = typeof config.minPrepTime === 'number' ? config.minPrepTime : 5;
+  var AUTO_MAX = typeof config.maxPrepTime === 'number' ? config.maxPrepTime : 60;
+  var DELIVERY_DEFAULT = typeof config.defaultDeliveryMinutes === 'number' ? config.defaultDeliveryMinutes : 10;
+
+  function calcAutoPrep(itemsCount) {
+    var raw = AUTO_MIN + Math.ceil(itemsCount * AUTO_PER_ITEM);
+    return Math.min(AUTO_MAX, Math.max(AUTO_MIN, raw));
+  }
 
   // ────── Cart math ──────
   function lineTtc(l) { return round2(l.unitPrice * l.qty); }
@@ -919,6 +933,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
     renderPaySplit();
     renderPaySummary();
     renderQuickCash(t.ttc);
+    initTimeBlock();
     $('pos-pay-modal').classList.add('show');
   }
   function closePayModal() {
@@ -926,6 +941,80 @@ const dataPayload = JSON.stringify({ products, config, categories });
   }
   $('pos-pay-btn').addEventListener('click', openPayModal);
   $('pos-pay-cancel').addEventListener('click', closePayModal);
+
+  // ────── Time block (prep + delivery estimate) ──────
+  function initTimeBlock() {
+    if (!TIME_ENABLED) {
+      $('pos-time-block').style.display = 'none';
+      prepMinutes = 0;
+      deliveryMinutes = 0;
+      timeOverridden = false;
+      return;
+    }
+    var itemsCount = 0;
+    for (var i = 0; i < cart.length; i++) itemsCount += cart[i].qty;
+    prepMinutes = calcAutoPrep(itemsCount);
+    deliveryMinutes = TIME_HAS_DELIVERY ? DELIVERY_DEFAULT : 0;
+    timeOverridden = false;
+    $('pos-time-block').style.display = 'block';
+    $('pos-time-prep').value = String(prepMinutes);
+    $('pos-time-delivery').value = String(deliveryMinutes);
+    $('pos-time-delivery-row').style.display = TIME_HAS_DELIVERY ? 'flex' : 'none';
+    renderTimeEta();
+  }
+  function renderTimeEta() {
+    if (!TIME_ENABLED) { $('pos-time-eta').textContent = ''; return; }
+    var ready = new Date(Date.now() + prepMinutes * 60000);
+    var hh = pad(ready.getHours()) + ':' + pad(ready.getMinutes());
+    var line = 'Έτοιμο / Ready : ' + prepMinutes + ' min → ' + hh;
+    if (TIME_HAS_DELIVERY && deliveryMinutes > 0) {
+      var arrived = new Date(Date.now() + (prepMinutes + deliveryMinutes) * 60000);
+      line += '  ·  Παράδοση / Delivery : +' + deliveryMinutes + ' min → '
+        + pad(arrived.getHours()) + ':' + pad(arrived.getMinutes());
+    }
+    if (timeOverridden) line += '  (manuel)';
+    $('pos-time-eta').textContent = line;
+  }
+  function setPrep(v) {
+    var n = Math.max(0, Math.min(120, Math.round(Number(v) || 0)));
+    prepMinutes = n;
+    $('pos-time-prep').value = String(n);
+    renderTimeEta();
+  }
+  function setDelivery(v) {
+    var n = Math.max(0, Math.min(120, Math.round(Number(v) || 0)));
+    deliveryMinutes = n;
+    $('pos-time-delivery').value = String(n);
+    renderTimeEta();
+  }
+  $('pos-time-prep').addEventListener('input', function(e) {
+    timeOverridden = true;
+    setPrep(e.target.value);
+  });
+  $('pos-time-delivery').addEventListener('input', function(e) {
+    timeOverridden = true;
+    setDelivery(e.target.value);
+  });
+  document.querySelectorAll('[data-prep]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      timeOverridden = true;
+      setPrep(prepMinutes + parseInt(btn.getAttribute('data-prep'), 10));
+    });
+  });
+  document.querySelectorAll('[data-deliv]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      timeOverridden = true;
+      setDelivery(deliveryMinutes + parseInt(btn.getAttribute('data-deliv'), 10));
+    });
+  });
+  $('pos-time-auto').addEventListener('click', function() {
+    var itemsCount = 0;
+    for (var i = 0; i < cart.length; i++) itemsCount += cart[i].qty;
+    setPrep(calcAutoPrep(itemsCount));
+    setDelivery(TIME_HAS_DELIVERY ? DELIVERY_DEFAULT : 0);
+    timeOverridden = false;
+    renderTimeEta();
+  });
 
   function renderPayModes() {
     var html = '';
@@ -1068,7 +1157,10 @@ const dataPayload = JSON.stringify({ products, config, categories });
       total: t.ttc,
       payments: JSON.parse(JSON.stringify(payments)),
       given: cashPay ? cashGiven : 0,
-      change: cashPay ? round2(Math.max(0, cashGiven - cashPay.amount)) : 0
+      change: cashPay ? round2(Math.max(0, cashGiven - cashPay.amount)) : 0,
+      prepMinutes: TIME_ENABLED ? prepMinutes : 0,
+      deliveryMinutes: TIME_ENABLED && TIME_HAS_DELIVERY ? deliveryMinutes : 0,
+      timeOverridden: TIME_ENABLED ? timeOverridden : false
     };
     session.sales = session.sales || [];
     session.sales.push(sale);
@@ -1081,6 +1173,9 @@ const dataPayload = JSON.stringify({ products, config, categories });
     cart = [];
     payments = [];
     cashGiven = 0;
+    prepMinutes = 0;
+    deliveryMinutes = 0;
+    timeOverridden = false;
     renderCart();
     closePayModal();
   }
@@ -1108,6 +1203,21 @@ const dataPayload = JSON.stringify({ products, config, categories });
         + '<div class="t-row"><span>Ρέστα</span><span>' + fmt(sale.change) + '</span></div>'
       : '';
 
+    var timeHtml = '';
+    if (sale.prepMinutes && sale.prepMinutes > 0) {
+      var ready = new Date(sale.ts + sale.prepMinutes * 60000);
+      timeHtml += '<div class="t-row"><span>⏱ Έτοιμο / Ready</span><span>'
+        + pad(ready.getHours()) + ':' + pad(ready.getMinutes())
+        + ' (' + sale.prepMinutes + ' min)</span></div>';
+      if (sale.deliveryMinutes && sale.deliveryMinutes > 0) {
+        var arr = new Date(sale.ts + (sale.prepMinutes + sale.deliveryMinutes) * 60000);
+        timeHtml += '<div class="t-row"><span>🛵 Παράδοση / Delivery</span><span>'
+          + pad(arr.getHours()) + ':' + pad(arr.getMinutes())
+          + ' (+' + sale.deliveryMinutes + ' min)</span></div>';
+      }
+      timeHtml += '<hr/>';
+    }
+
     host.innerHTML = ''
       + '<div id="pos-ticket-print">'
       + '<div class="t-center"><strong>' + esc(config.shopName) + '</strong></div>'
@@ -1126,6 +1236,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
       + paid
       + changeHtml
       + '<hr/>'
+      + timeHtml
       + '<div class="t-center">Ευχαριστούμε! / Thank you!</div>'
       + '</div>';
     setTimeout(function() {

@@ -3,7 +3,8 @@
  * Enregistre une commande client dans D1 (binding DB).
  * - ID court via counter SQL (UPDATE ... RETURNING).
  * - Rate-limit : max 5 commandes / IP / 10 min.
- * - TTL logique 24h (expires_at), nettoyage à la lecture.
+ * - TTL logique 60j (expires_at).
+ * - Si lang !== 'el' et notes présent → traduction auto vers grec via Google Translate (best-effort, 3s timeout).
  */
 
 type OrderItem = { id: string; name: string; price: number; qty: number };
@@ -12,7 +13,6 @@ type OrderPayload = {
   phone: string;
   items: OrderItem[];
   total: number;
-  pickup_time: string;
   lang: string;
   mode: string;
   payment: string;
@@ -20,6 +20,13 @@ type OrderPayload = {
   floor?: string;
   bell?: string;
   notes?: string;
+  delivery_zone?: string;          // 'green' | 'red' — applique min€
+};
+
+// Minimums commande par zone de livraison (en EUR)
+const DELIVERY_MIN: Record<string, number> = {
+  green: 5,   // Pirée centre proche Trouba
+  red: 7,     // Korydallós, Keratsíni, Aigáleo, Ν.Φάληρο
 };
 
 type Env = {
@@ -44,6 +51,39 @@ function jsonResp(body: unknown, status = 200): Response {
   });
 }
 
+/**
+ * Traduit `text` vers le grec via l'endpoint non-officiel Google Translate.
+ * - Timeout 3s via AbortController.
+ * - Retourne null si erreur, timeout, ou réponse vide.
+ */
+async function translateToGreek(text: string): Promise<string | null> {
+  if (!text) return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 3000);
+  try {
+    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=el&dt=t&q=${encodeURIComponent(text)}`;
+    const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) return null;
+    const data = (await res.json()) as unknown;
+    // Format attendu : [ [ [ "translation", "original", null, null, ... ], ... ], ... ]
+    if (!Array.isArray(data) || !Array.isArray(data[0])) return null;
+    const segments = data[0] as unknown[];
+    if (segments.length === 0) return null;
+    let out = "";
+    for (const seg of segments) {
+      if (Array.isArray(seg) && typeof seg[0] === "string") {
+        out += seg[0];
+      }
+    }
+    out = out.trim();
+    return out || null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export const onRequestOptions = async () =>
   new Response(null, { headers: corsHeaders });
 
@@ -63,28 +103,32 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
 
   const name = sanitize(body.name, 60);
   const phone = sanitize(body.phone, 20);
-  const pickup_time = sanitize(body.pickup_time, 4);
   const lang = sanitize(body.lang, 4) || "el";
   const mode = sanitize(body.mode, 10) || "takeaway";
-  const payment = sanitize(body.payment, 8) || "cash";
+  const payment = sanitize(body.payment, 10) || (mode === "delivery" ? "cash" : "on_site");
   const address = sanitize(body.address, 200);
   const floor = sanitize(body.floor, 30);
   const bell = sanitize(body.bell, 40);
-  const notes = sanitize(body.notes, 200);
+  const notes = sanitize(body.notes, 300);
+  const deliveryZoneRaw = sanitize(body.delivery_zone, 10).toLowerCase();
+  const delivery_zone =
+    mode === "delivery" && (deliveryZoneRaw === "green" || deliveryZoneRaw === "red")
+      ? deliveryZoneRaw
+      : null;
 
   if (!name || name.length < 2) return jsonResp({ ok: false, error: "Name required" }, 400);
   if (!phone || phone.length < 6) return jsonResp({ ok: false, error: "Phone required" }, 400);
-  if (!["15", "30", "45", "60"].includes(pickup_time)) {
-    return jsonResp({ ok: false, error: "Invalid pickup_time" }, 400);
-  }
   if (!["takeaway", "delivery"].includes(mode)) {
     return jsonResp({ ok: false, error: "Invalid mode" }, 400);
   }
-  if (!["cash", "card"].includes(payment)) {
+  if (!["cash", "card", "on_site"].includes(payment)) {
     return jsonResp({ ok: false, error: "Invalid payment" }, 400);
   }
   if (mode === "delivery" && (!address || address.length < 6)) {
     return jsonResp({ ok: false, error: "Address required for delivery" }, 400);
+  }
+  if (mode === "delivery" && !delivery_zone) {
+    return jsonResp({ ok: false, error: "Delivery zone required" }, 400);
   }
 
   if (!Array.isArray(body.items) || body.items.length === 0) {
@@ -108,12 +152,28 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
     return jsonResp({ ok: false, error: "Invalid total" }, 400);
   }
 
+  // Validation min commande selon zone livraison (sécurité serveur — ceinture + bretelles)
+  if (mode === "delivery" && delivery_zone) {
+    const minTotal = DELIVERY_MIN[delivery_zone];
+    if (total < minTotal) {
+      return jsonResp({
+        ok: false,
+        error: `Minimum order for this zone: ${minTotal}€`,
+        min_total: minTotal,
+        delivery_zone,
+      }, 400);
+    }
+  }
+
   const ip = request.headers.get("cf-connecting-ip") || "0.0.0.0";
   const cf = (request as Request & { cf?: { country?: string } }).cf;
   const country = cf?.country || "XX";
 
   const now = Date.now();
-  const expires = now + 24 * 60 * 60 * 1000;
+  // 60 jours de rétention : la caisse a besoin de l'historique complet
+  // (nom, tel, adresse, items) pour la conformité comptable / litiges.
+  // Le poll caisse filtre déjà sur created_at > now - 24h pour l'écran actif.
+  const expires = now + 60 * 24 * 60 * 60 * 1000;
 
   // Rate limiting : max 5 commandes / IP / 10 min — atomique via UPSERT
   const rateExpires = now + 10 * 60 * 1000;
@@ -144,12 +204,26 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
   const nextNum = counterRow?.value ?? 1;
   const order_id = `K-${String(nextNum).padStart(3, "0")}`;
 
+  // Traduction notes vers grec si lang !== 'el' (best-effort, ne bloque pas si fail)
+  let notes_translated: string | null = null;
+  if (notes && lang !== "el") {
+    notes_translated = await translateToGreek(notes);
+    // Évite de stocker une "traduction" identique à l'original
+    if (notes_translated && notes_translated.trim() === notes.trim()) {
+      notes_translated = null;
+    }
+  }
+
+  // pickup_time conservé en colonne (NOT NULL côté schema initial) — valeur "0" pour ne pas casser.
+  const pickup_time = "0";
+
   await env.DB
     .prepare(
       `INSERT INTO orders (
         id, num, name, phone, total, pickup_time, lang, mode, payment,
-        address, floor, bell, notes, country, items_json, status, created_at, expires_at
-      ) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,'new',?16,?17)`
+        address, floor, bell, notes, notes_translated, country, items_json,
+        delivery_zone, status, created_at, expires_at
+      ) VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,'new',?18,?19)`
     )
     .bind(
       order_id,
@@ -165,15 +239,17 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
       mode === "delivery" ? floor : "",
       mode === "delivery" ? bell : "",
       notes,
+      notes_translated,
       country,
       JSON.stringify(items),
+      delivery_zone,
       now,
       expires
     )
     .run();
 
-  // Historique anonymisé (50 jours) — best-effort, ne bloque pas la commande
-  const historyExpires = now + 50 * 24 * 60 * 60 * 1000;
+  // Historique anonymisé (60 jours) — best-effort, ne bloque pas la commande
+  const historyExpires = now + 60 * 24 * 60 * 60 * 1000;
   await env.DB
     .prepare(
       `INSERT OR IGNORE INTO orders_history (id, total, created_at, status, expires_at)

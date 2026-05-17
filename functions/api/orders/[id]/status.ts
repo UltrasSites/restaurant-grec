@@ -1,7 +1,7 @@
 /**
- * POST /api/orders/{id}/ack
- * Marque la commande comme "seen" (acquittée par la caisse) avec un temps de préparation.
- * Body : { prep_minutes?: number }  (1-180, default 20 si absent)
+ * POST /api/orders/{id}/status
+ * Met à jour le statut d'une commande (workflow caisse).
+ * Statuts valides : new | seen | ready | paid | cancelled.
  * Auth : cookie "caisse_auth" === ADMIN_KEY.
  */
 
@@ -9,6 +9,8 @@ type Env = {
   DB?: D1Database;
   ADMIN_KEY?: string;
 };
+
+const VALID_STATUSES = new Set(["new", "seen", "ready", "paid", "cancelled"]);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -49,61 +51,34 @@ export const onRequestPost = async (ctx: { request: Request; env: Env; params: {
   const id = String(params.id || "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 20);
   if (!id) return jsonResp({ ok: false, error: "Invalid id" }, 400);
 
-  let body: { prep_minutes?: number; delivery_minutes?: number } = {};
+  let body: { status?: string };
   try {
     body = await request.json();
   } catch {
-    body = {};
+    return jsonResp({ ok: false, error: "Invalid JSON" }, 400);
   }
 
-  let prepMin = Number(body.prep_minutes);
-  if (!Number.isFinite(prepMin) || prepMin < 1 || prepMin > 180) prepMin = 20;
-  prepMin = Math.round(prepMin);
-
-  // delivery_minutes optionnel : null si non fourni (À emporter / takeaway).
-  let deliveryMin: number | null = null;
-  if (body.delivery_minutes != null) {
-    const dm = Number(body.delivery_minutes);
-    if (Number.isFinite(dm) && dm >= 0 && dm <= 180) {
-      deliveryMin = Math.round(dm);
-    }
+  const newStatus = String(body.status || "").toLowerCase();
+  if (!VALID_STATUSES.has(newStatus)) {
+    return jsonResp({ ok: false, error: "Invalid status" }, 400);
   }
 
   const nowTs = Date.now();
   const res = await env.DB
-    .prepare(
-      `UPDATE orders
-       SET status = 'seen', acked_at = ?1, accepted_at = ?1,
-           prep_minutes = ?2, delivery_minutes = ?3,
-           eta_changed_at = ?1, updated_at = ?1
-       WHERE id = ?4 AND status = 'new'`
-    )
-    .bind(nowTs, prepMin, deliveryMin, id)
+    .prepare(`UPDATE orders SET status = ?1, updated_at = ?2 WHERE id = ?3`)
+    .bind(newStatus, nowTs, id)
     .run();
 
   if (!res.meta || res.meta.changes === 0) {
-    return jsonResp({ ok: false, error: "Order not found or already seen" }, 404);
+    return jsonResp({ ok: false, error: "Order not found" }, 404);
   }
-
-  // Message système dans le chat : confirmation client
-  // Format : accepted:<prep>[:<delivery>]
-  const acceptedPayload = deliveryMin != null && deliveryMin > 0
-    ? `accepted:${prepMin}:${deliveryMin}`
-    : `accepted:${prepMin}`;
-  await env.DB
-    .prepare(
-      `INSERT INTO order_messages (order_id, sender, text, created_at) VALUES (?1, 'system', ?2, ?3)`
-    )
-    .bind(id, acceptedPayload, nowTs)
-    .run()
-    .catch(() => {});
 
   // Miroir dans l'historique anonymisé (best-effort)
   await env.DB
-    .prepare(`UPDATE orders_history SET status = 'seen', acked_at = ?1 WHERE id = ?2`)
-    .bind(nowTs, id)
+    .prepare(`UPDATE orders_history SET status = ?1 WHERE id = ?2`)
+    .bind(newStatus, id)
     .run()
     .catch(() => {});
 
-  return jsonResp({ ok: true, prep_minutes: prepMin, delivery_minutes: deliveryMin });
+  return jsonResp({ ok: true, status: newStatus });
 };

@@ -1,0 +1,548 @@
+---
+// Page de suivi live d'une commande client.
+// URL : /[lang]/order/?id=K-105&p=1234   (p = 4 derniers chiffres téléphone, anti-énumération)
+// Pas de compte client, pas d'auth — le couple {id + phone last 4} sert de ticket.
+// localStorage save l'ID + phone4 pour persistance après refresh.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: "el" } },
+    { params: { lang: "en" } },
+    { params: { lang: "de" } },
+    { params: { lang: "ru" } },
+    { params: { lang: "ja" } },
+  ];
+}
+
+const { lang } = Astro.params as { lang: string };
+const isEl = lang === 'el';
+const t = isEl ? {
+  title: 'Παρακολούθηση παραγγελίας',
+  subtitle: 'Δες την κατάσταση της παραγγελίας σου σε ζωντανό χρόνο',
+  needId: 'Συμπλήρωσε τον αριθμό της παραγγελίας σου',
+  idLabel: 'Αριθμός παραγγελίας (π.χ. K-105)',
+  phoneLabel: 'Τα 4 τελευταία ψηφία του τηλεφώνου',
+  go: 'Παρακολούθηση',
+  loading: 'Φόρτωση…',
+  notFound: 'Η παραγγελία δεν βρέθηκε.',
+  step1: '📨 Εστάλη',
+  step2: '✅ Αποδεκτή',
+  step3: '🍳 Ετοιμάζεται',
+  step4: '🛵 Έτοιμη',
+  step4ta: '🎉 Έτοιμη',
+  cancelled: '❌ Ακυρώθηκε',
+  paid: '✓ Πληρώθηκε',
+  readyIn: 'Έτοιμη σε',
+  readyAt: 'Έτοιμη περίπου στις',
+  deliveryIn: 'Παράδοση σε',
+  deliveryAt: 'Παράδοση περίπου στις',
+  min: 'λεπτά',
+  total: 'Σύνολο',
+  modeDelivery: '🛵 Παράδοση',
+  modeTakeaway: '🥡 Παραλαβή',
+  pendingMsg: '⏳ Αναμένουμε την επιβεβαίωση του εστιατορίου…',
+  acceptedMsg: '✅ Η παραγγελία σου είναι αποδεκτή! Έτοιμη σε',
+  preparingMsg: '🍳 Η παραγγελία σου ετοιμάζεται',
+  readyMsg: '🛵 Η παραγγελία σου είναι έτοιμη! Ο διανομέας ξεκινάει.',
+  readyMsgTa: '🎉 Η παραγγελία σου είναι έτοιμη για παραλαβή!',
+  paidMsg: '✓ Η παραγγελία σου ολοκληρώθηκε. Ευχαριστούμε!',
+  cancelledMsg: '❌ Η παραγγελία σου ακυρώθηκε.',
+  chatTitle: '💬 Μηνύματα από το εστιατόριο',
+  chatPlaceholder: 'Γράψε στο εστιατόριο…',
+  send: 'Αποστολή',
+  errorPrefix: 'Σφάλμα : ',
+  you: 'Εσύ',
+  shop: 'Εστιατόριο',
+  systemAccepted: 'Παραγγελία αποδέχθηκε — έτοιμη σε ',
+  systemAcceptedDelivery: ' · παράδοση σε ',
+  systemEta: 'Νέος χρόνος : ',
+  systemEtaDelivery: ' · παράδοση : ',
+  systemReason: ' (αιτία: ',
+  homeBack: '← Πίσω στο μενού',
+} : {
+  title: 'Order tracking',
+  subtitle: 'See your order status in real time',
+  needId: 'Enter your order number',
+  idLabel: 'Order number (e.g. K-105)',
+  phoneLabel: 'Last 4 digits of your phone',
+  go: 'Track',
+  loading: 'Loading…',
+  notFound: 'Order not found.',
+  step1: '📨 Sent',
+  step2: '✅ Accepted',
+  step3: '🍳 Preparing',
+  step4: '🛵 Ready',
+  step4ta: '🎉 Ready',
+  cancelled: '❌ Cancelled',
+  paid: '✓ Paid',
+  readyIn: 'Ready in',
+  readyAt: 'Ready around',
+  deliveryIn: 'Delivered in',
+  deliveryAt: 'Delivered around',
+  min: 'min',
+  total: 'Total',
+  modeDelivery: '🛵 Delivery',
+  modeTakeaway: '🥡 Pickup',
+  pendingMsg: '⏳ Waiting for the restaurant to confirm…',
+  acceptedMsg: '✅ Your order is accepted! Ready in',
+  preparingMsg: '🍳 Your order is being prepared',
+  readyMsg: '🛵 Your order is ready! The courier is leaving.',
+  readyMsgTa: '🎉 Your order is ready for pickup!',
+  paidMsg: '✓ Your order is complete. Thank you!',
+  cancelledMsg: '❌ Your order was cancelled.',
+  chatTitle: '💬 Messages from the restaurant',
+  chatPlaceholder: 'Write to the restaurant…',
+  send: 'Send',
+  errorPrefix: 'Error: ',
+  you: 'You',
+  shop: 'Restaurant',
+  systemAccepted: 'Order accepted — ready in ',
+  systemAcceptedDelivery: ' · delivery in ',
+  systemEta: 'New ETA: ',
+  systemEtaDelivery: ' · delivery: ',
+  systemReason: ' (reason: ',
+  homeBack: '← Back to menu',
+};
+---
+
+<BaseLayout title={t.title} description={t.subtitle} lang={lang} hideHeader={false}>
+  <style>
+    .order-wrap { max-width: 640px; margin: 0 auto; padding: 5rem 1.25rem 3rem; }
+    .order-title { font-size: 1.5rem; color: #E5B32A; text-align: center; margin: 0 0 0.5rem; letter-spacing: 0.05em; }
+    .order-sub { color: #999; text-align: center; margin: 0 0 2rem; font-size: 0.9rem; }
+
+    .lookup-form {
+      background: rgba(229,179,42,0.05);
+      border: 1px solid rgba(229,179,42,0.2);
+      border-radius: 1rem; padding: 1.5rem;
+    }
+    .lookup-form .field { margin-bottom: 1rem; }
+    .lookup-form label { display: block; font-size: 0.78rem; color: #999; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.4rem; }
+    .lookup-form input { width: 100%; padding: 0.85rem 1rem; background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 0.6rem; font-size: 1rem; }
+    .lookup-form input:focus { outline: none; border-color: #E5B32A; }
+    .lookup-form button { width: 100%; padding: 0.9rem; background: #E5B32A; color: #000; border: none; border-radius: 0.6rem; font-weight: 900; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; font-size: 0.9rem; }
+
+    .order-card {
+      background: linear-gradient(135deg, rgba(229,179,42,0.08) 0%, rgba(0,0,0,0.3) 100%);
+      border: 1px solid rgba(229,179,42,0.2);
+      border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem;
+    }
+    .order-id-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+    .order-id-big { font-size: 2rem; font-weight: 900; color: #E5B32A; letter-spacing: 0.05em; }
+    .order-name { color: #fff; font-weight: 600; }
+    .order-mode { display: inline-block; padding: 0.25rem 0.65rem; background: rgba(229,179,42,0.15); color: #E5B32A; border: 1px solid rgba(229,179,42,0.4); border-radius: 999px; font-weight: 700; font-size: 0.8rem; margin-left: 0.5rem; }
+    .order-total { color: #E5B32A; font-weight: 700; font-size: 1.1rem; }
+
+    /* Timeline status */
+    .timeline { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.3rem; margin: 1.5rem 0; position: relative; }
+    .timeline::before {
+      content: ''; position: absolute; top: 14px; left: 12.5%; right: 12.5%;
+      height: 2px; background: rgba(255,255,255,0.1);
+    }
+    .step { text-align: center; position: relative; z-index: 1; }
+    .step .dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #1a1a1a; border: 2px solid rgba(255,255,255,0.15);
+      margin: 0 auto 0.4rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem;
+    }
+    .step.done .dot { background: #22c55e; border-color: #22c55e; }
+    .step.active .dot { background: #E5B32A; border-color: #E5B32A; box-shadow: 0 0 0 6px rgba(229,179,42,0.2); animation: pulse-gold 1.5s ease-in-out infinite; }
+    .step.cancelled .dot { background: #ef4444; border-color: #ef4444; }
+    @keyframes pulse-gold { 0%, 100% { box-shadow: 0 0 0 6px rgba(229,179,42,0.2); } 50% { box-shadow: 0 0 0 12px rgba(229,179,42,0.35); } }
+    .step .label { font-size: 0.7rem; color: #888; letter-spacing: 0.03em; }
+    .step.done .label, .step.active .label { color: #fff; font-weight: 600; }
+
+    .status-msg {
+      background: rgba(229,179,42,0.1);
+      border: 1px solid rgba(229,179,42,0.3);
+      border-radius: 0.7rem;
+      padding: 1rem 1.2rem;
+      font-size: 1rem; color: #fff;
+      text-align: center; font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .status-msg.pending { background: rgba(251,146,60,0.1); border-color: rgba(251,146,60,0.35); color: #fdba74; }
+    .status-msg.cancelled { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.35); color: #fca5a5; }
+    .status-msg .countdown { display: block; font-size: 2rem; color: #E5B32A; font-weight: 900; margin-top: 0.5rem; letter-spacing: 0.04em; }
+    .status-msg .ready-at { display: block; font-size: 0.85rem; color: #999; margin-top: 0.3rem; }
+
+    /* Chat */
+    .chat-section { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 1rem; overflow: hidden; }
+    .chat-header { padding: 0.85rem 1.2rem; background: rgba(99,102,241,0.1); color: #c7d2fe; font-weight: 700; letter-spacing: 0.04em; border-bottom: 1px solid rgba(99,102,241,0.2); }
+    .chat-msgs { padding: 1rem; max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+    .msg { max-width: 80%; padding: 0.6rem 0.85rem; border-radius: 0.75rem; font-size: 0.95rem; line-height: 1.4; word-wrap: break-word; }
+    .msg.from-client { align-self: flex-end; background: rgba(99,102,241,0.18); color: #c7d2fe; border: 1px solid rgba(99,102,241,0.35); }
+    .msg.from-patron { align-self: flex-start; background: rgba(229,179,42,0.18); color: #fcd34d; border: 1px solid rgba(229,179,42,0.4); }
+    .msg.from-system { align-self: center; background: rgba(255,255,255,0.05); color: #999; font-style: italic; font-size: 0.85rem; border: 1px dashed rgba(255,255,255,0.1); text-align: center; }
+    .msg .meta { font-size: 0.7rem; opacity: 0.7; margin-top: 0.25rem; }
+    .chat-input { display: flex; gap: 0.5rem; padding: 0.85rem; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.2); }
+    .chat-input input { flex: 1; padding: 0.7rem 1rem; background: rgba(0,0,0,0.4); color: #fff; border: 1px solid rgba(255,255,255,0.1); border-radius: 0.6rem; font-size: 0.95rem; }
+    .chat-input input:focus { outline: none; border-color: rgba(99,102,241,0.5); }
+    .chat-input button { padding: 0.7rem 1.2rem; background: rgba(99,102,241,0.25); color: #c7d2fe; border: 1px solid rgba(99,102,241,0.4); border-radius: 0.6rem; cursor: pointer; font-weight: 700; }
+    .chat-input button:hover { background: rgba(99,102,241,0.45); color: #fff; }
+
+    .back-link { display: inline-block; margin-top: 1rem; color: #E5B32A; text-decoration: none; font-size: 0.9rem; }
+    .back-link:hover { text-decoration: underline; }
+
+    .loading-state { text-align: center; padding: 3rem 1rem; color: #888; }
+    .error-state { text-align: center; padding: 3rem 1rem; color: #f87171; }
+  </style>
+
+  <div class="order-wrap">
+    <h1 class="order-title">{t.title}</h1>
+    <p class="order-sub">{t.subtitle}</p>
+
+    <!-- FORM RECHERCHE (si pas d'id en URL) -->
+    <form id="lookup-form" class="lookup-form" hidden>
+      <p style="color:#fbbf24; margin-bottom:1rem; font-size:0.95rem;">{t.needId}</p>
+      <div class="field">
+        <label for="lk-id">{t.idLabel}</label>
+        <input type="text" id="lk-id" placeholder="K-105" autocomplete="off" required />
+      </div>
+      <div class="field">
+        <label for="lk-phone">{t.phoneLabel}</label>
+        <input type="tel" id="lk-phone" maxlength="4" placeholder="1234" autocomplete="off" required pattern="[0-9]{4}" />
+      </div>
+      <button type="submit">{t.go}</button>
+    </form>
+
+    <!-- STATE LOADING -->
+    <div id="loading-state" class="loading-state" hidden>{t.loading}</div>
+
+    <!-- STATE ERROR / NOT FOUND -->
+    <div id="error-state" class="error-state" hidden></div>
+
+    <!-- ORDER VIEW (apparait quand fetch OK) -->
+    <div id="order-view" hidden>
+      <div class="order-card">
+        <div class="order-id-row">
+          <div>
+            <div class="order-id-big" id="ov-id">K-???</div>
+            <div><span class="order-name" id="ov-name"></span><span class="order-mode" id="ov-mode"></span></div>
+          </div>
+          <div class="order-total" id="ov-total"></div>
+        </div>
+
+        <div class="timeline" id="ov-timeline">
+          <div class="step" data-step="1"><div class="dot">📨</div><div class="label">{t.step1}</div></div>
+          <div class="step" data-step="2"><div class="dot">✅</div><div class="label">{t.step2}</div></div>
+          <div class="step" data-step="3"><div class="dot">🍳</div><div class="label">{t.step3}</div></div>
+          <div class="step" data-step="4"><div class="dot">🛵</div><div class="label" id="ov-step4-label">{t.step4}</div></div>
+        </div>
+
+        <div class="status-msg" id="ov-status-msg"></div>
+      </div>
+
+      <div class="chat-section">
+        <div class="chat-header">{t.chatTitle}</div>
+        <div class="chat-msgs" id="chat-msgs"></div>
+        <form id="chat-form" class="chat-input">
+          <input type="text" id="chat-text" maxlength="500" placeholder={t.chatPlaceholder} />
+          <button type="submit">{t.send}</button>
+        </form>
+      </div>
+
+      <a href={`/${lang}/`} class="back-link">{t.homeBack}</a>
+    </div>
+  </div>
+
+  <script is:inline define:vars={{ t, lang }}>
+  (function() {
+    var url = new URL(window.location.href);
+    var qId = (url.searchParams.get('id') || '').replace(/[^A-Za-z0-9-]/g, '').slice(0, 20);
+    var qPhone = (url.searchParams.get('p') || '').replace(/\D/g, '').slice(-4);
+
+    var lookupForm = document.getElementById('lookup-form');
+    var loadingState = document.getElementById('loading-state');
+    var errorState = document.getElementById('error-state');
+    var orderView = document.getElementById('order-view');
+
+    // Si pas d'ID en URL, essaye localStorage (dernière commande)
+    if (!qId || !qPhone) {
+      try {
+        var keys = Object.keys(localStorage).filter(function(k) { return k.indexOf('kalamaki_order_') === 0; });
+        if (keys.length > 0) {
+          keys.sort();
+          var last = keys[keys.length - 1];
+          var saved = JSON.parse(localStorage.getItem(last) || '{}');
+          if (saved.id && saved.phone4) { qId = saved.id; qPhone = saved.phone4; }
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    if (!qId || !qPhone) {
+      // Form pour saisir manuellement
+      lookupForm.hidden = false;
+      lookupForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var id = document.getElementById('lk-id').value.trim().toUpperCase();
+        var phone = document.getElementById('lk-phone').value.replace(/\D/g, '').slice(-4);
+        if (!id || !phone || phone.length < 4) return;
+        window.location.href = '/' + lang + '/order/?id=' + encodeURIComponent(id) + '&p=' + phone;
+      });
+      return;
+    }
+
+    // Sauvegarde localStorage pour persistance
+    try {
+      localStorage.setItem('kalamaki_order_' + qId, JSON.stringify({ id: qId, phone4: qPhone, ts: Date.now() }));
+    } catch (e) { /* ignore */ }
+
+    loadingState.hidden = false;
+
+    // State
+    var orderState = null;
+    var lastMsgId = 0;
+    var sinceTs = 0;
+    var pollTimer = null;
+    var audioCtx = null;
+
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+    function fmtPrice(n) { return (Math.round((Number(n)||0) * 100) / 100).toFixed(2).replace('.', ',') + '€'; }
+
+    function ensureAudio() {
+      if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { audioCtx = null; }
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(function() {});
+      }
+    }
+    function ding() {
+      ensureAudio(); if (!audioCtx) return;
+      try {
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.value = 660;
+        gain.gain.setValueAtTime(0.0001, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.3, audioCtx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+        osc.connect(gain).connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.55);
+      } catch (e) { /* ignore */ }
+    }
+
+    function statusToStep(status) {
+      switch (status) {
+        case 'new': return 1;
+        case 'seen': return 2;        // accepted, en attente preparation
+        case 'ready': return 4;
+        case 'paid': case 'completed': return 4;
+        case 'cancelled': return -1;
+        default: return 1;
+      }
+    }
+
+    function renderOrder() {
+      if (!orderState) return;
+      loadingState.hidden = true;
+      orderView.hidden = false;
+
+      document.getElementById('ov-id').textContent = orderState.id;
+      document.getElementById('ov-name').textContent = orderState.name || '';
+      var modeEl = document.getElementById('ov-mode');
+      modeEl.textContent = orderState.mode === 'delivery' ? t.modeDelivery : t.modeTakeaway;
+      document.getElementById('ov-total').textContent = fmtPrice(orderState.total);
+
+      // Adjust step4 label : delivery vs takeaway
+      var s4 = document.getElementById('ov-step4-label');
+      if (s4) s4.textContent = orderState.mode === 'delivery' ? t.step4 : t.step4ta;
+
+      // Timeline
+      var step = statusToStep(orderState.status);
+      var steps = document.querySelectorAll('#ov-timeline .step');
+      steps.forEach(function(el) {
+        var n = Number(el.getAttribute('data-step'));
+        el.classList.remove('done', 'active', 'cancelled');
+        if (step === -1) {
+          el.classList.add('cancelled');
+        } else if (n < step) {
+          el.classList.add('done');
+        } else if (n === step || (n === 3 && step === 2)) {
+          // step 2 (seen) inclut step 3 visuellement comme actif (en cours)
+          el.classList.add('active');
+        }
+      });
+
+      // Status message
+      var msgEl = document.getElementById('ov-status-msg');
+      msgEl.className = 'status-msg';
+      var msgHtml = '';
+      if (orderState.status === 'new') {
+        msgEl.className += ' pending';
+        msgHtml = t.pendingMsg;
+      } else if (orderState.status === 'seen') {
+        var remaining = computeRemaining();
+        msgHtml = t.preparingMsg;
+        if (remaining > 0) {
+          msgHtml = t.acceptedMsg + ' <span class="countdown">' + remaining + ' ' + t.min + '</span>';
+          if (orderState.accepted_at && orderState.prep_minutes) {
+            var readyTs = orderState.accepted_at + orderState.prep_minutes * 60 * 1000;
+            var rd = new Date(readyTs);
+            var hh = String(rd.getHours()).padStart(2, '0');
+            var mm = String(rd.getMinutes()).padStart(2, '0');
+            msgHtml += '<span class="ready-at">' + t.readyAt + ' ' + hh + ':' + mm + '</span>';
+
+            // Si delivery_minutes : afficher aussi heure d'arrivée client
+            if (orderState.mode === 'delivery' && orderState.delivery_minutes != null && orderState.delivery_minutes > 0) {
+              var arriveTs = readyTs + orderState.delivery_minutes * 60 * 1000;
+              var ad = new Date(arriveTs);
+              var ahh = String(ad.getHours()).padStart(2, '0');
+              var amm = String(ad.getMinutes()).padStart(2, '0');
+              msgHtml += '<span class="ready-at">' + t.deliveryAt + ' ' + ahh + ':' + amm + '</span>';
+            }
+          }
+        }
+      } else if (orderState.status === 'ready') {
+        msgHtml = orderState.mode === 'delivery' ? t.readyMsg : t.readyMsgTa;
+      } else if (orderState.status === 'paid' || orderState.status === 'completed') {
+        msgHtml = t.paidMsg;
+      } else if (orderState.status === 'cancelled') {
+        msgEl.className += ' cancelled';
+        msgHtml = t.cancelledMsg;
+      }
+      msgEl.innerHTML = msgHtml;
+    }
+
+    function computeRemaining() {
+      if (!orderState || !orderState.accepted_at || !orderState.prep_minutes) return 0;
+      var elapsed = Math.floor((Date.now() - orderState.accepted_at) / 60000);
+      return Math.max(0, orderState.prep_minutes - elapsed);
+    }
+
+    function renderMessages(newMessages) {
+      var container = document.getElementById('chat-msgs');
+      newMessages.forEach(function(m) {
+        var d = new Date(m.created_at);
+        var hh = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        var cls, who, text;
+        if (m.sender === 'patron') {
+          cls = 'from-patron'; who = t.shop; text = m.text;
+        } else if (m.sender === 'client') {
+          cls = 'from-client'; who = t.you; text = m.text;
+        } else {
+          cls = 'from-system'; who = ''; text = m.text;
+          var raw = String(m.text || '');
+          if (raw.indexOf('accepted:') === 0) {
+            // accepted:<prep>[:<delivery>]
+            var acc = raw.slice(9).split(':');
+            text = t.systemAccepted + acc[0] + ' ' + t.min;
+            if (acc[1]) text += t.systemAcceptedDelivery + acc[1] + ' ' + t.min;
+          } else if (raw.indexOf('eta:') === 0) {
+            // eta:<prep>[:<delivery>][|<reason>]  ou ancien format eta:<prep>:<reason>
+            var rest = raw.slice(4);
+            var reason = '';
+            var pipeIdx = rest.indexOf('|');
+            if (pipeIdx !== -1) {
+              reason = rest.slice(pipeIdx + 1);
+              rest = rest.slice(0, pipeIdx);
+            }
+            var parts = rest.split(':');
+            text = t.systemEta + parts[0] + ' ' + t.min;
+            if (parts[1]) {
+              // si numérique = delivery, sinon = reason (ancien format)
+              if (/^\d+$/.test(parts[1])) {
+                text += t.systemEtaDelivery + parts[1] + ' ' + t.min;
+              } else if (!reason) {
+                reason = parts[1];
+              }
+            }
+            if (reason) text += t.systemReason + reason + ')';
+          }
+        }
+        var msgEl = document.createElement('div');
+        msgEl.className = 'msg ' + cls;
+        if (who) {
+          msgEl.innerHTML = '<div style="font-size:0.7rem;opacity:0.7;margin-bottom:0.2rem;">' + escapeHtml(who) + '</div>' + escapeHtml(text) + '<div class="meta">' + hh + '</div>';
+        } else {
+          msgEl.innerHTML = escapeHtml(text) + '<div class="meta">' + hh + '</div>';
+        }
+        container.appendChild(msgEl);
+        if (m.id > lastMsgId) lastMsgId = m.id;
+        sinceTs = Math.max(sinceTs, m.created_at);
+
+        // Ding si nouveau msg patron (pas system, pas client)
+        if (m.sender === 'patron') ding();
+      });
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function fetchOnce() {
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(qId) + '/public?phone=' + qPhone + '&since=' + sinceTs, {
+          cache: 'no-store',
+        });
+        if (res.status === 404) {
+          errorState.hidden = false;
+          errorState.textContent = t.notFound;
+          loadingState.hidden = true;
+          stopPoll();
+          return;
+        }
+        var data = await res.json();
+        if (!data.ok) return;
+        orderState = data.order;
+        renderOrder();
+        if (data.messages && data.messages.length > 0) {
+          renderMessages(data.messages);
+        }
+      } catch (e) { /* ignore network errors */ }
+    }
+
+    function startPoll() {
+      stopPoll();
+      pollTimer = setInterval(fetchOnce, 3000);
+    }
+    function stopPoll() {
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+    }
+
+    // Premier fetch + polling
+    fetchOnce();
+    startPoll();
+
+    // Re-render every minute for countdown
+    setInterval(function() { if (orderState) renderOrder(); }, 60000);
+
+    // Chat send
+    document.getElementById('chat-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      ensureAudio();
+      var input = document.getElementById('chat-text');
+      var text = (input.value || '').trim();
+      if (!text) return;
+      input.disabled = true;
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(qId) + '/message-client', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text, phone: qPhone }),
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
+        input.value = '';
+        // refresh immédiat pour voir le message
+        fetchOnce();
+      } catch (err) {
+        alert(t.errorPrefix + (err && err.message ? err.message : err));
+      } finally {
+        input.disabled = false;
+        input.focus();
+      }
+    });
+
+    // Pause poll si page invisible (économie batterie mobile)
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) stopPoll();
+      else { fetchOnce(); startPoll(); }
+    });
+  })();
+  </script>
+</BaseLayout>

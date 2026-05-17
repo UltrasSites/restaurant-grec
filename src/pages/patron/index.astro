@@ -1,0 +1,966 @@
+---
+// Interface PATRON — vue mobile-first dédiée pour usage en cuisine sur téléphone.
+// Différente de /cashd : ultra simple, gros boutons, focus sur valider + ETA.
+// Reuse les endpoints existants (caisse-login, poll, ack, eta, message-patron, status).
+// FR uniquement (c'est le patron qui l'utilise — pas besoin d'i18n).
+// Cookie partagé "caisse_auth" avec cashd : si déjà loggé sur cashd, accès direct.
+---
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Patron — Kalamaki</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    :root { --gold: #E5B32A; --bg: #0a0a0a; --red: #ef4444; --green: #22c55e; --blue: #6366f1; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; min-height: 100dvh; overscroll-behavior-y: none; }
+
+    /* LOGIN */
+    .login-wrap { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .login-box { width: 100%; max-width: 360px; background: #111; border: 1px solid rgba(229,179,42,0.3); border-radius: 1rem; padding: 1.5rem; }
+    .login-box h1 { margin: 0 0 1.25rem; font-size: 1.15rem; color: var(--gold); text-align: center; letter-spacing: 0.05em; }
+    .login-box input { width: 100%; padding: 1rem; background: #000; border: 1.5px solid rgba(255,255,255,0.15); border-radius: 0.6rem; color: #fff; font-size: 1.1rem; margin-bottom: 1rem; }
+    .login-box input:focus { outline: none; border-color: var(--gold); }
+    .login-box button { width: 100%; padding: 1.1rem; background: var(--gold); color: #000; border: none; border-radius: 0.6rem; font-weight: 800; font-size: 1rem; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
+    .login-error { color: var(--red); font-size: 0.85rem; margin-top: 0.75rem; text-align: center; }
+
+    /* DASHBOARD */
+    .dash { display: none; flex-direction: column; min-height: 100dvh; }
+    .dash.show { display: flex; }
+
+    .top {
+      position: sticky; top: 0; z-index: 20;
+      background: #000; border-bottom: 2px solid rgba(229,179,42,0.4);
+      padding: 0.75rem 1rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .top h1 { margin: 0; font-size: 1rem; color: var(--gold); letter-spacing: 0.05em; }
+    .top .info { font-size: 0.8rem; color: #888; display: flex; align-items: center; gap: 0.5rem; }
+    .top .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .top.offline .dot { background: var(--red); box-shadow: 0 0 6px var(--red); }
+
+    .tabs {
+      display: flex; gap: 0.4rem; padding: 0.6rem 0.75rem; background: #0d0d0d;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: sticky; top: 53px; z-index: 19;
+    }
+    .tab {
+      flex: 1; padding: 0.65rem 0.4rem; border-radius: 0.55rem;
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      color: #aaa; font-weight: 700; font-size: 0.82rem; cursor: pointer;
+      text-align: center; letter-spacing: 0.04em;
+    }
+    .tab .badge {
+      display: inline-block; min-width: 1.4rem; padding: 0 0.4rem; margin-left: 0.35rem;
+      background: rgba(0,0,0,0.4); border-radius: 999px; font-size: 0.72rem; font-weight: 800;
+    }
+    .tab.pending .badge { background: var(--red); color: #fff; }
+    .tab.active { background: var(--gold); color: #000; border-color: var(--gold); }
+    .tab.active .badge { background: rgba(0,0,0,0.18); }
+
+    .list { padding: 0.85rem; display: flex; flex-direction: column; gap: 0.85rem; padding-bottom: 4rem; }
+    .empty { text-align: center; color: #555; padding: 3rem 1rem; font-size: 0.9rem; }
+
+    /* CARD */
+    .card {
+      background: #111; border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.85rem; overflow: hidden;
+    }
+    .card.new { border-color: rgba(239,68,68,0.5); box-shadow: 0 0 0 1px rgba(239,68,68,0.18); animation: pulse-red 1.8s ease-in-out infinite; }
+    @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 0 1px rgba(239,68,68,0.18); } 50% { box-shadow: 0 0 0 4px rgba(239,68,68,0.28); } }
+    .card.seen { border-color: rgba(229,179,42,0.4); }
+
+    .card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+    }
+    .id-block { display: flex; align-items: baseline; gap: 0.5rem; }
+    .id { font-weight: 900; font-size: 1.25rem; color: var(--gold); letter-spacing: 0.04em; }
+    .when { font-size: 0.75rem; color: #777; }
+    .mode-pill {
+      padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.72rem;
+      font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .mode-pill.takeaway { background: rgba(96,165,250,0.18); color: #93c5fd; border: 1px solid rgba(96,165,250,0.4); }
+    .mode-pill.delivery { background: rgba(229,179,42,0.18); color: var(--gold); border: 1px solid rgba(229,179,42,0.4); }
+
+    .card-body { padding: 0.75rem 0.95rem; display: flex; flex-direction: column; gap: 0.45rem; }
+    .row { display: flex; gap: 0.5rem; align-items: baseline; font-size: 0.92rem; }
+    .row .label { color: #777; font-size: 0.78rem; min-width: 4.5rem; }
+    .row .val { color: #fff; flex: 1; word-break: break-word; }
+    .row .val.gold { color: var(--gold); font-weight: 800; }
+    .row .val.phone { font-variant-numeric: tabular-nums; }
+    .row .val a { color: #93c5fd; text-decoration: none; }
+
+    .items { background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; padding: 0.55rem 0.7rem; font-size: 0.88rem; }
+    .items .item { display: flex; justify-content: space-between; padding: 0.15rem 0; }
+    .items .qty { color: var(--gold); font-weight: 800; min-width: 1.7rem; }
+    .items .nm { flex: 1; padding: 0 0.4rem; color: #ddd; }
+    .items .pr { color: #999; font-variant-numeric: tabular-nums; }
+    .items .sep { height: 1px; background: rgba(255,255,255,0.06); margin: 0.3rem 0; }
+    .items .tot { display: flex; justify-content: space-between; font-weight: 800; color: var(--gold); padding-top: 0.2rem; }
+
+    .notes { background: rgba(251,146,60,0.08); border: 1px solid rgba(251,146,60,0.25); border-radius: 0.5rem; padding: 0.55rem 0.7rem; color: #fdba74; font-size: 0.88rem; }
+    .notes .lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: #fb923c; margin-bottom: 0.2rem; }
+    .notes .tr { color: #fed7aa; font-style: italic; font-size: 0.82rem; margin-top: 0.25rem; }
+
+    .eta-info {
+      background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3);
+      border-radius: 0.5rem; padding: 0.55rem 0.75rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+    }
+    .eta-info .eta-vals { font-size: 0.9rem; color: #86efac; }
+    .eta-info .eta-vals b { color: #fff; font-size: 1rem; }
+    .eta-info .eta-times { font-size: 0.78rem; color: #4ade80; margin-top: 0.15rem; }
+
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; padding: 0 0.95rem 0.95rem; }
+    .actions.single { grid-template-columns: 1fr; }
+    .actions.triple { grid-template-columns: 1fr 1fr 1fr; }
+    .btn {
+      padding: 0.95rem 0.5rem; border-radius: 0.6rem; border: none; font-weight: 800;
+      font-size: 0.95rem; letter-spacing: 0.04em; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+    }
+    .btn-validate { background: var(--green); color: #000; }
+    .btn-validate:active { background: #16a34a; color: #fff; }
+    .btn-eta { background: var(--blue); color: #fff; }
+    .btn-eta:active { background: #4338ca; }
+    .btn-ready { background: var(--gold); color: #000; }
+    .btn-ready:active { background: #ca8a04; color: #fff; }
+    .btn-done { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); }
+    .btn-done:active { background: rgba(255,255,255,0.15); }
+    .btn-cancel { background: transparent; color: var(--red); border: 1px solid rgba(239,68,68,0.4); }
+    .btn-cancel:active { background: rgba(239,68,68,0.15); }
+    .btn-msg { background: rgba(99,102,241,0.15); color: #c7d2fe; border: 1px solid rgba(99,102,241,0.4); }
+    .btn-msg:active { background: rgba(99,102,241,0.3); }
+
+    /* MODAL */
+    .modal-back {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8);
+      display: none; align-items: flex-end; justify-content: center;
+      z-index: 100; padding: 0; backdrop-filter: blur(6px);
+    }
+    .modal-back.show { display: flex; }
+    .modal {
+      width: 100%; max-width: 480px;
+      background: #111; border: 1px solid rgba(229,179,42,0.4);
+      border-radius: 1.2rem 1.2rem 0 0;
+      padding: 1.25rem 1rem 1.5rem;
+      max-height: 92dvh; overflow-y: auto;
+      animation: slide-up 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+    @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal h2 { margin: 0 0 0.3rem; color: var(--gold); font-size: 1.05rem; letter-spacing: 0.05em; }
+    .modal .sub { color: #999; font-size: 0.82rem; margin-bottom: 1rem; }
+    .modal .section-label {
+      display: flex; align-items: center; gap: 0.5rem;
+      color: #fff; font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      margin: 0.75rem 0 0.5rem;
+    }
+    .modal .section-label .icon { font-size: 1.1rem; }
+    .time-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 0.45rem; margin-bottom: 0.65rem;
+    }
+    .time-btn {
+      padding: 0.95rem 0.3rem; border-radius: 0.55rem;
+      background: rgba(229,179,42,0.12); color: var(--gold);
+      border: 2px solid rgba(229,179,42,0.4);
+      font-weight: 800; font-size: 1rem; cursor: pointer;
+      transition: all 0.1s;
+    }
+    .time-btn.selected { background: var(--gold); color: #000; }
+    .time-btn:active { transform: scale(0.96); }
+    .time-btn.zero {
+      background: rgba(96,165,250,0.12); color: #93c5fd;
+      border-color: rgba(96,165,250,0.4);
+    }
+    .time-btn.zero.selected { background: #60a5fa; color: #000; }
+    .custom-row {
+      display: flex; gap: 0.5rem; align-items: stretch;
+      margin-bottom: 0.75rem;
+    }
+    .custom-row input {
+      flex: 1; padding: 0.85rem 0.85rem;
+      background: #000; color: #fff;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: 0.55rem; font-size: 1.1rem;
+      font-variant-numeric: tabular-nums;
+    }
+    .custom-row input:focus { outline: none; border-color: var(--gold); }
+    .custom-row .unit {
+      align-self: center; color: #888; padding: 0 0.35rem;
+      font-size: 0.88rem;
+    }
+    .reason-row { margin: 0.5rem 0 0.85rem; }
+    .reason-row input {
+      width: 100%; padding: 0.75rem 0.85rem;
+      background: #000; color: #fff;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 0.5rem; font-size: 0.9rem;
+    }
+    .modal-actions { display: flex; gap: 0.55rem; margin-top: 0.5rem; }
+    .modal-actions .btn-x {
+      padding: 1rem 0.5rem; border-radius: 0.6rem;
+      font-weight: 800; font-size: 0.95rem; letter-spacing: 0.04em;
+      cursor: pointer; border: none;
+    }
+    .modal-actions .btn-x-cancel {
+      background: transparent; color: #aaa; border: 1px solid rgba(255,255,255,0.15);
+      flex: 0 0 35%;
+    }
+    .modal-actions .btn-x-ok {
+      background: var(--green); color: #000; flex: 1;
+    }
+    .modal-actions .btn-x-ok:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+    /* CHAT MODAL */
+    .chat-msgs {
+      background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 0.6rem; padding: 0.6rem;
+      min-height: 8rem; max-height: 50dvh; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 0.4rem;
+      margin-bottom: 0.65rem;
+    }
+    .chat-empty { text-align: center; color: #555; padding: 1.5rem 0; font-size: 0.85rem; }
+    .chat-msg { max-width: 85%; padding: 0.5rem 0.7rem; border-radius: 0.6rem; font-size: 0.9rem; word-wrap: break-word; }
+    .chat-msg.from-client { align-self: flex-start; background: rgba(99,102,241,0.18); color: #c7d2fe; border: 1px solid rgba(99,102,241,0.35); }
+    .chat-msg.from-patron { align-self: flex-end; background: rgba(229,179,42,0.18); color: #fcd34d; border: 1px solid rgba(229,179,42,0.4); }
+    .chat-msg.from-system { align-self: center; background: rgba(255,255,255,0.04); color: #888; font-style: italic; font-size: 0.78rem; border: 1px dashed rgba(255,255,255,0.1); text-align: center; }
+    .chat-msg .meta { font-size: 0.68rem; opacity: 0.7; margin-top: 0.18rem; }
+    .chat-input-row { display: flex; gap: 0.45rem; }
+    .chat-input-row input {
+      flex: 1; padding: 0.85rem 0.85rem; background: #000; color: #fff;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 0.5rem; font-size: 0.95rem;
+    }
+    .chat-input-row button {
+      padding: 0.85rem 1.1rem; background: var(--blue); color: #fff;
+      border: none; border-radius: 0.5rem; font-weight: 800; cursor: pointer;
+    }
+    .chat-shortcuts { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.55rem; }
+    .chat-shortcuts button {
+      padding: 0.45rem 0.7rem; background: rgba(99,102,241,0.1); color: #a5b4fc;
+      border: 1px solid rgba(99,102,241,0.3); border-radius: 999px;
+      font-size: 0.78rem; cursor: pointer;
+    }
+
+    .toast {
+      position: fixed; left: 50%; bottom: 1.5rem;
+      transform: translateX(-50%); z-index: 200;
+      background: #111; color: #fff;
+      padding: 0.85rem 1.25rem; border-radius: 0.6rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      font-size: 0.9rem; font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .toast.show { opacity: 1; }
+    .toast.ok { border-color: var(--green); color: #86efac; }
+    .toast.err { border-color: var(--red); color: #fca5a5; }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="login" class="login-wrap">
+    <form id="login-form" class="login-box">
+      <h1>Espace Patron</h1>
+      <input type="password" id="pw" placeholder="Mot de passe" autocomplete="current-password" required />
+      <button type="submit">Entrer</button>
+      <div id="login-err" class="login-error" hidden></div>
+    </form>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dash" class="dash">
+    <div class="top" id="top">
+      <h1>Kalamaki — Patron</h1>
+      <div class="info"><span class="dot"></span><span id="clock">--:--</span></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab pending active" data-tab="pending">
+        À VALIDER <span class="badge" id="badge-pending">0</span>
+      </button>
+      <button class="tab" data-tab="prep">
+        EN COURS <span class="badge" id="badge-prep">0</span>
+      </button>
+    </div>
+
+    <div id="list" class="list"></div>
+  </div>
+
+  <!-- MODAL VALIDATION + ETA -->
+  <div id="modal-eta-back" class="modal-back">
+    <div class="modal">
+      <h2 id="modal-eta-title">Valider la commande</h2>
+      <div class="sub" id="modal-eta-sub">Choisis le temps de préparation et de livraison</div>
+
+      <div class="section-label"><span class="icon">🍳</span> Préparation</div>
+      <div class="time-grid" id="prep-grid">
+        <button type="button" class="time-btn" data-min="10">10</button>
+        <button type="button" class="time-btn" data-min="15">15</button>
+        <button type="button" class="time-btn" data-min="20">20</button>
+        <button type="button" class="time-btn" data-min="30">30</button>
+        <button type="button" class="time-btn" data-min="45">45</button>
+      </div>
+      <div class="custom-row">
+        <input type="number" id="prep-custom" min="1" max="180" placeholder="Autre (min)" />
+        <span class="unit">min</span>
+      </div>
+
+      <div id="delivery-block">
+        <div class="section-label"><span class="icon">🛵</span> Livraison <span style="font-size:0.7rem;color:#777;font-weight:500;text-transform:none;letter-spacing:0;">(0 = à emporter)</span></div>
+        <div class="time-grid" id="delivery-grid">
+          <button type="button" class="time-btn zero" data-min="0">0</button>
+          <button type="button" class="time-btn" data-min="10">10</button>
+          <button type="button" class="time-btn" data-min="15">15</button>
+          <button type="button" class="time-btn" data-min="20">20</button>
+          <button type="button" class="time-btn" data-min="30">30</button>
+        </div>
+        <div class="custom-row">
+          <input type="number" id="delivery-custom" min="0" max="180" placeholder="Autre (min)" />
+          <span class="unit">min</span>
+        </div>
+      </div>
+
+      <div class="reason-row" id="reason-block" hidden>
+        <input type="text" id="eta-reason" maxlength="100" placeholder="Raison (ex: bloqué dans le trafic) — optionnel" />
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-x btn-x-cancel" id="modal-eta-cancel">Annuler</button>
+        <button type="button" class="btn-x btn-x-ok" id="modal-eta-ok">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL CHAT -->
+  <div id="modal-chat-back" class="modal-back">
+    <div class="modal">
+      <h2 id="modal-chat-title">Message client</h2>
+      <div class="sub" id="modal-chat-sub"></div>
+
+      <div class="chat-msgs" id="chat-msgs"></div>
+
+      <div class="chat-shortcuts">
+        <button type="button" data-tpl="Bonjour, votre commande est en cours.">👋 En cours</button>
+        <button type="button" data-tpl="Le livreur est en route.">🛵 En route</button>
+        <button type="button" data-tpl="Désolé, petit retard.">⏰ Retard</button>
+        <button type="button" data-tpl="Article indisponible, remplacement OK ?">❓ Remplacement</button>
+      </div>
+
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" maxlength="500" placeholder="Écrire au client…" />
+        <button type="button" id="chat-send">Envoyer</button>
+      </div>
+
+      <div class="modal-actions" style="margin-top:0.65rem;">
+        <button type="button" class="btn-x btn-x-cancel" id="modal-chat-close" style="flex:1;">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast" class="toast"></div>
+
+  <script is:inline>
+  (function() {
+    // ===== State =====
+    var state = {
+      authed: false,
+      orders: [],
+      since: 0,
+      currentTab: 'pending',
+      modalEtaCtx: null,   // { orderId, mode, kind: 'validate'|'update' }
+      modalChatCtx: null,  // { orderId, lastMsgId, pollTimer }
+      audioCtx: null,
+      lastNewSeen: 0,
+      pollAbort: null,
+    };
+
+    // ===== Helpers =====
+    var $ = function(id) { return document.getElementById(id); };
+    function showToast(msg, kind) {
+      var t = $('toast'); t.textContent = msg; t.className = 'toast show ' + (kind || '');
+      setTimeout(function() { t.classList.remove('show'); }, 2200);
+    }
+    function escapeHtml(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+        return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c];
+      });
+    }
+    function fmtEUR(n) {
+      return (Math.round((Number(n) || 0) * 100) / 100).toFixed(2).replace('.', ',') + '€';
+    }
+    function fmtTime(ts) {
+      var d = new Date(ts);
+      return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+    function fmtAgo(ts) {
+      var sec = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+      if (sec < 60) return 'il y a ' + sec + 's';
+      var min = Math.floor(sec / 60);
+      if (min < 60) return 'il y a ' + min + 'min';
+      var h = Math.floor(min / 60);
+      return 'il y a ' + h + 'h';
+    }
+    function ensureAudio() {
+      if (!state.audioCtx) {
+        try { state.audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+      }
+      if (state.audioCtx && state.audioCtx.state === 'suspended') {
+        state.audioCtx.resume().catch(function() {});
+      }
+    }
+    function ding(freq, duration) {
+      ensureAudio(); if (!state.audioCtx) return;
+      try {
+        var osc = state.audioCtx.createOscillator();
+        var gain = state.audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.value = freq || 880;
+        gain.gain.setValueAtTime(0.0001, state.audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.35, state.audioCtx.currentTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, state.audioCtx.currentTime + (duration || 0.5));
+        osc.connect(gain).connect(state.audioCtx.destination);
+        osc.start(); osc.stop(state.audioCtx.currentTime + (duration || 0.55));
+      } catch (e) {}
+    }
+
+    // ===== Login =====
+    $('login-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      ensureAudio();
+      var pw = $('pw').value;
+      var err = $('login-err'); err.hidden = true;
+      try {
+        var res = await fetch('/api/caisse-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw }),
+          credentials: 'include',
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Mot de passe incorrect');
+        state.authed = true;
+        $('login').style.display = 'none';
+        $('dash').classList.add('show');
+        startClock();
+        startPoll();
+      } catch (ex) {
+        err.hidden = false; err.textContent = ex.message || 'Erreur';
+      }
+    });
+
+    // Si déjà loggé via cookie : essaye un poll direct, fallback login
+    async function tryAutoLogin() {
+      try {
+        var res = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
+        if (res.status === 401) return false;
+        if (!res.ok) return false;
+        var data = await res.json();
+        if (!data.ok) return false;
+        state.orders = data.orders || [];
+        state.since = data.now || Date.now();
+        state.authed = true;
+        $('login').style.display = 'none';
+        $('dash').classList.add('show');
+        startClock();
+        render();
+        startPoll();
+        return true;
+      } catch (e) { return false; }
+    }
+
+    // ===== Clock =====
+    function startClock() {
+      function tick() {
+        var d = new Date();
+        $('clock').textContent = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+      }
+      tick();
+      setInterval(tick, 30000);
+    }
+
+    // ===== Poll =====
+    async function poll() {
+      if (!state.authed) return;
+      try {
+        if (state.pollAbort) state.pollAbort.abort();
+        state.pollAbort = new AbortController();
+        var url = '/api/orders/poll?since=' + (state.since || 0);
+        var res = await fetch(url, { credentials: 'include', cache: 'no-store', signal: state.pollAbort.signal });
+        if (res.status === 401) {
+          state.authed = false;
+          $('login').style.display = 'flex';
+          $('dash').classList.remove('show');
+          return;
+        }
+        if (!res.ok) return;
+        var data = await res.json();
+        if (!data.ok) return;
+        var prevNewIds = new Set(state.orders.filter(function(o) { return o.status === 'new'; }).map(function(o) { return o.id; }));
+        state.orders = data.orders || [];
+        state.since = data.now || Date.now();
+        // Ding si nouvelle commande
+        var hasNew = state.orders.some(function(o) { return o.status === 'new' && !prevNewIds.has(o.id); });
+        if (hasNew) { ding(880, 0.5); setTimeout(function() { ding(1100, 0.5); }, 220); }
+        render();
+        $('top').classList.remove('offline');
+      } catch (e) {
+        if (e.name !== 'AbortError') { $('top').classList.add('offline'); }
+      }
+    }
+    function startPoll() {
+      poll();
+      setInterval(poll, 2500);
+    }
+
+    // ===== Render =====
+    function tabSwitch(name) {
+      state.currentTab = name;
+      document.querySelectorAll('.tab').forEach(function(t) {
+        t.classList.toggle('active', t.getAttribute('data-tab') === name);
+      });
+      render();
+    }
+    document.querySelectorAll('.tab').forEach(function(t) {
+      t.addEventListener('click', function() { tabSwitch(t.getAttribute('data-tab')); });
+    });
+
+    function render() {
+      var pending = state.orders.filter(function(o) { return o.status === 'new'; });
+      var prep = state.orders.filter(function(o) { return o.status === 'seen' || o.status === 'ready'; });
+      $('badge-pending').textContent = pending.length;
+      $('badge-prep').textContent = prep.length;
+
+      var list = state.currentTab === 'pending' ? pending : prep;
+      var container = $('list');
+
+      if (list.length === 0) {
+        container.innerHTML = '<div class="empty">' + (state.currentTab === 'pending' ? '✓ Aucune commande à valider' : '✓ Aucune commande en cours') + '</div>';
+        return;
+      }
+
+      // Sort : plus récente d'abord pour pending, plus ancienne pour prep
+      list.sort(function(a, b) {
+        return state.currentTab === 'pending' ? b.created_at - a.created_at : a.created_at - b.created_at;
+      });
+
+      var html = '';
+      list.forEach(function(o) { html += renderCard(o); });
+      container.innerHTML = html;
+
+      // Bind actions
+      container.querySelectorAll('[data-act]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var act = btn.getAttribute('data-act');
+          var id = btn.getAttribute('data-id');
+          var mode = btn.getAttribute('data-mode');
+          if (act === 'validate') openEtaModal(id, mode, 'validate');
+          else if (act === 'update-eta') openEtaModal(id, mode, 'update');
+          else if (act === 'ready') setStatus(id, 'ready');
+          else if (act === 'paid') setStatus(id, 'paid');
+          else if (act === 'cancel') {
+            if (confirm('Annuler la commande ' + id + ' ?')) setStatus(id, 'cancelled');
+          }
+          else if (act === 'chat') openChatModal(id);
+          else if (act === 'call') {
+            var phone = btn.getAttribute('data-phone');
+            if (phone) window.location.href = 'tel:' + phone;
+          }
+        });
+      });
+    }
+
+    function renderCard(o) {
+      var isNew = o.status === 'new';
+      var isReady = o.status === 'ready';
+      var modeClass = o.mode === 'delivery' ? 'delivery' : 'takeaway';
+      var modeLbl = o.mode === 'delivery' ? '🛵 Livraison' : '🥡 À emporter';
+
+      var itemsHtml = '';
+      if (Array.isArray(o.items)) {
+        o.items.forEach(function(it) {
+          itemsHtml += '<div class="item"><span class="qty">' + escapeHtml(it.qty) + '×</span>'
+            + '<span class="nm">' + escapeHtml(it.name) + '</span>'
+            + '<span class="pr">' + fmtEUR((it.price || 0) * (it.qty || 0)) + '</span></div>';
+        });
+      }
+
+      var addressHtml = '';
+      if (o.mode === 'delivery' && o.address) {
+        addressHtml = '<div class="row"><div class="label">Adresse</div><div class="val">'
+          + escapeHtml(o.address)
+          + (o.floor ? ' · ét. ' + escapeHtml(o.floor) : '')
+          + (o.bell ? ' · son. ' + escapeHtml(o.bell) : '')
+          + '</div></div>';
+      }
+
+      var notesHtml = '';
+      if (o.notes) {
+        notesHtml = '<div class="notes"><div class="lbl">📝 Note</div>' + escapeHtml(o.notes);
+        if (o.notes_translated && o.notes_translated !== o.notes) {
+          notesHtml += '<div class="tr">🇬🇷 ' + escapeHtml(o.notes_translated) + '</div>';
+        }
+        notesHtml += '</div>';
+      }
+
+      // ETA info si validée
+      var etaHtml = '';
+      if (!isNew && o.prep_minutes && o.accepted_at) {
+        var readyTs = o.accepted_at + o.prep_minutes * 60 * 1000;
+        var arriveTs = (o.delivery_minutes != null && o.delivery_minutes > 0)
+          ? readyTs + o.delivery_minutes * 60 * 1000 : null;
+        var remaining = Math.max(0, Math.floor((readyTs - Date.now()) / 60000));
+        etaHtml = '<div class="eta-info"><div>'
+          + '<div class="eta-vals">⏱️ Prêt en <b>' + remaining + ' min</b>';
+        if (o.delivery_minutes != null && o.delivery_minutes > 0) {
+          etaHtml += ' + livraison <b>' + o.delivery_minutes + ' min</b>';
+        }
+        etaHtml += '</div>'
+          + '<div class="eta-times">Prêt ' + fmtTime(readyTs);
+        if (arriveTs) etaHtml += ' · livré ' + fmtTime(arriveTs);
+        etaHtml += '</div></div></div>';
+      }
+
+      var unread = Number(o.unread_client_messages || 0);
+      var chatBtn = '<button class="btn btn-msg" data-act="chat" data-id="' + escapeHtml(o.id) + '">💬 Message'
+        + (unread > 0 ? ' (' + unread + ')' : '') + '</button>';
+
+      var actionsHtml = '';
+      if (isNew) {
+        actionsHtml = '<div class="actions">'
+          + '<button class="btn btn-validate" data-act="validate" data-id="' + escapeHtml(o.id) + '" data-mode="' + escapeHtml(o.mode) + '">✓ VALIDER</button>'
+          + '<button class="btn btn-cancel" data-act="cancel" data-id="' + escapeHtml(o.id) + '">✗ Refuser</button>'
+          + '</div>';
+      } else if (o.status === 'seen') {
+        actionsHtml = '<div class="actions">'
+          + '<button class="btn btn-eta" data-act="update-eta" data-id="' + escapeHtml(o.id) + '" data-mode="' + escapeHtml(o.mode) + '">⏱️ Modifier temps</button>'
+          + '<button class="btn btn-ready" data-act="ready" data-id="' + escapeHtml(o.id) + '">🛵 Prêt</button>'
+          + '</div>'
+          + '<div class="actions" style="padding-top:0;">'
+          + chatBtn
+          + '<button class="btn btn-cancel" data-act="cancel" data-id="' + escapeHtml(o.id) + '">Annuler</button>'
+          + '</div>';
+      } else if (isReady) {
+        actionsHtml = '<div class="actions">'
+          + '<button class="btn btn-done" data-act="paid" data-id="' + escapeHtml(o.id) + '">✓ Terminée</button>'
+          + chatBtn
+          + '</div>';
+      }
+
+      var totalAll = (Array.isArray(o.items) ? o.items.reduce(function(s, it) { return s + (it.price || 0) * (it.qty || 0); }, 0) : 0);
+
+      return '<div class="card ' + (isNew ? 'new' : (isReady ? 'ready' : 'seen')) + '">'
+        + '<div class="card-head">'
+        + '<div class="id-block"><div class="id">' + escapeHtml(o.id) + '</div>'
+        + '<div class="when">' + fmtTime(o.created_at) + ' · ' + fmtAgo(o.created_at) + '</div></div>'
+        + '<div class="mode-pill ' + modeClass + '">' + modeLbl + '</div>'
+        + '</div>'
+        + '<div class="card-body">'
+        + '<div class="row"><div class="label">Client</div><div class="val">' + escapeHtml(o.name) + '</div></div>'
+        + '<div class="row"><div class="label">Téléphone</div><div class="val phone"><a href="tel:' + escapeHtml(o.phone) + '">' + escapeHtml(o.phone) + '</a></div></div>'
+        + addressHtml
+        + '<div class="items">' + itemsHtml
+        + '<div class="sep"></div>'
+        + '<div class="tot"><span>Total</span><span>' + fmtEUR(o.total || totalAll) + '</span></div>'
+        + '</div>'
+        + notesHtml
+        + etaHtml
+        + '</div>'
+        + actionsHtml
+        + '</div>';
+    }
+
+    // Re-render every 30s for countdowns
+    setInterval(function() { if (state.authed) render(); }, 30000);
+
+    // ===== Modal ETA =====
+    function openEtaModal(id, mode, kind) {
+      var order = state.orders.find(function(o) { return o.id === id; });
+      if (!order) return;
+      state.modalEtaCtx = { orderId: id, mode: order.mode, kind: kind };
+
+      var isUpdate = (kind === 'update');
+      $('modal-eta-title').textContent = isUpdate ? 'Modifier les temps — ' + id : 'Valider — ' + id;
+      $('modal-eta-sub').textContent = isUpdate ? 'Le client verra la mise à jour immédiatement' : 'Choisis les temps avant validation';
+      $('reason-block').hidden = !isUpdate;
+
+      // Reset selections
+      $('prep-custom').value = '';
+      $('delivery-custom').value = '';
+      $('eta-reason').value = '';
+      document.querySelectorAll('#prep-grid .time-btn').forEach(function(b) { b.classList.remove('selected'); });
+      document.querySelectorAll('#delivery-grid .time-btn').forEach(function(b) { b.classList.remove('selected'); });
+
+      // Pré-sélection si update : valeurs actuelles
+      if (isUpdate) {
+        if (order.prep_minutes) {
+          var prepBtn = document.querySelector('#prep-grid .time-btn[data-min="' + order.prep_minutes + '"]');
+          if (prepBtn) prepBtn.classList.add('selected');
+          else $('prep-custom').value = order.prep_minutes;
+        }
+        if (order.delivery_minutes != null) {
+          var delBtn = document.querySelector('#delivery-grid .time-btn[data-min="' + order.delivery_minutes + '"]');
+          if (delBtn) delBtn.classList.add('selected');
+          else $('delivery-custom').value = order.delivery_minutes;
+        }
+      } else {
+        // Default validate : preselect 20 prep, et 15 delivery si livraison sinon 0
+        document.querySelector('#prep-grid .time-btn[data-min="20"]').classList.add('selected');
+        var defDel = order.mode === 'delivery' ? 15 : 0;
+        var defDelBtn = document.querySelector('#delivery-grid .time-btn[data-min="' + defDel + '"]');
+        if (defDelBtn) defDelBtn.classList.add('selected');
+      }
+
+      // Cache delivery block si takeaway pur (mais on garde 0 sélectionné quand même)
+      // — on laisse visible pour cohérence + permet de mettre 0 explicitement
+      $('modal-eta-back').classList.add('show');
+    }
+    function closeEtaModal() {
+      $('modal-eta-back').classList.remove('show');
+      state.modalEtaCtx = null;
+    }
+    $('modal-eta-cancel').addEventListener('click', closeEtaModal);
+    $('modal-eta-back').addEventListener('click', function(e) {
+      if (e.target.id === 'modal-eta-back') closeEtaModal();
+    });
+
+    // Toggle prep buttons
+    document.querySelectorAll('#prep-grid .time-btn').forEach(function(b) {
+      b.addEventListener('click', function() {
+        document.querySelectorAll('#prep-grid .time-btn').forEach(function(x) { x.classList.remove('selected'); });
+        b.classList.add('selected');
+        $('prep-custom').value = '';
+      });
+    });
+    document.querySelectorAll('#delivery-grid .time-btn').forEach(function(b) {
+      b.addEventListener('click', function() {
+        document.querySelectorAll('#delivery-grid .time-btn').forEach(function(x) { x.classList.remove('selected'); });
+        b.classList.add('selected');
+        $('delivery-custom').value = '';
+      });
+    });
+    $('prep-custom').addEventListener('input', function() {
+      if (this.value) document.querySelectorAll('#prep-grid .time-btn').forEach(function(x) { x.classList.remove('selected'); });
+    });
+    $('delivery-custom').addEventListener('input', function() {
+      if (this.value !== '') document.querySelectorAll('#delivery-grid .time-btn').forEach(function(x) { x.classList.remove('selected'); });
+    });
+
+    function getSelectedMin(gridId, customId) {
+      var custom = $(customId).value.trim();
+      if (custom !== '') {
+        var n = Number(custom);
+        if (Number.isFinite(n) && n >= 0 && n <= 180) return Math.round(n);
+        return null;
+      }
+      var btn = document.querySelector('#' + gridId + ' .time-btn.selected');
+      if (!btn) return null;
+      return Number(btn.getAttribute('data-min'));
+    }
+
+    $('modal-eta-ok').addEventListener('click', async function() {
+      if (!state.modalEtaCtx) return;
+      var ctx = state.modalEtaCtx;
+      var prep = getSelectedMin('prep-grid', 'prep-custom');
+      var delivery = getSelectedMin('delivery-grid', 'delivery-custom');
+
+      if (prep == null || prep < 1) {
+        showToast('Choisis un temps de préparation', 'err'); return;
+      }
+      if (delivery == null) {
+        showToast('Choisis un temps de livraison (0 si à emporter)', 'err'); return;
+      }
+
+      var btn = this; btn.disabled = true;
+      try {
+        var url, payload;
+        if (ctx.kind === 'validate') {
+          url = '/api/orders/' + encodeURIComponent(ctx.orderId) + '/ack';
+          payload = { prep_minutes: prep, delivery_minutes: delivery };
+        } else {
+          url = '/api/orders/' + encodeURIComponent(ctx.orderId) + '/eta';
+          payload = { prep_minutes: prep, delivery_minutes: delivery };
+          var reason = $('eta-reason').value.trim();
+          if (reason) payload.reason = reason;
+        }
+        var res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(payload),
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Erreur API');
+        showToast(ctx.kind === 'validate' ? '✓ Commande validée' : '✓ Temps mis à jour', 'ok');
+        closeEtaModal();
+        // Switch tab vers "en cours" après validation
+        if (ctx.kind === 'validate') tabSwitch('prep');
+        poll();
+      } catch (err) {
+        showToast('Erreur : ' + (err.message || err), 'err');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    async function setStatus(id, status) {
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ status: status }),
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Erreur');
+        showToast('✓ Statut : ' + status, 'ok');
+        poll();
+      } catch (err) {
+        showToast('Erreur : ' + (err.message || err), 'err');
+      }
+    }
+
+    // ===== Modal Chat =====
+    function openChatModal(id) {
+      var order = state.orders.find(function(o) { return o.id === id; });
+      if (!order) return;
+      state.modalChatCtx = { orderId: id, lastMsgId: 0 };
+      $('modal-chat-title').textContent = 'Chat — ' + id;
+      $('modal-chat-sub').textContent = order.name + ' · ' + order.phone;
+      $('chat-msgs').innerHTML = '<div class="chat-empty">Chargement…</div>';
+      $('chat-input').value = '';
+      $('modal-chat-back').classList.add('show');
+      fetchChat();
+      state.modalChatCtx.pollTimer = setInterval(fetchChat, 3000);
+    }
+    function closeChatModal() {
+      if (state.modalChatCtx && state.modalChatCtx.pollTimer) clearInterval(state.modalChatCtx.pollTimer);
+      state.modalChatCtx = null;
+      $('modal-chat-back').classList.remove('show');
+    }
+    $('modal-chat-close').addEventListener('click', closeChatModal);
+    $('modal-chat-back').addEventListener('click', function(e) {
+      if (e.target.id === 'modal-chat-back') closeChatModal();
+    });
+
+    async function fetchChat() {
+      if (!state.modalChatCtx) return;
+      var id = state.modalChatCtx.orderId;
+      // Réutilise endpoint poll pour récupérer juste l'order, ou messages : utilise public + phone
+      // Mais public nécessite phone. On va plutôt utiliser un poll filtré : prend l'order de state, et fetch direct chat
+      // Solution : fetch direct via SQL... non. On va passer par poll (déjà fait), et messages via reuse public.
+      // Astuce : récupérer phone last4 depuis state pour interroger /public
+      var order = state.orders.find(function(o) { return o.id === id; });
+      if (!order) return;
+      var phone4 = String(order.phone || '').replace(/\D/g, '').slice(-4);
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/public?phone=' + phone4 + '&since=' + state.modalChatCtx.lastMsgId, {
+          cache: 'no-store',
+        });
+        if (!res.ok) return;
+        var data = await res.json();
+        if (!data.ok) return;
+        if (data.messages && data.messages.length > 0) {
+          renderChatMsgs(data.messages);
+        } else if (state.modalChatCtx.lastMsgId === 0) {
+          $('chat-msgs').innerHTML = '<div class="chat-empty">Pas encore de message</div>';
+        }
+      } catch (e) {}
+    }
+    function renderChatMsgs(msgs) {
+      var container = $('chat-msgs');
+      if (state.modalChatCtx.lastMsgId === 0) container.innerHTML = '';
+      msgs.forEach(function(m) {
+        var cls, text;
+        if (m.sender === 'patron') { cls = 'from-patron'; text = m.text; }
+        else if (m.sender === 'client') { cls = 'from-client'; text = m.text; ding(660, 0.3); }
+        else {
+          cls = 'from-system';
+          var raw = String(m.text || '');
+          if (raw.indexOf('accepted:') === 0) {
+            var p = raw.slice(9).split(':');
+            text = 'Validée — prêt en ' + p[0] + ' min' + (p[1] ? ' + livraison ' + p[1] + ' min' : '');
+          } else if (raw.indexOf('eta:') === 0) {
+            var rest = raw.slice(4); var reason = '';
+            var pi = rest.indexOf('|');
+            if (pi !== -1) { reason = rest.slice(pi + 1); rest = rest.slice(0, pi); }
+            var pp = rest.split(':');
+            text = 'Temps modifié → ' + pp[0] + ' min';
+            if (pp[1] && /^\d+$/.test(pp[1])) text += ' + livraison ' + pp[1] + ' min';
+            if (reason) text += ' (' + reason + ')';
+          } else { text = raw; }
+        }
+        var el = document.createElement('div');
+        el.className = 'chat-msg ' + cls;
+        el.innerHTML = escapeHtml(text) + '<div class="meta">' + fmtTime(m.created_at) + '</div>';
+        container.appendChild(el);
+        state.modalChatCtx.lastMsgId = Math.max(state.modalChatCtx.lastMsgId, m.id || m.created_at);
+      });
+      container.scrollTop = container.scrollHeight;
+    }
+
+    document.querySelectorAll('.chat-shortcuts button').forEach(function(b) {
+      b.addEventListener('click', function() {
+        var tpl = b.getAttribute('data-tpl');
+        var inp = $('chat-input');
+        inp.value = tpl;
+        inp.focus();
+      });
+    });
+
+    $('chat-send').addEventListener('click', sendChatMsg);
+    $('chat-input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); sendChatMsg(); }
+    });
+
+    async function sendChatMsg() {
+      if (!state.modalChatCtx) return;
+      var inp = $('chat-input');
+      var text = inp.value.trim();
+      if (!text) return;
+      inp.disabled = true;
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(state.modalChatCtx.orderId) + '/message-patron', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ text: text }),
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'Erreur');
+        inp.value = '';
+        fetchChat();
+      } catch (err) {
+        showToast('Erreur : ' + (err.message || err), 'err');
+      } finally {
+        inp.disabled = false;
+        inp.focus();
+      }
+    }
+
+    // ===== Init =====
+    tryAutoLogin().then(function(ok) {
+      if (!ok) $('login').style.display = 'flex';
+    });
+
+    // Pause poll si page invisible
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        if (state.pollAbort) state.pollAbort.abort();
+      } else if (state.authed) {
+        poll();
+      }
+    });
+  })();
+  </script>
+</body>
+</html>
