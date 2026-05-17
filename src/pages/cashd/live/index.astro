@@ -163,6 +163,21 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
       padding: 1.25rem 1rem 1.5rem;
       max-height: 92dvh; overflow-y: auto;
       animation: slide-up 0.22s cubic-bezier(0.2, 0.8, 0.3, 1);
+      position: relative;
+    }
+    .modal-close-x {
+      position: absolute; top: 0.5rem; right: 0.5rem;
+      width: 44px; height: 44px;
+      background: transparent; color: rgba(255,255,255,0.6);
+      border: none; font-size: 1.6rem; cursor: pointer;
+      border-radius: 50%; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+      z-index: 2;
+    }
+    .modal-close-x:hover, .modal-close-x:active { background: rgba(239,68,68,0.15); color: #ef4444; }
+    @media (max-width: 768px) {
+      .modal-close-x { width: 48px; height: 48px; font-size: 1.75rem; }
     }
     @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
     .modal h2 { margin: 0 0 0.3rem; color: var(--gold); font-size: 1.05rem; letter-spacing: 0.05em; }
@@ -311,10 +326,11 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
   <!-- MODAL VALIDATION + ETA -->
   <div id="modal-eta-back" class="modal-back">
     <div class="modal">
+      <button type="button" class="modal-close-x" id="modal-eta-close-x" aria-label="Fermer">×</button>
       <h2 id="modal-eta-title">Valider la commande</h2>
       <div class="sub" id="modal-eta-sub">Choisis le temps de préparation et de livraison</div>
 
-      <div class="section-label"><span class="icon">🍳</span> Préparation</div>
+      <div class="section-label"><span class="icon">🍳</span> Temps en cuisine</div>
       <div class="time-grid" id="prep-grid">
         <button type="button" class="time-btn" data-min="10">10</button>
         <button type="button" class="time-btn" data-min="15">15</button>
@@ -328,7 +344,7 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
       </div>
 
       <div id="delivery-block">
-        <div class="section-label"><span class="icon">🛵</span> Livraison <span style="font-size:0.7rem;color:#777;font-weight:500;text-transform:none;letter-spacing:0;">(0 = à emporter)</span></div>
+        <div class="section-label"><span class="icon">🛵</span> Temps livraison chez client <span style="font-size:0.7rem;color:#777;font-weight:500;text-transform:none;letter-spacing:0;">(temps après cuisine)</span></div>
         <div class="time-grid" id="delivery-grid">
           <button type="button" class="time-btn zero" data-min="0">0</button>
           <button type="button" class="time-btn" data-min="10">10</button>
@@ -356,6 +372,7 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
   <!-- MODAL CHAT -->
   <div id="modal-chat-back" class="modal-back">
     <div class="modal">
+      <button type="button" class="modal-close-x" id="modal-chat-close-x" aria-label="Fermer">×</button>
       <h2 id="modal-chat-title">Message client</h2>
       <div class="sub" id="modal-chat-sub"></div>
 
@@ -732,8 +749,20 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
         if (defDelBtn) defDelBtn.classList.add('selected');
       }
 
-      // Cache delivery block si takeaway pur (mais on garde 0 sélectionné quand même)
-      // — on laisse visible pour cohérence + permet de mettre 0 explicitement
+      // Cache delivery block si takeaway (commande à emporter, pas de livraison)
+      var deliveryBlock = $('delivery-block');
+      if (deliveryBlock) {
+        if (order.mode === 'delivery') {
+          deliveryBlock.style.display = '';
+        } else {
+          deliveryBlock.style.display = 'none';
+          // Force delivery=0 pour takeaway (zéro temps de livraison)
+          $('delivery-custom').value = '';
+          document.querySelectorAll('#delivery-grid .time-btn').forEach(function(x) { x.classList.remove('selected'); });
+          var zeroBtn = document.querySelector('#delivery-grid .time-btn[data-min="0"]');
+          if (zeroBtn) zeroBtn.classList.add('selected');
+        }
+      }
       $('modal-eta-back').classList.add('show');
     }
     function closeEtaModal() {
@@ -744,6 +773,8 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
     $('modal-eta-back').addEventListener('click', function(e) {
       if (e.target.id === 'modal-eta-back') closeEtaModal();
     });
+    var modalEtaCloseX = $('modal-eta-close-x');
+    if (modalEtaCloseX) modalEtaCloseX.addEventListener('click', closeEtaModal);
 
     // Toggle prep buttons
     document.querySelectorAll('#prep-grid .time-btn').forEach(function(b) {
@@ -862,6 +893,17 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
     $('modal-chat-close').addEventListener('click', closeChatModal);
     $('modal-chat-back').addEventListener('click', function(e) {
       if (e.target.id === 'modal-chat-back') closeChatModal();
+    });
+    var modalChatCloseX = $('modal-chat-close-x');
+    if (modalChatCloseX) modalChatCloseX.addEventListener('click', closeChatModal);
+
+    // Esc ferme le modal ouvert (priorité : chat > eta)
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Escape') return;
+      var chatBack = $('modal-chat-back');
+      var etaBack = $('modal-eta-back');
+      if (chatBack && chatBack.classList.contains('show')) { closeChatModal(); return; }
+      if (etaBack && etaBack.classList.contains('show')) { closeEtaModal(); return; }
     });
 
     async function fetchChat() {

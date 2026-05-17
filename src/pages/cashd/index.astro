@@ -173,6 +173,21 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
       background: #111; border: 1px solid rgba(229,179,42,0.4);
       border-radius: 1rem; padding: 1.5rem;
       box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      position: relative;
+    }
+    .modal-close-x {
+      position: absolute; top: 0.5rem; right: 0.5rem;
+      width: 40px; height: 40px;
+      background: transparent; color: rgba(255,255,255,0.6);
+      border: none; font-size: 1.5rem; cursor: pointer;
+      border-radius: 50%; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+      z-index: 2;
+    }
+    .modal-close-x:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
+    @media (max-width: 768px) {
+      .modal-close-x { width: 48px; height: 48px; font-size: 1.75rem; top: 0.75rem; right: 0.75rem; }
     }
     .modal h2 {
       margin: 0 0 0.5rem; color: var(--gold);
@@ -878,6 +893,7 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
   <!-- POPUP : Accepter commande avec temps -->
   <div id="accept-modal" class="modal-back" role="dialog" aria-modal="true">
     <div class="modal">
+      <button type="button" class="modal-close-x" id="accept-close-x" aria-label="Fermer">×</button>
       <h2 id="accept-title">Accepter la commande</h2>
       <p class="modal-sub" id="accept-sub"></p>
       <div class="time-grid" id="accept-grid">
@@ -901,6 +917,7 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
   <!-- POPUP : Modifier ETA -->
   <div id="eta-modal" class="modal-back" role="dialog" aria-modal="true">
     <div class="modal">
+      <button type="button" class="modal-close-x" id="eta-close-x" aria-label="Fermer">×</button>
       <h2 id="eta-title">Modifier le temps</h2>
       <p class="modal-sub" id="eta-sub"></p>
       <div class="time-grid" id="eta-grid">
@@ -1582,6 +1599,8 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
     if (acceptModal) acceptModal.addEventListener('click', function(e) {
       if (e.target === acceptModal) closeAcceptModal();
     });
+    var acceptCloseX = document.getElementById('accept-close-x');
+    if (acceptCloseX) acceptCloseX.addEventListener('click', closeAcceptModal);
 
     if (etaGrid) etaGrid.addEventListener('click', function(e) {
       var el = e.target;
@@ -1602,6 +1621,15 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
     if (etaCancelBtn) etaCancelBtn.addEventListener('click', closeEtaModal);
     if (etaModal) etaModal.addEventListener('click', function(e) {
       if (e.target === etaModal) closeEtaModal();
+    });
+    var etaCloseX = document.getElementById('eta-close-x');
+    if (etaCloseX) etaCloseX.addEventListener('click', closeEtaModal);
+
+    // Esc ferme le modal ouvert
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Escape') return;
+      if (acceptModal && acceptModal.classList.contains('show')) { closeAcceptModal(); return; }
+      if (etaModal && etaModal.classList.contains('show')) { closeEtaModal(); return; }
     });
 
     // ═══ CHAT (par carte) ═══
