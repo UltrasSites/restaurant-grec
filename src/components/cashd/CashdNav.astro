@@ -18,9 +18,9 @@ const items = [
 ---
 <style is:global>
   /* ====== Layout shell global (sidebar desktop + drawer mobile) ====== */
-  body { padding-left: 0; }
+  body { padding-left: 0 !important; }
   @media (min-width: 769px) {
-    body { padding-left: 220px; }
+    body { padding-left: 220px !important; }
   }
 
   .cashd-nav-burger-input { display: none; }
@@ -120,7 +120,7 @@ const items = [
   }
 
   @media (max-width: 768px) {
-    body { padding-top: 52px; padding-left: 0; }
+    body { padding-top: 52px !important; padding-left: 0 !important; }
     .cashd-mobile-topbar { display: flex; }
     .cashd-sidebar {
       transform: translateX(-100%);
