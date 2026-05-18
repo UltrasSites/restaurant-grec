@@ -101,8 +101,8 @@ type RestaurantTranslations = {
 
 const ui: Record<Lang, RestaurantTranslations> = {
   el: {
-    meta_title: 'Καλαμάκι Τρούμπας — Αυθεντικά Σουβλάκια στον Πειραιά | Παράδοση & Παραλαβή',
-    meta_description: 'Αυθεντικά καλαμάκια στα κάρβουνα, γύρος και πίτες στην καρδιά της Τρούμπας, Πειραιάς. Μπουμπουλίνας 8 & Νοταρά. Παράδοση & παραλαβή — παράγγειλε online χωρίς προμήθεια.',
+    meta_title: 'Σουβλάκι, Γύρος, Πίτα Πειραιάς | Παραγγελία online 0 προμήθεια — Καλαμάκι Τρούμπας',
+    meta_description: 'Καλαμάκι, γύρος, πίτα, σαλάτες, μπιφτέκι — όλα φρέσκα, στα κάρβουνα τελευταία στιγμή. Παράγγειλε online στην Τρούμπα, γρήγορη παράδοση, τιμές που γυρνάς πίσω, 0 προμήθεια πλατφόρμας.',
     nav_home: 'Αρχική',
     nav_ambiance: 'Ιστορία',
     nav_carte: 'Κατάλογος',
@@ -196,8 +196,8 @@ const ui: Record<Lang, RestaurantTranslations> = {
     order_remove: 'Αφαίρεση',
   },
   de: {
-    meta_title: 'Trouba Souvlaki — Authentisches griechisches Souvlaki in Piräus | Lieferung & Abholung',
-    meta_description: 'Authentische Holzkohle-Souvlaki, Gyros und Pita im Herzen von Trouba, Piräus. Bouboulinas 8 & Notara. Online bestellen — Lieferung oder Abholung ohne Provision.',
+    meta_title: 'Souvlaki, Gyros, Pita Piräus | Online bestellen 0 Provision — Kalamaki Trouba',
+    meta_description: 'Souvlaki, Gyros, Pita, Salate, Bifteki — frisch über Holzkohle, bis zum letzten Moment zubereitet. Online bestellen in Piräus, schnelle Lieferung, faire Preise, 0 Plattform-Gebühren.',
     nav_home: 'Startseite',
     nav_ambiance: 'Unsere Geschichte',
     nav_carte: 'Speisekarte',
@@ -291,8 +291,8 @@ const ui: Record<Lang, RestaurantTranslations> = {
     order_remove: 'Entfernen',
   },
   ru: {
-    meta_title: 'Trouba Souvlaki — Аутентичный греческий сувлаки в Пирее | Доставка и самовывоз',
-    meta_description: 'Аутентичный сувлаки на углях, гирос и пита в самом сердце Трумбы, Пирей. Бубулинас 8 & Нотара. Заказывайте онлайн — доставка или самовывоз без комиссии.',
+    meta_title: 'Сувлаки, Гирос, Пита в Пирее | Заказ онлайн без комиссии — Каламаки Трумба',
+    meta_description: 'Сувлаки, гирос, пита, салаты, бифтеки — всё свежее, на углях, готовится до последней минуты. Закажи онлайн в Пирее, быстрая доставка, честные цены, 0 комиссии платформ.',
     nav_home: 'Главная',
     nav_ambiance: 'Наша история',
     nav_carte: 'Меню',
@@ -386,8 +386,8 @@ const ui: Record<Lang, RestaurantTranslations> = {
     order_remove: 'Удалить',
   },
   ja: {
-    meta_title: 'トルンバ・スブラキ — ピレウスの本格ギリシャ風スブラキ | デリバリー・テイクアウト',
-    meta_description: 'ピレウスのトルンバ中心部で、本格的な炭火焼スブラキ、ギロス、ピタを。ブブリナス8番地&ノタラ通り。手数料なしでオンライン注文（デリバリー・テイクアウト）。',
+    meta_title: 'ピレウスの炭火スブラキ・ギロス・ピタ | 手数料0オンライン注文 — カラマキ・トルンバ',
+    meta_description: 'スブラキ、ギロス、ピタ、サラダ、ビフテキ — すべて新鮮、注文ごとに炭火で。ピレウスでオンライン注文、迅速配達、適正価格、プラットフォーム手数料なし。',
     nav_home: 'ホーム',
     nav_ambiance: '私たちの物語',
     nav_carte: 'メニュー',
@@ -481,8 +481,8 @@ const ui: Record<Lang, RestaurantTranslations> = {
     order_remove: '削除',
   },
   en: {
-    meta_title: 'Trouba Souvlaki — Authentic Greek Souvlaki in Piraeus | Delivery & Takeaway',
-    meta_description: 'Authentic charcoal souvlaki, gyros and pita in the heart of Troumpa, Piraeus. Bouboulinas 8 & Notara. Order online for delivery or takeaway — no commission added.',
+    meta_title: 'Souvlaki, Gyros, Pita Piraeus | Order online 0 commission — Kalamaki Trouba',
+    meta_description: 'Souvlaki, gyros, pita, salads, bifteki — all fresh, charcoal-grilled to order. Order online in Piraeus, fast delivery, fair prices, zero platform fees. Bouboulinas 8 & Notara.',
     nav_home: 'Home',
     nav_ambiance: 'Our Story',
     nav_carte: 'Menu',
