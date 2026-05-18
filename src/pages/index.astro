@@ -8,7 +8,7 @@
     <title>Το Καλαμάκι Της Τρούμπας</title>
     <script is:inline>
       (function() {
-        var supported = ['el', 'en', 'fr', 'de', 'ru', 'ja'];
+        var supported = ['el', 'en', 'de', 'ru', 'ja'];
         var lang = 'el';
         var params = typeof URLSearchParams !== 'undefined' && window.location.search ? new URLSearchParams(window.location.search) : null;
         var fromUrl = params && params.get('lang');
@@ -22,7 +22,6 @@
             var browser = typeof navigator !== 'undefined' && (navigator.language || (navigator as any).userLanguage || '').toLowerCase();
             if (browser) {
               if (browser.startsWith('en')) lang = 'en';
-              else if (browser.startsWith('fr')) lang = 'fr';
               else if (browser.startsWith('de')) lang = 'de';
               else if (browser.startsWith('ru')) lang = 'ru';
               else if (browser.startsWith('ja')) lang = 'ja';
