@@ -316,64 +316,6 @@ const baseUrl = `/${currentLang}`;
     </div>
   </section>
 
-  <!-- ZONE LIVRAISON — mise en avant (Tiago 19/05) -->
-  <section id="livraison" class="bg-[#0a0a0a] py-12 md:py-16 px-6 border-t border-white/5">
-    <div class="max-w-5xl mx-auto">
-      <div class="text-center mb-8">
-        <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mb-3">{currentLang === 'el' ? 'Παράδοση' : currentLang === 'de' ? 'Lieferung' : currentLang === 'ru' ? 'Доставка' : currentLang === 'ja' ? '配達' : currentLang === 'tr' ? 'Teslimat' : 'Delivery'}</p>
-        <h2 class="text-2xl md:text-4xl font-serif italic text-white mb-3 gold-shine-text">
-          {currentLang === 'el' ? 'Παραδίδουμε στον Πειραιά' : currentLang === 'de' ? 'Wir liefern in Piräus' : currentLang === 'ru' ? 'Доставка по Пирею' : currentLang === 'ja' ? 'ピレウス全域に配達' : currentLang === 'tr' ? 'Pire bölgesine teslimat' : 'We deliver across Piraeus'}
-        </h2>
-        <p class="text-sm md:text-base text-white/65 max-w-2xl mx-auto">
-          {currentLang === 'el' ? 'Τρούμπα, λιμάνι, Πασαλιμάνι, Καστέλλα, Αγία Σοφία, Φρεαττύδα — δύο ζώνες, ελάχιστη παραγγελία διαφορετική.' : currentLang === 'de' ? 'Trouba, Hafen, Pasalimani, Kastella, Agia Sofia, Freattyda — zwei Zonen, unterschiedliche Mindestbestellung.' : currentLang === 'ru' ? 'Трумба, порт, Пасалимани, Кастелла, Айя София, Фреаттида — две зоны, разная минимальная сумма заказа.' : currentLang === 'ja' ? 'トルンバ、港、パサリマニ、カステラ、アギア・ソフィア、フレアティダ — 2エリア、最低注文額が異なる。' : currentLang === 'tr' ? 'Trumba, liman, Pasalimani, Kastella, Agia Sofia, Freattyda — iki bölge, farklı minimum sipariş.' : 'Trouba, port, Pasalimani, Kastella, Agia Sofia, Freattyda — two zones, different minimum order.'}
-        </p>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto mb-6">
-        <!-- Zone verte (centre) -->
-        <div class="relative rounded-2xl border-2 border-emerald-400/40 bg-emerald-500/5 p-5">
-          <div class="flex items-start gap-3">
-            <span class="inline-block w-4 h-4 rounded-full bg-emerald-400 mt-1 flex-shrink-0 shadow-[0_0_12px_rgba(34,197,94,0.5)]"></span>
-            <div>
-              <p class="text-emerald-300 font-bold text-sm uppercase tracking-wider mb-1">
-                {currentLang === 'el' ? 'Ζώνη Κέντρο (Τρούμπα)' : currentLang === 'de' ? 'Zentrum-Zone (Trouba)' : currentLang === 'ru' ? 'Центр (Трумба)' : currentLang === 'ja' ? '中心地（トルンバ）' : currentLang === 'tr' ? 'Merkez Bölge (Trumba)' : 'Centre Zone (Trouba)'}
-              </p>
-              <p class="text-xs text-white/70 mb-2">{currentLang === 'el' ? 'Τρούμπα · Λιμάνι · Πασαλιμάνι' : currentLang === 'de' ? 'Trouba · Hafen · Pasalimani' : currentLang === 'ru' ? 'Трумба · Порт · Пасалимани' : currentLang === 'ja' ? 'トルンバ · 港 · パサリマニ' : currentLang === 'tr' ? 'Trumba · Liman · Pasalimani' : 'Trouba · Port · Pasalimani'}</p>
-              <p class="text-[11px] text-white/55">
-                <span class="text-emerald-300 font-bold">{currentLang === 'el' ? 'Ελάχιστη παραγγελία' : currentLang === 'de' ? 'Mindestbestellung' : currentLang === 'ru' ? 'Минимум' : currentLang === 'ja' ? '最低注文' : currentLang === 'tr' ? 'Minimum' : 'Min order'} : 6€</span>
-                · {currentLang === 'el' ? '~20 λεπτά' : currentLang === 'de' ? '~20 Min' : currentLang === 'ru' ? '~20 мин' : currentLang === 'ja' ? '~20分' : currentLang === 'tr' ? '~20 dk' : '~20 min'}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Zone rouge (élargie) -->
-        <div class="relative rounded-2xl border-2 border-red-400/40 bg-red-500/5 p-5">
-          <div class="flex items-start gap-3">
-            <span class="inline-block w-4 h-4 rounded-full bg-red-400 mt-1 flex-shrink-0 shadow-[0_0_12px_rgba(239,68,68,0.5)]"></span>
-            <div>
-              <p class="text-red-300 font-bold text-sm uppercase tracking-wider mb-1">
-                {currentLang === 'el' ? 'Ζώνη Ευρύτερη' : currentLang === 'de' ? 'Erweiterte Zone' : currentLang === 'ru' ? 'Расширенная зона' : currentLang === 'ja' ? '拡張エリア' : currentLang === 'tr' ? 'Genişletilmiş Bölge' : 'Extended Zone'}
-              </p>
-              <p class="text-xs text-white/70 mb-2">{currentLang === 'el' ? 'Καστέλλα · Φρεαττύδα · Αγία Σοφία' : currentLang === 'de' ? 'Kastella · Freattyda · Agia Sofia' : currentLang === 'ru' ? 'Кастелла · Фреаттида · Айя София' : currentLang === 'ja' ? 'カステラ · フレアティダ · アギア・ソフィア' : currentLang === 'tr' ? 'Kastella · Freattyda · Agia Sofia' : 'Kastella · Freattyda · Agia Sofia'}</p>
-              <p class="text-[11px] text-white/55">
-                <span class="text-red-300 font-bold">{currentLang === 'el' ? 'Ελάχιστη παραγγελία' : currentLang === 'de' ? 'Mindestbestellung' : currentLang === 'ru' ? 'Минимум' : currentLang === 'ja' ? '最低注文' : currentLang === 'tr' ? 'Minimum' : 'Min order'} : 8€</span>
-                · {currentLang === 'el' ? '~35 λεπτά' : currentLang === 'de' ? '~35 Min' : currentLang === 'ru' ? '~35 мин' : currentLang === 'ja' ? '~35分' : currentLang === 'tr' ? '~35 dk' : '~35 min'}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="text-center">
-        <a href={`/${currentLang}/delivery/`} class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#E5B32A] text-black font-bold text-sm uppercase tracking-wider hover:bg-[#fff] transition-colors">
-          {currentLang === 'el' ? 'Παράγγειλε online' : currentLang === 'de' ? 'Online bestellen' : currentLang === 'ru' ? 'Заказать онлайн' : currentLang === 'ja' ? 'オンライン注文' : currentLang === 'tr' ? 'Online sipariş' : 'Order online'}
-          <span aria-hidden="true">→</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
   <!-- HISTOIRE -->
   <section id="histoire" class="histoire-section bg-[#0a0a0a] py-24 px-6">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
