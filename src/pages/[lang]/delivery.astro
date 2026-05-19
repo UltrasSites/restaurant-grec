@@ -258,14 +258,14 @@ const flatItems = menuPages.flatMap((p, pi) =>
                   <input type="radio" name="delivery_zone" value="green" style="accent-color:#22c55e;" />
                   <span style="flex:1;">
                     <span style="color:#4ade80; font-weight:700;">● {isEl ? 'Πειραιάς (κέντρο)' : 'Piraeus centre'}</span>
-                    <span style="display:block; font-size:0.78rem; color:#bbb; margin-top:0.15rem;">{isEl ? 'Ελάχιστη παραγγελία : 5€' : 'Minimum order: 5€'}</span>
+                    <span style="display:block; font-size:0.78rem; color:#bbb; margin-top:0.15rem;">{isEl ? 'Ελάχιστη παραγγελία : 6€' : 'Minimum order: 6€'}</span>
                   </span>
                 </label>
                 <label class="zone-radio" style="display:flex; align-items:center; gap:0.6rem; padding:0.75rem 1rem; border:2px solid rgba(239,68,68,0.4); border-radius:0.6rem; cursor:pointer; background:rgba(239,68,68,0.06);">
                   <input type="radio" name="delivery_zone" value="red" style="accent-color:#ef4444;" />
                   <span style="flex:1;">
                     <span style="color:#f87171; font-weight:700;">● {isEl ? 'Κορυδαλλός / Κερατσίνι / Αιγάλεω' : 'Korydallós / Keratsíni / Aigáleo'}</span>
-                    <span style="display:block; font-size:0.78rem; color:#bbb; margin-top:0.15rem;">{isEl ? 'Ελάχιστη παραγγελία : 7€' : 'Minimum order: 7€'}</span>
+                    <span style="display:block; font-size:0.78rem; color:#bbb; margin-top:0.15rem;">{isEl ? 'Ελάχιστη παραγγελία : 8€' : 'Minimum order: 8€'}</span>
                   </span>
                 </label>
               </div>
@@ -854,6 +854,10 @@ const flatItems = menuPages.flatMap((p, pi) =>
     $('#cart-open-btn').addEventListener('click', openDrawer);
     $('#cart-close-btn').addEventListener('click', closeDrawer);
     $('#cart-backdrop').addEventListener('click', closeDrawer);
+    // Esc keydown — 3eme voie de fermeture obligatoire (regle Tiago)
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer();
+    });
 
     // Swipe to close (mobile)
     var startY = 0, deltaY = 0, panel = drawer.querySelector('.cart-panel');
