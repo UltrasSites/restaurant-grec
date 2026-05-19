@@ -255,6 +255,8 @@ const items = [
         // Best-effort : suppression cookie client-side
         document.cookie = 'caisse_auth=; Path=/; Max-Age=0; SameSite=Lax';
         document.cookie = 'caisse_auth=; Path=/; Max-Age=0; SameSite=Lax; Secure';
+        // Clear le token localStorage (sinon ré-auth auto le ramène)
+        try { localStorage.removeItem('cashd_token_b64'); } catch (e) {}
         window.location.href = '/cashd';
       });
     }

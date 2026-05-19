@@ -2710,6 +2710,9 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
         });
         var data = await res.json();
         if (!res.ok || !data.ok) throw new Error(data.error || 'Wrong password');
+        // Mémorise le mdp encodé base64 dans localStorage pour ré-auth auto sur Messages / Historique
+        // si le cookie drop (Safari ITP, SameSite=Lax cross-section, etc.)
+        try { localStorage.setItem('cashd_token_b64', btoa(unescape(encodeURIComponent(pw)))); } catch(e) {}
         showDashboard();
       } catch (err) {
         var msg = (err && err.message) || t.loginErrorDefault;
@@ -2722,16 +2725,13 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
     // Auto-tentative : si déjà cookie valide, le poll va passer.
     // since=0 -> le serveur renvoie immédiatement l'état complet (pas de long-poll bloquant).
     // 200 OK = cookie valide, on va direct sur le dashboard.
-    fetch('/api/orders/poll?since=0', {
-      credentials: 'include',
-      cache: 'no-store'
-    })
-      .then(async function(r) {
+    async function tryAutoReauthThenPoll() {
+      try {
+        var r = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
         if (r.status === 200) {
           var d = null;
           try { d = await r.json(); } catch (e) { d = null; }
           if (d && d.ok) {
-            // Pre-charge les commandes dès le boot pour éviter un flash vide
             if (Array.isArray(d.orders)) {
               var pre = {};
               d.orders.forEach(function(o) { pre[o.id] = o; });
@@ -2744,13 +2744,50 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
             return;
           }
         }
+        // 401 ou autre → essayer ré-auth automatique avec token localStorage
+        var token = null;
+        try { token = localStorage.getItem('cashd_token_b64'); } catch (e) {}
+        if (token) {
+          try {
+            var pw = decodeURIComponent(escape(atob(token)));
+            var rl = await fetch('/api/caisse-login', {
+              method: 'POST', credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ password: pw }),
+            });
+            var dl = await rl.json();
+            if (rl.ok && dl.ok) {
+              // re-poll après login auto
+              var r2 = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
+              if (r2.status === 200) {
+                var d2 = await r2.json();
+                if (d2 && d2.ok) {
+                  if (Array.isArray(d2.orders)) {
+                    var pre2 = {};
+                    d2.orders.forEach(function(o) { pre2[o.id] = o; });
+                    orders = pre2;
+                    if (typeof d2.now === 'number') since = d2.now;
+                  }
+                  applyI18n();
+                  showDashboard();
+                  renderOrders();
+                  return;
+                }
+              }
+            } else {
+              // token invalide (mdp changé) → nettoyer
+              try { localStorage.removeItem('cashd_token_b64'); } catch (e) {}
+            }
+          } catch (e) {}
+        }
         applyI18n();
         showLogin();
-      })
-      .catch(function() {
+      } catch (e) {
         applyI18n();
         showLogin();
-      });
+      }
+    }
+    tryAutoReauthThenPoll();
 
     // Service Worker pour PWA (best-effort)
     if ('serviceWorker' in navigator) {

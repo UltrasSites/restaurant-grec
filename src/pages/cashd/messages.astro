@@ -383,6 +383,39 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
         return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c];
       });
     }
+
+    // === Ré-auth automatique si cookie drop (Safari ITP, SameSite cross-section, etc.)
+    // Stocke un token base64 en localStorage au login (cf. index.astro)
+    // Si fetch retourne 401, on tente un POST /api/caisse-login en background avec le token,
+    // puis on retry la requête originale. ZÉRO re-prompt visible Tiago.
+    async function _reauthFromToken() {
+      var token = null;
+      try { token = localStorage.getItem('cashd_token_b64'); } catch (e) {}
+      if (!token) return false;
+      try {
+        var pw = decodeURIComponent(escape(atob(token)));
+        var r = await fetch('/api/caisse-login', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw }),
+        });
+        var d = await r.json();
+        if (r.ok && d.ok) return true;
+        // token invalide → nettoyer
+        try { localStorage.removeItem('cashd_token_b64'); } catch (e) {}
+      } catch (e) {}
+      return false;
+    }
+    async function fetchAuth(url, opts) {
+      opts = opts || {};
+      opts.credentials = 'include';
+      opts.cache = opts.cache || 'no-store';
+      var res = await fetch(url, opts);
+      if (res.status !== 401) return res;
+      var reok = await _reauthFromToken();
+      if (!reok) return res;
+      return fetch(url, opts);
+    }
     function truncate(s, n) {
       s = String(s || '');
       if (s.length <= n) return s;
@@ -497,8 +530,9 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
 
     async function loadList() {
       try {
-        var res = await fetch('/api/orders/messages-summary', { credentials: 'include', cache: 'no-store' });
+        var res = await fetchAuth('/api/orders/messages-summary');
         if (res.status === 401) {
+          // Ré-auth a déjà été tentée et échoué → vraiment plus de session
           connEl.classList.add('off'); connLabel.textContent = t.connOff;
           listEl.innerHTML = '<div class="empty">' + escapeHtml(t.unauthorized) + ' <a href="/cashd" style="color:#E5B32A;">→</a></div>';
           return;
@@ -617,7 +651,7 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
 
     async function loadMessages(id) {
       try {
-        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/messages', { credentials: 'include', cache: 'no-store' });
+        var res = await fetchAuth('/api/orders/' + encodeURIComponent(id) + '/messages');
         if (!res.ok) throw new Error('fail');
         var data = await res.json();
         if (!data.ok) throw new Error(data.error || 'fail');
@@ -643,8 +677,8 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
       if (!text) return;
       mSend.disabled = true;
       try {
-        var res = await fetch('/api/orders/' + encodeURIComponent(currentOpenId) + '/message-patron', {
-          method: 'POST', credentials: 'include',
+        var res = await fetchAuth('/api/orders/' + encodeURIComponent(currentOpenId) + '/message-patron', {
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ text: text }),
         });
