@@ -416,6 +416,21 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
       if (!reok) return res;
       return fetch(url, opts);
     }
+
+    // Boot : pré-auth SILENCIEUSE au chargement si token connu — élimine la fenêtre prompt visible.
+    // Tiago navigue de /cashd (caisse) vers /cashd/messages : si le cookie a drop, on rétablit en arrière-plan.
+    async function bootAuthSilent() {
+      try {
+        var token = localStorage.getItem('cashd_token_b64');
+        if (!token) return;
+        var pw = decodeURIComponent(escape(atob(token)));
+        await fetch('/api/caisse-login', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw }),
+        });
+      } catch (e) {}
+    }
     function truncate(s, n) {
       s = String(s || '');
       if (s.length <= n) return s;
@@ -694,10 +709,13 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
     });
 
     // ====== Init + auto-refresh 15s ======
-    loadList();
-    refreshTimer = setInterval(function() {
-      if (!modalBack.classList.contains('show')) loadList();
-    }, 15000);
+    (async function init() {
+      await bootAuthSilent();
+      loadList();
+      refreshTimer = setInterval(function() {
+        if (!modalBack.classList.contains('show')) loadList();
+      }, 15000);
+    })();
   })();
   </script>
 </body>

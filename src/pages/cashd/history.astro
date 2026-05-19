@@ -914,6 +914,20 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
       return fetch(url, opts);
     }
 
+    // Boot : pré-auth silencieuse au chargement — élimine le prompt visible si cookie drop.
+    async function bootAuthSilent() {
+      try {
+        var token = localStorage.getItem('cashd_token_b64');
+        if (!token) return;
+        var pw = decodeURIComponent(escape(atob(token)));
+        await fetch('/api/caisse-login', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: pw }),
+        });
+      } catch (e) {}
+    }
+
     async function load() {
       content.innerHTML = '<div class="empty">' + escapeHtml(t.loading) + '</div>';
       try {
@@ -935,7 +949,10 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
     langToggleBtn.addEventListener('click', function() { setLang(lang === 'el' ? 'en' : 'el'); });
 
     applyI18n();
-    load();
+    (async function init() {
+      await bootAuthSilent();
+      load();
+    })();
   })();
   </script>
 </body>

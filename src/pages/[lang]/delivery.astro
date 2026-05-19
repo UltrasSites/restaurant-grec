@@ -1116,8 +1116,8 @@ const flatItems = menuPages.flatMap((p, pi) =>
           btn.textContent = document.querySelector('#order-submit-btn').getAttribute('data-original') || '';
           return;
         }
-        var minByZone = { green: 5, red: 7 };
-        var minRequired = minByZone[delivery_zone] || 5;
+        var minByZone = { green: 6, red: 8 };
+        var minRequired = minByZone[delivery_zone] || 6;
         if (totalAmount() < minRequired) {
           errEl.textContent = (i18n.isEl ? 'Ελάχιστη παραγγελία : ' : 'Minimum order: ') + minRequired + '€';
           errEl.hidden = false;
