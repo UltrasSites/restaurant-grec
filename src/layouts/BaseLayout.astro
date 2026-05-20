@@ -25,7 +25,7 @@ const {
   breadcrumbs = [],
   includeMenu = false,
 } = Astro.props;
-const HTML_LANG_MAP: Record<string, string> = { el: 'el-GR', en: 'en-GB', de: 'de-DE', ru: 'ru-RU', ja: 'ja-JP' };
+const HTML_LANG_MAP: Record<string, string> = { el: 'el-GR', en: 'en-GB' };
 const htmlLang = HTML_LANG_MAP[lang] ?? 'el-GR';
 const origin = Astro.url.origin;
 
@@ -83,7 +83,7 @@ const restaurantSchema = {
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.3",
-    "reviewCount": "200",
+    "reviewCount": "291",
     "bestRating": "5",
     "worstRating": "1",
   },
@@ -243,9 +243,6 @@ const faqSchema = {
     <link rel="canonical" href={Astro.url.href} />
     <link rel="alternate" hreflang="el" href={new URL('/el/', origin).href} />
     <link rel="alternate" hreflang="en" href={new URL('/en/', origin).href} />
-    <link rel="alternate" hreflang="de" href={new URL('/de/', origin).href} />
-    <link rel="alternate" hreflang="ru" href={new URL('/ru/', origin).href} />
-    <link rel="alternate" hreflang="ja" href={new URL('/ja/', origin).href} />
     <link rel="alternate" hreflang="x-default" href={new URL('/el/', origin).href} />
     <link rel="manifest" href="/manifest.webmanifest" />
 
@@ -254,7 +251,7 @@ const faqSchema = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={Astro.url.href} />
-    <meta property="og:locale" content={({el:'el_GR',en:'en_GB',de:'de_DE',ru:'ru_RU',ja:'ja_JP'} as Record<string,string>)[lang] ?? 'el_GR'} />
+    <meta property="og:locale" content={({el:'el_GR',en:'en_GB'} as Record<string,string>)[lang] ?? 'el_GR'} />
     <meta property="og:locale:alternate" content={lang === 'el' ? 'en_GB' : 'el_GR'} />
     <meta property="og:image" content={new URL('/photos/efood-00-1600w.webp', Astro.url).href} />
     <meta property="og:image:secure_url" content={new URL('/photos/efood-00-1600w.webp', Astro.url).href} />
@@ -297,6 +294,9 @@ const faqSchema = {
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Leaflet (carte zones livraison) — chargé sur toutes les pages, leger (~40kb) */}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
     {/* Preload critical font CSS for FCP */}
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" media="print" onload="this.media='all';this.onload=null;" />

@@ -1,15 +1,12 @@
-export type Lang = 'el' | 'en' | 'de' | 'ru' | 'ja';
+export type Lang = 'el' | 'en';
 
-export const supportedLangs: Lang[] = ['el', 'en', 'de', 'ru', 'ja'];
+export const supportedLangs: Lang[] = ['el', 'en'];
 
 export const defaultLang: Lang = 'el';
 
 export const langLabels: Record<Lang, string> = {
   el: 'Ελληνικά',
   en: 'English',
-  de: 'Deutsch',
-  ru: 'Русский',
-  ja: '日本語',
 };
 
 export function getLangFromParam(param: string | undefined): Lang {
