@@ -2,6 +2,7 @@
 // Σελίδα ταμείου — για τον υπάλληλο / το αφεντικό (στα ελληνικά).
 // Δεν συνδέεται με το i18n του δημόσιου site.
 import CashdNav from "../../components/cashd/CashdNav.astro";
+import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
 ---
 <!doctype html>
 <html lang="el">
@@ -12,6 +13,7 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
   <meta name="robots" content="noindex, nofollow" />
   <title>Ταμείο — Καλαμάκι Της Τρούμπας</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <CashdAuthScript />
   <style>
     :root { --gold: #E5B32A; --bg: #0a0a0a; }
     * { box-sizing: border-box; }
@@ -574,13 +576,16 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
         justify-content: flex-end;
       }
       .topbar .status .clock { font-size: 0.75rem; }
-      .topbar .status .sound-select { max-width: 95px; padding: 0.35rem 0.4rem; font-size: 0.7rem; }
+      .topbar .status .sound-select { max-width: 140px; padding: 0.4rem 0.5rem; font-size: 0.72rem; }
       .topbar .status .sound-test,
       .topbar .status .sound-toggle,
       .topbar .status .lang-toggle,
       .topbar .status .history-btn {
-        padding: 0.4rem 0.5rem; font-size: 0.7rem; min-height: 36px;
+        padding: 0.4rem 0.55rem; font-size: 0.72rem; min-height: 36px;
       }
+      /* Empêche tout débordement horizontal sur mobile */
+      .dashboard, .orders-area, .columns, .topbar, .topbar .status { max-width: 100vw; min-width: 0; }
+      .topbar .status { flex: 1 1 100%; min-width: 0; }
 
       .mobile-tabs {
         display: flex;
@@ -2710,9 +2715,9 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
         });
         var data = await res.json();
         if (!res.ok || !data.ok) throw new Error(data.error || 'Wrong password');
-        // Mémorise le mdp encodé base64 dans localStorage pour ré-auth auto sur Messages / Historique
-        // si le cookie drop (Safari ITP, SameSite=Lax cross-section, etc.)
-        try { localStorage.setItem('cashd_token_b64', btoa(unescape(encodeURIComponent(pw)))); } catch(e) {}
+        // Session unifiée 2h : zéro re-prompt entre pages /cashd/*.
+        // refresh auto à chaque event utilisateur (cf. cashd-auth.js).
+        try { window.cashdAuth.setSession(pw); } catch(e) {}
         showDashboard();
       } catch (err) {
         var msg = (err && err.message) || t.loginErrorDefault;
@@ -2722,10 +2727,13 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
       }
     });
 
-    // Auto-tentative : si déjà cookie valide, le poll va passer.
-    // since=0 -> le serveur renvoie immédiatement l'état complet (pas de long-poll bloquant).
-    // 200 OK = cookie valide, on va direct sur le dashboard.
+    // Auto-tentative : si déjà cookie valide ET poll ok, on va direct sur le dashboard.
+    // IMPORTANT : si poll renvoie 500 (server error) mais qu'on a une session 2h valide,
+    // on AFFICHE le dashboard quand meme (le cookie est probablement OK, poll est juste cassé).
+    // On force showLogin UNIQUEMENT si poll renvoie 401 ET bootAuth echoue.
     async function tryAutoReauthThenPoll() {
+      var hasSession = false;
+      try { hasSession = !!window.cashdAuth.getSession(); } catch (e) {}
       try {
         var r = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
         if (r.status === 200) {
@@ -2744,20 +2752,13 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
             return;
           }
         }
-        // 401 ou autre → essayer ré-auth automatique avec token localStorage
-        var token = null;
-        try { token = localStorage.getItem('cashd_token_b64'); } catch (e) {}
-        if (token) {
-          try {
-            var pw = decodeURIComponent(escape(atob(token)));
-            var rl = await fetch('/api/caisse-login', {
-              method: 'POST', credentials: 'include',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ password: pw }),
-            });
-            var dl = await rl.json();
-            if (rl.ok && dl.ok) {
-              // re-poll après login auto
+        // Si poll renvoie 401 → cookie drop, tente bootAuth
+        if (r.status === 401) {
+          var ok = false;
+          try { ok = await window.cashdAuth.bootAuth(); } catch (e) {}
+          if (ok) {
+            // re-poll après login auto
+            try {
               var r2 = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
               if (r2.status === 200) {
                 var d2 = await r2.json();
@@ -2774,11 +2775,24 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
                   return;
                 }
               }
-            } else {
-              // token invalide (mdp changé) → nettoyer
-              try { localStorage.removeItem('cashd_token_b64'); } catch (e) {}
+              // Poll plante apres bootAuth ok → affiche quand meme dashboard (vide, refresh prendra le relais)
+              applyI18n();
+              showDashboard();
+              return;
+            } catch (e) {
+              // Idem : bootAuth ok, poll fail → dashboard quand meme
+              applyI18n();
+              showDashboard();
+              return;
             }
-          } catch (e) {}
+          }
+        }
+        // Poll renvoie 500/autre : si on a une session 2h valide → dashboard quand meme
+        // (la session a un cookie probablement valide ; poll cassé != desauth)
+        if (hasSession && r.status !== 401) {
+          applyI18n();
+          showDashboard();
+          return;
         }
         applyI18n();
         showLogin();

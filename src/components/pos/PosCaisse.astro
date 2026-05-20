@@ -32,22 +32,12 @@ const dataPayload = JSON.stringify({ products, config, categories });
 
 <div class="pos-root" data-pos-payload={dataPayload}>
 
-  <!-- OPENING MODAL : float + server name -->
-  <div class="pos-modal-back" id="pos-open-modal" role="dialog" aria-modal="true">
+  <!-- OPENING MODAL : bypassed — POS now boots directly with openingFloat=0, no server name -->
+  <div class="pos-modal-back" id="pos-open-modal" role="dialog" aria-modal="true" style="display:none !important;">
     <div class="pos-modal">
-      <h2>📦 Άνοιγμα ταμείου / Open till</h2>
-      <p class="pos-sub">Εισάγετε αρχικό κεφάλαιο / Enter opening float</p>
-      <label class="pos-field">
-        <span>Όνομα υπαλλήλου / Server name</span>
-        <input type="text" id="pos-open-server" maxlength="40" placeholder="Νίκος" />
-      </label>
-      <label class="pos-field">
-        <span>Αρχικό κεφάλαιο / Opening float</span>
-        <input type="number" id="pos-open-float" step="0.01" min="0" />
-      </label>
-      <div class="pos-modal-actions">
-        <button type="button" id="pos-open-confirm" class="pos-btn-primary">✓ Άνοιγμα</button>
-      </div>
+      <input type="hidden" id="pos-open-server" value="" />
+      <input type="hidden" id="pos-open-float" value="0" />
+      <button type="button" id="pos-open-confirm" style="display:none;">✓</button>
     </div>
   </div>
 
@@ -94,6 +84,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
   <!-- PAYMENT MODAL -->
   <div class="pos-modal-back" id="pos-pay-modal" role="dialog" aria-modal="true">
     <div class="pos-modal pos-modal-wide">
+      <button type="button" class="pos-modal-close" data-close-modal="pos-pay-modal" aria-label="Fermer">×</button>
       <h2 id="pos-pay-title">💰 Πληρωμή</h2>
       <div class="pos-pay-total">
         <span>Σύνολο</span>
@@ -160,6 +151,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
   <!-- CLOSE TILL MODAL -->
   <div class="pos-modal-back" id="pos-close-modal" role="dialog" aria-modal="true">
     <div class="pos-modal">
+      <button type="button" class="pos-modal-close" data-close-modal="pos-close-modal" aria-label="Fermer">×</button>
       <h2>🔒 Κλείσιμο ταμείου / Close till</h2>
       <div id="pos-close-summary"></div>
       <label class="pos-field">
@@ -178,6 +170,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
   <!-- STATS MODAL -->
   <div class="pos-modal-back" id="pos-stats-modal" role="dialog" aria-modal="true">
     <div class="pos-modal pos-modal-wide">
+      <button type="button" class="pos-modal-close" data-close-modal="pos-stats-modal" aria-label="Fermer">×</button>
       <h2>📊 Στατιστικά συνεδρίας</h2>
       <div id="pos-stats-body"></div>
       <div class="pos-modal-actions">
@@ -189,6 +182,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
   <!-- ARCHIVE MODAL -->
   <div class="pos-modal-back" id="pos-archive-modal" role="dialog" aria-modal="true">
     <div class="pos-modal pos-modal-wide">
+      <button type="button" class="pos-modal-close" data-close-modal="pos-archive-modal" aria-label="Fermer">×</button>
       <h2>📅 Αρχείο κλεισιμάτων</h2>
       <div id="pos-archive-body"></div>
       <div class="pos-modal-actions">
@@ -222,7 +216,9 @@ const dataPayload = JSON.stringify({ products, config, categories });
     padding: 1rem; z-index: 200;
   }
   .pos-modal-back.show { display: flex; }
+  .pos-modal-back#pos-open-modal { display: none !important; }
   .pos-modal {
+    position: relative;
     width: 100%; max-width: 460px;
     background: var(--bg-card);
     border: 1px solid rgba(229,179,42,0.4);
@@ -230,6 +226,17 @@ const dataPayload = JSON.stringify({ products, config, categories });
     box-shadow: 0 30px 80px rgba(0,0,0,0.7);
     max-height: 92vh; overflow-y: auto;
   }
+  .pos-modal-close {
+    position: absolute; top: 10px; right: 14px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.85); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; line-height: 1;
+    transition: background 0.15s, color 0.15s;
+    z-index: 5;
+  }
+  .pos-modal-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
   .pos-modal-wide { max-width: 640px; }
   .pos-modal h2 { margin: 0 0 0.5rem; color: var(--gold); font-size: 1.15rem; letter-spacing: 0.05em; }
   .pos-sub { color: var(--txt-dim); font-size: 0.85rem; margin-bottom: 1rem; }
@@ -275,15 +282,28 @@ const dataPayload = JSON.stringify({ products, config, categories });
     height: calc(100vh - 1rem);
     max-height: calc(100vh - 1rem);
     padding: 0.5rem;
+    max-width: 100vw;
+    min-width: 0;
+    overflow-x: hidden;
   }
   @media (max-width: 900px) {
-    .pos-layout { grid-template-columns: 1fr; height: auto; max-height: none; }
+    .pos-layout { grid-template-columns: 1fr; height: auto; max-height: none; padding: 0.5rem 0.4rem; gap: 0.75rem; }
+    .pos-search-row { flex-wrap: wrap; }
+    .pos-search-row input { min-width: 0; flex: 1 1 100%; }
+    .pos-cats { width: 100%; max-width: 100%; }
+    .pos-right { padding: 0.65rem; }
+    .pos-modal { max-width: calc(100vw - 1rem); }
+    .pos-modal-wide { max-width: calc(100vw - 1rem); }
+  }
+  @media (max-width: 480px) {
+    .pos-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important; }
   }
 
   /* LEFT */
-  .pos-left { display: flex; flex-direction: column; min-height: 0; gap: 0.6rem; }
+  .pos-left { display: flex; flex-direction: column; min-height: 0; min-width: 0; gap: 0.6rem; max-width: 100%; }
   .pos-search-row {
     display: flex; gap: 0.5rem; align-items: center;
+    min-width: 0; max-width: 100%;
   }
   .pos-search-row input {
     flex: 1; padding: 0.75rem 1rem;
@@ -304,6 +324,8 @@ const dataPayload = JSON.stringify({ products, config, categories });
   .pos-cats {
     display: flex; gap: 0.4rem; overflow-x: auto;
     padding-bottom: 0.4rem;
+    min-width: 0; max-width: 100%;
+    -webkit-overflow-scrolling: touch;
   }
   .pos-cats::-webkit-scrollbar { height: 6px; }
   .pos-cats::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
@@ -327,7 +349,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
     overflow-y: auto;
     padding: 0.25rem 0.1rem 1rem;
     flex: 1;
-    min-height: 0;
+    min-height: 0; min-width: 0; max-width: 100%;
   }
   .pos-grid::-webkit-scrollbar { width: 8px; }
   .pos-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
@@ -370,7 +392,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
     border-radius: 0.85rem;
     padding: 0.85rem;
     display: flex; flex-direction: column;
-    min-height: 0;
+    min-height: 0; min-width: 0; max-width: 100%;
   }
   .pos-cart-head {
     display: flex; justify-content: space-between; align-items: baseline;
@@ -758,35 +780,28 @@ const dataPayload = JSON.stringify({ products, config, categories });
   }
 
   // ════════════════════════════════════════════════════════════════════════
-  // OPEN SESSION FLOW
+  // OPEN SESSION FLOW — bypassed : Tiago directive 19/05
+  // POS no longer asks for opening float or server name. Just print history.
   // ════════════════════════════════════════════════════════════════════════
-  function showOpenModal() {
-    $('pos-open-server').value = '';
-    $('pos-open-float').value = String(config.defaultOpeningFloat);
-    $('pos-open-modal').classList.add('show');
-    $('pos-layout').style.display = 'none';
-    setTimeout(function() { $('pos-open-server').focus(); }, 60);
-  }
-  function hideOpenModal() { $('pos-open-modal').classList.remove('show'); }
-  $('pos-open-confirm').addEventListener('click', function() {
-    var server = ($('pos-open-server').value || '').trim();
-    var fl = parseFloat($('pos-open-float').value);
-    if (isNaN(fl) || fl < 0) fl = 0;
-    if (config.askServerName && !server) {
-      $('pos-open-server').focus();
-      return;
+  function ensureSession() {
+    if (!session || session.dateKey !== nowDateKey() || session.closedAt) {
+      session = {
+        dateKey: nowDateKey(),
+        openedAt: Date.now(),
+        openingFloat: 0,
+        sales: [],
+        server: undefined
+      };
+      saveSession(session);
     }
-    session = {
-      dateKey: nowDateKey(),
-      openedAt: Date.now(),
-      openingFloat: round2(fl),
-      sales: [],
-      server: server || undefined
-    };
-    saveSession(session);
-    hideOpenModal();
+  }
+  function showOpenModal() {
+    // No modal — boot directly into the POS layout.
+    ensureSession();
+    $('pos-layout').style.display = 'grid';
     showLayout();
-  });
+  }
+  function hideOpenModal() { /* no-op */ }
 
   // ════════════════════════════════════════════════════════════════════════
   // MAIN LAYOUT
@@ -1339,16 +1354,22 @@ const dataPayload = JSON.stringify({ products, config, categories });
     if (!session) return;
     var sales = session.sales || [];
     var cashTakings = 0;
+    var cardTakings = 0;
+    var ca = 0;
     sales.forEach(function(s) {
-      s.payments.forEach(function(p) { if (p.mode === 'cash') cashTakings += p.amount; });
+      ca += s.total;
+      s.payments.forEach(function(p) {
+        if (p.mode === 'cash') cashTakings += p.amount;
+        else if (p.mode === 'card') cardTakings += p.amount;
+      });
     });
-    var expected = round2(session.openingFloat + cashTakings);
     $('pos-close-summary').innerHTML = ''
-      + '<div class="pos-pay-row"><span>Άνοιγμα</span><span>' + fmt(session.openingFloat) + '</span></div>'
-      + '<div class="pos-pay-row"><span>Εισπράξεις μετρητά</span><span>' + fmt(cashTakings) + '</span></div>'
-      + '<div class="pos-pay-row" style="border-top:1px solid var(--border); padding-top:0.4rem; margin-top:0.4rem;"><span><strong>Αναμενόμενο</strong></span><span><strong>' + fmt(expected) + '</strong></span></div>';
-    $('pos-close-counted').value = expected.toFixed(2);
-    updateCloseGap(expected);
+      + '<div class="pos-pay-row"><span>Πωλήσεις / Sales</span><span>' + sales.length + '</span></div>'
+      + '<div class="pos-pay-row"><span>💶 Μετρητά / Cash</span><span>' + fmt(cashTakings) + '</span></div>'
+      + '<div class="pos-pay-row"><span>💳 Κάρτα / Card</span><span>' + fmt(cardTakings) + '</span></div>'
+      + '<div class="pos-pay-row" style="border-top:1px solid var(--border); padding-top:0.4rem; margin-top:0.4rem;"><span><strong>Σύνολο / Total</strong></span><span><strong>' + fmt(ca) + '</strong></span></div>';
+    $('pos-close-counted').value = cashTakings.toFixed(2);
+    updateCloseGap(cashTakings);
     $('pos-close-modal').classList.add('show');
   });
 
@@ -1372,8 +1393,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
     var sales = session.sales || [];
     var cashTakings = 0;
     sales.forEach(function(s) { s.payments.forEach(function(p) { if (p.mode === 'cash') cashTakings += p.amount; }); });
-    var expected = round2(session.openingFloat + cashTakings);
-    updateCloseGap(expected);
+    updateCloseGap(cashTakings);
   });
 
   $('pos-close-cancel').addEventListener('click', function() {
@@ -1388,13 +1408,12 @@ const dataPayload = JSON.stringify({ products, config, categories });
     var sales = session.sales || [];
     var cashTakings = 0;
     sales.forEach(function(s) { s.payments.forEach(function(p) { if (p.mode === 'cash') cashTakings += p.amount; }); });
-    var expected = round2(session.openingFloat + cashTakings);
     var counted = parseFloat($('pos-close-counted').value);
     if (isNaN(counted)) counted = 0;
     session.closedAt = Date.now();
     session.closingFloat = round2(counted);
-    session.expectedCash = expected;
-    session.cashGap = round2(counted - expected);
+    session.expectedCash = cashTakings;
+    session.cashGap = round2(counted - cashTakings);
 
     // archive
     try {
@@ -1444,6 +1463,37 @@ const dataPayload = JSON.stringify({ products, config, categories });
     a.click();
     setTimeout(function() { URL.revokeObjectURL(url); a.remove(); }, 200);
   }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // MODAL CLOSE UX — 3 voies : × button + backdrop click + Esc
+  // ════════════════════════════════════════════════════════════════════════
+  var CLOSABLE_MODALS = ['pos-pay-modal', 'pos-close-modal', 'pos-stats-modal', 'pos-archive-modal'];
+  function closeAnyOpenModal() {
+    for (var i = 0; i < CLOSABLE_MODALS.length; i++) {
+      var el = $(CLOSABLE_MODALS[i]);
+      if (el && el.classList.contains('show')) el.classList.remove('show');
+    }
+  }
+  // × buttons
+  root.querySelectorAll('.pos-modal-close').forEach(function(btn) {
+    btn.addEventListener('click', function(ev) {
+      ev.stopPropagation();
+      var id = btn.getAttribute('data-close-modal');
+      if (id && $(id)) $(id).classList.remove('show');
+    });
+  });
+  // Backdrop click
+  CLOSABLE_MODALS.forEach(function(id) {
+    var el = $(id);
+    if (!el) return;
+    el.addEventListener('click', function(ev) {
+      if (ev.target === el) el.classList.remove('show');
+    });
+  });
+  // Esc key
+  document.addEventListener('keydown', function(ev) {
+    if (ev.key === 'Escape' || ev.keyCode === 27) closeAnyOpenModal();
+  });
 
   // ════════════════════════════════════════════════════════════════════════
   // Clock

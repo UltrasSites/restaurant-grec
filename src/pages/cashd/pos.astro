@@ -4,6 +4,7 @@
 // Si pas de cookie → redirige vers /cashd (qui demande le mot de passe).
 import PosCaisse from "../../components/pos/PosCaisse.astro";
 import CashdNav from "../../components/cashd/CashdNav.astro";
+import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
 import { kalamakiPosConfig, getKalamakiProducts } from "../../data/pos-config";
 
 const products = getKalamakiProducts();
@@ -17,10 +18,12 @@ const products = getKalamakiProducts();
   <meta name="robots" content="noindex, nofollow" />
   <title>POS — Καλαμάκι Της Τρούμπας</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <CashdAuthScript />
   <style>
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; background: #0a0a0a; color: #fff; min-height: 100vh; }
+    html, body { margin: 0; padding: 0; background: #0a0a0a; color: #fff; min-height: 100vh; max-width: 100vw; }
     body { overflow-x: hidden; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    main { max-width: 100vw; min-width: 0; overflow-x: hidden; }
 
     .pos-topbar {
       display: flex; align-items: center; justify-content: space-between;
@@ -28,9 +31,11 @@ const products = getKalamakiProducts();
       border-bottom: 2px solid rgba(229,179,42,0.4);
       gap: 0.5rem;
       position: sticky; top: 0; z-index: 50;
+      flex-wrap: wrap;
+      min-width: 0;
     }
-    .pos-topbar h1 { margin: 0; font-size: 0.95rem; color: #E5B32A; letter-spacing: 0.05em; }
-    .pos-topbar .links { display: flex; gap: 0.4rem; }
+    .pos-topbar h1 { margin: 0; font-size: 0.95rem; color: #E5B32A; letter-spacing: 0.05em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pos-topbar .links { display: flex; gap: 0.4rem; flex-shrink: 0; }
     .pos-topbar a {
       padding: 0.5rem 0.85rem; font-size: 0.78rem;
       background: #1a1a1a; color: #ccc;
@@ -39,6 +44,12 @@ const products = getKalamakiProducts();
       letter-spacing: 0.04em; font-weight: 700;
     }
     .pos-topbar a:hover { background: #222; color: #E5B32A; }
+    @media (max-width: 768px) {
+      .pos-topbar { padding: 0.5rem 0.6rem; gap: 0.35rem; }
+      .pos-topbar h1 { font-size: 0.78rem; flex: 1 1 100%; }
+      .pos-topbar .links { width: 100%; }
+      .pos-topbar a { padding: 0.45rem 0.65rem; font-size: 0.72rem; flex: 1; text-align: center; }
+    }
 
     .auth-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.85);
@@ -74,14 +85,16 @@ const products = getKalamakiProducts();
   </div>
 
   <script is:inline>
-    // Vérifie le cookie caisse_auth via un appel léger (poll endpoint qui renvoie 401 si KO)
-    fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' })
-      .then(function(r) {
+    // Pré-auth via session 2h, puis vérifie cookie. Si fail → overlay login (redirect /cashd).
+    (async function() {
+      try { await window.cashdAuth.bootAuth(); } catch (e) {}
+      try {
+        var r = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
         if (r.status === 401) {
           document.getElementById('auth-overlay').classList.add('show');
         }
-      })
-      .catch(function() { /* offline = on laisse passer, PWA usage */ });
+      } catch (e) { /* offline = on laisse passer, PWA usage */ }
+    })();
 
     // PWA register (réutilise le SW existant)
     if ('serviceWorker' in navigator) {
