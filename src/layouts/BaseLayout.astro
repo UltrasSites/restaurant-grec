@@ -2,6 +2,7 @@
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import ScrollToTop from "../components/ScrollToTop.astro";
+import A2hsPrompt from "../components/A2hsPrompt.astro";
 import "../styles/global.css";
 import type { Lang } from "../i18n/utils";
 import { menuPages, parsePrice } from "../data/menu-data";
@@ -51,7 +52,8 @@ const restaurantSchema = {
   "priceRange": "€",
   "currenciesAccepted": "EUR",
   "paymentAccepted": "Cash, Credit Card, Debit Card",
-  "servesCuisine": ["Greek", "Mediterranean", "Souvlaki", "Gyros"],
+  "servesCuisine": ["Greek", "Mediterranean", "Souvlaki", "Gyros", "Pita", "Charcoal grill", "Greek street food", "Trouba street food"],
+  "keywords": "σουβλάκι Τρούμπα, φθηνό σουβλάκι Πειραιά, καλή πίτα, ψητοπωλείο Τρούμπας, best souvlaki Piraeus, cheap gyros Piraeus, pita Trouba, authentic Greek food Piraeus, traditional Greek street food",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Μπουμπουλίνας 8 & Νοταρά",
@@ -228,7 +230,7 @@ const faqSchema = {
     <meta name="rating" content="general" />
     <meta name="distribution" content="global" />
     <meta name="revisit-after" content="7 days" />
-    <meta name="keywords" content="σουβλάκι πειραιάς, καλαμάκι τρούμπα, καλαμάκι τρούμπας, πίτα τρούμπα, πίτα τρούμπας, πίτα πειραιάς, γύρος πειραιάς, γύρος τρούμπα, σουβλατζίδικο πειραιάς, σουβλατζίδικο τρούμπα, ψητοπωλείο τρούμπα, ψητοπωλείο πειραιάς, σκεπαστή τρούμπας, σκεπαστή πειραιάς, παραγγελία σουβλάκι online, σουβλάκι delivery πειραιάς, μερίδα σουβλάκι τρούμπα, ταβέρνα τρούμπα, ελληνικό φαγητό πειραιάς, souvlaki piraeus, souvlaki troumpa, kalamaki troumpa, kalamaki troumpas, pita troumpa, pita troumpas, pita piraeus, gyros piraeus, gyros troumpa, greek souvlaki piraeus, charcoal souvlaki piraeus, troumpa restaurant, troumpa pita, best souvlaki piraeus, best pita troumpas, authentic piraeus food, greek street food piraeus, skepasti troumpa, traditional greek restaurant piraeus" />
+    <meta name="keywords" content="σουβλάκι Τρούμπα Πειραιάς, γύρος Πειραιάς, πίτα γύρο Τρούμπα, φθηνό σουβλάκι Πειραιά, καλή πίτα Πειραιάς, ψητοπωλείο Τρούμπας, τα καλύτερα σουβλάκια Πειραιά, ελληνικό φαγητό Τρούμπα, σουβλατζίδικο Πειραιάς, σουβλατζίδικο Τρούμπα, καλό φαγητό Πειραιάς, καλή τιμή σουβλάκι, καλαμάκι Τρούμπας, καλαμάκι χοιρινό, καλαμάκι κοτόπουλο, γύρος χοιρινός, γύρος κοτόπουλος, σκεπαστή Τρούμπας, σκεπαστή Πειραιάς, μερίδα σουβλάκι, χωριάτικη σαλάτα Πειραιάς, τζατζίκι, κουλούρι Θεσσαλονίκης, παγωτό ξυλάκι, μπριζολάκι κάρβουνα, ψητά κάρβουνα Πειραιάς, παραγγελία σουβλάκι online, σουβλάκι delivery Πειραιάς, σουβλάκι takeaway Πειραιά, χωρίς προμήθεια, ταβέρνα Τρούμπα, παραδοσιακό σουβλάκι, αυθεντικό σουβλάκι Πειραιάς, κολοκυθοκεφτέδες, ρεβυθοκεφτέδες, καλαμάκι σεϊτάν, veggie burger Πειραιάς, χορτοφαγικό σουβλάκι, vegan Πειραιάς, best souvlaki Piraeus, cheap gyros Piraeus, cheap souvlaki Piraeus, pita Trouba Piraeus, best pita Piraeus, authentic Greek food Piraeus, Greek street food Trouba, cheap eats Piraeus port, Greek restaurant Trouba Piraeus, traditional Greek food Trouba, charcoal souvlaki Piraeus, good food Piraeus, good price souvlaki Piraeus, takeaway Piraeus, delivery Piraeus port, gyros wrap Trouba, vegetarian souvlaki Piraeus" />
     <meta name="geo.region" content="GR-I" />
     <meta name="geo.placename" content="Piraeus" />
     <meta name="geo.position" content="37.9419284;23.6439786" />
@@ -286,8 +288,10 @@ const faqSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/photos/logo-favicon.png" />
-    <link rel="apple-touch-icon" href="/photos/logo-favicon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png" />
+    <link rel="apple-touch-icon" href="/icon-180.png" />
 
     {/* Preload LCP image — hero background */}
     <link rel="preload" as="image" href="/photos/efood-00-1600w.webp" fetchpriority="high" />
@@ -340,5 +344,15 @@ const faqSchema = {
     </main>
     <Footer lang={lang} />
     <ScrollToTop lang={lang} />
+    <A2hsPrompt lang={lang} />
+
+    {/* Service Worker registration — PWA A2HS */}
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js').catch(function () { /* silencieux */ });
+        });
+      }
+    </script>
   </body>
 </html>

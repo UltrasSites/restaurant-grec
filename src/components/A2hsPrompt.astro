@@ -1,0 +1,213 @@
+---
+// Prompt « Ajouter à l'écran d'accueil » (A2HS) — mobile only, EL/EN, style gold Kalamaki
+// 3 voies de fermeture : bouton ×, tap backdrop, localStorage persistant 30j
+// Z-index 70 : au-dessus du dock mobile (z-60) mais sous overlays critiques
+import type { Lang } from "../i18n/utils";
+
+interface Props { lang?: Lang }
+const { lang = "el" } = Astro.props as Props;
+
+const t = {
+  el: {
+    title: "Επιλέξτε Καλαμάκι σε ένα tap",
+    subtitle: "Προσθέστε στην οθόνη σας · Πάντα στο χέρι σας",
+    add: "Προσθήκη",
+    close: "Κλείσιμο",
+    ios_hint: "Πατήστε Κοινοποίηση και μετά «Προσθήκη στην οθόνη Αφετηρίας».",
+  },
+  en: {
+    title: "Order Kalamaki in one tap",
+    subtitle: "Add to your screen · Always at hand",
+    add: "Add",
+    close: "Close",
+    ios_hint: "Tap Share, then “Add to Home Screen”.",
+  },
+}[lang] ?? {
+  title: "Επιλέξτε Καλαμάκι σε ένα tap",
+  subtitle: "Προσθέστε στην οθόνη σας · Πάντα στο χέρι σας",
+  add: "Προσθήκη",
+  close: "Κλείσιμο",
+  ios_hint: "Πατήστε Κοινοποίηση και μετά «Προσθήκη στην οθόνη Αφετηρίας».",
+};
+---
+
+{/* Backdrop transparent — tap to dismiss */}
+<div
+  id="a2hs-backdrop"
+  class="fixed inset-0 z-[65] hidden md:hidden bg-transparent"
+  aria-hidden="true"
+></div>
+
+{/* A2HS prompt card — mobile only, au-dessus du dock (z-60) */}
+<aside
+  id="a2hs-prompt"
+  class="fixed left-3 right-3 z-[70] hidden md:hidden translate-y-[120%] transition-transform duration-300 ease-out"
+  style="bottom: calc(6.5rem + env(safe-area-inset-bottom));"
+  role="dialog"
+  aria-live="polite"
+  aria-labelledby="a2hs-title"
+>
+  <div class="mx-auto max-w-md flex items-center gap-3 rounded-2xl border border-[#E5B32A]/40 bg-[#0a0a0a]/95 backdrop-blur-xl shadow-2xl p-3 pr-2">
+    <img
+      src="/icon-192.png"
+      alt=""
+      class="w-12 h-12 rounded-xl shrink-0 ring-1 ring-[#E5B32A]/30"
+      width="48"
+      height="48"
+      decoding="async"
+      loading="lazy"
+    />
+    <div class="flex-1 min-w-0">
+      <p id="a2hs-title" class="text-[#E5B32A] font-['Playfair_Display'] font-semibold text-sm leading-tight">
+        {t.title}
+      </p>
+      <p class="text-white/70 text-[11px] mt-0.5 leading-snug truncate">
+        {t.subtitle}
+      </p>
+    </div>
+    <button
+      type="button"
+      id="a2hs-add"
+      class="shrink-0 px-3 py-2 rounded-lg bg-[#E5B32A] text-black text-xs font-bold hover:bg-[#f0c142] active:scale-95 transition"
+      aria-label={t.add}
+    >
+      {t.add}
+    </button>
+    <button
+      type="button"
+      id="a2hs-dismiss"
+      class="shrink-0 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/80 active:scale-90 transition"
+      aria-label={t.close}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+</aside>
+
+<script is:inline define:vars={{ iosHint: t.ios_hint }}>
+  (function () {
+    var STORAGE_KEY = "kalamaki_a2hs_seen";
+    var INSTALLED_KEY = "kalamaki_a2hs_installed";
+    var DISMISS_DAYS = 30;
+    var SHOW_DELAY_MS = 8000; // 8s
+    var SCROLL_THRESHOLD = 30; // 30 %
+
+    function now() { return Date.now(); }
+    function isHiddenByPrefs() {
+      try {
+        if (localStorage.getItem(INSTALLED_KEY) === "1") return true;
+        var until = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
+        if (until && until > now()) return true;
+      } catch (e) {}
+      return false;
+    }
+    function persistDismiss() {
+      try {
+        var until = now() + DISMISS_DAYS * 24 * 60 * 60 * 1000;
+        localStorage.setItem(STORAGE_KEY, String(until));
+      } catch (e) {}
+    }
+    function markInstalled() {
+      try { localStorage.setItem(INSTALLED_KEY, "1"); } catch (e) {}
+    }
+
+    var promptEl = document.getElementById("a2hs-prompt");
+    var backdropEl = document.getElementById("a2hs-backdrop");
+    var addBtn = document.getElementById("a2hs-add");
+    var dismissBtn = document.getElementById("a2hs-dismiss");
+    if (!promptEl || !addBtn || !dismissBtn || !backdropEl) return;
+
+    var isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      window.navigator.standalone === true;
+    if (isStandalone) { markInstalled(); return; }
+
+    var ua = navigator.userAgent || "";
+    var isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) ||
+      (navigator.maxTouchPoints > 1 && window.matchMedia("(max-width: 768px)").matches);
+    if (!isMobile) return;
+    if (isHiddenByPrefs()) return;
+
+    var isIos = /iPhone|iPad|iPod/i.test(ua) && !/CriOS|FxiOS/i.test(ua);
+    var deferredPrompt = null;
+    var shownOnce = false;
+
+    function showPrompt() {
+      if (shownOnce || isHiddenByPrefs()) return;
+      shownOnce = true;
+      promptEl.classList.remove("hidden");
+      backdropEl.classList.remove("hidden");
+      requestAnimationFrame(function () {
+        promptEl.classList.remove("translate-y-[120%]");
+      });
+    }
+    function hidePrompt(persist) {
+      promptEl.classList.add("translate-y-[120%]");
+      setTimeout(function () {
+        promptEl.classList.add("hidden");
+        backdropEl.classList.add("hidden");
+      }, 320);
+      if (persist) persistDismiss();
+    }
+
+    // Trigger 1 — beforeinstallprompt (Android/Chrome)
+    window.addEventListener("beforeinstallprompt", function (e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      // Pas d'apparition immédiate, on attend le timer ou le scroll
+    });
+
+    // Trigger 2 — timer 8s
+    setTimeout(function () {
+      if (deferredPrompt || isIos) showPrompt();
+    }, SHOW_DELAY_MS);
+
+    // Trigger 3 — scroll 30 %
+    function onScroll() {
+      var h = document.documentElement;
+      var pct = (window.scrollY + window.innerHeight) / Math.max(h.scrollHeight, 1) * 100;
+      if (pct >= SCROLL_THRESHOLD && (deferredPrompt || isIos)) {
+        showPrompt();
+        window.removeEventListener("scroll", onScroll);
+      }
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    // CTA Add
+    addBtn.addEventListener("click", function () {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function (choice) {
+          if (choice && choice.outcome === "accepted") {
+            markInstalled();
+            hidePrompt(false);
+          } else {
+            hidePrompt(true);
+          }
+          deferredPrompt = null;
+        }).catch(function () { hidePrompt(true); });
+      } else if (isIos) {
+        // iOS : pas d'API native, on affiche un hint
+        alert(iosHint);
+        hidePrompt(true);
+      } else {
+        hidePrompt(true);
+      }
+    });
+
+    // CTA Dismiss
+    dismissBtn.addEventListener("click", function () { hidePrompt(true); });
+
+    // Backdrop tap (3e voie de fermeture)
+    backdropEl.addEventListener("click", function () { hidePrompt(true); });
+
+    // Event natif appinstalled
+    window.addEventListener("appinstalled", function () {
+      markInstalled();
+      hidePrompt(false);
+    });
+  })();
+</script>
