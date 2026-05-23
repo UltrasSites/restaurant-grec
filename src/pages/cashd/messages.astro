@@ -3,6 +3,7 @@
 // Trie : non-lues en tete, puis last_at DESC. Filtres : Toutes / Non lues / Sans reponse / Aujourd'hui.
 // Clic sur une ligne -> modal chat plein ecran.
 import CashdNav from "../../components/cashd/CashdNav.astro";
+import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
 ---
 <!doctype html>
 <html lang="el">
@@ -13,6 +14,7 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
   <meta name="robots" content="noindex, nofollow" />
   <title>Messages — Καλαμάκι Της Τρούμπας</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <CashdAuthScript />
   <style>
     :root { --gold: #E5B32A; --bg: #0a0a0a; }
     * { box-sizing: border-box; }
@@ -384,53 +386,8 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
       });
     }
 
-    // === Ré-auth automatique si cookie drop (Safari ITP, SameSite cross-section, etc.)
-    // Stocke un token base64 en localStorage au login (cf. index.astro)
-    // Si fetch retourne 401, on tente un POST /api/caisse-login en background avec le token,
-    // puis on retry la requête originale. ZÉRO re-prompt visible Tiago.
-    async function _reauthFromToken() {
-      var token = null;
-      try { token = localStorage.getItem('cashd_token_b64'); } catch (e) {}
-      if (!token) return false;
-      try {
-        var pw = decodeURIComponent(escape(atob(token)));
-        var r = await fetch('/api/caisse-login', {
-          method: 'POST', credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pw }),
-        });
-        var d = await r.json();
-        if (r.ok && d.ok) return true;
-        // token invalide → nettoyer
-        try { localStorage.removeItem('cashd_token_b64'); } catch (e) {}
-      } catch (e) {}
-      return false;
-    }
-    async function fetchAuth(url, opts) {
-      opts = opts || {};
-      opts.credentials = 'include';
-      opts.cache = opts.cache || 'no-store';
-      var res = await fetch(url, opts);
-      if (res.status !== 401) return res;
-      var reok = await _reauthFromToken();
-      if (!reok) return res;
-      return fetch(url, opts);
-    }
-
-    // Boot : pré-auth SILENCIEUSE au chargement si token connu — élimine la fenêtre prompt visible.
-    // Tiago navigue de /cashd (caisse) vers /cashd/messages : si le cookie a drop, on rétablit en arrière-plan.
-    async function bootAuthSilent() {
-      try {
-        var token = localStorage.getItem('cashd_token_b64');
-        if (!token) return;
-        var pw = decodeURIComponent(escape(atob(token)));
-        await fetch('/api/caisse-login', {
-          method: 'POST', credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: pw }),
-        });
-      } catch (e) {}
-    }
+    // Auth unifiée via /cashd/cashd-auth.js (session localStorage 2h, refresh auto)
+    var fetchAuth = window.cashdAuth.fetchAuth.bind(window.cashdAuth);
     function truncate(s, n) {
       s = String(s || '');
       if (s.length <= n) return s;
@@ -710,7 +667,17 @@ import CashdNav from "../../components/cashd/CashdNav.astro";
 
     // ====== Init + auto-refresh 15s ======
     (async function init() {
-      await bootAuthSilent();
+      // Pré-auth via session 2h. Si pas de session valide → redirect login.
+      var ok = await window.cashdAuth.bootAuth();
+      if (!ok) {
+        // Cookie peut-être encore valide (login récent même browser) → on tente loadList,
+        // qui via fetchAuth re-tentera bootAuth en cas de 401. Sinon redirige.
+        var probe = await fetch('/api/orders/messages-summary', { credentials: 'include', cache: 'no-store' });
+        if (probe.status === 401) {
+          window.location.href = '/cashd?next=' + encodeURIComponent(window.location.pathname);
+          return;
+        }
+      }
       loadList();
       refreshTimer = setInterval(function() {
         if (!modalBack.classList.contains('show')) loadList();

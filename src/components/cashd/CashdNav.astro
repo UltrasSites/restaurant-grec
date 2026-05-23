@@ -4,18 +4,20 @@
 // Le drawer mobile utilise un checkbox hack pour zero-JS.
 // Lien actif : determine via Astro.url.pathname.
 // Desktop : sidebar collapsible (220px <-> 60px), persistant via localStorage.
+// i18n : EL par défaut (restaurant grec), EN dispo via toggle (clé localStorage 'caisse_lang').
 const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/cashd";
 function isActive(href: string) {
   const target = href.replace(/\/$/, "") || "/cashd";
   if (target === "/cashd") return currentPath === "/cashd" || currentPath === "";
   return currentPath === target || currentPath.startsWith(target + "/");
 }
+// Default labels = Greek (the patron is Greek). EN applied via JS toggle.
 const items = [
-  { href: "/cashd",          label: "Caisse",          icon: "🛒", elLabel: "Ταμείο" },
-  { href: "/cashd/live",     label: "Commandes live",  icon: "⚡", elLabel: "Παραγγελίες" },
-  { href: "/cashd/messages", label: "Messages",        icon: "💬", elLabel: "Μηνύματα" },
-  { href: "/cashd/history",  label: "Historique",      icon: "📋", elLabel: "Ιστορικό" },
-  { href: "/cashd/admin",    label: "Admin",           icon: "⚙️", elLabel: "Admin" },
+  { href: "/cashd",          key: "dashboard", el: "Πίνακας",         en: "Dashboard",        icon: "📡", desc_el: "Ζωντανές παραγγελίες & έλεγχος", desc_en: "Live orders & control" },
+  { href: "/cashd/pos",      key: "neworder",  el: "Νέα παραγγελία",  en: "New order",        icon: "🆕", desc_el: "Καταχώρηση πώλησης στο κατάστημα", desc_en: "Enter in-store sale" },
+  { href: "/cashd/messages", key: "messages",  el: "Μηνύματα",        en: "Messages",         icon: "💬", desc_el: "Συνομιλίες πελατών", desc_en: "Customer chats" },
+  { href: "/cashd/history",  key: "history",   el: "Ιστορικό",        en: "History",          icon: "📋", desc_el: "Παραγγελίες 60 ημερών", desc_en: "60-day orders" },
+  { href: "/cashd/admin",    key: "admin",     el: "Ρυθμίσεις",       en: "Settings",         icon: "⚙️", desc_el: "Ωράρια & ρυθμίσεις", desc_en: "Hours & settings" },
 ];
 ---
 <style is:global>
@@ -209,26 +211,30 @@ const items = [
 
 <label for="cashd-burger" class="cashd-drawer-backdrop" aria-hidden="true"></label>
 
-<aside class="cashd-sidebar" aria-label="Navigation caisse">
+<aside class="cashd-sidebar" aria-label="Navigation">
   <div class="cs-logo">
     <span class="cs-logo-icon">🥙</span>
     <span class="cs-logo-text">Kalamaki<small>Trouba</small></span>
   </div>
   <button type="button" id="cashd-sidebar-toggle" class="cs-collapse-btn" aria-label="Toggle sidebar">
     <span class="cs-collapse-icon">‹</span>
-    <span class="cs-collapse-label">Reduire</span>
+    <span class="cs-collapse-label" data-i18n="collapse">Σύμπτυξη</span>
   </button>
   <nav>
     {items.map((it) => (
-      <a href={it.href} class={isActive(it.href) ? "active" : ""} data-label={it.label}>
+      <a href={it.href} class={isActive(it.href) ? "active" : ""}
+         data-label={it.el} data-key={it.key}
+         data-el={it.el} data-en={it.en}
+         data-desc-el={it.desc_el} data-desc-en={it.desc_en}
+         title={`${it.el} — ${it.desc_el}`}>
         <span class="cs-ic">{it.icon}</span>
-        <span class="cs-label">{it.label}</span>
+        <span class="cs-label">{it.el}</span>
       </a>
     ))}
   </nav>
   <div class="cs-bottom">
     <button type="button" id="cashd-logout-btn">
-      <span class="cs-logout-label">Déconnexion</span>
+      <span class="cs-logout-label" data-i18n="logout">Αποσύνδεση</span>
       <span class="cs-logout-icon" aria-hidden="true" style="display:none;">⎋</span>
     </button>
   </div>
@@ -236,6 +242,41 @@ const items = [
 
 <script is:inline>
   (function() {
+    // ===== i18n CashdNav (EL default, EN via toggle 'caisse_lang') =====
+    var NAV_I18N = {
+      el: { collapse: 'Σύμπτυξη', logout: 'Αποσύνδεση', confirmLogout: 'Αποσύνδεση;' },
+      en: { collapse: 'Collapse', logout: 'Sign out',    confirmLogout: 'Sign out?' },
+    };
+    function getNavLang() {
+      try { return localStorage.getItem('caisse_lang') || 'el'; }
+      catch (e) { return 'el'; }
+    }
+    function applyNavI18n() {
+      var lang = getNavLang();
+      var t = NAV_I18N[lang] || NAV_I18N.el;
+      document.querySelectorAll('.cashd-sidebar [data-i18n]').forEach(function(el) {
+        var k = el.getAttribute('data-i18n');
+        if (t[k]) el.textContent = t[k];
+      });
+      document.querySelectorAll('.cashd-sidebar nav a[data-key]').forEach(function(a) {
+        var label = a.getAttribute('data-' + lang) || a.getAttribute('data-el');
+        var desc = a.getAttribute('data-desc-' + lang) || a.getAttribute('data-desc-el') || '';
+        if (label) {
+          var span = a.querySelector('.cs-label');
+          if (span) span.textContent = label;
+          a.setAttribute('data-label', label);
+          a.setAttribute('title', desc ? (label + ' — ' + desc) : label);
+        }
+      });
+    }
+    applyNavI18n();
+    // Re-apply if another page changes caisse_lang while this sidebar is mounted
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'caisse_lang') applyNavI18n();
+    });
+    // Expose so other scripts can trigger after toggling
+    window.applyCashdNavI18n = applyNavI18n;
+
     // Auto-close drawer mobile on nav click
     var burger = document.getElementById('cashd-burger');
     document.querySelectorAll('.cashd-sidebar nav a').forEach(function(a) {
@@ -251,12 +292,15 @@ const items = [
     var logoutBtn = document.getElementById('cashd-logout-btn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', function() {
-        if (!confirm('Se déconnecter ?')) return;
+        var t = NAV_I18N[getNavLang()] || NAV_I18N.el;
+        if (!confirm(t.confirmLogout)) return;
         // Best-effort : suppression cookie client-side
         document.cookie = 'caisse_auth=; Path=/; Max-Age=0; SameSite=Lax';
         document.cookie = 'caisse_auth=; Path=/; Max-Age=0; SameSite=Lax; Secure';
-        // Clear le token localStorage (sinon ré-auth auto le ramène)
+        // Clear la session unifiée + legacy (sinon ré-auth auto la ramène)
+        try { if (window.cashdAuth) window.cashdAuth.clearSession(); } catch (e) {}
         try { localStorage.removeItem('cashd_token_b64'); } catch (e) {}
+        try { localStorage.removeItem('cashd_session'); } catch (e) {}
         window.location.href = '/cashd';
       });
     }
@@ -269,13 +313,20 @@ const items = [
       if (sidebar) sidebar.classList.toggle('collapsed', !!c);
       try { localStorage.setItem('cashd_sidebar_collapsed', c ? '1' : '0'); } catch (e) {}
     }
-    // Restore preference (desktop only)
+    // Sidebar collapsed BY DEFAULT on desktop (Tiago request 22/05 video v2)
+    // User can still open it manually via the burger/toggle button.
     try {
       var stored = localStorage.getItem('cashd_sidebar_collapsed');
-      if (stored === '1' && window.matchMedia && window.matchMedia('(min-width: 769px)').matches) {
-        applyCollapsed(true);
+      // If never set (first visit) OR explicitly collapsed → collapse on desktop
+      if (window.matchMedia && window.matchMedia('(min-width: 769px)').matches) {
+        if (stored !== '0') {
+          applyCollapsed(true);
+        }
       }
-    } catch (e) {}
+    } catch (e) {
+      // On error, default to collapsed
+      try { applyCollapsed(true); } catch (e2) {}
+    }
     if (collapseBtn && sidebar) {
       collapseBtn.addEventListener('click', function() {
         applyCollapsed(!sidebar.classList.contains('collapsed'));

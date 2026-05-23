@@ -6,38 +6,39 @@ const isEl = lang === "el";
 // https://www.google.com/maps/place/.../Kalamaki+Trumpa+Piraeus
 // Source : reviews-vrais.json (40 avis extraits, 291 au total).
 // Texte conserve dans la langue d'origine (anglais) sur toutes les pages : pas de traduction inventee.
-type Review = { name: string; date: string; rating: number; text: string };
+type Review = { name: string; date: string; rating: number; text: string; text_el: string };
 
+// HAQQ : texte original anglais conservé verbatim. Traduction grecque fournie
+// pour le confort des lecteurs grecs (la majorité des clients Trouba).
+// Texte affiché selon la langue de la page.
 const reviews: Review[] = [
   {
     name: "Joschka Fischer",
     date: "2025",
     rating: 5,
     text: "Fantastic place that is open until 04:00 in the morning. Went here while waiting for an early morning ferry. The food was great and you can sit in peace nearby the harbour. The owners are very kind people who will take a good care of you. Highly recommended if you need to spend some time in this area.",
+    text_el: "Φανταστικό μέρος που είναι ανοιχτό μέχρι τις 04:00 το πρωί. Πήγαμε εδώ ενώ περιμέναμε ένα πρωινό φέρι. Το φαγητό ήταν εξαιρετικό και μπορείς να καθίσεις ήρεμα κοντά στο λιμάνι. Οι ιδιοκτήτες είναι πολύ καλοί άνθρωποι που θα σε φροντίσουν. Συνιστάται ανεπιφύλακτα αν χρειάζεται να περάσεις χρόνο σε αυτή την περιοχή.",
   },
   {
     name: "Eric Schwa",
     date: "2025",
     rating: 5,
     text: "Just wow! My wife and I stumbled upon this gem while staying at a hotel close by before a cruise. Place was empty and we placed our order at the counter. We got the pork souvlaki platter and greek salad. It was fresh and absolutely delicious. We are going back again somehow before we leave!",
+    text_el: "Απλά εκπληκτικό! Η γυναίκα μου κι εγώ ανακαλύψαμε αυτό το διαμάντι ενώ μέναμε σε ένα κοντινό ξενοδοχείο πριν από μια κρουαζιέρα. Το μαγαζί ήταν άδειο και παραγγείλαμε στον πάγκο. Πήραμε την πιατέλα χοιρινό σουβλάκι και χωριάτικη σαλάτα. Ήταν φρέσκα και απολύτως νόστιμα. Θα ξαναπάμε σίγουρα πριν φύγουμε!",
   },
   {
     name: "Beata Berg Malmborg",
     date: "2024",
     rating: 5,
     text: "My warmest recommendations for this restaurant! Good food and the staff is so sweet and helpful, especially Aurora! We came here to eat and wait for our ferry which was leaving late in the night (03 am).",
+    text_el: "Οι θερμότερες συστάσεις μου για αυτό το εστιατόριο! Καλό φαγητό και το προσωπικό είναι πολύ γλυκό και εξυπηρετικό, ειδικά η Αυρόρα! Ήρθαμε εδώ να φάμε και να περιμένουμε το φέρι μας που έφευγε αργά τη νύχτα (03 πμ).",
   },
   {
     name: "Momchil Petrinski",
     date: "2024",
     rating: 5,
     text: "Everything is fabulous! Great food, good portions, very reasonable price, lovely owners - I can’t recommend it enough! Hats down to the lady running the restaurant who was extremely friendly.",
-  },
-  {
-    name: "Mavin Jiandani",
-    date: "2024",
-    rating: 4,
-    text: "We found this while walking to our hotel. The cook and owner are friendly. Great spot for authentic economical Greek food.",
+    text_el: "Όλα είναι υπέροχα! Εξαιρετικό φαγητό, καλές μερίδες, πολύ λογική τιμή, υπέροχοι ιδιοκτήτες — δεν μπορώ να το συστήσω αρκετά! Καπέλο κάτω για την κυρία που διευθύνει το εστιατόριο, ήταν εξαιρετικά φιλική.",
   },
 ];
 
@@ -96,7 +97,7 @@ const totalReviews = 291;
             ))}
           </div>
           <p class="text-sm text-gray-300 leading-relaxed italic mb-4 font-['Space_Grotesk']">
-            "{r.text}"
+            "{isEl ? r.text_el : r.text}"
           </p>
           <div class="flex items-center justify-between pt-3 border-t border-white/5">
             <div class="flex items-center gap-2">

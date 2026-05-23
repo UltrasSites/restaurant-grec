@@ -20,3 +20,9 @@
   Cache-Control: no-store, no-cache, must-revalidate, max-age=0
   Pragma: no-cache
   Expires: 0
+
+# Force no-cache sur /flags/* — pour que les drapeaux corriges (TR + JP) apparaissent sans cache navigateur ni CDN
+/flags/*
+  Cache-Control: no-store, no-cache, must-revalidate, max-age=0
+  Pragma: no-cache
+  Expires: 0

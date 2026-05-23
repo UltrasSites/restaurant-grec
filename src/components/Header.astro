@@ -119,8 +119,8 @@ const links = [
 
 <div id="menu-panel" class="menu-panel-drawer fixed z-[70] flex flex-col md:hidden touch-pan-y">
     <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:12px auto;"></div>
-    <button id="drawer-close-btn" type="button" style="position:absolute;top:1rem;right:1.5rem;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);cursor:pointer;" aria-label="Κλείσιμο μενού">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <button id="drawer-close-btn" type="button" style="position:absolute;top:14px;right:14px;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(229,179,42,0.18);border:1.5px solid rgba(229,179,42,0.55);color:#E5B32A;cursor:pointer;transition:transform .15s ease, background .2s ease;-webkit-tap-highlight-color:transparent;" aria-label="Κλείσιμο μενού" onmouseover="this.style.background='rgba(229,179,42,0.32)'" onmouseout="this.style.background='rgba(229,179,42,0.18)'" ontouchstart="this.style.transform='scale(0.92)'" ontouchend="this.style.transform='scale(1)'">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
     </button>
     <div id="mobile-drawer-inner" class="px-8 pb-12 flex flex-col overflow-y-auto">
         <nav class="flex flex-col gap-8 mt-2">
@@ -196,42 +196,30 @@ const links = [
     const backdrop = document.getElementById("menu-overlay");
     const drawerLinks = document.querySelectorAll(".drawer-link");
     let drawerOpen = false;
-    let savedScrollY = 0;
 
+    // Methode propre : juste overflow:hidden, pas de position:fixed
+    // -> aucun saut visible ni perte de scroll. La page reste exactement ou elle est.
     function lockBodyScroll() {
-        savedScrollY = window.scrollY;
+        document.documentElement.style.overflow = "hidden";
         document.body.style.overflow = "hidden";
-        document.body.style.position = "fixed";
-        document.body.style.top = `-${savedScrollY}px`;
-        document.body.style.left = "0";
-        document.body.style.right = "0";
-        document.body.style.width = "100%";
+        document.body.style.touchAction = "none";
     }
     function unlockBodyScroll() {
+        document.documentElement.style.overflow = "";
         document.body.style.overflow = "";
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.left = "";
-        document.body.style.right = "";
-        document.body.style.width = "";
-        // Restaurer la position scroll EXACTEMENT ou on etait
-        window.scrollTo(0, savedScrollY);
+        document.body.style.touchAction = "";
     }
     function unlockBodyScrollNoRestore() {
-        // Pour fermeture suite a clic ancre — laisse le browser scroll vers l'ancre
-        document.body.style.overflow = "";
-        document.body.style.position = "";
-        document.body.style.top = "";
-        document.body.style.left = "";
-        document.body.style.right = "";
-        document.body.style.width = "";
+        unlockBodyScroll();
     }
     function openDrawer() { if (!drawer || !backdrop) return; drawerOpen = true; backdrop.classList.add("open"); drawer.classList.add("open"); lockBodyScroll(); }
     function closeDrawer() { if (!drawer || !backdrop) return; drawerOpen = false; backdrop.classList.remove("open"); drawer.classList.remove("open"); unlockBodyScroll(); }
     const drawerCloseBtn = document.getElementById("drawer-close-btn");
-    if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", closeDrawer);
+    if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); closeDrawer(); });
     document.addEventListener("open-drawer", openDrawer);
-    backdrop?.addEventListener("click", () => { if (drawerOpen) closeDrawer(); });
+    backdrop?.addEventListener("click", (e) => { if (drawerOpen) { e.preventDefault(); e.stopPropagation(); closeDrawer(); } });
+    // Esc key pour fermer
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && drawerOpen) closeDrawer(); });
     drawerLinks.forEach((l) => l.addEventListener("click", () => {
         if (!drawerOpen) return;
         const href = (l as HTMLAnchorElement).getAttribute("href") || "";

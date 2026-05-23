@@ -2,19 +2,21 @@
 // Interface PATRON commandes live — vue mobile-first dédiée pour usage en cuisine.
 // Différente de /cashd : ultra simple, gros boutons, focus sur valider + ETA.
 // Reuse les endpoints existants (caisse-login, poll, ack, eta, message-patron, status).
-// FR uniquement (c'est le patron qui l'utilise).
+// i18n : EL par défaut (restaurant grec), EN dispo via toggle caisse_lang.
 // Cookie partagé "caisse_auth" avec /cashd : si déjà loggé sur cashd, accès direct.
 import CashdNav from "../../../components/cashd/CashdNav.astro";
+import CashdAuthScript from "../../../components/cashd/CashdAuthScript.astro";
 ---
 <!doctype html>
-<html lang="fr">
+<html lang="el">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#0a0a0a" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Patron — Kalamaki</title>
+  <title>Καλαμάκι — Παραγγελίες</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <CashdAuthScript />
   <style>
     :root { --gold: #E5B32A; --bg: #0a0a0a; --red: #ef4444; --green: #22c55e; --blue: #6366f1; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -294,29 +296,41 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
 
   <CashdNav />
 
-  <!-- LOGIN -->
-  <div id="login" class="login-wrap">
+  <!-- LOGIN (cache au boot si session valide, evite flash) -->
+  <div id="login" class="login-wrap" style="display:none;">
     <form id="login-form" class="login-box">
-      <h1>Espace Patron</h1>
-      <input type="password" id="pw" placeholder="Mot de passe" autocomplete="current-password" required />
-      <button type="submit">Entrer</button>
+      <h1 id="login-title">Σύνδεση αφεντικού</h1>
+      <input type="password" id="pw" placeholder="Κωδικός πρόσβασης" autocomplete="current-password" required />
+      <button type="submit" id="login-btn">Είσοδος</button>
       <div id="login-err" class="login-error" hidden></div>
     </form>
   </div>
+  <script is:inline>
+    // Anti-flash : montre le login UNIQUEMENT si pas de session valide.
+    // Sinon tryAutoLogin va prendre le relais et masquer ce overlay une fois pret.
+    (function() {
+      try {
+        var s = window.cashdAuth && window.cashdAuth.getSession();
+        if (!s) document.getElementById('login').style.display = 'flex';
+      } catch (e) {
+        document.getElementById('login').style.display = 'flex';
+      }
+    })();
+  </script>
 
   <!-- DASHBOARD -->
   <div id="dash" class="dash">
     <div class="top" id="top">
-      <h1>Kalamaki — Patron</h1>
+      <h1 id="dash-title">Καλαμάκι — Παραγγελίες</h1>
       <div class="info"><span class="dot"></span><span id="clock">--:--</span></div>
     </div>
 
     <div class="tabs">
       <button class="tab pending active" data-tab="pending">
-        À VALIDER <span class="badge" id="badge-pending">0</span>
+        <span id="tab-pending-label">ΣΕ ΑΝΑΜΟΝΗ</span> <span class="badge" id="badge-pending">0</span>
       </button>
       <button class="tab" data-tab="prep">
-        EN COURS <span class="badge" id="badge-prep">0</span>
+        <span id="tab-prep-label">ΣΕ ΕΞΕΛΙΞΗ</span> <span class="badge" id="badge-prep">0</span>
       </button>
     </div>
 
@@ -326,11 +340,11 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
   <!-- MODAL VALIDATION + ETA -->
   <div id="modal-eta-back" class="modal-back">
     <div class="modal">
-      <button type="button" class="modal-close-x" id="modal-eta-close-x" aria-label="Fermer">×</button>
-      <h2 id="modal-eta-title">Valider la commande</h2>
-      <div class="sub" id="modal-eta-sub">Choisis le temps de préparation et de livraison</div>
+      <button type="button" class="modal-close-x" id="modal-eta-close-x" aria-label="Κλείσιμο">×</button>
+      <h2 id="modal-eta-title">Αποδοχή παραγγελίας</h2>
+      <div class="sub" id="modal-eta-sub">Διάλεξε χρόνο προετοιμασίας και παράδοσης</div>
 
-      <div class="section-label"><span class="icon">🍳</span> Temps en cuisine</div>
+      <div class="section-label"><span class="icon">🍳</span> <span id="prep-section-label">Χρόνος προετοιμασίας</span></div>
       <div class="time-grid" id="prep-grid">
         <button type="button" class="time-btn" data-min="10">10</button>
         <button type="button" class="time-btn" data-min="15">15</button>
@@ -339,12 +353,12 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
         <button type="button" class="time-btn" data-min="45">45</button>
       </div>
       <div class="custom-row">
-        <input type="number" id="prep-custom" min="1" max="180" placeholder="Autre (min)" />
-        <span class="unit">min</span>
+        <input type="number" id="prep-custom" min="1" max="180" placeholder="Άλλος (λεπτά)" />
+        <span class="unit" id="prep-unit">λεπτά</span>
       </div>
 
       <div id="delivery-block">
-        <div class="section-label"><span class="icon">🛵</span> Temps livraison chez client <span style="font-size:0.7rem;color:#777;font-weight:500;text-transform:none;letter-spacing:0;">(temps après cuisine)</span></div>
+        <div class="section-label"><span class="icon">🛵</span> <span id="delivery-section-label">Χρόνος παράδοσης στον πελάτη</span> <span id="delivery-section-sub" style="font-size:0.7rem;color:#777;font-weight:500;text-transform:none;letter-spacing:0;">(μετά την προετοιμασία)</span></div>
         <div class="time-grid" id="delivery-grid">
           <button type="button" class="time-btn zero" data-min="0">0</button>
           <button type="button" class="time-btn" data-min="10">10</button>
@@ -353,18 +367,18 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
           <button type="button" class="time-btn" data-min="30">30</button>
         </div>
         <div class="custom-row">
-          <input type="number" id="delivery-custom" min="0" max="180" placeholder="Autre (min)" />
-          <span class="unit">min</span>
+          <input type="number" id="delivery-custom" min="0" max="180" placeholder="Άλλος (λεπτά)" />
+          <span class="unit" id="delivery-unit">λεπτά</span>
         </div>
       </div>
 
       <div class="reason-row" id="reason-block" hidden>
-        <input type="text" id="eta-reason" maxlength="100" placeholder="Raison (ex: bloqué dans le trafic) — optionnel" />
+        <input type="text" id="eta-reason" maxlength="100" placeholder="Λόγος (π.χ. κίνηση στο δρόμο) — προαιρετικό" />
       </div>
 
       <div class="modal-actions">
-        <button type="button" class="btn-x btn-x-cancel" id="modal-eta-cancel">Annuler</button>
-        <button type="button" class="btn-x btn-x-ok" id="modal-eta-ok">Confirmer</button>
+        <button type="button" class="btn-x btn-x-cancel" id="modal-eta-cancel">Άκυρο</button>
+        <button type="button" class="btn-x btn-x-ok" id="modal-eta-ok">Επιβεβαίωση</button>
       </div>
     </div>
   </div>
@@ -372,26 +386,26 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
   <!-- MODAL CHAT -->
   <div id="modal-chat-back" class="modal-back">
     <div class="modal">
-      <button type="button" class="modal-close-x" id="modal-chat-close-x" aria-label="Fermer">×</button>
-      <h2 id="modal-chat-title">Message client</h2>
+      <button type="button" class="modal-close-x" id="modal-chat-close-x" aria-label="Κλείσιμο">×</button>
+      <h2 id="modal-chat-title">Μήνυμα πελάτη</h2>
       <div class="sub" id="modal-chat-sub"></div>
 
       <div class="chat-msgs" id="chat-msgs"></div>
 
-      <div class="chat-shortcuts">
-        <button type="button" data-tpl="Bonjour, votre commande est en cours.">👋 En cours</button>
-        <button type="button" data-tpl="Le livreur est en route.">🛵 En route</button>
-        <button type="button" data-tpl="Désolé, petit retard.">⏰ Retard</button>
-        <button type="button" data-tpl="Article indisponible, remplacement OK ?">❓ Remplacement</button>
+      <div class="chat-shortcuts" id="chat-shortcuts">
+        <button type="button" data-tpl-key="inProgress">👋 <span class="tpl-label">Σε εξέλιξη</span></button>
+        <button type="button" data-tpl-key="onTheWay">🛵 <span class="tpl-label">Καθ' οδόν</span></button>
+        <button type="button" data-tpl-key="delay">⏰ <span class="tpl-label">Καθυστέρηση</span></button>
+        <button type="button" data-tpl-key="replacement">❓ <span class="tpl-label">Αντικατάσταση</span></button>
       </div>
 
       <div class="chat-input-row">
-        <input type="text" id="chat-input" maxlength="500" placeholder="Écrire au client…" />
-        <button type="button" id="chat-send">Envoyer</button>
+        <input type="text" id="chat-input" maxlength="500" placeholder="Γράψε στον πελάτη…" />
+        <button type="button" id="chat-send">Αποστολή</button>
       </div>
 
       <div class="modal-actions" style="margin-top:0.65rem;">
-        <button type="button" class="btn-x btn-x-cancel" id="modal-chat-close" style="flex:1;">Fermer</button>
+        <button type="button" class="btn-x btn-x-cancel" id="modal-chat-close" style="flex:1;">Κλείσιμο</button>
       </div>
     </div>
   </div>
@@ -401,6 +415,191 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
 
   <script is:inline>
   (function() {
+    // ===== I18N (EL default, EN via 'caisse_lang') =====
+    var I18N = {
+      el: {
+        loginTitle: 'Σύνδεση αφεντικού',
+        loginPwPh: 'Κωδικός πρόσβασης',
+        loginBtn: 'Είσοδος',
+        loginErrorDefault: 'Σφάλμα',
+        loginErrorWrong: 'Λάθος κωδικός',
+        dashTitle: 'Καλαμάκι — Παραγγελίες',
+        tabPending: 'ΣΕ ΑΝΑΜΟΝΗ',
+        tabPrep: 'ΣΕ ΕΞΕΛΙΞΗ',
+        emptyPending: '✓ Καμία παραγγελία σε αναμονή',
+        emptyPrep: '✓ Καμία παραγγελία σε εξέλιξη',
+        modalValidateTitle: 'Αποδοχή παραγγελίας',
+        modalUpdateTitle: 'Νέος χρόνος',
+        modalValidateSub: 'Διάλεξε χρόνο προετοιμασίας και παράδοσης',
+        modalUpdateSub: 'Ο πελάτης θα δει την ενημέρωση αμέσως',
+        prepSection: 'Χρόνος προετοιμασίας',
+        deliverySection: 'Χρόνος παράδοσης στον πελάτη',
+        deliverySectionSub: '(μετά την προετοιμασία)',
+        otherMin: 'Άλλος (λεπτά)',
+        min: 'λεπτά',
+        reasonPh: 'Λόγος (π.χ. κίνηση στο δρόμο) — προαιρετικό',
+        cancel: 'Άκυρο',
+        confirm: 'Επιβεβαίωση',
+        chatTitle: 'Μήνυμα πελάτη',
+        chatPlaceholder: 'Γράψε στον πελάτη…',
+        chatSend: 'Αποστολή',
+        chatClose: 'Κλείσιμο',
+        chatEmpty: 'Κανένα μήνυμα ακόμη',
+        chatLoading: 'Φόρτωση…',
+        tplInProgress:  { label: 'Σε εξέλιξη',     text: 'Καλησπέρα, η παραγγελία σας ετοιμάζεται.' },
+        tplOnTheWay:    { label: "Καθ' οδόν",       text: 'Ο διανομέας είναι καθ\' οδόν.' },
+        tplDelay:       { label: 'Καθυστέρηση',    text: 'Συγγνώμη, μικρή καθυστέρηση.' },
+        tplReplacement: { label: 'Αντικατάσταση',  text: 'Το προϊόν είναι μη διαθέσιμο, OK για αντικατάσταση;' },
+        modeDelivery: '🛵 Παράδοση',
+        modeTakeaway: '🥡 Παραλαβή',
+        labelClient: 'Πελάτης',
+        labelPhone: 'Τηλέφωνο',
+        labelAddress: 'Διεύθυνση',
+        labelTotal: 'Σύνολο',
+        labelNote: '📝 Σημείωση',
+        floorShort: 'όρ.',
+        bellShort: 'κουδ.',
+        agoSec: 'πριν {n}δ',
+        agoMin: 'πριν {n}λ',
+        agoHour: 'πριν {n}ώ',
+        readyIn: 'Έτοιμη σε',
+        deliveryEta: 'παράδοση',
+        readyAt: 'Έτοιμη',
+        deliveredAt: 'παρέδωσε',
+        btnValidate: '✓ ΑΠΟΔΟΧΗ',
+        btnRefuse: '✗ Απόρριψη',
+        btnUpdateTime: '⏱️ Νέος χρόνος',
+        btnReady: '🛵 Έτοιμη',
+        btnCancel: 'Άκυρο',
+        btnDone: '✓ Ολοκληρωμένη',
+        btnMsg: '💬 Μήνυμα',
+        confirmCancel: 'Ακύρωση παραγγελίας ',
+        toastValidated: '✓ Παραγγελία επιβεβαιώθηκε',
+        toastUpdated: '✓ Ο χρόνος ενημερώθηκε',
+        toastStatus: '✓ Κατάσταση : ',
+        toastError: 'Σφάλμα : ',
+        toastNeedPrep: 'Διάλεξε χρόνο προετοιμασίας',
+        toastNeedDelivery: 'Διάλεξε χρόνο παράδοσης (0 αν παραλαβή)',
+        apiError: 'Σφάλμα API',
+        wrongPassword: 'Λάθος κωδικός',
+        sysAcceptedPrefix: 'Επιβεβαιωμένη — έτοιμη σε ',
+        sysEtaPrefix: 'Νέος χρόνος → ',
+        sysDeliveryExtra: ' + παράδοση ',
+      },
+      en: {
+        loginTitle: 'Owner login',
+        loginPwPh: 'Password',
+        loginBtn: 'Sign in',
+        loginErrorDefault: 'Error',
+        loginErrorWrong: 'Wrong password',
+        dashTitle: 'Kalamaki — Orders',
+        tabPending: 'PENDING',
+        tabPrep: 'IN PROGRESS',
+        emptyPending: '✓ No pending orders',
+        emptyPrep: '✓ No orders in progress',
+        modalValidateTitle: 'Accept order',
+        modalUpdateTitle: 'Update ETA',
+        modalValidateSub: 'Pick prep and delivery time',
+        modalUpdateSub: 'Customer will see the update instantly',
+        prepSection: 'Prep time',
+        deliverySection: 'Delivery time to customer',
+        deliverySectionSub: '(after prep)',
+        otherMin: 'Other (min)',
+        min: 'min',
+        reasonPh: 'Reason (e.g. heavy traffic) — optional',
+        cancel: 'Cancel',
+        confirm: 'Confirm',
+        chatTitle: 'Customer message',
+        chatPlaceholder: 'Write to the customer…',
+        chatSend: 'Send',
+        chatClose: 'Close',
+        chatEmpty: 'No messages yet',
+        chatLoading: 'Loading…',
+        tplInProgress:  { label: 'In progress',  text: 'Hello, your order is being prepared.' },
+        tplOnTheWay:    { label: 'On the way',   text: 'The courier is on the way.' },
+        tplDelay:       { label: 'Delay',        text: 'Sorry, a slight delay.' },
+        tplReplacement: { label: 'Replacement',  text: 'Item out of stock, OK for replacement?' },
+        modeDelivery: '🛵 Delivery',
+        modeTakeaway: '🥡 Pickup',
+        labelClient: 'Customer',
+        labelPhone: 'Phone',
+        labelAddress: 'Address',
+        labelTotal: 'Total',
+        labelNote: '📝 Note',
+        floorShort: 'fl.',
+        bellShort: 'bell',
+        agoSec: '{n}s ago',
+        agoMin: '{n}min ago',
+        agoHour: '{n}h ago',
+        readyIn: 'Ready in',
+        deliveryEta: 'delivery',
+        readyAt: 'Ready',
+        deliveredAt: 'delivered',
+        btnValidate: '✓ ACCEPT',
+        btnRefuse: '✗ Decline',
+        btnUpdateTime: '⏱️ Update time',
+        btnReady: '🛵 Ready',
+        btnCancel: 'Cancel',
+        btnDone: '✓ Completed',
+        btnMsg: '💬 Message',
+        confirmCancel: 'Cancel order ',
+        toastValidated: '✓ Order validated',
+        toastUpdated: '✓ Time updated',
+        toastStatus: '✓ Status: ',
+        toastError: 'Error: ',
+        toastNeedPrep: 'Pick a prep time',
+        toastNeedDelivery: 'Pick a delivery time (0 if pickup)',
+        apiError: 'API error',
+        wrongPassword: 'Wrong password',
+        sysAcceptedPrefix: 'Validated — ready in ',
+        sysEtaPrefix: 'Time updated → ',
+        sysDeliveryExtra: ' + delivery ',
+      },
+    };
+    function getLang() {
+      try { return localStorage.getItem('caisse_lang') || 'el'; }
+      catch (e) { return 'el'; }
+    }
+    var lang = getLang();
+    var t = I18N[lang] || I18N.el;
+
+    function applyI18n() {
+      function setText(id, txt) { var el = document.getElementById(id); if (el) el.textContent = txt; }
+      function setPlaceholder(id, txt) { var el = document.getElementById(id); if (el) el.setAttribute('placeholder', txt); }
+      setText('login-title', t.loginTitle);
+      setPlaceholder('pw', t.loginPwPh);
+      setText('login-btn', t.loginBtn);
+      setText('dash-title', t.dashTitle);
+      setText('tab-pending-label', t.tabPending);
+      setText('tab-prep-label', t.tabPrep);
+      setText('prep-section-label', t.prepSection);
+      setText('delivery-section-label', t.deliverySection);
+      setText('delivery-section-sub', t.deliverySectionSub);
+      setText('prep-unit', t.min);
+      setText('delivery-unit', t.min);
+      setPlaceholder('prep-custom', t.otherMin);
+      setPlaceholder('delivery-custom', t.otherMin);
+      setPlaceholder('eta-reason', t.reasonPh);
+      setText('modal-eta-cancel', t.cancel);
+      setText('modal-eta-ok', t.confirm);
+      setText('modal-chat-title', t.chatTitle);
+      setPlaceholder('chat-input', t.chatPlaceholder);
+      setText('chat-send', t.chatSend);
+      setText('modal-chat-close', t.chatClose);
+      // Chat shortcuts buttons
+      var shortcutMap = { inProgress: t.tplInProgress, onTheWay: t.tplOnTheWay, delay: t.tplDelay, replacement: t.tplReplacement };
+      var shortcuts = document.querySelectorAll('#chat-shortcuts button[data-tpl-key]');
+      shortcuts.forEach(function(b) {
+        var k = b.getAttribute('data-tpl-key');
+        var data = shortcutMap[k];
+        if (!data) return;
+        b.setAttribute('data-tpl', data.text);
+        var labelEl = b.querySelector('.tpl-label');
+        if (labelEl) labelEl.textContent = data.label;
+      });
+    }
+    applyI18n();
+
     // ===== State =====
     var state = {
       authed: false,
@@ -434,11 +633,11 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
     }
     function fmtAgo(ts) {
       var sec = Math.max(0, Math.floor((Date.now() - ts) / 1000));
-      if (sec < 60) return 'il y a ' + sec + 's';
+      if (sec < 60) return t.agoSec.replace('{n}', sec);
       var min = Math.floor(sec / 60);
-      if (min < 60) return 'il y a ' + min + 'min';
+      if (min < 60) return t.agoMin.replace('{n}', min);
       var h = Math.floor(min / 60);
-      return 'il y a ' + h + 'h';
+      return t.agoHour.replace('{n}', h);
     }
     function ensureAudio() {
       if (!state.audioCtx) {
@@ -476,25 +675,60 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
           credentials: 'include',
         });
         var data = await res.json();
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Mot de passe incorrect');
+        if (!res.ok || !data.ok) throw new Error(data.error || t.wrongPassword);
+        // Session unifiée 2h (zéro re-prompt entre pages /cashd/*)
+        try { window.cashdAuth.setSession(pw); } catch (e) {}
         state.authed = true;
         $('login').style.display = 'none';
         $('dash').classList.add('show');
         startClock();
         startPoll();
       } catch (ex) {
-        err.hidden = false; err.textContent = ex.message || 'Erreur';
+        err.hidden = false; err.textContent = ex.message || t.loginErrorDefault;
       }
     });
 
-    // Si déjà loggé via cookie : essaye un poll direct, fallback login
+    // Si déjà loggé via cookie OU session localStorage 2h : essaye un poll direct, fallback login.
+    // IMPORTANT : si poll renvoie 500 mais session 2h valide → on assume cookie OK et on affiche dash.
     async function tryAutoLogin() {
+      var hasSession = false;
+      try { hasSession = !!window.cashdAuth.getSession(); } catch (e) {}
       try {
         var res = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
-        if (res.status === 401) return false;
-        if (!res.ok) return false;
-        var data = await res.json();
-        if (!data.ok) return false;
+        if (res.status === 401) {
+          // Cookie drop → tente ré-auth via session 2h, puis retry
+          var ok = await window.cashdAuth.bootAuth();
+          if (!ok) return false;
+          res = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
+          if (res.status === 401) return false; // re-401 = mauvais pw
+        } else if (!res.ok) {
+          // Server error (500, etc.) : si session 2h valide, on affiche le dash quand meme
+          if (hasSession) {
+            state.authed = true;
+            $('login').style.display = 'none';
+            $('dash').classList.add('show');
+            startClock();
+            render();
+            startPoll();
+            return true;
+          }
+          return false;
+        }
+        // res.ok = true
+        var data = null;
+        try { data = await res.json(); } catch (e) {}
+        if (!data || !data.ok) {
+          if (hasSession) {
+            state.authed = true;
+            $('login').style.display = 'none';
+            $('dash').classList.add('show');
+            startClock();
+            render();
+            startPoll();
+            return true;
+          }
+          return false;
+        }
         state.orders = data.orders || [];
         state.since = data.now || Date.now();
         state.authed = true;
@@ -504,7 +738,18 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
         render();
         startPoll();
         return true;
-      } catch (e) { return false; }
+      } catch (e) {
+        if (hasSession) {
+          state.authed = true;
+          $('login').style.display = 'none';
+          $('dash').classList.add('show');
+          startClock();
+          render();
+          startPoll();
+          return true;
+        }
+        return false;
+      }
     }
 
     // ===== Clock =====
@@ -526,6 +771,9 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
         var url = '/api/orders/poll?since=' + (state.since || 0);
         var res = await fetch(url, { credentials: 'include', cache: 'no-store', signal: state.pollAbort.signal });
         if (res.status === 401) {
+          // Cookie drop runtime → tente ré-auth silencieuse via session 2h
+          var ok = await window.cashdAuth.bootAuth();
+          if (ok) return; // prochain tick reprendra normalement
           state.authed = false;
           $('login').style.display = 'flex';
           $('dash').classList.remove('show');
@@ -573,7 +821,7 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
       var container = $('list');
 
       if (list.length === 0) {
-        container.innerHTML = '<div class="empty">' + (state.currentTab === 'pending' ? '✓ Aucune commande à valider' : '✓ Aucune commande en cours') + '</div>';
+        container.innerHTML = '<div class="empty">' + (state.currentTab === 'pending' ? t.emptyPending : t.emptyPrep) + '</div>';
         return;
       }
 
@@ -597,7 +845,7 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
           else if (act === 'ready') setStatus(id, 'ready');
           else if (act === 'paid') setStatus(id, 'paid');
           else if (act === 'cancel') {
-            if (confirm('Annuler la commande ' + id + ' ?')) setStatus(id, 'cancelled');
+            if (confirm(t.confirmCancel + id + ' ?')) setStatus(id, 'cancelled');
           }
           else if (act === 'chat') openChatModal(id);
           else if (act === 'call') {
@@ -612,7 +860,7 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
       var isNew = o.status === 'new';
       var isReady = o.status === 'ready';
       var modeClass = o.mode === 'delivery' ? 'delivery' : 'takeaway';
-      var modeLbl = o.mode === 'delivery' ? '🛵 Livraison' : '🥡 À emporter';
+      var modeLbl = o.mode === 'delivery' ? t.modeDelivery : t.modeTakeaway;
 
       var itemsHtml = '';
       if (Array.isArray(o.items)) {
@@ -625,16 +873,16 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
 
       var addressHtml = '';
       if (o.mode === 'delivery' && o.address) {
-        addressHtml = '<div class="row"><div class="label">Adresse</div><div class="val">'
+        addressHtml = '<div class="row"><div class="label">' + t.labelAddress + '</div><div class="val">'
           + escapeHtml(o.address)
-          + (o.floor ? ' · ét. ' + escapeHtml(o.floor) : '')
-          + (o.bell ? ' · son. ' + escapeHtml(o.bell) : '')
+          + (o.floor ? ' · ' + t.floorShort + ' ' + escapeHtml(o.floor) : '')
+          + (o.bell ? ' · ' + t.bellShort + ' ' + escapeHtml(o.bell) : '')
           + '</div></div>';
       }
 
       var notesHtml = '';
       if (o.notes) {
-        notesHtml = '<div class="notes"><div class="lbl">📝 Note</div>' + escapeHtml(o.notes);
+        notesHtml = '<div class="notes"><div class="lbl">' + t.labelNote + '</div>' + escapeHtml(o.notes);
         if (o.notes_translated && o.notes_translated !== o.notes) {
           notesHtml += '<div class="tr">🇬🇷 ' + escapeHtml(o.notes_translated) + '</div>';
         }
@@ -649,38 +897,38 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
           ? readyTs + o.delivery_minutes * 60 * 1000 : null;
         var remaining = Math.max(0, Math.floor((readyTs - Date.now()) / 60000));
         etaHtml = '<div class="eta-info"><div>'
-          + '<div class="eta-vals">⏱️ Prêt en <b>' + remaining + ' min</b>';
+          + '<div class="eta-vals">⏱️ ' + t.readyIn + ' <b>' + remaining + ' ' + t.min + '</b>';
         if (o.delivery_minutes != null && o.delivery_minutes > 0) {
-          etaHtml += ' + livraison <b>' + o.delivery_minutes + ' min</b>';
+          etaHtml += ' + ' + t.deliveryEta + ' <b>' + o.delivery_minutes + ' ' + t.min + '</b>';
         }
         etaHtml += '</div>'
-          + '<div class="eta-times">Prêt ' + fmtTime(readyTs);
-        if (arriveTs) etaHtml += ' · livré ' + fmtTime(arriveTs);
+          + '<div class="eta-times">' + t.readyAt + ' ' + fmtTime(readyTs);
+        if (arriveTs) etaHtml += ' · ' + t.deliveredAt + ' ' + fmtTime(arriveTs);
         etaHtml += '</div></div></div>';
       }
 
       var unread = Number(o.unread_client_messages || 0);
-      var chatBtn = '<button class="btn btn-msg" data-act="chat" data-id="' + escapeHtml(o.id) + '">💬 Message'
+      var chatBtn = '<button class="btn btn-msg" data-act="chat" data-id="' + escapeHtml(o.id) + '">' + t.btnMsg
         + (unread > 0 ? ' (' + unread + ')' : '') + '</button>';
 
       var actionsHtml = '';
       if (isNew) {
         actionsHtml = '<div class="actions">'
-          + '<button class="btn btn-validate" data-act="validate" data-id="' + escapeHtml(o.id) + '" data-mode="' + escapeHtml(o.mode) + '">✓ VALIDER</button>'
-          + '<button class="btn btn-cancel" data-act="cancel" data-id="' + escapeHtml(o.id) + '">✗ Refuser</button>'
+          + '<button class="btn btn-validate" data-act="validate" data-id="' + escapeHtml(o.id) + '" data-mode="' + escapeHtml(o.mode) + '">' + t.btnValidate + '</button>'
+          + '<button class="btn btn-cancel" data-act="cancel" data-id="' + escapeHtml(o.id) + '">' + t.btnRefuse + '</button>'
           + '</div>';
       } else if (o.status === 'seen') {
         actionsHtml = '<div class="actions">'
-          + '<button class="btn btn-eta" data-act="update-eta" data-id="' + escapeHtml(o.id) + '" data-mode="' + escapeHtml(o.mode) + '">⏱️ Modifier temps</button>'
-          + '<button class="btn btn-ready" data-act="ready" data-id="' + escapeHtml(o.id) + '">🛵 Prêt</button>'
+          + '<button class="btn btn-eta" data-act="update-eta" data-id="' + escapeHtml(o.id) + '" data-mode="' + escapeHtml(o.mode) + '">' + t.btnUpdateTime + '</button>'
+          + '<button class="btn btn-ready" data-act="ready" data-id="' + escapeHtml(o.id) + '">' + t.btnReady + '</button>'
           + '</div>'
           + '<div class="actions" style="padding-top:0;">'
           + chatBtn
-          + '<button class="btn btn-cancel" data-act="cancel" data-id="' + escapeHtml(o.id) + '">Annuler</button>'
+          + '<button class="btn btn-cancel" data-act="cancel" data-id="' + escapeHtml(o.id) + '">' + t.btnCancel + '</button>'
           + '</div>';
       } else if (isReady) {
         actionsHtml = '<div class="actions">'
-          + '<button class="btn btn-done" data-act="paid" data-id="' + escapeHtml(o.id) + '">✓ Terminée</button>'
+          + '<button class="btn btn-done" data-act="paid" data-id="' + escapeHtml(o.id) + '">' + t.btnDone + '</button>'
           + chatBtn
           + '</div>';
       }
@@ -694,12 +942,12 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
         + '<div class="mode-pill ' + modeClass + '">' + modeLbl + '</div>'
         + '</div>'
         + '<div class="card-body">'
-        + '<div class="row"><div class="label">Client</div><div class="val">' + escapeHtml(o.name) + '</div></div>'
-        + '<div class="row"><div class="label">Téléphone</div><div class="val phone"><a href="tel:' + escapeHtml(o.phone) + '">' + escapeHtml(o.phone) + '</a></div></div>'
+        + '<div class="row"><div class="label">' + t.labelClient + '</div><div class="val">' + escapeHtml(o.name) + '</div></div>'
+        + '<div class="row"><div class="label">' + t.labelPhone + '</div><div class="val phone"><a href="tel:' + escapeHtml(o.phone) + '">' + escapeHtml(o.phone) + '</a></div></div>'
         + addressHtml
         + '<div class="items">' + itemsHtml
         + '<div class="sep"></div>'
-        + '<div class="tot"><span>Total</span><span>' + fmtEUR(o.total || totalAll) + '</span></div>'
+        + '<div class="tot"><span>' + t.labelTotal + '</span><span>' + fmtEUR(o.total || totalAll) + '</span></div>'
         + '</div>'
         + notesHtml
         + etaHtml
@@ -718,8 +966,8 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
       state.modalEtaCtx = { orderId: id, mode: order.mode, kind: kind };
 
       var isUpdate = (kind === 'update');
-      $('modal-eta-title').textContent = isUpdate ? 'Modifier les temps — ' + id : 'Valider — ' + id;
-      $('modal-eta-sub').textContent = isUpdate ? 'Le client verra la mise à jour immédiatement' : 'Choisis les temps avant validation';
+      $('modal-eta-title').textContent = (isUpdate ? t.modalUpdateTitle : t.modalValidateTitle) + ' — ' + id;
+      $('modal-eta-sub').textContent = isUpdate ? t.modalUpdateSub : t.modalValidateSub;
       $('reason-block').hidden = !isUpdate;
 
       // Reset selections
@@ -817,10 +1065,10 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
       var delivery = getSelectedMin('delivery-grid', 'delivery-custom');
 
       if (prep == null || prep < 1) {
-        showToast('Choisis un temps de préparation', 'err'); return;
+        showToast(t.toastNeedPrep, 'err'); return;
       }
       if (delivery == null) {
-        showToast('Choisis un temps de livraison (0 si à emporter)', 'err'); return;
+        showToast(t.toastNeedDelivery, 'err'); return;
       }
 
       var btn = this; btn.disabled = true;
@@ -842,14 +1090,14 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
           body: JSON.stringify(payload),
         });
         var data = await res.json();
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Erreur API');
-        showToast(ctx.kind === 'validate' ? '✓ Commande validée' : '✓ Temps mis à jour', 'ok');
+        if (!res.ok || !data.ok) throw new Error(data.error || t.apiError);
+        showToast(ctx.kind === 'validate' ? t.toastValidated : t.toastUpdated, 'ok');
         closeEtaModal();
         // Switch tab vers "en cours" après validation
         if (ctx.kind === 'validate') tabSwitch('prep');
         poll();
       } catch (err) {
-        showToast('Erreur : ' + (err.message || err), 'err');
+        showToast(t.toastError + (err.message || err), 'err');
       } finally {
         btn.disabled = false;
       }
@@ -864,11 +1112,11 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
           body: JSON.stringify({ status: status }),
         });
         var data = await res.json();
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Erreur');
-        showToast('✓ Statut : ' + status, 'ok');
+        if (!res.ok || !data.ok) throw new Error(data.error || t.loginErrorDefault);
+        showToast(t.toastStatus + status, 'ok');
         poll();
       } catch (err) {
-        showToast('Erreur : ' + (err.message || err), 'err');
+        showToast(t.toastError + (err.message || err), 'err');
       }
     }
 
@@ -877,9 +1125,9 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
       var order = state.orders.find(function(o) { return o.id === id; });
       if (!order) return;
       state.modalChatCtx = { orderId: id, lastMsgId: 0 };
-      $('modal-chat-title').textContent = 'Chat — ' + id;
+      $('modal-chat-title').textContent = t.chatTitle + ' — ' + id;
       $('modal-chat-sub').textContent = order.name + ' · ' + order.phone;
-      $('chat-msgs').innerHTML = '<div class="chat-empty">Chargement…</div>';
+      $('chat-msgs').innerHTML = '<div class="chat-empty">' + t.chatLoading + '</div>';
       $('chat-input').value = '';
       $('modal-chat-back').classList.add('show');
       fetchChat();
@@ -926,7 +1174,7 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
         if (data.messages && data.messages.length > 0) {
           renderChatMsgs(data.messages);
         } else if (state.modalChatCtx.lastMsgId === 0) {
-          $('chat-msgs').innerHTML = '<div class="chat-empty">Pas encore de message</div>';
+          $('chat-msgs').innerHTML = '<div class="chat-empty">' + t.chatEmpty + '</div>';
         }
       } catch (e) {}
     }
@@ -942,14 +1190,14 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
           var raw = String(m.text || '');
           if (raw.indexOf('accepted:') === 0) {
             var p = raw.slice(9).split(':');
-            text = 'Validée — prêt en ' + p[0] + ' min' + (p[1] ? ' + livraison ' + p[1] + ' min' : '');
+            text = t.sysAcceptedPrefix + p[0] + ' ' + t.min + (p[1] ? t.sysDeliveryExtra + p[1] + ' ' + t.min : '');
           } else if (raw.indexOf('eta:') === 0) {
             var rest = raw.slice(4); var reason = '';
             var pi = rest.indexOf('|');
             if (pi !== -1) { reason = rest.slice(pi + 1); rest = rest.slice(0, pi); }
             var pp = rest.split(':');
-            text = 'Temps modifié → ' + pp[0] + ' min';
-            if (pp[1] && /^\d+$/.test(pp[1])) text += ' + livraison ' + pp[1] + ' min';
+            text = t.sysEtaPrefix + pp[0] + ' ' + t.min;
+            if (pp[1] && /^\d+$/.test(pp[1])) text += t.sysDeliveryExtra + pp[1] + ' ' + t.min;
             if (reason) text += ' (' + reason + ')';
           } else { text = raw; }
         }
@@ -990,11 +1238,11 @@ import CashdNav from "../../../components/cashd/CashdNav.astro";
           body: JSON.stringify({ text: text }),
         });
         var data = await res.json();
-        if (!res.ok || !data.ok) throw new Error(data.error || 'Erreur');
+        if (!res.ok || !data.ok) throw new Error(data.error || t.loginErrorDefault);
         inp.value = '';
         fetchChat();
       } catch (err) {
-        showToast('Erreur : ' + (err.message || err), 'err');
+        showToast(t.toastError + (err.message || err), 'err');
       } finally {
         inp.disabled = false;
         inp.focus();

@@ -496,6 +496,30 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
     }
     .history-btn:hover { background: rgba(229,179,42,0.12); }
 
+    /* Prominent "New order" CTA in the dashboard topbar */
+    .new-order-cta {
+      padding: 0.55rem 0.95rem; font-size: 0.85rem;
+      background: linear-gradient(135deg, #E5B32A 0%, #c89518 100%);
+      color: #0a0a0a;
+      border: 1px solid #E5B32A;
+      border-radius: 0.45rem;
+      font-weight: 800; letter-spacing: 0.05em;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      box-shadow: 0 4px 14px rgba(229,179,42,0.35);
+      transition: transform 0.12s ease, box-shadow 0.18s ease;
+    }
+    .new-order-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(229,179,42,0.55);
+      background: linear-gradient(135deg, #f7c64a 0%, #E5B32A 100%);
+    }
+    .new-order-cta:active { transform: scale(0.97); }
+    @media (max-width: 768px) {
+      .new-order-cta { padding: 0.45rem 0.65rem; font-size: 0.78rem; }
+      .new-order-cta .new-order-label { display: none; }
+    }
+
     .lang-toggle {
       padding: 0.5rem 0.7rem; font-size: 0.8rem;
       background: #222; color: #ccc; border: 1px solid rgba(255,255,255,0.1);
@@ -1051,12 +1075,12 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
   <!-- DASHBOARD -->
   <div id="dashboard" class="dashboard">
     <div class="topbar">
-      <h1 id="topbar-title">📟 ΚΑΛΑΜΑΚΙ — ΤΑΜΕΙΟ</h1>
+      <h1 id="topbar-title">📡 ΚΑΛΑΜΑΚΙ — ΠΙΝΑΚΑΣ</h1>
       <div class="status" id="conn-status">
         <span class="dot"></span>
         <span class="clock" id="clock">--:--</span>
+        <a href="/cashd/pos" class="new-order-cta" title="Καταχώρηση πώλησης στο κατάστημα">🆕 <span class="new-order-label">Νέα παραγγελία</span></a>
         <button type="button" id="lang-toggle" class="lang-toggle" aria-label="Language"></button>
-        <a href="/cashd/pos" class="history-btn" title="Ταμείο POS (in-store)">🧾 POS</a>
         <a href="/cashd/messages" id="global-msg-btn" class="msg-icon-btn" title="Όλα τα μηνύματα">💬<span id="global-unread-badge" class="global-unread hidden">0</span></a>
         <select id="sound-select" class="sound-select" aria-label="Ήχος ειδοποίησης"></select>
         <button type="button" id="sound-test" class="sound-test" title="Test">🔊 Test</button>
@@ -1113,8 +1137,8 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
   <!-- POPUP : Accepter commande avec temps -->
   <div id="accept-modal" class="modal-back" role="dialog" aria-modal="true">
     <div class="modal">
-      <button type="button" class="modal-close-x" id="accept-close-x" aria-label="Fermer">×</button>
-      <h2 id="accept-title">Accepter la commande</h2>
+      <button type="button" class="modal-close-x" id="accept-close-x" aria-label="Κλείσιμο">×</button>
+      <h2 id="accept-title">Αποδοχή παραγγελίας</h2>
       <p class="modal-sub" id="accept-sub"></p>
       <div class="time-grid" id="accept-grid">
         <button type="button" class="time-btn" data-min="10">10 min</button>
@@ -1129,7 +1153,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
         <button type="button" id="accept-custom-go">✓</button>
       </div>
       <div class="modal-actions">
-        <button type="button" id="accept-cancel" class="btn-cancel">Annuler</button>
+        <button type="button" id="accept-cancel" class="btn-cancel">Άκυρο</button>
       </div>
     </div>
   </div>
@@ -1137,15 +1161,15 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
   <!-- POPUP : Refuser commande (raison optionnelle) -->
   <div id="decline-modal" class="modal-back" role="dialog" aria-modal="true">
     <div class="modal decline-modal">
-      <button type="button" class="modal-close-x" id="decline-close-x" aria-label="Fermer">×</button>
-      <h2 id="decline-title">Refuser la commande</h2>
+      <button type="button" class="modal-close-x" id="decline-close-x" aria-label="Κλείσιμο">×</button>
+      <h2 id="decline-title">Απόρριψη παραγγελίας</h2>
       <p class="modal-sub" id="decline-sub"></p>
       <div class="reason-row">
         <input type="text" id="decline-reason" maxlength="120" placeholder="" />
       </div>
       <div class="modal-actions">
-        <button type="button" id="decline-cancel" class="btn-cancel">Annuler</button>
-        <button type="button" id="decline-confirm" class="btn-ok-decline">Refuser</button>
+        <button type="button" id="decline-cancel" class="btn-cancel">Άκυρο</button>
+        <button type="button" id="decline-confirm" class="btn-ok-decline">Απόρριψη</button>
       </div>
     </div>
   </div>
@@ -1156,8 +1180,8 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
   <!-- POPUP : Modifier ETA -->
   <div id="eta-modal" class="modal-back" role="dialog" aria-modal="true">
     <div class="modal">
-      <button type="button" class="modal-close-x" id="eta-close-x" aria-label="Fermer">×</button>
-      <h2 id="eta-title">Modifier le temps</h2>
+      <button type="button" class="modal-close-x" id="eta-close-x" aria-label="Κλείσιμο">×</button>
+      <h2 id="eta-title">Νέος χρόνος</h2>
       <p class="modal-sub" id="eta-sub"></p>
       <div class="time-grid" id="eta-grid">
         <button type="button" class="time-btn" data-delta="+5">+5 min</button>
@@ -1175,7 +1199,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
         <input type="text" id="eta-reason" maxlength="120" placeholder="" />
       </div>
       <div class="modal-actions">
-        <button type="button" id="eta-cancel" class="btn-cancel">Annuler</button>
+        <button type="button" id="eta-cancel" class="btn-cancel">Άκυρο</button>
       </div>
     </div>
   </div>
@@ -1191,7 +1215,8 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
         loginBtn: 'Σύνδεση',
         loginErrorDefault: 'Σφάλμα',
         loginErrorWrong: 'Λάθος κωδικός',
-        topbarTitle: '📟 ΚΑΛΑΜΑΚΙ — ΤΑΜΕΙΟ',
+        topbarTitle: '📡 ΚΑΛΑΜΑΚΙ — ΠΙΝΑΚΑΣ',
+        newOrderLabel: 'Νέα παραγγελία',
         soundOn: '🔊 ΗΧΟΣ',
         soundOff: '🔇 ΣΙΓΗ',
         historyLabel: 'Ιστορικό',
@@ -1270,7 +1295,8 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
         loginBtn: 'Sign in',
         loginErrorDefault: 'Error',
         loginErrorWrong: 'Wrong password',
-        topbarTitle: '📟 KALAMAKI — CHECKOUT',
+        topbarTitle: '📡 KALAMAKI — DASHBOARD',
+        newOrderLabel: 'New order',
         soundOn: '🔊 SOUND',
         soundOff: '🔇 MUTE',
         historyLabel: 'History',
@@ -1377,6 +1403,9 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
       var histRefreshBtn = document.getElementById('hist-refresh');
       var histPrintAllBtn = document.getElementById('hist-print-all');
       if (topbarTitle) topbarTitle.textContent = t.topbarTitle;
+      // New order CTA label
+      var newOrderLabelEl = document.querySelector('.new-order-cta .new-order-label');
+      if (newOrderLabelEl && t.newOrderLabel) newOrderLabelEl.textContent = t.newOrderLabel;
       if (langToggle) langToggle.innerHTML = (lang === 'el' ? flagSvg('gr') + 'EL' : flagSvg('gb') + 'EN');
       if (colPendingTitle) colPendingTitle.textContent = t.colPendingTitle;
       if (colPrepTitle) colPrepTitle.textContent = t.colPrepTitle;

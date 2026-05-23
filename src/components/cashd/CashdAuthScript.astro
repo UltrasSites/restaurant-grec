@@ -1,0 +1,145 @@
+---
+// Script inline d'auth pour toutes les pages /cashd/*.
+// Inline (pas externe) parce que Cloudflare Pages CDN met 4h a propager
+// un nouveau fichier statique, et le routing Astro 'format: directory'
+// peut entrer en conflit avec /cashd/cashd-auth.js. Inline = zero latence,
+// zero cache CDN a invalider.
+// Fix Tiago 19/05/2026 — zero re-prompt entre pages /cashd/*.
+---
+<script is:inline>
+  (function () {
+    if (window.cashdAuth) return;
+
+    var KEY = 'cashd_session';
+    var LEGACY_KEY = 'cashd_token_b64';
+    var TTL_MS = 2 * 60 * 60 * 1000; // 2h d'inactivite
+
+    function readSession() {
+      try {
+        var raw = localStorage.getItem(KEY);
+        if (raw) {
+          var s = JSON.parse(raw);
+          if (s && s.pw_b64 && s.last_activity && (Date.now() - s.last_activity) <= TTL_MS) {
+            return s;
+          }
+          if (s && s.last_activity && (Date.now() - s.last_activity) > TTL_MS) {
+            localStorage.removeItem(KEY);
+            return null;
+          }
+        }
+        var legacy = localStorage.getItem(LEGACY_KEY);
+        if (legacy) {
+          var s2 = { pw_b64: legacy, last_activity: Date.now() };
+          localStorage.setItem(KEY, JSON.stringify(s2));
+          return s2;
+        }
+      } catch (e) {}
+      return null;
+    }
+    function writeSession(s) {
+      try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+    }
+
+    window.cashdAuth = {
+      setSession: function (pw) {
+        var pw_b64 = '';
+        try { pw_b64 = btoa(unescape(encodeURIComponent(pw))); } catch (e) { return; }
+        var s = { pw_b64: pw_b64, last_activity: Date.now() };
+        writeSession(s);
+        try { localStorage.setItem(LEGACY_KEY, pw_b64); } catch (e) {}
+      },
+      getSession: function () { return readSession(); },
+      refreshActivity: function () {
+        var s = readSession();
+        if (!s) return;
+        s.last_activity = Date.now();
+        writeSession(s);
+      },
+      clearSession: function () {
+        try { localStorage.removeItem(KEY); } catch (e) {}
+        try { localStorage.removeItem(LEGACY_KEY); } catch (e) {}
+      },
+      getPassword: function () {
+        var s = readSession();
+        if (!s) return null;
+        try { return decodeURIComponent(escape(atob(s.pw_b64))); } catch (e) { return null; }
+      },
+      bootAuth: async function () {
+        var s = readSession();
+        if (!s) return false;
+        var pw = this.getPassword();
+        if (!pw) return false;
+        try {
+          var r = await fetch('/api/caisse-login', {
+            method: 'POST', credentials: 'include', cache: 'no-store',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: pw }),
+          });
+          if (r.ok) {
+            this.refreshActivity();
+            return true;
+          }
+          if (r.status === 401) this.clearSession();
+          return false;
+        } catch (e) {
+          return false;
+        }
+      },
+      fetchAuth: async function (url, opts) {
+        opts = opts || {};
+        opts.credentials = 'include';
+        opts.cache = opts.cache || 'no-store';
+        var res = await fetch(url, opts);
+        if (res.status !== 401) {
+          this.refreshActivity();
+          return res;
+        }
+        var ok = await this.bootAuth();
+        if (!ok) return res;
+        return fetch(url, opts);
+      },
+    };
+
+    var lastRefresh = 0;
+    function bump() {
+      var now = Date.now();
+      if (now - lastRefresh < 30000) return;
+      lastRefresh = now;
+      var s = readSession();
+      if (s) {
+        s.last_activity = now;
+        writeSession(s);
+      }
+    }
+    ['click', 'keydown', 'scroll', 'mousemove', 'touchstart'].forEach(function (ev) {
+      document.addEventListener(ev, bump, { passive: true, capture: true });
+    });
+
+    // Au boot : check expiration session. Si expiree → call /api/caisse-logout
+    // (qui purge le cookie HttpOnly cote serveur) puis redirige /cashd.
+    (async function () {
+      try {
+        var raw = localStorage.getItem(KEY);
+        if (!raw) return;
+        var sObj = null;
+        try { sObj = JSON.parse(raw); } catch (e) {}
+        if (!sObj || !sObj.last_activity) return;
+        if ((Date.now() - sObj.last_activity) > TTL_MS) {
+          // Session expiree → purge tout (localStorage + cookie serveur)
+          localStorage.removeItem(KEY);
+          localStorage.removeItem(LEGACY_KEY);
+          try {
+            await fetch('/api/caisse-logout', {
+              method: 'POST', credentials: 'include', cache: 'no-store',
+            });
+          } catch (e) {}
+          var path = (location.pathname || '').replace(/\/$/, '');
+          var isLoginPage = path === '/cashd' || path === '';
+          if (!isLoginPage) {
+            location.href = '/cashd?next=' + encodeURIComponent(location.pathname);
+          }
+        }
+      } catch (e) {}
+    })();
+  })();
+</script>
