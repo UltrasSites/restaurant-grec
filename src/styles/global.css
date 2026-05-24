@@ -190,3 +190,14 @@
     from { background-position: 0% center; }
     to { background-position: 200% center; }
 }
+
+/* Perf machines faibles : ban background-position animation mobile + reduced-motion (non-composited paint killer) */
+@media (max-width: 767px), (prefers-reduced-motion: reduce) {
+    .text-gold-premium {
+        animation: none !important;
+        background: none !important;
+        -webkit-text-fill-color: #E5B32A !important;
+        color: #E5B32A !important;
+        text-shadow: none !important;
+    }
+}

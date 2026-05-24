@@ -50,6 +50,7 @@ const flatItems = menuPages.flatMap((p, pi) =>
     ? 'Παράγγειλε απευθείας απ\'το Καλαμάκι Της Τρούμπας — χωρίς προμήθεια. Σουβλάκια, πίτες, μερίδες, veggie. Παράδοση και παραλαβή στην Τρούμπα Πειραιά.'
     : 'Order direct from Trouba Souvlaki — no commission. Skewers, pita wraps, plates, veggie options. Delivery and takeaway in Troumpa Piraeus.'}
   includeMenu={true}
+  includeLeaflet={true}
   breadcrumbs={[
     { name: isEl ? 'Αρχική' : 'Home', path: `/${currentLang}/` },
     { name: isEl ? 'Παραγγελία online' : 'Order online', path: `/${currentLang}/delivery/` },
