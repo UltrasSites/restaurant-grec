@@ -17,7 +17,9 @@ const title = isEl ? "Νομικές πληροφορίες" : "Legal notice";
 <BaseLayout
   lang={currentLang}
   title={`${title} — Το Καλαμάκι Της Τρούμπας`}
-  description={isEl ? 'Νομικές πληροφορίες για το Καλαμάκι Της Τρούμπας — επωνυμία, διεύθυνση, υπεύθυνος δημοσίευσης.' : 'Legal notice for Trouba Souvlaki — company details, address, publisher.'}
+  description={isEl
+    ? 'Νομικές πληροφορίες για το Καλαμάκι Της Τρούμπας — επωνυμία, διεύθυνση, υπεύθυνος δημοσίευσης, στοιχεία φιλοξενίας, πνευματικά δικαιώματα και επικοινωνία.'
+    : 'Legal notice for Trouba Souvlaki — company name, address, publisher details, hosting information, intellectual property rights and customer contact channels.'}
   breadcrumbs={[
     { name: currentLang === 'el' ? 'Αρχική' : 'Home', path: `/${currentLang}/` },
     { name: title, path: `/${currentLang}/mentions/` },

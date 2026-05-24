@@ -40,7 +40,9 @@ const TRIPADVISOR_URL = "https://www.tripadvisor.com/Restaurant_Review-g189403-d
 <BaseLayout
   lang={lang}
   title={`${t.title} — Το Καλαμάκι Της Τρούμπας`}
-  description={t.body}
+  description={lang === 'el'
+    ? 'Άφησε κριτική για το Καλαμάκι Της Τρούμπας στο Google ή στο TripAdvisor. Ευχαριστούμε για την επίσκεψη — η γνώμη σου μας βοηθάει να γινόμαστε καλύτεροι.'
+    : 'Leave a review for Kalamaki Tis Troumpas on Google or TripAdvisor. Thank you for visiting us — your feedback helps us keep improving every day at Troumpa Piraeus.'}
   hideHeader
   breadcrumbs={[
     { name: lang === 'el' ? 'Αρχική' : 'Home', path: `/${lang}/` },

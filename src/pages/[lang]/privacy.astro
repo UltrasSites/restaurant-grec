@@ -26,7 +26,9 @@ const title = TITLES[param] || TITLES.el;
 <BaseLayout
   lang={layoutLang}
   title={`${title} — Το Καλαμάκι Της Τρούμπας`}
-  description={isEl ? 'Πολιτική απορρήτου και προστασίας προσωπικών δεδομένων (GDPR) — Καλαμάκι Της Τρούμπας.' : 'Privacy policy and personal data protection (GDPR) — Trouba Souvlaki.'}
+  description={isEl
+    ? 'Πολιτική απορρήτου και προστασίας προσωπικών δεδομένων (GDPR) για το Καλαμάκι Της Τρούμπας. Ποια δεδομένα συλλέγουμε, διάρκεια, δικαιώματα και επικοινωνία.'
+    : 'Privacy policy and personal data protection (GDPR) for Trouba Souvlaki — Piraeus. What data we collect, retention, your rights and how to contact us today.'}
   breadcrumbs={[
     { name: layoutLang === 'el' ? 'Αρχική' : 'Home', path: `/${layoutLang}/` },
     { name: title, path: `/${layoutLang}/privacy/` },

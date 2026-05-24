@@ -17,7 +17,9 @@ const title = isEl ? "Όροι χρήσης" : "Terms of service";
 <BaseLayout
   lang={currentLang}
   title={`${title} — Το Καλαμάκι Της Τρούμπας`}
-  description={isEl ? 'Όροι χρήσης και πολιτική παραγγελιών για το Καλαμάκι Της Τρούμπας — Πειραιάς.' : 'Terms of service and ordering policy for Trouba Souvlaki — Piraeus.'}
+  description={isEl
+    ? 'Όροι χρήσης και πολιτική παραγγελιών για το Καλαμάκι Της Τρούμπας — Πειραιάς. Παραγγελίες online, παραλαβή, τιμές, ακυρώσεις, ευθύνες και επικοινωνία.'
+    : 'Terms of service and ordering policy for Trouba Souvlaki — Piraeus. Online orders, pickup, pricing, cancellations, liability and customer contact details.'}
   breadcrumbs={[
     { name: currentLang === 'el' ? 'Αρχική' : 'Home', path: `/${currentLang}/` },
     { name: title, path: `/${currentLang}/cgv/` },

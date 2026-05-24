@@ -367,9 +367,20 @@ const faqSchema = {
     <meta name="application-name" content="Καλαμάκι Της Τρούμπας" />
     <meta name="msapplication-TileColor" content="#0a0a0a" />
     <link rel="canonical" href={Astro.url.href} />
-    <link rel="alternate" hreflang="el" href={new URL('/el/', origin).href} />
-    <link rel="alternate" hreflang="en" href={new URL('/en/', origin).href} />
-    <link rel="alternate" hreflang="x-default" href={new URL('/el/', origin).href} />
+    {/* hreflang dynamiques : on remplace le segment de langue dans le pathname courant
+        pour que chaque page (delivery, avis, cgv, mentions, privacy) ait son self-hreflang. */}
+    {(() => {
+      const path = Astro.url.pathname;
+      const pathEl = path.replace(/^\/(el|en)(\/|$)/, '/el$2');
+      const pathEn = path.replace(/^\/(el|en)(\/|$)/, '/en$2');
+      return (
+        <>
+          <link rel="alternate" hreflang="el" href={new URL(pathEl, origin).href} />
+          <link rel="alternate" hreflang="en" href={new URL(pathEn, origin).href} />
+          <link rel="alternate" hreflang="x-default" href={new URL(pathEl, origin).href} />
+        </>
+      );
+    })()}
     <link rel="manifest" href="/manifest.webmanifest" />
 
     <meta property="og:type" content="restaurant.restaurant" />
