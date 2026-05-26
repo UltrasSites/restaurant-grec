@@ -117,7 +117,7 @@ const links = [
 
 <div id="menu-overlay" class="menu-overlay fixed inset-0 z-[65] md:hidden"></div>
 
-<div id="menu-panel" class="menu-panel-drawer fixed z-[70] flex flex-col md:hidden touch-pan-y">
+<div id="menu-panel" class="menu-panel-drawer fixed z-[70] flex flex-col md:hidden touch-pan-y" aria-hidden="true" role="dialog" aria-modal="true">
     <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:12px auto;"></div>
     <button id="drawer-close-btn" type="button" style="position:absolute;top:14px;right:14px;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(229,179,42,0.18);border:1.5px solid rgba(229,179,42,0.55);color:#E5B32A;cursor:pointer;transition:transform .15s ease, background .2s ease;-webkit-tap-highlight-color:transparent;" aria-label="Κλείσιμο μενού" onmouseover="this.style.background='rgba(229,179,42,0.32)'" onmouseout="this.style.background='rgba(229,179,42,0.18)'" ontouchstart="this.style.transform='scale(0.92)'" ontouchend="this.style.transform='scale(1)'">
         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
@@ -194,30 +194,63 @@ const links = [
 
     const drawer = document.getElementById("menu-panel");
     const backdrop = document.getElementById("menu-overlay");
+    const drawerInner = document.getElementById("mobile-drawer-inner");
     const drawerLinks = document.querySelectorAll(".drawer-link");
     let drawerOpen = false;
+    let savedScrollY = 0;
 
-    // Methode propre : juste overflow:hidden, pas de position:fixed
-    // -> aucun saut visible ni perte de scroll. La page reste exactement ou elle est.
+    // Methode iOS-safe : position:fixed sur body avec scrollY preserve.
+    // overflow:hidden seul ne bloque PAS le scroll touch sur iOS Safari + plusieurs Android.
+    // Le swipe pour fermer le drawer ne doit JAMAIS scroller la page derriere.
     function lockBodyScroll() {
-        document.documentElement.style.overflow = "hidden";
+        savedScrollY = window.scrollY || window.pageYOffset || 0;
+        document.body.dataset.scrollY = String(savedScrollY);
+        document.body.style.position = "fixed";
+        document.body.style.top = `-${savedScrollY}px`;
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.width = "100%";
         document.body.style.overflow = "hidden";
         document.body.style.touchAction = "none";
+        document.documentElement.style.overflow = "hidden";
+        document.body.classList.add("drawer-open");
     }
     function unlockBodyScroll() {
-        document.documentElement.style.overflow = "";
+        const y = parseInt(document.body.dataset.scrollY || "0", 10);
+        document.body.classList.remove("drawer-open");
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.width = "";
         document.body.style.overflow = "";
         document.body.style.touchAction = "";
+        document.documentElement.style.overflow = "";
+        delete document.body.dataset.scrollY;
+        // Restaurer la position de scroll exacte (sans animation)
+        window.scrollTo(0, y);
     }
     function unlockBodyScrollNoRestore() {
-        unlockBodyScroll();
+        // Pour ancres internes : on laisse le browser scroller vers la cible
+        document.body.classList.remove("drawer-open");
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.width = "";
+        document.body.style.overflow = "";
+        document.body.style.touchAction = "";
+        document.documentElement.style.overflow = "";
+        delete document.body.dataset.scrollY;
     }
-    function openDrawer() { if (!drawer || !backdrop) return; drawerOpen = true; backdrop.classList.add("open"); drawer.classList.add("open"); lockBodyScroll(); }
-    function closeDrawer() { if (!drawer || !backdrop) return; drawerOpen = false; backdrop.classList.remove("open"); drawer.classList.remove("open"); unlockBodyScroll(); }
+    function openDrawer() { if (!drawer || !backdrop) return; drawerOpen = true; backdrop.classList.add("open"); drawer.classList.add("open"); drawer.setAttribute("aria-hidden", "false"); lockBodyScroll(); }
+    function closeDrawer() { if (!drawer || !backdrop) return; drawerOpen = false; backdrop.classList.remove("open"); drawer.classList.remove("open"); drawer.setAttribute("aria-hidden", "true"); unlockBodyScroll(); }
     const drawerCloseBtn = document.getElementById("drawer-close-btn");
     if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); closeDrawer(); });
     document.addEventListener("open-drawer", openDrawer);
     backdrop?.addEventListener("click", (e) => { if (drawerOpen) { e.preventDefault(); e.stopPropagation(); closeDrawer(); } });
+    // Bloquer tout touchmove sur le backdrop (safety net : empeche scroll page derriere)
+    backdrop?.addEventListener("touchmove", (e) => { if (drawerOpen) e.preventDefault(); }, { passive: false });
     // Esc key pour fermer
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && drawerOpen) closeDrawer(); });
     drawerLinks.forEach((l) => l.addEventListener("click", () => {
@@ -229,18 +262,22 @@ const links = [
         drawerOpen = false;
         backdrop?.classList.remove("open");
         drawer?.classList.remove("open");
+        drawer?.setAttribute("aria-hidden", "true");
         if (isAnchor) unlockBodyScrollNoRestore();
         else unlockBodyScroll();
     }));
 
     // Swipe down depuis n'importe où dans le drawer pour fermer
     let swipeStartY = 0;
+    let swipeStartScrollTop = 0;
     drawer?.addEventListener('touchstart', (e) => {
         swipeStartY = e.changedTouches[0].screenY;
+        swipeStartScrollTop = drawerInner?.scrollTop ?? 0;
     }, { passive: true });
     drawer?.addEventListener('touchend', (e) => {
         const delta = e.changedTouches[0].screenY - swipeStartY;
-        if (delta > 60 && drawerOpen) closeDrawer();
+        // Ne fermer que si le drawer interne est deja en haut (sinon on scrollait du contenu)
+        if (delta > 60 && drawerOpen && swipeStartScrollTop <= 0) closeDrawer();
     }, { passive: true });
 
     // Logo flottant mobile : fade-in apres avoir scrolle au-dela du hero

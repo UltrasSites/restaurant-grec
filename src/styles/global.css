@@ -170,6 +170,20 @@
     transform: translateY(0);
 }
 
+/* Empeche le scroll du drawer de se propager au body derriere */
+.menu-panel-drawer,
+#mobile-drawer-inner {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Body lock state quand drawer ouvert — securise iOS Safari + Android */
+body.drawer-open {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+    touch-action: none;
+}
+
 @layer utilities {
     .text-gold-premium {
         background: linear-gradient(to right,
