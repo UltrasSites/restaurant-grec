@@ -25,6 +25,23 @@ const title = isEl ? "Όροι χρήσης" : "Terms of service";
     { name: title, path: `/${currentLang}/cgv/` },
   ]}
 >
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'DigitalDocument',
+    name: `${title} — Το Καλαμάκι Της Τρούμπας`,
+    description: isEl
+      ? 'Όροι χρήσης και πολιτική παραγγελιών για το Καλαμάκι Της Τρούμπας — Πειραιάς.'
+      : 'Terms of service and ordering policy for Trouba Souvlaki — Piraeus.',
+    inLanguage: currentLang,
+    url: `https://kalamakitroubas.gr/${currentLang}/cgv/`,
+    about: 'Terms of service — Trouba Souvlaki online ordering',
+    publisher: {
+      '@type': 'Restaurant',
+      name: 'Το Καλαμάκι Της Τρούμπας',
+      url: 'https://kalamakitroubas.gr',
+      address: { '@type': 'PostalAddress', addressLocality: 'Πειραιάς', addressCountry: 'GR' },
+    },
+  })} />
   <section class="bg-[#0a0a0a] pt-32 pb-24 px-6">
     <div class="max-w-3xl mx-auto">
       <h1 class="text-3xl md:text-4xl font-serif italic text-white mb-8">{title}</h1>

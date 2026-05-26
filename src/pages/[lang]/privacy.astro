@@ -34,6 +34,23 @@ const title = TITLES[param] || TITLES.el;
     { name: title, path: `/${layoutLang}/privacy/` },
   ]}
 >
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'DigitalDocument',
+    name: `${title} — Το Καλαμάκι Της Τρούμπας`,
+    description: isEl
+      ? 'Πολιτική απορρήτου και προστασίας προσωπικών δεδομένων (GDPR) για το Καλαμάκι Της Τρούμπας.'
+      : 'Privacy policy and personal data protection (GDPR) for Trouba Souvlaki — Piraeus.',
+    inLanguage: layoutLang,
+    url: `https://kalamakitroubas.gr/${layoutLang}/privacy/`,
+    about: 'Privacy policy — Trouba Souvlaki (GDPR compliant)',
+    publisher: {
+      '@type': 'Restaurant',
+      name: 'Το Καλαμάκι Της Τρούμπας',
+      url: 'https://kalamakitroubas.gr',
+      address: { '@type': 'PostalAddress', addressLocality: 'Πειραιάς', addressCountry: 'GR' },
+    },
+  })} />
   <section class="bg-[#0a0a0a] pt-32 pb-24 px-6">
     <div class="max-w-3xl mx-auto">
       <h1 class="text-3xl md:text-4xl font-serif italic text-white mb-8">{title}</h1>
