@@ -1,6 +1,8 @@
 ---
 // Σελίδα ταμείου — για τον υπάλληλο / το αφεντικό (στα ελληνικά).
 // Δεν συνδέεται με το i18n του δημόσιου site.
+import CashdNav from "../../components/cashd/CashdNav.astro";
+import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
 ---
 <!doctype html>
 <html lang="el">
@@ -11,6 +13,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Ταμείο — Καλαμάκι Της Τρούμπας</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <CashdAuthScript />
   <style>
     :root { --gold: #E5B32A; --bg: #0a0a0a; }
     * { box-sizing: border-box; }
@@ -18,7 +21,16 @@
     body { overflow-x: hidden; }
 
     /* ====== LOGIN ====== */
-    .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+    .login-wrap {
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 2rem;
+      margin-left: -220px; /* compense le padding-left du body desktop */
+    }
+    @media (max-width: 768px) {
+      .login-wrap { margin-left: 0; margin-top: -52px; }
+    }
     .login-box {
       width: 100%; max-width: 380px;
       background: #111; border: 1px solid rgba(229,179,42,0.3);
@@ -33,12 +45,12 @@
       margin-bottom: 1rem;
     }
     .login-box input:focus { outline: none; border-color: var(--gold); }
-    .login-box button {
+    .login-box button[type="submit"] {
       width: 100%; padding: 0.9rem; background: var(--gold); color: #000;
       border: none; border-radius: 0.5rem; font-weight: 800; font-size: 0.95rem;
       letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
     }
-    .login-box button:hover { background: #fff; }
+    .login-box button[type="submit"]:hover { background: #fff; }
     .login-error { color: #ef4444; font-size: 0.85rem; margin-top: 0.75rem; text-align: center; }
 
     /* ====== DASHBOARD ====== */
@@ -163,6 +175,21 @@
       background: #111; border: 1px solid rgba(229,179,42,0.4);
       border-radius: 1rem; padding: 1.5rem;
       box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+      position: relative;
+    }
+    .modal-close-x {
+      position: absolute; top: 0.5rem; right: 0.5rem;
+      width: 40px; height: 40px;
+      background: transparent; color: rgba(255,255,255,0.6);
+      border: none; font-size: 1.5rem; cursor: pointer;
+      border-radius: 50%; transition: all 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+      z-index: 2;
+    }
+    .modal-close-x:hover { background: rgba(239,68,68,0.15); color: #ef4444; }
+    @media (max-width: 768px) {
+      .modal-close-x { width: 48px; height: 48px; font-size: 1.75rem; top: 0.75rem; right: 0.75rem; }
     }
     .modal h2 {
       margin: 0 0 0.5rem; color: var(--gold);
@@ -469,6 +496,30 @@
     }
     .history-btn:hover { background: rgba(229,179,42,0.12); }
 
+    /* Prominent "New order" CTA in the dashboard topbar */
+    .new-order-cta {
+      padding: 0.55rem 0.95rem; font-size: 0.85rem;
+      background: linear-gradient(135deg, #E5B32A 0%, #c89518 100%);
+      color: #0a0a0a;
+      border: 1px solid #E5B32A;
+      border-radius: 0.45rem;
+      font-weight: 800; letter-spacing: 0.05em;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      box-shadow: 0 4px 14px rgba(229,179,42,0.35);
+      transition: transform 0.12s ease, box-shadow 0.18s ease;
+    }
+    .new-order-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(229,179,42,0.55);
+      background: linear-gradient(135deg, #f7c64a 0%, #E5B32A 100%);
+    }
+    .new-order-cta:active { transform: scale(0.97); }
+    @media (max-width: 768px) {
+      .new-order-cta { padding: 0.45rem 0.65rem; font-size: 0.78rem; }
+      .new-order-cta .new-order-label { display: none; }
+    }
+
     .lang-toggle {
       padding: 0.5rem 0.7rem; font-size: 0.8rem;
       background: #222; color: #ccc; border: 1px solid rgba(255,255,255,0.1);
@@ -479,21 +530,532 @@
     .lang-toggle:hover { background: #333; }
     .lang-toggle img { width: 14px; height: 10px; display: inline-block; object-fit: cover; border-radius: 2px; }
 
-    @media (max-width: 900px) {
-      .columns { grid-template-columns: 1fr; }
+    /* ====== MOBILE TABS (hidden on desktop) ====== */
+    .mobile-tabs { display: none; }
+    .tablet-drawer-handle { display: none; }
+
+    /* ====== TABLET (769-1199px) : 2 cols + history drawer ====== */
+    @media (max-width: 1199px) and (min-width: 769px) {
+      .columns {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        position: relative;
+      }
+      .col-history {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        max-height: 60vh;
+        transform: translateY(calc(100% - 3rem));
+        transition: transform 0.3s ease;
+        background: #0a0a0a;
+        border-top: 2px solid rgba(229,179,42,0.45);
+        box-shadow: 0 -16px 40px rgba(0,0,0,0.6);
+        padding: 0.5rem 1rem 1rem;
+        z-index: 20;
+        margin: 0;
+      }
+      .col-history.drawer-open {
+        transform: translateY(0);
+      }
+      .col-history .col-head {
+        cursor: pointer;
+        margin-bottom: 0.5rem;
+      }
+      .col-history .col-head::after {
+        content: '▲';
+        font-size: 0.7rem;
+        margin-left: 0.5rem;
+        transition: transform 0.2s;
+      }
+      .col-history.drawer-open .col-head::after {
+        transform: rotate(180deg);
+        display: inline-block;
+      }
+      .col-history .col-body { max-height: calc(60vh - 6rem); }
+      .orders-area { padding-bottom: 4rem; }
     }
-    @media (max-width: 700px) {
-      .topbar { padding: 0.85rem 1rem; }
-      .topbar h1 { font-size: 0.95rem; }
-      .order-id { font-size: 1.9rem; }
-      .order-meta .name { font-size: 1.15rem; }
-      .order-items li { font-size: 1rem; }
-      .btn-action { font-size: 1.05rem; padding: 1rem 0.5rem; }
-      .btn-prepare { font-size: 1.2rem; padding: 1.25rem 0.5rem; }
+
+    /* ====== MOBILE (≤768px) : tabs + 1 screen ====== */
+    @media (max-width: 768px) {
+      html, body { height: 100%; overflow: hidden; }
+      .dashboard.show { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+      .topbar {
+        padding: 0.5rem 0.6rem;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        position: relative;
+      }
+      .topbar h1 {
+        font-size: 0.8rem;
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .topbar .status {
+        font-size: 0.7rem;
+        gap: 0.3rem;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .topbar .status .clock { font-size: 0.75rem; }
+      .topbar .status .sound-select { max-width: 140px; padding: 0.4rem 0.5rem; font-size: 0.72rem; }
+      .topbar .status .sound-test,
+      .topbar .status .sound-toggle,
+      .topbar .status .lang-toggle,
+      .topbar .status .history-btn {
+        padding: 0.4rem 0.55rem; font-size: 0.72rem; min-height: 36px;
+      }
+      /* Empêche tout débordement horizontal sur mobile */
+      .dashboard, .orders-area, .columns, .topbar, .topbar .status { max-width: 100vw; min-width: 0; }
+      .topbar .status { flex: 1 1 100%; min-width: 0; }
+
+      .mobile-tabs {
+        display: flex;
+        gap: 0.35rem;
+        padding: 0.5rem;
+        background: #000;
+        border-bottom: 2px solid rgba(229,179,42,0.3);
+        position: sticky; top: 0; z-index: 9;
+      }
+      .mobile-tab {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.15rem;
+        padding: 0.55rem 0.4rem;
+        min-height: 52px;
+        background: #181818;
+        border: 2px solid rgba(255,255,255,0.08);
+        border-radius: 0.6rem;
+        color: #888;
+        font-weight: 800;
+        font-size: 0.72rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.15s;
+      }
+      .mobile-tab .tab-count {
+        display: inline-block;
+        min-width: 1.4rem;
+        padding: 0.05rem 0.4rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 900;
+        background: rgba(0,0,0,0.45);
+      }
+      .mobile-tab.tab-pending.active {
+        background: rgba(239,68,68,0.18);
+        border-color: rgba(239,68,68,0.65);
+        color: #fca5a5;
+      }
+      .mobile-tab.tab-prep.active {
+        background: rgba(229,179,42,0.18);
+        border-color: rgba(229,179,42,0.65);
+        color: var(--gold);
+      }
+      .mobile-tab.tab-history.active {
+        background: rgba(148,163,184,0.15);
+        border-color: rgba(148,163,184,0.55);
+        color: #cbd5e1;
+      }
+      .mobile-tab.has-orders.tab-pending:not(.active) {
+        border-color: rgba(239,68,68,0.5);
+        color: #fca5a5;
+        animation: pulse-tab-red 1.4s ease-in-out infinite;
+      }
+      @keyframes pulse-tab-red {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
+        50%      { box-shadow: 0 0 0 4px rgba(239,68,68,0); }
+      }
+
+      .orders-area {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+      }
+      .columns {
+        grid-template-columns: 1fr;
+        gap: 0;
+        flex: 1;
+        min-height: 0;
+        max-width: 100%;
+      }
+      .column {
+        display: none;
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+      }
+      .column.active {
+        display: flex;
+      }
+      .col-history { max-height: none; }
+      .column .col-head { display: none; }
+      .column #list-pending,
+      .column #list-prep {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0.25rem 0.1rem 5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+      }
+      .col-history .col-body {
+        flex: 1;
+        max-height: none;
+        padding: 0.5rem 0.3rem 5rem;
+      }
+      .col-history .history-actions {
+        margin-bottom: 0.5rem;
+      }
+
+      /* Cartes mobile */
+      .order-card {
+        padding: 0.85rem 0.85rem;
+        border-radius: 0.85rem;
+      }
+      .order-head { gap: 0.5rem; margin-bottom: 0.6rem; }
+      .order-id { font-size: 1.6rem; }
+      .order-meta { font-size: 0.85rem; }
+      .order-meta .name { font-size: 1.05rem; }
+      .order-mode-row { gap: 0.3rem; margin-bottom: 0.6rem; }
+      .pill { font-size: 0.78rem; padding: 0.25rem 0.6rem; }
+      .order-pickup { font-size: 0.85rem; padding: 0.3rem 0.7rem; margin-bottom: 0.6rem; }
+      .delivery-box { padding: 0.6rem 0.7rem; margin-bottom: 0.6rem; }
+      .delivery-box .deliv-addr { font-size: 1rem; }
+      .order-items { padding: 0.55rem 0.7rem; margin-bottom: 0.6rem; }
+      .order-items li { font-size: 0.95rem; gap: 0.6rem; }
+      .order-items .qty { min-width: 2rem; font-size: 0.85rem; }
+      .order-total { font-size: 1.15rem; }
+      .order-total span:first-child { font-size: 0.85rem; }
+
+      /* Boutons d'action - mini 48px iOS target */
+      .actions { gap: 0.5rem; margin-bottom: 0.75rem; }
+      .btn-action {
+        min-height: 52px;
+        font-size: 1rem;
+        padding: 0.85rem 0.4rem;
+        letter-spacing: 0.04em;
+      }
+      .btn-prepare { font-size: 1.15rem; padding: 1.05rem 0.4rem; min-height: 58px; }
+      .actions[style*="1fr 1fr 1fr"] {
+        grid-template-columns: 1fr 1fr 1fr !important;
+        gap: 0.35rem !important;
+      }
+      .actions[style*="1fr 1fr 1fr"] .btn-action {
+        font-size: 0.78rem;
+        padding: 0.75rem 0.25rem;
+        letter-spacing: 0.02em;
+        min-height: 48px;
+      }
+
+      /* Chat compact */
+      .chat-toggle { min-height: 44px; padding: 0.6rem 0.75rem; font-size: 0.85rem; }
+      .chat-messages { max-height: 180px; }
+      .chat-input-row input { min-height: 44px; }
+      .chat-input-row button { min-height: 44px; padding: 0.6rem 0.85rem; }
+
+      /* History rows compactes mobile */
+      .hist-row {
+        grid-template-columns: 1fr auto;
+        gap: 0.4rem;
+        padding: 0.5rem 0.6rem;
+        font-size: 0.8rem;
+      }
+      .hist-row > div:nth-child(2) { grid-column: 1 / -1; }
+      .hist-row > div:nth-child(3) { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+      .hist-row .h-actions { margin-top: 0; }
+      .hist-row .h-act { width: 44px; height: 44px; font-size: 1.1rem; }
+
+      /* MODALS FULLSCREEN MOBILE */
+      .modal-back {
+        padding: 0;
+        align-items: stretch;
+        justify-content: stretch;
+      }
+      .modal {
+        width: 100%; max-width: none;
+        max-height: 100vh; max-height: 100dvh;
+        height: 100%;
+        border-radius: 0;
+        border: none;
+        padding: 1.25rem 1rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+      .modal h2 { font-size: 1.25rem; padding-top: 0.5rem; }
+      .modal .modal-sub { font-size: 0.95rem; margin-bottom: 1.25rem; }
+      .modal .time-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+      }
+      .modal .time-btn {
+        padding: 1.5rem 0.5rem;
+        font-size: 1.4rem;
+        min-height: 64px;
+      }
+      .modal .custom-row input { min-height: 52px; font-size: 1.1rem; }
+      .modal .custom-row button { min-height: 52px; padding: 0.85rem 1.4rem; font-size: 1.2rem; }
+      .modal .reason-row input { min-height: 48px; }
+      .modal .modal-actions {
+        margin-top: auto;
+        padding-top: 1.5rem;
+      }
+      .modal .btn-cancel {
+        flex: 1;
+        min-height: 52px;
+        font-size: 1rem;
+        padding: 0.85rem 1.2rem;
+      }
+
+      /* Login mobile */
+      .login-box { padding: 1.5rem 1.25rem; }
+      .login-box input { min-height: 48px; }
+      .login-box button { min-height: 52px; font-size: 1rem; }
     }
+
+    /* iPhone safe-area */
+    @supports (padding: env(safe-area-inset-bottom)) {
+      @media (max-width: 768px) {
+        .orders-area { padding-bottom: env(safe-area-inset-bottom); }
+        .column #list-pending,
+        .column #list-prep,
+        .col-history .col-body {
+          padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+        }
+      }
+    }
+
+    /* ====== BOUTON REFUSER (sur cartes pending) ====== */
+    .btn-decline {
+      background: linear-gradient(180deg, #6b7280 0%, #4b5563 100%);
+      box-shadow: 0 8px 22px rgba(75,85,99,0.45);
+      color: #fff;
+      border: 1px solid rgba(239,68,68,0.35);
+    }
+    .btn-decline:hover { background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); box-shadow: 0 12px 28px rgba(239,68,68,0.5); }
+
+    /* ====== HEADER MSG BADGE (icone messages non-lus globaux) ====== */
+    .msg-icon-btn {
+      position: relative;
+      padding: 0.5rem 0.7rem; font-size: 0.95rem;
+      background: #1a1a1a; color: var(--gold);
+      border: 1px solid rgba(229,179,42,0.45);
+      border-radius: 0.4rem; cursor: pointer;
+      font-weight: 700;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 0.35rem;
+    }
+    .msg-icon-btn:hover { background: rgba(229,179,42,0.12); }
+    .msg-icon-btn .global-unread {
+      position: absolute; top: -6px; right: -6px;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      background: #ef4444; color: #fff;
+      border-radius: 999px; font-size: 0.65rem; font-weight: 900;
+      display: inline-flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 8px rgba(239,68,68,0.6);
+      animation: badge-pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes badge-pulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.18); }
+    }
+    .msg-icon-btn .global-unread.hidden { display: none; }
+
+    /* ====== ONGLETS CHAT FLOTTANTS (Messenger-style) ====== */
+    .chat-tabs-host {
+      position: fixed; bottom: 0; right: 1rem;
+      z-index: 80;
+      display: flex; flex-direction: row-reverse;
+      gap: 0.6rem;
+      align-items: flex-end;
+      pointer-events: none;
+    }
+    .chat-tabs-host > .ftab { pointer-events: auto; }
+
+    .ftab {
+      width: 300px;
+      background: #0c0c0c;
+      border: 1px solid rgba(229,179,42,0.4);
+      border-bottom: none;
+      border-radius: 0.7rem 0.7rem 0 0;
+      box-shadow: 0 -8px 32px rgba(0,0,0,0.55);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      max-height: 480px;
+      transition: max-height 0.22s ease, transform 0.22s ease;
+    }
+    .ftab.min { max-height: 48px; }
+    .ftab.min .ftab-body, .ftab.min .ftab-foot { display: none; }
+
+    .ftab-head {
+      height: 48px; flex-shrink: 0;
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0 0.65rem;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+      border-bottom: 1px solid rgba(229,179,42,0.3);
+      cursor: pointer;
+      position: relative;
+    }
+    .ftab-head .av {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold) 0%, #8a6a14 100%);
+      color: #000; font-weight: 900; font-size: 0.85rem;
+      display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ftab-head .who { flex: 1; min-width: 0; line-height: 1.15; }
+    .ftab-head .who .nm { color: #fff; font-weight: 800; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ftab-head .who .id { color: var(--gold); font-size: 0.7rem; font-weight: 700; opacity: 0.9; }
+    .ftab-head .ftab-unread {
+      min-width: 18px; height: 18px; padding: 0 5px;
+      background: #ef4444; color: #fff;
+      border-radius: 999px; font-size: 0.65rem; font-weight: 900;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ftab-head .ftab-unread.hidden { display: none; }
+    .ftab-head .ftab-min, .ftab-head .ftab-close {
+      width: 28px; height: 28px;
+      background: transparent; color: rgba(255,255,255,0.65);
+      border: none; cursor: pointer; font-size: 1rem;
+      border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .ftab-head .ftab-min:hover, .ftab-head .ftab-close:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .ftab-head .ftab-close:hover { color: #ef4444; background: rgba(239,68,68,0.15); }
+
+    .ftab-body {
+      flex: 1; overflow-y: auto;
+      padding: 0.7rem 0.6rem;
+      display: flex; flex-direction: column; gap: 0.25rem;
+      background: #0a0a0a;
+      min-height: 200px;
+    }
+    .ftab-body .b-wrap { display: flex; flex-direction: column; max-width: 100%; }
+    .ftab-body .b-wrap.from-patron { align-items: flex-end; }
+    .ftab-body .b-wrap.from-client { align-items: flex-start; }
+    .ftab-body .b-wrap.from-system { align-items: center; }
+    .ftab-body .bubble {
+      max-width: 80%;
+      padding: 7px 11px; line-height: 1.35; font-size: 0.86rem;
+      word-wrap: break-word; margin-bottom: 3px;
+    }
+    .ftab-body .bubble.from-client {
+      background: #1f1f1f; color: #fff;
+      border-radius: 18px 18px 18px 4px;
+    }
+    .ftab-body .bubble.from-patron {
+      background: linear-gradient(135deg, #E5B32A 0%, #c89518 100%);
+      color: #000;
+      border-radius: 18px 18px 4px 18px;
+      font-weight: 600;
+    }
+    .ftab-body .bubble.from-system {
+      background: rgba(255,255,255,0.05); color: #aaa; font-style: italic; font-size: 0.74rem;
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 12px; max-width: 92%; text-align: center;
+    }
+    .ftab-body .b-time { color: #666; font-size: 9px; margin: 1px 4px 6px; }
+    .ftab-body .ftab-loader { text-align: center; color: #555; padding: 1rem; font-size: 0.85rem; }
+
+    .ftab-foot {
+      padding: 0.45rem 0.55rem 0.6rem;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      background: #0c0c0c;
+    }
+    .ftab-templates {
+      display: flex; gap: 0.3rem; overflow-x: auto;
+      padding-bottom: 0.4rem;
+      scrollbar-width: none;
+    }
+    .ftab-templates::-webkit-scrollbar { display: none; }
+    .ftab-templates .tpl {
+      padding: 0.3rem 0.55rem;
+      background: rgba(229,179,42,0.1); color: #E5B32A;
+      border: 1px solid rgba(229,179,42,0.3); border-radius: 999px;
+      font-size: 0.72rem; font-weight: 700; white-space: nowrap;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .ftab-templates .tpl:hover { background: rgba(229,179,42,0.22); color: #fff; }
+
+    .ftab-input-row { display: flex; gap: 0.35rem; align-items: center; }
+    .ftab-input-row input {
+      flex: 1; padding: 0.55rem 0.8rem;
+      background: #1a1a1a; color: #fff;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px; font-size: 0.88rem;
+      min-height: 36px;
+    }
+    .ftab-input-row input:focus { outline: none; border-color: rgba(229,179,42,0.5); }
+    .ftab-input-row .send {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, #E5B32A 0%, #b8901c 100%);
+      color: #000; border: none; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 0.95rem; font-weight: 800;
+    }
+    .ftab-input-row .send:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    @media (max-width: 768px) {
+      .chat-tabs-host {
+        left: 0; right: 0; bottom: 0; padding: 0;
+        flex-direction: column;
+      }
+      .ftab {
+        width: 100%;
+        max-height: 100dvh; height: 100dvh;
+        border-radius: 0; border: none;
+      }
+      .ftab.min {
+        height: 48px; max-height: 48px;
+        border-top: 1px solid rgba(229,179,42,0.35);
+      }
+      /* On n'affiche qu'un seul onglet ouvert plein-ecran sur mobile, et empile les autres minimises au-dessus */
+      .chat-tabs-host:not(.has-open) .ftab { display: none; }
+      .chat-tabs-host:not(.has-open) .ftab.min { display: flex; }
+      .chat-tabs-host.has-open .ftab.min {
+        position: fixed; left: 0; right: 0; top: 0;
+        z-index: 81;
+        border-top: none; border-bottom: 1px solid rgba(229,179,42,0.35);
+      }
+    }
+
+    /* ====== MODAL DECLINE (raison optionnelle) ====== */
+    .decline-modal { max-width: 460px; }
+    .decline-modal .reason-row { margin-bottom: 0.85rem; }
+    .decline-modal .reason-row input {
+      width: 100%; padding: 0.75rem 0.85rem;
+      background: #000; color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      border-radius: 0.5rem; font-size: 0.95rem;
+    }
+    .decline-modal .reason-row input:focus { outline: none; border-color: #ef4444; }
+    .decline-modal .modal-actions { display: flex; gap: 0.6rem; }
+    .decline-modal .btn-ok-decline {
+      flex: 1; padding: 0.85rem 1rem;
+      background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); color: #fff;
+      border: none; border-radius: 0.5rem; font-weight: 800; cursor: pointer;
+      letter-spacing: 0.05em;
+    }
+    .decline-modal .btn-ok-decline:hover { box-shadow: 0 8px 22px rgba(239,68,68,0.5); }
+    .decline-modal .btn-cancel { flex: 0 0 40%; }
   </style>
 </head>
 <body>
+
+  <CashdNav />
 
   <!-- LOGIN SCREEN -->
   <div id="login-screen" class="login-wrap" style="display:none;">
@@ -513,20 +1075,35 @@
   <!-- DASHBOARD -->
   <div id="dashboard" class="dashboard">
     <div class="topbar">
-      <h1 id="topbar-title">📟 ΚΑΛΑΜΑΚΙ — ΤΑΜΕΙΟ</h1>
+      <h1 id="topbar-title">📡 ΚΑΛΑΜΑΚΙ — ΠΙΝΑΚΑΣ</h1>
       <div class="status" id="conn-status">
         <span class="dot"></span>
         <span class="clock" id="clock">--:--</span>
+        <a href="/cashd/pos" class="new-order-cta" title="Καταχώρηση πώλησης στο κατάστημα">🆕 <span class="new-order-label">Νέα παραγγελία</span></a>
         <button type="button" id="lang-toggle" class="lang-toggle" aria-label="Language"></button>
-        <a href="/cashd/pos" class="history-btn" title="Ταμείο POS (in-store)">🧾 POS</a>
+        <a href="/cashd/messages" id="global-msg-btn" class="msg-icon-btn" title="Όλα τα μηνύματα">💬<span id="global-unread-badge" class="global-unread hidden">0</span></a>
         <select id="sound-select" class="sound-select" aria-label="Ήχος ειδοποίησης"></select>
         <button type="button" id="sound-test" class="sound-test" title="Test">🔊 Test</button>
         <button type="button" id="sound-toggle" class="sound-toggle" aria-pressed="false"></button>
       </div>
     </div>
+    <nav class="mobile-tabs" id="mobile-tabs" aria-label="Sections">
+      <button type="button" class="mobile-tab tab-pending active" data-tab="pending">
+        <span id="mtab-pending-label">🔴 Σε αναμονή</span>
+        <span class="tab-count" id="mtab-pending-count">0</span>
+      </button>
+      <button type="button" class="mobile-tab tab-prep" data-tab="prep">
+        <span id="mtab-prep-label">🟡 Σε προετ.</span>
+        <span class="tab-count" id="mtab-prep-count">0</span>
+      </button>
+      <button type="button" class="mobile-tab tab-history" data-tab="history">
+        <span id="mtab-history-label">📋 Ιστορικό</span>
+        <span class="tab-count" id="mtab-history-count">0</span>
+      </button>
+    </nav>
     <div class="orders-area">
       <div class="columns">
-        <section class="column col-pending">
+        <section class="column col-pending active" data-col="pending">
           <div class="col-head">
             <span id="col-pending-title">Σε αναμονή</span>
             <span class="count" id="col-pending-count">0</span>
@@ -534,7 +1111,7 @@
           <div id="list-pending"></div>
           <div id="empty-pending" class="col-empty"></div>
         </section>
-        <section class="column col-prep">
+        <section class="column col-prep" data-col="prep">
           <div class="col-head">
             <span id="col-prep-title">Σε προετοιμασία</span>
             <span class="count" id="col-prep-count">0</span>
@@ -542,8 +1119,8 @@
           <div id="list-prep"></div>
           <div id="empty-prep" class="col-empty"></div>
         </section>
-        <section class="column col-history">
-          <div class="col-head">
+        <section class="column col-history" data-col="history">
+          <div class="col-head" id="col-history-head">
             <span id="col-history-title">Ιστορικό</span>
             <span class="count" id="col-history-count">0</span>
           </div>
@@ -560,7 +1137,8 @@
   <!-- POPUP : Accepter commande avec temps -->
   <div id="accept-modal" class="modal-back" role="dialog" aria-modal="true">
     <div class="modal">
-      <h2 id="accept-title">Accepter la commande</h2>
+      <button type="button" class="modal-close-x" id="accept-close-x" aria-label="Κλείσιμο">×</button>
+      <h2 id="accept-title">Αποδοχή παραγγελίας</h2>
       <p class="modal-sub" id="accept-sub"></p>
       <div class="time-grid" id="accept-grid">
         <button type="button" class="time-btn" data-min="10">10 min</button>
@@ -575,15 +1153,35 @@
         <button type="button" id="accept-custom-go">✓</button>
       </div>
       <div class="modal-actions">
-        <button type="button" id="accept-cancel" class="btn-cancel">Annuler</button>
+        <button type="button" id="accept-cancel" class="btn-cancel">Άκυρο</button>
       </div>
     </div>
   </div>
 
+  <!-- POPUP : Refuser commande (raison optionnelle) -->
+  <div id="decline-modal" class="modal-back" role="dialog" aria-modal="true">
+    <div class="modal decline-modal">
+      <button type="button" class="modal-close-x" id="decline-close-x" aria-label="Κλείσιμο">×</button>
+      <h2 id="decline-title">Απόρριψη παραγγελίας</h2>
+      <p class="modal-sub" id="decline-sub"></p>
+      <div class="reason-row">
+        <input type="text" id="decline-reason" maxlength="120" placeholder="" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="decline-cancel" class="btn-cancel">Άκυρο</button>
+        <button type="button" id="decline-confirm" class="btn-ok-decline">Απόρριψη</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Onglets chat flottants (Messenger-style) -->
+  <div id="chat-tabs-host" class="chat-tabs-host"></div>
+
   <!-- POPUP : Modifier ETA -->
   <div id="eta-modal" class="modal-back" role="dialog" aria-modal="true">
     <div class="modal">
-      <h2 id="eta-title">Modifier le temps</h2>
+      <button type="button" class="modal-close-x" id="eta-close-x" aria-label="Κλείσιμο">×</button>
+      <h2 id="eta-title">Νέος χρόνος</h2>
       <p class="modal-sub" id="eta-sub"></p>
       <div class="time-grid" id="eta-grid">
         <button type="button" class="time-btn" data-delta="+5">+5 min</button>
@@ -601,7 +1199,7 @@
         <input type="text" id="eta-reason" maxlength="120" placeholder="" />
       </div>
       <div class="modal-actions">
-        <button type="button" id="eta-cancel" class="btn-cancel">Annuler</button>
+        <button type="button" id="eta-cancel" class="btn-cancel">Άκυρο</button>
       </div>
     </div>
   </div>
@@ -617,13 +1215,17 @@
         loginBtn: 'Σύνδεση',
         loginErrorDefault: 'Σφάλμα',
         loginErrorWrong: 'Λάθος κωδικός',
-        topbarTitle: '📟 ΚΑΛΑΜΑΚΙ — ΤΑΜΕΙΟ',
+        topbarTitle: '📡 ΚΑΛΑΜΑΚΙ — ΠΙΝΑΚΑΣ',
+        newOrderLabel: 'Νέα παραγγελία',
         soundOn: '🔊 ΗΧΟΣ',
         soundOff: '🔇 ΣΙΓΗ',
         historyLabel: 'Ιστορικό',
         colPendingTitle: 'Σε αναμονή',
         colPrepTitle: 'Σε προετοιμασία',
         colHistoryTitle: 'Ιστορικό',
+        mtabPending: '🔴 Σε αναμονή',
+        mtabPrep: '🟡 Σε προετ.',
+        mtabHistory: '📋 Ιστορικό',
         emptyPending: 'Καμία νέα παραγγελία.',
         emptyPrep: 'Καμία παραγγελία σε προετοιμασία.',
         emptyHistory: 'Κανένα ιστορικό.',
@@ -641,10 +1243,21 @@
         receivedAt: 'Ώρα παραλαβής:',
         total: 'ΣΥΝΟΛΟ',
         btnPrepare: 'Αποδοχή',
+        btnDecline: 'Απόρριψη',
         btnReady: 'Έτοιμο',
         btnPaid: 'Πληρώθηκε',
         btnEta: '⏱ Νέος χρόνος',
         actionError: 'Σφάλμα: ',
+        declineTitle: 'Απόρριψη παραγγελίας',
+        declineSub: 'Ο πελάτης θα ειδοποιηθεί.',
+        declineReasonPh: 'Λόγος (προαιρετικό) - π.χ. κλειστά σήμερα',
+        declineConfirm: 'Απόρριψη',
+        declineSystemMsg: 'Δυστυχώς, η παραγγελία απορρίφθηκε.',
+        msgTitle: 'Όλα τα μηνύματα',
+        chatAccepted: 'Παραγγελία αποδέχθηκε. Έτοιμη σε λίγα λεπτά. Σας ευχαριστούμε!',
+        chatLoading: 'Φόρτωση…',
+        chatEmpty: 'Κανένα μήνυμα ακόμη.',
+        chatPlaceholderShort: 'Μήνυμα...',
         min: 'λεπτά',
         hour: 'ώρα',
         // Popups
@@ -682,13 +1295,17 @@
         loginBtn: 'Sign in',
         loginErrorDefault: 'Error',
         loginErrorWrong: 'Wrong password',
-        topbarTitle: '📟 KALAMAKI — CHECKOUT',
+        topbarTitle: '📡 KALAMAKI — DASHBOARD',
+        newOrderLabel: 'New order',
         soundOn: '🔊 SOUND',
         soundOff: '🔇 MUTE',
         historyLabel: 'History',
         colPendingTitle: 'Pending',
         colPrepTitle: 'Preparing',
         colHistoryTitle: 'History',
+        mtabPending: '🔴 Pending',
+        mtabPrep: '🟡 Preparing',
+        mtabHistory: '📋 History',
         emptyPending: 'No pending orders.',
         emptyPrep: 'No orders being prepared.',
         emptyHistory: 'No history yet.',
@@ -706,10 +1323,21 @@
         receivedAt: 'Pickup time:',
         total: 'TOTAL',
         btnPrepare: 'Accept',
+        btnDecline: 'Decline',
         btnReady: 'Ready',
         btnPaid: 'Paid',
         btnEta: '⏱ Change ETA',
         actionError: 'Error: ',
+        declineTitle: 'Decline order',
+        declineSub: 'The customer will be notified.',
+        declineReasonPh: 'Reason (optional) - e.g. closed today',
+        declineConfirm: 'Decline',
+        declineSystemMsg: 'Sorry, the order has been declined.',
+        msgTitle: 'All messages',
+        chatAccepted: 'Order accepted. Ready shortly. Thank you!',
+        chatLoading: 'Loading…',
+        chatEmpty: 'No messages yet.',
+        chatPlaceholderShort: 'Message...',
         min: 'min',
         hour: 'h',
         acceptTitle: 'Accept order',
@@ -754,7 +1382,7 @@
     var t = I18N[lang] || I18N.el;
 
     function flagSvg(code) {
-      return '<img src="/flags/' + code + '.svg" alt="" />';
+      return '<img src="/flags/' + code + '.svg" alt="" width="14" height="10" style="width:14px;height:10px;display:inline-block;object-fit:cover;border-radius:2px;vertical-align:middle;" />';
     }
     function applyI18n() {
       // Login screen
@@ -775,12 +1403,22 @@
       var histRefreshBtn = document.getElementById('hist-refresh');
       var histPrintAllBtn = document.getElementById('hist-print-all');
       if (topbarTitle) topbarTitle.textContent = t.topbarTitle;
+      // New order CTA label
+      var newOrderLabelEl = document.querySelector('.new-order-cta .new-order-label');
+      if (newOrderLabelEl && t.newOrderLabel) newOrderLabelEl.textContent = t.newOrderLabel;
       if (langToggle) langToggle.innerHTML = (lang === 'el' ? flagSvg('gr') + 'EL' : flagSvg('gb') + 'EN');
       if (colPendingTitle) colPendingTitle.textContent = t.colPendingTitle;
       if (colPrepTitle) colPrepTitle.textContent = t.colPrepTitle;
       if (colHistoryTitle) colHistoryTitle.textContent = t.colHistoryTitle;
       if (histRefreshBtn) histRefreshBtn.textContent = t.histRefresh;
       if (histPrintAllBtn) histPrintAllBtn.textContent = t.histPrintAll;
+      // Mobile tabs labels
+      var mtabPendingLabel = document.getElementById('mtab-pending-label');
+      var mtabPrepLabel = document.getElementById('mtab-prep-label');
+      var mtabHistoryLabel = document.getElementById('mtab-history-label');
+      if (mtabPendingLabel) mtabPendingLabel.textContent = t.mtabPending;
+      if (mtabPrepLabel) mtabPrepLabel.textContent = t.mtabPrep;
+      if (mtabHistoryLabel) mtabHistoryLabel.textContent = t.mtabHistory;
       // Popups
       var aTitle = document.getElementById('accept-title');
       var aSub = document.getElementById('accept-sub');
@@ -798,6 +1436,19 @@
       if (eCustom) eCustom.placeholder = t.etaCustomPh;
       if (eReason) eReason.placeholder = t.etaReasonPh;
       if (eCancel) eCancel.textContent = t.modalCancel;
+      // Decline modal
+      var dTitle = document.getElementById('decline-title');
+      var dReason = document.getElementById('decline-reason');
+      var dCancel = document.getElementById('decline-cancel');
+      var dConfirm = document.getElementById('decline-confirm');
+      var dSub = document.getElementById('decline-sub');
+      if (dTitle) dTitle.textContent = t.declineTitle;
+      if (dSub) dSub.textContent = t.declineSub;
+      if (dReason) dReason.placeholder = t.declineReasonPh;
+      if (dCancel) dCancel.textContent = t.modalCancel;
+      if (dConfirm) dConfirm.textContent = t.declineConfirm;
+      var gmsg = document.getElementById('global-msg-btn');
+      if (gmsg) gmsg.title = t.msgTitle;
       // Sound button
       if (soundToggle) soundToggle.textContent = soundOn ? t.soundOn : t.soundOff;
       // Re-render orders + history if any
@@ -1088,6 +1739,13 @@
 
       countPending.textContent = String(pending.length);
       countPrep.textContent = String(prep.length);
+      // Sync mobile tab counts + pulse pending tab if not active
+      var mtabPC = document.getElementById('mtab-pending-count');
+      var mtabPR = document.getElementById('mtab-prep-count');
+      if (mtabPC) mtabPC.textContent = String(pending.length);
+      if (mtabPR) mtabPR.textContent = String(prep.length);
+      var mtabPending = document.querySelector('.mobile-tab.tab-pending');
+      if (mtabPending) mtabPending.classList.toggle('has-orders', pending.length > 0);
 
       // Colonne EN ATTENTE : carte rouge clignotante + bouton "Accepter" → popup temps
       if (pending.length === 0) {
@@ -1099,8 +1757,9 @@
         var html = '';
         pending.forEach(function(o) {
           html += '<article class="order-card card-pending" data-order="' + escapeHtml(o.id) + '">'
-            + '<div class="actions">'
+            + '<div class="actions two">'
               + '<button type="button" class="btn-action btn-prepare" data-action="open-accept" data-id="' + escapeHtml(o.id) + '">' + t.btnPrepare + '</button>'
+              + '<button type="button" class="btn-action btn-decline" data-action="open-decline" data-id="' + escapeHtml(o.id) + '">' + t.btnDecline + '</button>'
             + '</div>'
             + buildCardBody(o)
             + buildChatHtml(o)
@@ -1196,6 +1855,8 @@
         }
         closeAcceptModal();
         renderOrders();
+        // Auto-ouverture onglet chat avec le client (Messenger-style natif)
+        openFloatingChat(id);
       } catch (err) {
         alert(t.actionError + (err && err.message ? err.message : err));
       }
@@ -1244,6 +1905,8 @@
     if (acceptModal) acceptModal.addEventListener('click', function(e) {
       if (e.target === acceptModal) closeAcceptModal();
     });
+    var acceptCloseX = document.getElementById('accept-close-x');
+    if (acceptCloseX) acceptCloseX.addEventListener('click', closeAcceptModal);
 
     if (etaGrid) etaGrid.addEventListener('click', function(e) {
       var el = e.target;
@@ -1264,6 +1927,15 @@
     if (etaCancelBtn) etaCancelBtn.addEventListener('click', closeEtaModal);
     if (etaModal) etaModal.addEventListener('click', function(e) {
       if (e.target === etaModal) closeEtaModal();
+    });
+    var etaCloseX = document.getElementById('eta-close-x');
+    if (etaCloseX) etaCloseX.addEventListener('click', closeEtaModal);
+
+    // Esc ferme le modal ouvert
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Escape') return;
+      if (acceptModal && acceptModal.classList.contains('show')) { closeAcceptModal(); return; }
+      if (etaModal && etaModal.classList.contains('show')) { closeEtaModal(); return; }
     });
 
     // ═══ CHAT (par carte) ═══
@@ -1345,13 +2017,365 @@
     }
 
     async function toggleChat(id) {
-      openChats[id] = !openChats[id];
-      var body = document.querySelector('[data-chat-body="' + cssId(id) + '"]');
-      if (body) body.classList.toggle('open', !!openChats[id]);
-      if (openChats[id]) {
-        await loadChatForCard(id);
+      // On redirige le toggle chat sur les onglets flottants Messenger-style
+      openFloatingChat(id);
+    }
+
+    // ═══ ONGLETS CHAT FLOTTANTS (Messenger-style) ═══
+    var chatTabs = {};       // id -> { minimized: bool, lastMsgId: number, polling: int, lastSeenAt: number }
+    var chatTabsHost = document.getElementById('chat-tabs-host');
+    var MAX_OPEN_TABS = 4;
+    var MAX_MOBILE_TABS = 6;
+
+    function isMobileLayout() {
+      return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+    }
+
+    function openFloatingChat(id) {
+      if (!chatTabsHost) return;
+      var order = orders[id];
+      // Si la commande n'est plus active, on regarde dans history (pour ouverture depuis carte de toute façon présente côté DOM)
+      if (!order) {
+        var h = historyRows.find(function(r) { return r.id === id; });
+        if (h) order = h;
+      }
+      if (!order) return;
+
+      if (chatTabs[id]) {
+        // Déjà ouvert : on l'expand
+        chatTabs[id].minimized = false;
+        renderFloatingTabs();
+        return;
+      }
+
+      // Limite : si trop d'onglets, on ferme le plus vieux (qui n'a pas d'unread)
+      var openIds = Object.keys(chatTabs);
+      var max = isMobileLayout() ? MAX_MOBILE_TABS : MAX_OPEN_TABS;
+      if (openIds.length >= max) {
+        // Cherche le premier sans unread, sinon le premier
+        var toClose = openIds.find(function(k) { return !chatTabs[k]._unread; }) || openIds[0];
+        closeFloatingChat(toClose, true);
+      }
+
+      chatTabs[id] = {
+        minimized: false,
+        lastMsgId: 0,
+        polling: 0,
+        _unread: 0,
+        _name: order.name || '',
+        _phone: order.phone || '',
+      };
+      renderFloatingTabs();
+      // Fetch messages immédiatement
+      fetchTabMessages(id, true);
+      // Polling 4s
+      chatTabs[id].polling = setInterval(function() {
+        if (chatTabs[id]) fetchTabMessages(id, false);
+      }, 4000);
+    }
+
+    function closeFloatingChat(id, silent) {
+      if (!chatTabs[id]) return;
+      if (chatTabs[id].polling) clearInterval(chatTabs[id].polling);
+      delete chatTabs[id];
+      renderFloatingTabs();
+      if (!silent) updateGlobalUnreadBadge();
+    }
+
+    function toggleMinimizeFloatingChat(id) {
+      if (!chatTabs[id]) return;
+      chatTabs[id].minimized = !chatTabs[id].minimized;
+      if (!chatTabs[id].minimized) {
+        // Lire les messages -> reset unread
+        chatTabs[id]._unread = 0;
+      }
+      renderFloatingTabs();
+    }
+
+    function initialOf(name) {
+      var s = String(name || '?').trim();
+      return s ? s.charAt(0).toUpperCase() : '?';
+    }
+
+    function renderFloatingTabs() {
+      if (!chatTabsHost) return;
+      var ids = Object.keys(chatTabs);
+      var html = '';
+      ids.forEach(function(id) {
+        var c = chatTabs[id];
+        var av = initialOf(c._name);
+        var unread = c._unread || 0;
+        var unreadHtml = unread > 0 ? '<span class="ftab-unread">' + unread + '</span>' : '<span class="ftab-unread hidden">0</span>';
+        html += '<div class="ftab' + (c.minimized ? ' min' : '') + '" data-tab-id="' + escapeHtml(id) + '">'
+          + '<div class="ftab-head" data-act-tab="toggle" data-id="' + escapeHtml(id) + '">'
+            + '<span class="av">' + escapeHtml(av) + '</span>'
+            + '<div class="who">'
+              + '<div class="nm">' + escapeHtml(c._name || '—') + '</div>'
+              + '<div class="id">' + escapeHtml(id) + '</div>'
+            + '</div>'
+            + unreadHtml
+            + '<button type="button" class="ftab-min" data-act-tab="min" data-id="' + escapeHtml(id) + '" aria-label="Minimize">' + (c.minimized ? '▴' : '▾') + '</button>'
+            + '<button type="button" class="ftab-close" data-act-tab="close" data-id="' + escapeHtml(id) + '" aria-label="Close">×</button>'
+          + '</div>'
+          + '<div class="ftab-body" data-ftab-body="' + escapeHtml(id) + '">'
+            + '<div class="ftab-loader">' + escapeHtml(t.chatLoading) + '</div>'
+          + '</div>'
+          + '<div class="ftab-foot">'
+            + '<div class="ftab-templates">'
+              + '<button type="button" class="tpl" data-act-tab="tpl" data-id="' + escapeHtml(id) + '" data-tpl="' + escapeHtml(t.chatAccepted) + '">✓ ' + escapeHtml(lang === 'el' ? 'Σε προετοιμασία' : 'Preparing') + '</button>'
+              + '<button type="button" class="tpl" data-act-tab="tpl" data-id="' + escapeHtml(id) + '" data-tpl="' + escapeHtml(lang === 'el' ? 'Ο διανομέας είναι καθ\'οδόν.' : 'Courier is on the way.') + '">🛵 ' + escapeHtml(lang === 'el' ? 'Καθ\'οδόν' : 'On the way') + '</button>'
+              + '<button type="button" class="tpl" data-act-tab="tpl" data-id="' + escapeHtml(id) + '" data-tpl="' + escapeHtml(lang === 'el' ? 'Συγγνώμη, μικρή καθυστέρηση.' : 'Sorry, small delay.') + '">⏰ ' + escapeHtml(lang === 'el' ? 'Καθυστέρηση' : 'Delay') + '</button>'
+              + '<button type="button" class="tpl" data-act-tab="tpl" data-id="' + escapeHtml(id) + '" data-tpl="' + escapeHtml(lang === 'el' ? 'Η παραγγελία είναι έτοιμη!' : 'Your order is ready!') + '">✅ ' + escapeHtml(lang === 'el' ? 'Έτοιμο' : 'Ready') + '</button>'
+            + '</div>'
+            + '<form class="ftab-input-row" data-act-tab="form" data-id="' + escapeHtml(id) + '">'
+              + '<input type="text" data-ftab-input="' + escapeHtml(id) + '" placeholder="' + escapeHtml(t.chatPlaceholderShort) + '" maxlength="500" autocomplete="off" />'
+              + '<button type="submit" class="send" aria-label="Send">➤</button>'
+            + '</form>'
+          + '</div>'
+        + '</div>';
+      });
+      chatTabsHost.innerHTML = html;
+      chatTabsHost.classList.toggle('has-open', ids.some(function(id) { return !chatTabs[id].minimized; }));
+      // Pour chaque onglet expand: charger messages déjà fetched
+      ids.forEach(function(id) {
+        if (chatTabs[id]._cachedMessages) {
+          var body = document.querySelector('[data-ftab-body="' + cssId(id) + '"]');
+          if (body) renderTabBubbles(body, chatTabs[id]._cachedMessages);
+        }
+      });
+    }
+
+    function renderTabBubbles(container, messages) {
+      if (!messages || messages.length === 0) {
+        container.innerHTML = '<div class="ftab-loader">' + escapeHtml(t.chatEmpty) + '</div>';
+        return;
+      }
+      var html = '';
+      messages.forEach(function(m, idx) {
+        var cls = '';
+        var text = m.text || '';
+        if (m.sender === 'patron') cls = 'from-patron';
+        else if (m.sender === 'client') cls = 'from-client';
+        else {
+          cls = 'from-system';
+          var raw = String(text);
+          if (raw.indexOf('accepted:') === 0) {
+            var rest = raw.slice(9); var parts = rest.split(':');
+            text = t.chatSystemAccepted + parts[0] + ' ' + t.min + (parts[1] ? ' + ' + parts[1] + ' ' + t.min : '');
+          } else if (raw.indexOf('eta:') === 0) {
+            var rs = raw.slice(4); var pp = rs.split(':');
+            text = t.chatSystemEta + pp[0] + ' ' + t.min + (pp[1] && /\D/.test(pp[1]) ? ' (' + pp[1] + ')' : '');
+          }
+        }
+        var d = new Date(m.created_at);
+        var time = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+        var showTime = (idx === messages.length - 1)
+          || (messages[idx+1] && messages[idx+1].sender !== m.sender)
+          || (messages[idx+1] && (messages[idx+1].created_at - m.created_at > 5*60*1000));
+        html += '<div class="b-wrap ' + cls + '">'
+          + '<div class="bubble ' + cls + '">' + escapeHtml(text) + '</div>'
+          + (showTime ? '<div class="b-time">' + time + '</div>' : '')
+        + '</div>';
+      });
+      container.innerHTML = html;
+      container.scrollTop = container.scrollHeight;
+    }
+
+    async function fetchTabMessages(id, firstLoad) {
+      if (!chatTabs[id]) return;
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/messages', {
+          credentials: 'include', cache: 'no-store',
+        });
+        if (!res.ok) return;
+        var data = await res.json();
+        if (!data.ok) return;
+        var msgs = data.messages || [];
+        var prev = chatTabs[id]._cachedMessages || [];
+        var prevLastId = prev.length ? prev[prev.length-1].id : 0;
+        var lastMsg = msgs.length ? msgs[msgs.length-1] : null;
+        // Detect new client messages depuis dernier fetch
+        var newClient = 0;
+        msgs.forEach(function(m) {
+          if (m.sender === 'client' && m.id > prevLastId) newClient++;
+        });
+        chatTabs[id]._cachedMessages = msgs;
+
+        // Si l'onglet est minimisé et qu'on a recu un message client, increment unread + son
+        if (chatTabs[id].minimized && newClient > 0 && !firstLoad) {
+          chatTabs[id]._unread = (chatTabs[id]._unread || 0) + newClient;
+          if (soundOn) beep();
+          updateGlobalUnreadBadge();
+        }
+        var body = document.querySelector('[data-ftab-body="' + cssId(id) + '"]');
+        if (body) renderTabBubbles(body, msgs);
+        // Met à jour le badge unread sur le head
+        var headUnread = document.querySelector('[data-tab-id="' + cssId(id) + '"] .ftab-unread');
+        if (headUnread) {
+          var u = chatTabs[id]._unread || 0;
+          if (u > 0 && chatTabs[id].minimized) { headUnread.textContent = String(u); headUnread.classList.remove('hidden'); }
+          else { headUnread.classList.add('hidden'); }
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    async function sendTabMessage(id) {
+      if (!chatTabs[id]) return;
+      var input = document.querySelector('[data-ftab-input="' + cssId(id) + '"]');
+      if (!input) return;
+      var text = (input.value || '').trim();
+      if (!text) return;
+      var send = input.parentElement.querySelector('.send');
+      if (send) send.disabled = true;
+      try {
+        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/message-patron', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text }),
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
+        input.value = '';
+        await fetchTabMessages(id, false);
+      } catch (err) {
+        alert(t.actionError + (err && err.message ? err.message : err));
+      } finally {
+        if (send) send.disabled = false;
+        input.focus();
       }
     }
+
+    // Delegation events on chat tabs host
+    if (chatTabsHost) {
+      chatTabsHost.addEventListener('click', function(e) {
+        var el = e.target;
+        if (!(el instanceof Element)) return;
+        var actEl = el.closest('[data-act-tab]');
+        if (!actEl) return;
+        var act = actEl.getAttribute('data-act-tab');
+        var id = actEl.getAttribute('data-id');
+        if (!id) return;
+        if (act === 'close') { e.stopPropagation(); closeFloatingChat(id); }
+        else if (act === 'min') { e.stopPropagation(); toggleMinimizeFloatingChat(id); }
+        else if (act === 'toggle') { toggleMinimizeFloatingChat(id); }
+        else if (act === 'tpl') {
+          var tpl = actEl.getAttribute('data-tpl');
+          var inp = document.querySelector('[data-ftab-input="' + cssId(id) + '"]');
+          if (inp && tpl) { inp.value = tpl; inp.focus(); }
+        }
+      });
+      chatTabsHost.addEventListener('submit', function(e) {
+        var el = e.target;
+        if (!(el instanceof Element)) return;
+        var f = el.closest('[data-act-tab="form"]');
+        if (!f) return;
+        e.preventDefault();
+        var id = f.getAttribute('data-id');
+        if (id) sendTabMessage(id);
+      });
+    }
+
+    // Esc ferme le dernier onglet ouvert (non minimisé) -- en priorité après modals
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Escape') return;
+      // Ne pas court-circuiter si un modal est déjà ouvert (gestion existante prend la main)
+      var modalsOpen = document.querySelectorAll('.modal-back.show').length > 0;
+      if (modalsOpen) return;
+      var ids = Object.keys(chatTabs);
+      // ferme le premier expand
+      var openId = ids.find(function(k) { return !chatTabs[k].minimized; });
+      if (openId) closeFloatingChat(openId);
+    });
+
+    // ═══ Decline modal ═══
+    var declineModal = document.getElementById('decline-modal');
+    var declineReasonEl = document.getElementById('decline-reason');
+    var declineConfirmBtn = document.getElementById('decline-confirm');
+    var declineCancelBtn = document.getElementById('decline-cancel');
+    var declineCloseX = document.getElementById('decline-close-x');
+    var declineSubEl = document.getElementById('decline-sub');
+    var pendingDeclineId = null;
+
+    function openDeclineModal(id) {
+      pendingDeclineId = id;
+      var o = orders[id];
+      var name = o ? (o.name || '') : '';
+      if (declineSubEl) declineSubEl.textContent = t.declineSub + ' ' + id + (name ? ' — ' + name : '');
+      if (declineReasonEl) declineReasonEl.value = '';
+      if (declineModal) declineModal.classList.add('show');
+      setTimeout(function() { if (declineReasonEl) declineReasonEl.focus(); }, 50);
+    }
+    function closeDeclineModal() {
+      if (declineModal) declineModal.classList.remove('show');
+      pendingDeclineId = null;
+    }
+    async function confirmDecline() {
+      if (!pendingDeclineId) return;
+      var id = pendingDeclineId;
+      var reason = declineReasonEl ? declineReasonEl.value.trim() : '';
+      try {
+        // 1. Envoie message au client (avant le status pour que la commande existe encore)
+        var msgText = t.declineSystemMsg + (reason ? ' (' + reason + ')' : '');
+        await fetch('/api/orders/' + encodeURIComponent(id) + '/message-patron', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: msgText }),
+        }).catch(function(){});
+        // 2. Mise à jour status
+        var res = await fetch('/api/orders/' + encodeURIComponent(id) + '/status', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'cancelled' }),
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
+        delete orders[id];
+        closeDeclineModal();
+        renderOrders();
+        fetchHistory();
+      } catch (err) {
+        alert(t.actionError + (err && err.message ? err.message : err));
+      }
+    }
+    if (declineConfirmBtn) declineConfirmBtn.addEventListener('click', confirmDecline);
+    if (declineCancelBtn) declineCancelBtn.addEventListener('click', closeDeclineModal);
+    if (declineCloseX) declineCloseX.addEventListener('click', closeDeclineModal);
+    if (declineModal) declineModal.addEventListener('click', function(e) {
+      if (e.target === declineModal) closeDeclineModal();
+    });
+    if (declineReasonEl) declineReasonEl.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { e.preventDefault(); confirmDecline(); }
+    });
+    // Esc decline (priorité sur les autres modals — handled separately in existing listener)
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && declineModal && declineModal.classList.contains('show')) {
+        closeDeclineModal();
+      }
+    });
+
+    // ═══ Badge global non-lus (additionne unread sur orders actifs) ═══
+    async function fetchGlobalUnread() {
+      try {
+        var res = await fetch('/api/orders/messages-summary', { credentials: 'include', cache: 'no-store' });
+        if (!res.ok) return;
+        var data = await res.json();
+        if (!data.ok) return;
+        var totalConv = 0;
+        (data.conversations || []).forEach(function(c) {
+          if (Number(c.unread_client) > 0) totalConv++;
+        });
+        var badge = document.getElementById('global-unread-badge');
+        if (badge) {
+          if (totalConv > 0) { badge.textContent = String(totalConv); badge.classList.remove('hidden'); }
+          else { badge.classList.add('hidden'); }
+        }
+      } catch (e) { /* ignore */ }
+    }
+    function updateGlobalUnreadBadge() {
+      // Recompte rapide depuis chatTabs cachés + appel API soft
+      fetchGlobalUnread();
+    }
+    setInterval(fetchGlobalUnread, 12000);
 
     async function sendChatMessage(id) {
       var input = document.querySelector('[data-chat-input="' + cssId(id) + '"]');
@@ -1407,6 +2431,8 @@
     function renderHistory() {
       if (!listHistory) return;
       countHistory.textContent = String(historyRows.length);
+      var mtabHC = document.getElementById('mtab-history-count');
+      if (mtabHC) mtabHC.textContent = String(historyRows.length);
       if (historyRows.length === 0) {
         listHistory.innerHTML = '<div class="hist-empty">' + escapeHtml(t.emptyHistory) + '</div>';
         return;
@@ -1540,6 +2566,7 @@
     // ═══ doAction dispatcher (toutes les actions sur cartes + history) ═══
     async function doAction(id, action) {
       if (action === 'open-accept') return openAcceptModal(id);
+      if (action === 'open-decline') return openDeclineModal(id);
       if (action === 'open-eta') return openEtaModal(id);
       if (action === 'toggle-chat') return toggleChat(id);
       if (action === 'send-msg') return sendChatMessage(id);
@@ -1600,6 +2627,54 @@
     // Buttons history actions globales
     if (histRefresh) histRefresh.addEventListener('click', fetchHistory);
     if (histPrintAll) histPrintAll.addEventListener('click', printAllHistory);
+
+    // ═══ MOBILE TABS + TABLET DRAWER ═══
+    function setActiveTab(tab) {
+      try { localStorage.setItem('caisse_active_tab', tab); } catch (e) {}
+      var tabs = document.querySelectorAll('.mobile-tab');
+      tabs.forEach(function(b) { b.classList.toggle('active', b.getAttribute('data-tab') === tab); });
+      var cols = document.querySelectorAll('.column');
+      cols.forEach(function(c) { c.classList.toggle('active', c.getAttribute('data-col') === tab); });
+    }
+    function getActiveTab() {
+      try { return localStorage.getItem('caisse_active_tab') || 'pending'; }
+      catch (e) { return 'pending'; }
+    }
+    var mobileTabsNav = document.getElementById('mobile-tabs');
+    if (mobileTabsNav) {
+      mobileTabsNav.addEventListener('click', function(e) {
+        var btn = e.target && e.target.closest ? e.target.closest('.mobile-tab') : null;
+        if (!btn) return;
+        var tab = btn.getAttribute('data-tab');
+        if (tab) setActiveTab(tab);
+      });
+    }
+    // Restore last tab on mobile
+    if (window.matchMedia && window.matchMedia('(max-width: 768px)').matches) {
+      setActiveTab(getActiveTab());
+    } else {
+      // Desktop/tablet: ensure pending col is "active" (used as default on mobile when resized)
+      setActiveTab('pending');
+    }
+    // Re-evaluate active tab visibility on resize between mobile/desktop
+    window.addEventListener('resize', function() {
+      if (window.matchMedia('(max-width: 768px)').matches) {
+        setActiveTab(getActiveTab());
+      }
+    });
+
+    // Tablet history drawer toggle (clicking col-head opens/closes)
+    var colHistoryHead = document.getElementById('col-history-head');
+    if (colHistoryHead) {
+      colHistoryHead.addEventListener('click', function() {
+        var col = document.querySelector('.col-history');
+        if (!col) return;
+        // Only toggle drawer behavior on tablet width
+        if (window.matchMedia('(max-width: 1199px) and (min-width: 769px)').matches) {
+          col.classList.toggle('drawer-open');
+        }
+      });
+    }
 
     async function pollLoop() {
       if (polling) return;
@@ -1669,6 +2744,9 @@
         });
         var data = await res.json();
         if (!res.ok || !data.ok) throw new Error(data.error || 'Wrong password');
+        // Session unifiée 2h : zéro re-prompt entre pages /cashd/*.
+        // refresh auto à chaque event utilisateur (cf. cashd-auth.js).
+        try { window.cashdAuth.setSession(pw); } catch(e) {}
         showDashboard();
       } catch (err) {
         var msg = (err && err.message) || t.loginErrorDefault;
@@ -1678,19 +2756,19 @@
       }
     });
 
-    // Auto-tentative : si déjà cookie valide, le poll va passer.
-    // since=0 -> le serveur renvoie immédiatement l'état complet (pas de long-poll bloquant).
-    // 200 OK = cookie valide, on va direct sur le dashboard.
-    fetch('/api/orders/poll?since=0', {
-      credentials: 'include',
-      cache: 'no-store'
-    })
-      .then(async function(r) {
+    // Auto-tentative : si déjà cookie valide ET poll ok, on va direct sur le dashboard.
+    // IMPORTANT : si poll renvoie 500 (server error) mais qu'on a une session 2h valide,
+    // on AFFICHE le dashboard quand meme (le cookie est probablement OK, poll est juste cassé).
+    // On force showLogin UNIQUEMENT si poll renvoie 401 ET bootAuth echoue.
+    async function tryAutoReauthThenPoll() {
+      var hasSession = false;
+      try { hasSession = !!window.cashdAuth.getSession(); } catch (e) {}
+      try {
+        var r = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
         if (r.status === 200) {
           var d = null;
           try { d = await r.json(); } catch (e) { d = null; }
           if (d && d.ok) {
-            // Pre-charge les commandes dès le boot pour éviter un flash vide
             if (Array.isArray(d.orders)) {
               var pre = {};
               d.orders.forEach(function(o) { pre[o.id] = o; });
@@ -1703,13 +2781,56 @@
             return;
           }
         }
+        // Si poll renvoie 401 → cookie drop, tente bootAuth
+        if (r.status === 401) {
+          var ok = false;
+          try { ok = await window.cashdAuth.bootAuth(); } catch (e) {}
+          if (ok) {
+            // re-poll après login auto
+            try {
+              var r2 = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
+              if (r2.status === 200) {
+                var d2 = await r2.json();
+                if (d2 && d2.ok) {
+                  if (Array.isArray(d2.orders)) {
+                    var pre2 = {};
+                    d2.orders.forEach(function(o) { pre2[o.id] = o; });
+                    orders = pre2;
+                    if (typeof d2.now === 'number') since = d2.now;
+                  }
+                  applyI18n();
+                  showDashboard();
+                  renderOrders();
+                  return;
+                }
+              }
+              // Poll plante apres bootAuth ok → affiche quand meme dashboard (vide, refresh prendra le relais)
+              applyI18n();
+              showDashboard();
+              return;
+            } catch (e) {
+              // Idem : bootAuth ok, poll fail → dashboard quand meme
+              applyI18n();
+              showDashboard();
+              return;
+            }
+          }
+        }
+        // Poll renvoie 500/autre : si on a une session 2h valide → dashboard quand meme
+        // (la session a un cookie probablement valide ; poll cassé != desauth)
+        if (hasSession && r.status !== 401) {
+          applyI18n();
+          showDashboard();
+          return;
+        }
         applyI18n();
         showLogin();
-      })
-      .catch(function() {
+      } catch (e) {
         applyI18n();
         showLogin();
-      });
+      }
+    }
+    tryAutoReauthThenPoll();
 
     // Service Worker pour PWA (best-effort)
     if ('serviceWorker' in navigator) {

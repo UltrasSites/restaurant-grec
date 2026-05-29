@@ -4,15 +4,12 @@ export function getStaticPaths() {
   return [
     { params: { lang: "el" } },
     { params: { lang: "en" } },
-    { params: { lang: "de" } },
-    { params: { lang: "ru" } },
-    { params: { lang: "ja" } },
   ];
 }
 
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const { lang } = Astro.params as { lang: "el" | "en" | "de" | "ru" | "ja" };
+const { lang } = Astro.params as { lang: "el" | "en" };
 
 const translations = {
   el: {
@@ -33,33 +30,6 @@ const translations = {
     thanks: "Thank you from the bottom of our hearts ❤️",
     back: "← Back to home",
   },
-  de: {
-    title: "Bewertung hinterlassen",
-    subtitle: "Ihre Meinung zählt",
-    body: "Danke für Ihren Besuch! Wählen Sie, wo Sie Ihre Bewertung hinterlassen möchten:",
-    google: "Google-Bewertung abgeben",
-    tripadvisor: "TripAdvisor-Bewertung abgeben",
-    thanks: "Vielen Dank von Herzen ❤️",
-    back: "← Zurück zur Startseite",
-  },
-  ru: {
-    title: "Оставьте отзыв",
-    subtitle: "Ваше мнение важно",
-    body: "Спасибо за визит! Выберите, где вы хотите оставить отзыв:",
-    google: "Оставить отзыв в Google",
-    tripadvisor: "Оставить отзыв в TripAdvisor",
-    thanks: "Благодарим вас от всего сердца ❤️",
-    back: "← Назад на главную",
-  },
-  ja: {
-    title: "レビューを残す",
-    subtitle: "ご意見をお聞かせください",
-    body: "ご来店ありがとうございました！レビューを残す場所をお選びください：",
-    google: "Googleにレビューを書く",
-    tripadvisor: "TripAdvisorにレビューを書く",
-    thanks: "心より感謝いたします ❤️",
-    back: "← ホームに戻る",
-  },
 } as const;
 const t = translations[lang] ?? translations.en;
 
@@ -70,7 +40,9 @@ const TRIPADVISOR_URL = "https://www.tripadvisor.com/Restaurant_Review-g189403-d
 <BaseLayout
   lang={lang}
   title={`${t.title} — Το Καλαμάκι Της Τρούμπας`}
-  description={t.body}
+  description={lang === 'el'
+    ? 'Άφησε κριτική για το Καλαμάκι Της Τρούμπας στο Google ή στο TripAdvisor. Ευχαριστούμε για την επίσκεψη — η γνώμη σου μας βοηθάει να γινόμαστε καλύτεροι.'
+    : 'Leave a review for Kalamaki Tis Troumpas on Google or TripAdvisor. Thank you for visiting us — your feedback helps us keep improving every day at Troumpa Piraeus.'}
   hideHeader
   breadcrumbs={[
     { name: lang === 'el' ? 'Αρχική' : 'Home', path: `/${lang}/` },

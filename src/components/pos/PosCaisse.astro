@@ -20,34 +20,26 @@ export interface Props {
 
 const { products, config } = Astro.props;
 
-// Pre-compute categories preserving first-occurrence order
+// Pre-compute categories preserving first-occurrence order + EL→EN map
 const categories: string[] = [];
+const categoriesAlt: Record<string, string> = {};
 for (const p of products) {
   if (!categories.includes(p.category)) categories.push(p.category);
+  if (p.category_alt && !categoriesAlt[p.category]) categoriesAlt[p.category] = p.category_alt;
 }
 
 // Serialise data for client (avoids re-fetch)
-const dataPayload = JSON.stringify({ products, config, categories });
+const dataPayload = JSON.stringify({ products, config, categories, categoriesAlt });
 ---
 
 <div class="pos-root" data-pos-payload={dataPayload}>
 
-  <!-- OPENING MODAL : float + server name -->
-  <div class="pos-modal-back" id="pos-open-modal" role="dialog" aria-modal="true">
+  <!-- OPENING MODAL : bypassed — POS now boots directly with openingFloat=0, no server name -->
+  <div class="pos-modal-back" id="pos-open-modal" role="dialog" aria-modal="true" style="display:none !important;">
     <div class="pos-modal">
-      <h2>📦 Άνοιγμα ταμείου / Open till</h2>
-      <p class="pos-sub">Εισάγετε αρχικό κεφάλαιο / Enter opening float</p>
-      <label class="pos-field">
-        <span>Όνομα υπαλλήλου / Server name</span>
-        <input type="text" id="pos-open-server" maxlength="40" placeholder="Νίκος" />
-      </label>
-      <label class="pos-field">
-        <span>Αρχικό κεφάλαιο / Opening float</span>
-        <input type="number" id="pos-open-float" step="0.01" min="0" />
-      </label>
-      <div class="pos-modal-actions">
-        <button type="button" id="pos-open-confirm" class="pos-btn-primary">✓ Άνοιγμα</button>
-      </div>
+      <input type="hidden" id="pos-open-server" value="" />
+      <input type="hidden" id="pos-open-float" value="0" />
+      <button type="button" id="pos-open-confirm" style="display:none;">✓</button>
     </div>
   </div>
 
@@ -57,7 +49,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
     <!-- LEFT : product grid -->
     <section class="pos-left">
       <div class="pos-search-row">
-        <input type="search" id="pos-search" placeholder="🔍 Αναζήτηση / Search…" autocomplete="off" />
+        <input type="search" id="pos-search" placeholder="🔍 Αναζήτηση…" autocomplete="off" />
         <button type="button" class="pos-icon-btn" id="pos-stats-btn" title="Στατιστικά">📊</button>
         <button type="button" class="pos-icon-btn" id="pos-archive-btn" title="Αρχείο">📅</button>
         <button type="button" class="pos-icon-btn" id="pos-close-btn" title="Κλείσιμο ταμείου">🔒</button>
@@ -78,13 +70,13 @@ const dataPayload = JSON.stringify({ products, config, categories });
       </div>
 
       <div class="pos-cart" id="pos-cart">
-        <div class="pos-cart-empty">Πατήστε προϊόντα / Tap products</div>
+        <div class="pos-cart-empty">Πατήστε προϊόν για προσθήκη</div>
       </div>
 
       <div class="pos-totals" id="pos-totals">
-        <div class="pos-totals-row"><span>Υποσύνολο HT</span><span id="pos-sub-ht">0,00</span></div>
+        <div class="pos-totals-row"><span id="pos-sub-ht-label">Υποσύνολο (χωρίς ΦΠΑ)</span><span id="pos-sub-ht">0,00</span></div>
         <div class="pos-totals-row"><span id="pos-vat-label">ΦΠΑ</span><span id="pos-sub-vat">0,00</span></div>
-        <div class="pos-totals-row pos-grand"><span>ΣΥΝΟΛΟ</span><span id="pos-grand-total">0,00</span></div>
+        <div class="pos-totals-row pos-grand"><span id="pos-grand-label">ΣΥΝΟΛΟ</span><span id="pos-grand-total">0,00</span></div>
       </div>
 
       <button type="button" id="pos-pay-btn" class="pos-pay-cta" disabled>💰 Πληρωμή</button>
@@ -94,9 +86,10 @@ const dataPayload = JSON.stringify({ products, config, categories });
   <!-- PAYMENT MODAL -->
   <div class="pos-modal-back" id="pos-pay-modal" role="dialog" aria-modal="true">
     <div class="pos-modal pos-modal-wide">
+      <button type="button" class="pos-modal-close" data-close-modal="pos-pay-modal" aria-label="Κλείσιμο">×</button>
       <h2 id="pos-pay-title">💰 Πληρωμή</h2>
       <div class="pos-pay-total">
-        <span>Σύνολο</span>
+        <span id="pos-pay-total-label">Σύνολο</span>
         <strong id="pos-pay-amount">0,00</strong>
       </div>
 
@@ -107,26 +100,26 @@ const dataPayload = JSON.stringify({ products, config, categories });
       </div>
 
       <div class="pos-pay-summary">
-        <div class="pos-pay-row"><span>Πληρωμένα</span><span id="pos-pay-paid">0,00</span></div>
-        <div class="pos-pay-row"><span>Υπόλοιπο</span><span id="pos-pay-remaining">0,00</span></div>
+        <div class="pos-pay-row"><span id="pos-pay-paid-label">Πληρωμένα</span><span id="pos-pay-paid">0,00</span></div>
+        <div class="pos-pay-row"><span id="pos-pay-remaining-label">Υπόλοιπο</span><span id="pos-pay-remaining">0,00</span></div>
       </div>
 
       <div class="pos-pay-cash-block" id="pos-pay-cash-block" style="display:none;">
         <label class="pos-field">
-          <span>Δόθηκαν μετρητά / Cash given</span>
+          <span id="pos-pay-given-label">Δόθηκαν μετρητά</span>
           <input type="number" id="pos-pay-given" step="0.01" min="0" />
         </label>
-        <div class="pos-pay-change">Ρέστα / Change : <strong id="pos-pay-change">0,00</strong></div>
+        <div class="pos-pay-change"><span id="pos-pay-change-label">Ρέστα</span> : <strong id="pos-pay-change">0,00</strong></div>
         <div class="pos-quick-cash" id="pos-quick-cash"></div>
       </div>
 
       <div class="pos-time-block" id="pos-time-block" style="display:none;">
         <div class="pos-time-head">
-          <span>⏱️ Χρόνος / Time</span>
+          <span id="pos-time-head-label">⏱️ Χρόνος</span>
           <button type="button" id="pos-time-auto" class="pos-btn-mini">↻ Auto</button>
         </div>
         <div class="pos-time-row">
-          <span class="pos-time-label">Ετοιμασία / Prep</span>
+          <span class="pos-time-label" id="pos-time-prep-label">Ετοιμασία</span>
           <div class="pos-time-ctrl">
             <button type="button" data-prep="-5">−5</button>
             <button type="button" data-prep="-1">−1</button>
@@ -137,7 +130,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
           </div>
         </div>
         <div class="pos-time-row" id="pos-time-delivery-row" style="display:none;">
-          <span class="pos-time-label">Διανομή / Delivery</span>
+          <span class="pos-time-label" id="pos-time-deliv-label">Διανομή</span>
           <div class="pos-time-ctrl">
             <button type="button" data-deliv="-5">−5</button>
             <button type="button" data-deliv="-1">−1</button>
@@ -160,10 +153,11 @@ const dataPayload = JSON.stringify({ products, config, categories });
   <!-- CLOSE TILL MODAL -->
   <div class="pos-modal-back" id="pos-close-modal" role="dialog" aria-modal="true">
     <div class="pos-modal">
-      <h2>🔒 Κλείσιμο ταμείου / Close till</h2>
+      <button type="button" class="pos-modal-close" data-close-modal="pos-close-modal" aria-label="Κλείσιμο">×</button>
+      <h2 id="pos-close-title">🔒 Κλείσιμο ταμείου</h2>
       <div id="pos-close-summary"></div>
       <label class="pos-field">
-        <span>Μετρητά στο κουτί τώρα / Cash counted now</span>
+        <span id="pos-close-counted-label">Μετρητά στο κουτί τώρα</span>
         <input type="number" id="pos-close-counted" step="0.01" min="0" />
       </label>
       <div class="pos-close-gap" id="pos-close-gap"></div>
@@ -178,7 +172,8 @@ const dataPayload = JSON.stringify({ products, config, categories });
   <!-- STATS MODAL -->
   <div class="pos-modal-back" id="pos-stats-modal" role="dialog" aria-modal="true">
     <div class="pos-modal pos-modal-wide">
-      <h2>📊 Στατιστικά συνεδρίας</h2>
+      <button type="button" class="pos-modal-close" data-close-modal="pos-stats-modal" aria-label="Κλείσιμο">×</button>
+      <h2 id="pos-stats-title">📊 Στατιστικά συνεδρίας</h2>
       <div id="pos-stats-body"></div>
       <div class="pos-modal-actions">
         <button type="button" id="pos-stats-close" class="pos-btn-cancel">Κλείσιμο</button>
@@ -189,7 +184,8 @@ const dataPayload = JSON.stringify({ products, config, categories });
   <!-- ARCHIVE MODAL -->
   <div class="pos-modal-back" id="pos-archive-modal" role="dialog" aria-modal="true">
     <div class="pos-modal pos-modal-wide">
-      <h2>📅 Αρχείο κλεισιμάτων</h2>
+      <button type="button" class="pos-modal-close" data-close-modal="pos-archive-modal" aria-label="Κλείσιμο">×</button>
+      <h2 id="pos-archive-title">📅 Αρχείο κλεισιμάτων</h2>
       <div id="pos-archive-body"></div>
       <div class="pos-modal-actions">
         <button type="button" id="pos-archive-close" class="pos-btn-cancel">Κλείσιμο</button>
@@ -201,7 +197,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
   <div id="pos-ticket-host" style="display:none;"></div>
 </div>
 
-<style>
+<style is:global>
   .pos-root {
     --gold: #E5B32A;
     --bg: #0a0a0a;
@@ -222,7 +218,9 @@ const dataPayload = JSON.stringify({ products, config, categories });
     padding: 1rem; z-index: 200;
   }
   .pos-modal-back.show { display: flex; }
+  .pos-modal-back#pos-open-modal { display: none !important; }
   .pos-modal {
+    position: relative;
     width: 100%; max-width: 460px;
     background: var(--bg-card);
     border: 1px solid rgba(229,179,42,0.4);
@@ -230,6 +228,17 @@ const dataPayload = JSON.stringify({ products, config, categories });
     box-shadow: 0 30px 80px rgba(0,0,0,0.7);
     max-height: 92vh; overflow-y: auto;
   }
+  .pos-modal-close {
+    position: absolute; top: 10px; right: 14px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.85); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem; line-height: 1;
+    transition: background 0.15s, color 0.15s;
+    z-index: 5;
+  }
+  .pos-modal-close:hover { background: rgba(255,255,255,0.2); color: #fff; }
   .pos-modal-wide { max-width: 640px; }
   .pos-modal h2 { margin: 0 0 0.5rem; color: var(--gold); font-size: 1.15rem; letter-spacing: 0.05em; }
   .pos-sub { color: var(--txt-dim); font-size: 0.85rem; margin-bottom: 1rem; }
@@ -275,15 +284,28 @@ const dataPayload = JSON.stringify({ products, config, categories });
     height: calc(100vh - 1rem);
     max-height: calc(100vh - 1rem);
     padding: 0.5rem;
+    max-width: 100vw;
+    min-width: 0;
+    overflow-x: hidden;
   }
   @media (max-width: 900px) {
-    .pos-layout { grid-template-columns: 1fr; height: auto; max-height: none; }
+    .pos-layout { grid-template-columns: 1fr; height: auto; max-height: none; padding: 0.5rem 0.4rem; gap: 0.75rem; }
+    .pos-search-row { flex-wrap: wrap; }
+    .pos-search-row input { min-width: 0; flex: 1 1 100%; }
+    .pos-cats { width: 100%; max-width: 100%; }
+    .pos-right { padding: 0.65rem; }
+    .pos-modal { max-width: calc(100vw - 1rem); }
+    .pos-modal-wide { max-width: calc(100vw - 1rem); }
+  }
+  @media (max-width: 480px) {
+    .pos-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)) !important; }
   }
 
   /* LEFT */
-  .pos-left { display: flex; flex-direction: column; min-height: 0; gap: 0.6rem; }
+  .pos-left { display: flex; flex-direction: column; min-height: 0; min-width: 0; gap: 0.6rem; max-width: 100%; }
   .pos-search-row {
     display: flex; gap: 0.5rem; align-items: center;
+    min-width: 0; max-width: 100%;
   }
   .pos-search-row input {
     flex: 1; padding: 0.75rem 1rem;
@@ -304,6 +326,8 @@ const dataPayload = JSON.stringify({ products, config, categories });
   .pos-cats {
     display: flex; gap: 0.4rem; overflow-x: auto;
     padding-bottom: 0.4rem;
+    min-width: 0; max-width: 100%;
+    -webkit-overflow-scrolling: touch;
   }
   .pos-cats::-webkit-scrollbar { height: 6px; }
   .pos-cats::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
@@ -327,7 +351,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
     overflow-y: auto;
     padding: 0.25rem 0.1rem 1rem;
     flex: 1;
-    min-height: 0;
+    min-height: 0; min-width: 0; max-width: 100%;
   }
   .pos-grid::-webkit-scrollbar { width: 8px; }
   .pos-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
@@ -363,6 +387,36 @@ const dataPayload = JSON.stringify({ products, config, categories });
     font-variant-numeric: tabular-nums;
   }
 
+  /* Variante avec image — boutons visuels (chaque produit = image unique cf. module commande) */
+  .pos-prod-img {
+    align-items: stretch;
+    text-align: center;
+    padding: 0.5rem 0.4rem;
+    gap: 0.25rem;
+    min-height: 150px;
+  }
+  .pos-prod-img .p-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 0.55rem;
+    background: #0a0a0a;
+    display: block;
+  }
+  .pos-prod-img .p-name {
+    font-size: 0.78rem;
+    text-align: center;
+    -webkit-line-clamp: 2;
+  }
+  .pos-prod-img .p-alt {
+    text-align: center;
+    -webkit-line-clamp: 1;
+  }
+  .pos-prod-img .p-price {
+    text-align: center;
+    font-size: 0.95rem;
+  }
+
   /* RIGHT */
   .pos-right {
     background: var(--bg-card);
@@ -370,7 +424,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
     border-radius: 0.85rem;
     padding: 0.85rem;
     display: flex; flex-direction: column;
-    min-height: 0;
+    min-height: 0; min-width: 0; max-width: 100%;
   }
   .pos-cart-head {
     display: flex; justify-content: space-between; align-items: baseline;
@@ -665,6 +719,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
   var products = payload.products;
   var config = payload.config;
   var categories = payload.categories;
+  var categoriesAlt = payload.categoriesAlt || {};
 
   // ────── Small helpers ──────
   function $(id) { return document.getElementById(id); }
@@ -715,6 +770,221 @@ const dataPayload = JSON.stringify({ products, config, categories });
     } catch (e) { return []; }
   }
 
+  // ════════════════════════════════════════════════════════════════════════
+  // I18N — Greek (source) + British English. Variable nommée POS_T (PAS t —
+  // conflit avec var t = totals() partout dans les render functions).
+  // ════════════════════════════════════════════════════════════════════════
+  var I18N = {
+    el: {
+      // search + topbar
+      searchPh: '🔍 Αναζήτηση…',
+      statsTitle: 'Στατιστικά',
+      archiveTitle: 'Αρχείο',
+      closeTillTitle: 'Κλείσιμο ταμείου',
+      clearCart: '🗑 Άδειο',
+      // cart + totals
+      emptyCart: 'Πατήστε προϊόν για προσθήκη',
+      subHt: 'Υποσύνολο (χωρίς ΦΠΑ)',
+      vat: 'ΦΠΑ',
+      grand: 'ΣΥΝΟΛΟ',
+      payBtn: '💰 Πληρωμή',
+      // payment modal
+      payModalTitle: '💰 Πληρωμή',
+      payTotal: 'Σύνολο',
+      payPaid: 'Πληρωμένα',
+      payRemaining: 'Υπόλοιπο',
+      cashGiven: 'Δόθηκαν μετρητά',
+      change: 'Ρέστα',
+      timeHead: '⏱️ Χρόνος',
+      timePrep: 'Ετοιμασία',
+      timeDelivery: 'Διανομή',
+      cancelBtn: 'Άκυρο',
+      confirmPayBtn: '✓ Ολοκλήρωση & Εκτύπωση',
+      // close till modal
+      closeTillH2: '🔒 Κλείσιμο ταμείου',
+      cashCounted: 'Μετρητά στο κουτί τώρα',
+      confirmCloseBtn: '✓ Κλείσιμο',
+      closeBtn: 'Κλείσιμο',
+      // stats + archive titles
+      statsModalTitle: '📊 Στατιστικά συνεδρίας',
+      archiveModalTitle: '📅 Αρχείο κλεισιμάτων',
+      // confirms + empty
+      noProducts: 'Κανένα προϊόν.',
+      emptyCartConfirm: 'Άδειασμα καλαθιού;',
+      // time eta + ticket
+      readyBy: 'Έτοιμο',
+      deliveryAt: 'Παράδοση',
+      manual: 'χειροκίνητα',
+      ticketCashGiven: 'Δόθηκαν',
+      ticketChange: 'Ρέστα',
+      ticketReady: '⏱ Έτοιμο',
+      ticketDelivery: '🛵 Παράδοση',
+      ticketHt: 'Καθαρό',
+      ticketTotal: 'ΣΥΝΟΛΟ',
+      ticketThanks: 'Ευχαριστούμε!',
+      // stats
+      statsSales: 'Πωλήσεις',
+      statsCa: 'Συνολικός τζίρος',
+      statsAvg: 'Μέσο καλάθι',
+      statsItems: 'Είδη που πωλήθηκαν',
+      statsCash: '💶 Μετρητά',
+      statsCard: '💳 Κάρτα',
+      statsOther: 'Άλλο',
+      statsTop: '🏆 Top προϊόντα',
+      statsNoTop: 'Κανένα ακόμη.',
+      // archive
+      archiveEmpty: 'Κανένα κλείσιμο ακόμη.',
+      archiveSales: 'πωλήσεις',
+      archiveGap: 'Διαφ.:',
+      // close summary
+      closeSales: 'Πωλήσεις',
+      closeCash: '💶 Μετρητά',
+      closeCard: '💳 Κάρτα',
+      closeTotal: 'Σύνολο',
+      // close gap
+      gapBalanced: '✓ Καμία διαφορά',
+      gapOver: 'υπερβολή',
+      gapShort: 'λείπει',
+      // remove
+      remove: 'Αφαίρεση',
+      auto: '↻ Auto'
+    },
+    en: {
+      searchPh: '🔍 Search products…',
+      statsTitle: 'Statistics',
+      archiveTitle: 'Archive',
+      closeTillTitle: 'Close till',
+      clearCart: '🗑 Clear',
+      emptyCart: 'Tap a product to add',
+      subHt: 'Subtotal (excl. VAT)',
+      vat: 'VAT',
+      grand: 'TOTAL',
+      payBtn: '💰 Pay',
+      payModalTitle: '💰 Payment',
+      payTotal: 'Total',
+      payPaid: 'Paid',
+      payRemaining: 'Remaining',
+      cashGiven: 'Cash given',
+      change: 'Change',
+      timeHead: '⏱️ Time',
+      timePrep: 'Prep time',
+      timeDelivery: 'Delivery time',
+      cancelBtn: 'Cancel',
+      confirmPayBtn: '✓ Complete & Print',
+      closeTillH2: '🔒 Close till',
+      cashCounted: 'Cash counted now',
+      confirmCloseBtn: '✓ Close till',
+      closeBtn: 'Close',
+      statsModalTitle: '📊 Session statistics',
+      archiveModalTitle: '📅 Till closures archive',
+      noProducts: 'No products.',
+      emptyCartConfirm: 'Empty the basket?',
+      readyBy: 'Ready by',
+      deliveryAt: 'Delivery at',
+      manual: 'manual',
+      ticketCashGiven: 'Cash given',
+      ticketChange: 'Change',
+      ticketReady: '⏱ Ready',
+      ticketDelivery: '🛵 Delivery',
+      ticketHt: 'Excl. VAT',
+      ticketTotal: 'TOTAL',
+      ticketThanks: 'Thank you!',
+      statsSales: 'Sales',
+      statsCa: 'Total takings',
+      statsAvg: 'Average basket',
+      statsItems: 'Items sold',
+      statsCash: '💶 Cash',
+      statsCard: '💳 Card',
+      statsOther: 'Other',
+      statsTop: '🏆 Top products',
+      statsNoTop: 'No items yet.',
+      archiveEmpty: 'No closures yet.',
+      archiveSales: 'sales',
+      archiveGap: 'Gap:',
+      closeSales: 'Sales',
+      closeCash: '💶 Cash',
+      closeCard: '💳 Card',
+      closeTotal: 'Total',
+      gapBalanced: '✓ Balanced',
+      gapOver: 'over',
+      gapShort: 'short',
+      remove: 'Remove',
+      auto: '↻ Auto'
+    }
+  };
+
+  function getPosLang() {
+    try { return localStorage.getItem('caisse_lang') || 'el'; }
+    catch (e) { return 'el'; }
+  }
+  var POS_LANG = getPosLang();
+  var POS_T = I18N[POS_LANG] || I18N.el;
+
+  function flagSvgPos(code) {
+    return '<img src="/flags/' + code + '.svg" alt="" width="14" height="10" style="width:14px;height:10px;display:inline-block;object-fit:cover;border-radius:2px;vertical-align:middle;margin-right:0.3rem;" />';
+  }
+
+  function applyPosI18n() {
+    POS_LANG = getPosLang();
+    POS_T = I18N[POS_LANG] || I18N.el;
+    // Search placeholder
+    var s = $('pos-search'); if (s) s.placeholder = POS_T.searchPh;
+    // Topbar icon button titles
+    var sb = $('pos-stats-btn'); if (sb) sb.title = POS_T.statsTitle;
+    var ab = $('pos-archive-btn'); if (ab) ab.title = POS_T.archiveTitle;
+    var cb = $('pos-close-btn'); if (cb) cb.title = POS_T.closeTillTitle;
+    // Clear cart button
+    var cc = $('pos-clear-cart'); if (cc) cc.textContent = POS_T.clearCart;
+    // Totals labels (static)
+    var shl = $('pos-sub-ht-label'); if (shl) shl.textContent = POS_T.subHt;
+    var gl = $('pos-grand-label'); if (gl) gl.textContent = POS_T.grand;
+    // Pay button (static)
+    var pb = $('pos-pay-btn'); if (pb) pb.innerHTML = POS_T.payBtn;
+    // Payment modal labels
+    var pt = $('pos-pay-title'); if (pt) pt.textContent = POS_T.payModalTitle;
+    var ptl = $('pos-pay-total-label'); if (ptl) ptl.textContent = POS_T.payTotal;
+    var ppl = $('pos-pay-paid-label'); if (ppl) ppl.textContent = POS_T.payPaid;
+    var prl = $('pos-pay-remaining-label'); if (prl) prl.textContent = POS_T.payRemaining;
+    var pgl = $('pos-pay-given-label'); if (pgl) pgl.textContent = POS_T.cashGiven;
+    var pcl = $('pos-pay-change-label'); if (pcl) pcl.textContent = POS_T.change;
+    var thl = $('pos-time-head-label'); if (thl) thl.textContent = POS_T.timeHead;
+    var tpl = $('pos-time-prep-label'); if (tpl) tpl.textContent = POS_T.timePrep;
+    var tdl = $('pos-time-deliv-label'); if (tdl) tdl.textContent = POS_T.timeDelivery;
+    var pcb = $('pos-pay-cancel'); if (pcb) pcb.textContent = POS_T.cancelBtn;
+    var pcf = $('pos-pay-confirm'); if (pcf) pcf.textContent = POS_T.confirmPayBtn;
+    var pta = $('pos-time-auto'); if (pta) pta.textContent = POS_T.auto;
+    // Close till modal
+    var cth = $('pos-close-title'); if (cth) cth.textContent = POS_T.closeTillH2;
+    var ccnl = $('pos-close-counted-label'); if (ccnl) ccnl.textContent = POS_T.cashCounted;
+    var ccc = $('pos-close-cancel'); if (ccc) ccc.textContent = POS_T.cancelBtn;
+    var ccf = $('pos-close-confirm'); if (ccf) ccf.textContent = POS_T.confirmCloseBtn;
+    // Stats + Archive modal titles + close buttons
+    var stl = $('pos-stats-title'); if (stl) stl.textContent = POS_T.statsModalTitle;
+    var atl = $('pos-archive-title'); if (atl) atl.textContent = POS_T.archiveModalTitle;
+    var sc = $('pos-stats-close'); if (sc) sc.textContent = POS_T.closeBtn;
+    var ac = $('pos-archive-close'); if (ac) ac.textContent = POS_T.closeBtn;
+    // × buttons aria-label
+    root.querySelectorAll('.pos-modal-close').forEach(function(b) { b.setAttribute('aria-label', POS_T.closeBtn); });
+    // Lang toggle (in pos.astro topbar — set inner if exists)
+    var lt = document.getElementById('pos-lang-toggle');
+    if (lt) lt.innerHTML = (POS_LANG === 'el' ? flagSvgPos('gr') + 'EL' : flagSvgPos('gb') + 'EN');
+    // VAT label : "ΦΠΑ" (EL/config) vs "VAT" in EN
+    var vatEl = $('pos-vat-label');
+    if (vatEl) vatEl.textContent = (POS_LANG === 'en') ? POS_T.vat : config.vatLabel;
+    // Re-render dynamic sections if visible
+    try { if (typeof renderCats === 'function') renderCats(); } catch (e) {}
+    try { if (typeof renderGrid === 'function') renderGrid(); } catch (e) {}
+    try { if (typeof renderCart === 'function') renderCart(); } catch (e) {}
+    try { if (typeof renderPayModes === 'function') renderPayModes(); } catch (e) {}
+    try { if (typeof renderPaySplit === 'function') renderPaySplit(); } catch (e) {}
+  }
+
+  // Storage event (cross-tab) + custom event (same-tab from pos.astro toggle)
+  window.addEventListener('storage', function(ev) {
+    if (ev.key === 'caisse_lang') applyPosI18n();
+  });
+  window.addEventListener('pos-lang-change', function() { applyPosI18n(); });
+
   // ────── State ──────
   var session = loadSession();
   var cart = [];       // [{productId,name,unitPrice,qty,vat}]
@@ -758,35 +1028,28 @@ const dataPayload = JSON.stringify({ products, config, categories });
   }
 
   // ════════════════════════════════════════════════════════════════════════
-  // OPEN SESSION FLOW
+  // OPEN SESSION FLOW — bypassed : Tiago directive 19/05
+  // POS no longer asks for opening float or server name. Just print history.
   // ════════════════════════════════════════════════════════════════════════
-  function showOpenModal() {
-    $('pos-open-server').value = '';
-    $('pos-open-float').value = String(config.defaultOpeningFloat);
-    $('pos-open-modal').classList.add('show');
-    $('pos-layout').style.display = 'none';
-    setTimeout(function() { $('pos-open-server').focus(); }, 60);
-  }
-  function hideOpenModal() { $('pos-open-modal').classList.remove('show'); }
-  $('pos-open-confirm').addEventListener('click', function() {
-    var server = ($('pos-open-server').value || '').trim();
-    var fl = parseFloat($('pos-open-float').value);
-    if (isNaN(fl) || fl < 0) fl = 0;
-    if (config.askServerName && !server) {
-      $('pos-open-server').focus();
-      return;
+  function ensureSession() {
+    if (!session || session.dateKey !== nowDateKey() || session.closedAt) {
+      session = {
+        dateKey: nowDateKey(),
+        openedAt: Date.now(),
+        openingFloat: 0,
+        sales: [],
+        server: undefined
+      };
+      saveSession(session);
     }
-    session = {
-      dateKey: nowDateKey(),
-      openedAt: Date.now(),
-      openingFloat: round2(fl),
-      sales: [],
-      server: server || undefined
-    };
-    saveSession(session);
-    hideOpenModal();
+  }
+  function showOpenModal() {
+    // No modal — boot directly into the POS layout.
+    ensureSession();
+    $('pos-layout').style.display = 'grid';
     showLayout();
-  });
+  }
+  function hideOpenModal() { /* no-op */ }
 
   // ════════════════════════════════════════════════════════════════════════
   // MAIN LAYOUT
@@ -799,13 +1062,16 @@ const dataPayload = JSON.stringify({ products, config, categories });
     renderCats();
     renderGrid();
     renderCart();
+    applyPosI18n();
   }
 
   function renderCats() {
     var html = '';
+    var useAlt = (POS_LANG === 'en');
     for (var i = 0; i < categories.length; i++) {
       var c = categories[i];
-      html += '<button type="button" class="pos-cat-btn' + (c === activeCategory ? ' active' : '') + '" data-cat="' + esc(c) + '">' + esc(c) + '</button>';
+      var label = (useAlt && categoriesAlt[c]) ? categoriesAlt[c] : c;
+      html += '<button type="button" class="pos-cat-btn' + (c === activeCategory ? ' active' : '') + '" data-cat="' + esc(c) + '">' + esc(label) + '</button>';
     }
     var el = $('pos-cats');
     el.innerHTML = html;
@@ -829,16 +1095,21 @@ const dataPayload = JSON.stringify({ products, config, categories });
       }
       return p.category === activeCategory;
     });
+    var useAlt = (POS_LANG === 'en');
     var html = '';
     for (var i = 0; i < list.length; i++) {
       var p = list[i];
-      html += '<button type="button" class="pos-prod" data-pid="' + esc(p.id) + '">'
-        + '<div class="p-name">' + esc(p.name) + '</div>'
-        + (p.name_alt ? '<div class="p-alt">' + esc(p.name_alt) + '</div>' : '')
+      // EN mode : name_alt (EN) as primary, name (EL) as secondary
+      var primary = (useAlt && p.name_alt) ? p.name_alt : p.name;
+      var secondary = (useAlt && p.name_alt) ? p.name : p.name_alt;
+      html += '<button type="button" class="pos-prod' + (p.photo ? ' pos-prod-img' : '') + '" data-pid="' + esc(p.id) + '">'
+        + (p.photo ? '<img class="p-img" src="' + esc(p.photo) + '" alt="" decoding="async" loading="lazy" />' : '')
+        + '<div class="p-name">' + esc(primary) + '</div>'
+        + (secondary ? '<div class="p-alt">' + esc(secondary) + '</div>' : '')
         + '<div class="p-price">' + fmt(p.price) + '</div>'
         + '</button>';
     }
-    if (html === '') html = '<div style="grid-column:1/-1; padding:2rem; text-align:center; color:#555;">Κανένα προϊόν.</div>';
+    if (html === '') html = '<div style="grid-column:1/-1; padding:2rem; text-align:center; color:#555;">' + esc(POS_T.noProducts) + '</div>';
     var el = $('pos-grid');
     el.innerHTML = html;
     el.querySelectorAll('.pos-prod').forEach(function(btn) {
@@ -884,20 +1155,24 @@ const dataPayload = JSON.stringify({ products, config, categories });
   function renderCart() {
     var el = $('pos-cart');
     if (cart.length === 0) {
-      el.innerHTML = '<div class="pos-cart-empty">Πατήστε προϊόντα / Tap products</div>';
+      el.innerHTML = '<div class="pos-cart-empty">' + esc(POS_T.emptyCart) + '</div>';
     } else {
+      var useAlt = (POS_LANG === 'en');
       var html = '';
       for (var i = 0; i < cart.length; i++) {
         var l = cart[i];
+        // Look up product for name_alt (EN) — fallback to stored name (EL source-of-truth for ticket print)
+        var prodLook = products.find(function(p) { return p.id === l.productId; });
+        var displayName = (useAlt && prodLook && prodLook.name_alt) ? prodLook.name_alt : l.name;
         html += '<div class="pos-line" data-pid="' + esc(l.productId) + '">'
-          + '<div><div class="l-name">' + esc(l.name) + '</div>'
+          + '<div><div class="l-name">' + esc(displayName) + '</div>'
           + '<div class="l-price-unit">' + fmt(l.unitPrice) + ' × ' + l.qty + '</div></div>'
           + '<div class="l-tot">' + fmt(lineTtc(l)) + '</div>'
           + '<div class="pos-line-ctrls">'
             + '<button type="button" class="pos-qty-btn" data-act="minus">−</button>'
             + '<span class="pos-qty-val">' + l.qty + '</span>'
             + '<button type="button" class="pos-qty-btn" data-act="plus">+</button>'
-            + '<button type="button" class="pos-line-del" data-act="del" title="Αφαίρεση">✕</button>'
+            + '<button type="button" class="pos-line-del" data-act="del" title="' + esc(POS_T.remove) + '">✕</button>'
           + '</div>'
         + '</div>';
       }
@@ -918,7 +1193,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
 
   $('pos-clear-cart').addEventListener('click', function() {
     if (cart.length === 0) return;
-    if (confirm('Άδειασμα καλαθιού;')) { cart = []; renderCart(); }
+    if (confirm(POS_T.emptyCartConfirm)) { cart = []; renderCart(); }
   });
 
   // ════════════════════════════════════════════════════════════════════════
@@ -966,13 +1241,13 @@ const dataPayload = JSON.stringify({ products, config, categories });
     if (!TIME_ENABLED) { $('pos-time-eta').textContent = ''; return; }
     var ready = new Date(Date.now() + prepMinutes * 60000);
     var hh = pad(ready.getHours()) + ':' + pad(ready.getMinutes());
-    var line = 'Έτοιμο / Ready : ' + prepMinutes + ' min → ' + hh;
+    var line = POS_T.readyBy + ' : ' + prepMinutes + ' min → ' + hh;
     if (TIME_HAS_DELIVERY && deliveryMinutes > 0) {
       var arrived = new Date(Date.now() + (prepMinutes + deliveryMinutes) * 60000);
-      line += '  ·  Παράδοση / Delivery : +' + deliveryMinutes + ' min → '
+      line += '  ·  ' + POS_T.deliveryAt + ' : +' + deliveryMinutes + ' min → '
         + pad(arrived.getHours()) + ':' + pad(arrived.getMinutes());
     }
-    if (timeOverridden) line += '  (manuel)';
+    if (timeOverridden) line += '  (' + POS_T.manual + ')';
     $('pos-time-eta').textContent = line;
   }
   function setPrep(v) {
@@ -1017,11 +1292,13 @@ const dataPayload = JSON.stringify({ products, config, categories });
   });
 
   function renderPayModes() {
+    var useAlt = (POS_LANG === 'en');
     var html = '';
     for (var i = 0; i < config.paymentModes.length; i++) {
       var m = config.paymentModes[i];
+      var lbl = (useAlt && m.label_alt) ? m.label_alt : m.label;
       html += '<button type="button" class="pos-pay-mode" data-mode="' + esc(m.id) + '">'
-        + (m.icon ? m.icon + ' ' : '') + esc(m.label) + '</button>';
+        + (m.icon ? m.icon + ' ' : '') + esc(lbl) + '</button>';
     }
     var el = $('pos-pay-modes');
     el.innerHTML = html;
@@ -1047,14 +1324,16 @@ const dataPayload = JSON.stringify({ products, config, categories });
   function renderPaySplit() {
     var el = $('pos-pay-split');
     if (payments.length === 0) { el.innerHTML = ''; return; }
+    var useAlt = (POS_LANG === 'en');
     var html = '';
     for (var i = 0; i < payments.length; i++) {
       var p = payments[i];
       var mode = config.paymentModes.find(function(m) { return m.id === p.mode; });
+      var mLbl = mode ? ((useAlt && mode.label_alt) ? mode.label_alt : mode.label) : p.mode;
       html += '<div class="pos-pay-split-line" data-i="' + i + '">'
-        + '<span class="mode">' + (mode ? (mode.icon || '') + ' ' + esc(mode.label) : esc(p.mode)) + '</span>'
+        + '<span class="mode">' + (mode ? (mode.icon || '') + ' ' + esc(mLbl) : esc(p.mode)) + '</span>'
         + '<input type="number" step="0.01" min="0" value="' + p.amount.toFixed(2) + '" />'
-        + '<button type="button" title="Αφαίρεση">✕</button>'
+        + '<button type="button" title="' + esc(POS_T.remove) + '">✕</button>'
         + '</div>';
     }
     el.innerHTML = html;
@@ -1199,19 +1478,19 @@ const dataPayload = JSON.stringify({ products, config, categories });
       paid += '<div class="t-row"><span>' + (m ? esc(m.label) : esc(p.mode)) + '</span><span>' + fmt(p.amount) + '</span></div>';
     });
     var changeHtml = sale.change > 0
-      ? '<div class="t-row"><span>Δόθηκαν</span><span>' + fmt(sale.given) + '</span></div>'
-        + '<div class="t-row"><span>Ρέστα</span><span>' + fmt(sale.change) + '</span></div>'
+      ? '<div class="t-row"><span>' + esc(POS_T.ticketCashGiven) + '</span><span>' + fmt(sale.given) + '</span></div>'
+        + '<div class="t-row"><span>' + esc(POS_T.ticketChange) + '</span><span>' + fmt(sale.change) + '</span></div>'
       : '';
 
     var timeHtml = '';
     if (sale.prepMinutes && sale.prepMinutes > 0) {
       var ready = new Date(sale.ts + sale.prepMinutes * 60000);
-      timeHtml += '<div class="t-row"><span>⏱ Έτοιμο / Ready</span><span>'
+      timeHtml += '<div class="t-row"><span>' + esc(POS_T.ticketReady) + '</span><span>'
         + pad(ready.getHours()) + ':' + pad(ready.getMinutes())
         + ' (' + sale.prepMinutes + ' min)</span></div>';
       if (sale.deliveryMinutes && sale.deliveryMinutes > 0) {
         var arr = new Date(sale.ts + (sale.prepMinutes + sale.deliveryMinutes) * 60000);
-        timeHtml += '<div class="t-row"><span>🛵 Παράδοση / Delivery</span><span>'
+        timeHtml += '<div class="t-row"><span>' + esc(POS_T.ticketDelivery) + '</span><span>'
           + pad(arr.getHours()) + ':' + pad(arr.getMinutes())
           + ' (+' + sale.deliveryMinutes + ' min)</span></div>';
       }
@@ -1229,15 +1508,15 @@ const dataPayload = JSON.stringify({ products, config, categories });
       + '<hr/>'
       + lines
       + '<hr/>'
-      + '<div class="t-row"><span>HT</span><span>' + fmt(sale.subtotalHt) + '</span></div>'
+      + '<div class="t-row"><span>' + esc(POS_T.ticketHt) + '</span><span>' + fmt(sale.subtotalHt) + '</span></div>'
       + '<div class="t-row"><span>' + esc(config.vatLabel) + '</span><span>' + fmt(sale.vatTotal) + '</span></div>'
-      + '<div class="t-row t-grand"><span>ΣΥΝΟΛΟ</span><span>' + fmt(sale.total) + '</span></div>'
+      + '<div class="t-row t-grand"><span>' + esc(POS_T.ticketTotal) + '</span><span>' + fmt(sale.total) + '</span></div>'
       + '<hr/>'
       + paid
       + changeHtml
       + '<hr/>'
       + timeHtml
-      + '<div class="t-center">Ευχαριστούμε! / Thank you!</div>'
+      + '<div class="t-center">' + esc(POS_T.ticketThanks) + '</div>'
       + '</div>';
     setTimeout(function() {
       window.print();
@@ -1282,17 +1561,17 @@ const dataPayload = JSON.stringify({ products, config, categories });
     var avg = sales.length ? round2(ca / sales.length) : 0;
 
     var html = '<div class="pos-stats-grid">'
-      + '<div class="pos-stat"><div class="l">Πωλήσεις</div><div class="v">' + sales.length + '</div></div>'
-      + '<div class="pos-stat"><div class="l">Σύνολο CA</div><div class="v">' + fmt(ca) + '</div></div>'
-      + '<div class="pos-stat"><div class="l">Μέσος όρος</div><div class="v">' + fmt(avg) + '</div></div>'
-      + '<div class="pos-stat"><div class="l">Είδη που πωλήθηκαν</div><div class="v">' + items + '</div></div>'
-      + '<div class="pos-stat"><div class="l">💶 Μετρητά</div><div class="v">' + fmt(cash) + '</div></div>'
-      + '<div class="pos-stat"><div class="l">💳 Κάρτα</div><div class="v">' + fmt(card) + '</div></div>'
-      + (other > 0 ? '<div class="pos-stat"><div class="l">Άλλο</div><div class="v">' + fmt(other) + '</div></div>' : '')
+      + '<div class="pos-stat"><div class="l">' + esc(POS_T.statsSales) + '</div><div class="v">' + sales.length + '</div></div>'
+      + '<div class="pos-stat"><div class="l">' + esc(POS_T.statsCa) + '</div><div class="v">' + fmt(ca) + '</div></div>'
+      + '<div class="pos-stat"><div class="l">' + esc(POS_T.statsAvg) + '</div><div class="v">' + fmt(avg) + '</div></div>'
+      + '<div class="pos-stat"><div class="l">' + esc(POS_T.statsItems) + '</div><div class="v">' + items + '</div></div>'
+      + '<div class="pos-stat"><div class="l">' + esc(POS_T.statsCash) + '</div><div class="v">' + fmt(cash) + '</div></div>'
+      + '<div class="pos-stat"><div class="l">' + esc(POS_T.statsCard) + '</div><div class="v">' + fmt(card) + '</div></div>'
+      + (other > 0 ? '<div class="pos-stat"><div class="l">' + esc(POS_T.statsOther) + '</div><div class="v">' + fmt(other) + '</div></div>' : '')
       + '</div>';
-    html += '<h3 style="color:var(--gold); margin: 1rem 0 0.5rem; font-size: 0.9rem;">🏆 Top προϊόντα</h3>';
+    html += '<h3 style="color:var(--gold); margin: 1rem 0 0.5rem; font-size: 0.9rem;">' + esc(POS_T.statsTop) + '</h3>';
     html += '<div class="pos-top-list">';
-    if (top.length === 0) html += '<div style="color:#555; text-align:center; padding:1rem;">Κανένα ακόμη.</div>';
+    if (top.length === 0) html += '<div style="color:#555; text-align:center; padding:1rem;">' + esc(POS_T.statsNoTop) + '</div>';
     top.forEach(function(p) {
       html += '<div class="row"><span class="n">' + esc(p.name) + '</span><span class="q">×' + p.qty + '</span><span class="r">' + fmt(p.rev) + '</span></div>';
     });
@@ -1314,7 +1593,7 @@ const dataPayload = JSON.stringify({ products, config, categories });
   function renderArchive() {
     var arch = loadArchive();
     var html = '';
-    if (arch.length === 0) html = '<div style="color:#555; text-align:center; padding:1.5rem;">Κανένα κλείσιμο ακόμη.</div>';
+    if (arch.length === 0) html = '<div style="color:#555; text-align:center; padding:1.5rem;">' + esc(POS_T.archiveEmpty) + '</div>';
     else {
       html = '<div class="pos-archive-list">';
       arch.forEach(function(s) {
@@ -1322,9 +1601,9 @@ const dataPayload = JSON.stringify({ products, config, categories });
         var gap = s.cashGap == null ? '—' : (s.cashGap >= 0 ? '+' : '') + fmt(s.cashGap);
         html += '<div class="pos-archive-row">'
           + '<span class="d">' + esc(s.dateKey) + '</span>'
-          + '<span>' + (s.sales ? s.sales.length : 0) + ' πωλήσεις · ' + (s.server || '—') + '</span>'
+          + '<span>' + (s.sales ? s.sales.length : 0) + ' ' + esc(POS_T.archiveSales) + ' · ' + (s.server || '—') + '</span>'
           + '<span class="ca">' + fmt(ca) + '</span>'
-          + '<span class="g">Διαφ.: ' + gap + '</span>'
+          + '<span class="g">' + esc(POS_T.archiveGap) + ' ' + gap + '</span>'
           + '</div>';
       });
       html += '</div>';
@@ -1339,16 +1618,22 @@ const dataPayload = JSON.stringify({ products, config, categories });
     if (!session) return;
     var sales = session.sales || [];
     var cashTakings = 0;
+    var cardTakings = 0;
+    var ca = 0;
     sales.forEach(function(s) {
-      s.payments.forEach(function(p) { if (p.mode === 'cash') cashTakings += p.amount; });
+      ca += s.total;
+      s.payments.forEach(function(p) {
+        if (p.mode === 'cash') cashTakings += p.amount;
+        else if (p.mode === 'card') cardTakings += p.amount;
+      });
     });
-    var expected = round2(session.openingFloat + cashTakings);
     $('pos-close-summary').innerHTML = ''
-      + '<div class="pos-pay-row"><span>Άνοιγμα</span><span>' + fmt(session.openingFloat) + '</span></div>'
-      + '<div class="pos-pay-row"><span>Εισπράξεις μετρητά</span><span>' + fmt(cashTakings) + '</span></div>'
-      + '<div class="pos-pay-row" style="border-top:1px solid var(--border); padding-top:0.4rem; margin-top:0.4rem;"><span><strong>Αναμενόμενο</strong></span><span><strong>' + fmt(expected) + '</strong></span></div>';
-    $('pos-close-counted').value = expected.toFixed(2);
-    updateCloseGap(expected);
+      + '<div class="pos-pay-row"><span>' + esc(POS_T.closeSales) + '</span><span>' + sales.length + '</span></div>'
+      + '<div class="pos-pay-row"><span>' + esc(POS_T.closeCash) + '</span><span>' + fmt(cashTakings) + '</span></div>'
+      + '<div class="pos-pay-row"><span>' + esc(POS_T.closeCard) + '</span><span>' + fmt(cardTakings) + '</span></div>'
+      + '<div class="pos-pay-row" style="border-top:1px solid var(--border); padding-top:0.4rem; margin-top:0.4rem;"><span><strong>' + esc(POS_T.closeTotal) + '</strong></span><span><strong>' + fmt(ca) + '</strong></span></div>';
+    $('pos-close-counted').value = cashTakings.toFixed(2);
+    updateCloseGap(cashTakings);
     $('pos-close-modal').classList.add('show');
   });
 
@@ -1359,21 +1644,20 @@ const dataPayload = JSON.stringify({ products, config, categories });
     var el = $('pos-close-gap');
     if (gap === 0) {
       el.className = 'pos-close-gap ok';
-      el.textContent = '✓ Καμία διαφορά';
+      el.textContent = POS_T.gapBalanced;
     } else if (gap > 0) {
       el.className = 'pos-close-gap ok';
-      el.textContent = '+ ' + fmt(gap) + ' υπερβολή';
+      el.textContent = '+ ' + fmt(gap) + ' ' + POS_T.gapOver;
     } else {
       el.className = 'pos-close-gap bad';
-      el.textContent = fmt(gap) + ' λείπει';
+      el.textContent = fmt(gap) + ' ' + POS_T.gapShort;
     }
   }
   $('pos-close-counted').addEventListener('input', function() {
     var sales = session.sales || [];
     var cashTakings = 0;
     sales.forEach(function(s) { s.payments.forEach(function(p) { if (p.mode === 'cash') cashTakings += p.amount; }); });
-    var expected = round2(session.openingFloat + cashTakings);
-    updateCloseGap(expected);
+    updateCloseGap(cashTakings);
   });
 
   $('pos-close-cancel').addEventListener('click', function() {
@@ -1388,13 +1672,12 @@ const dataPayload = JSON.stringify({ products, config, categories });
     var sales = session.sales || [];
     var cashTakings = 0;
     sales.forEach(function(s) { s.payments.forEach(function(p) { if (p.mode === 'cash') cashTakings += p.amount; }); });
-    var expected = round2(session.openingFloat + cashTakings);
     var counted = parseFloat($('pos-close-counted').value);
     if (isNaN(counted)) counted = 0;
     session.closedAt = Date.now();
     session.closingFloat = round2(counted);
-    session.expectedCash = expected;
-    session.cashGap = round2(counted - expected);
+    session.expectedCash = cashTakings;
+    session.cashGap = round2(counted - cashTakings);
 
     // archive
     try {
@@ -1444,6 +1727,37 @@ const dataPayload = JSON.stringify({ products, config, categories });
     a.click();
     setTimeout(function() { URL.revokeObjectURL(url); a.remove(); }, 200);
   }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // MODAL CLOSE UX — 3 voies : × button + backdrop click + Esc
+  // ════════════════════════════════════════════════════════════════════════
+  var CLOSABLE_MODALS = ['pos-pay-modal', 'pos-close-modal', 'pos-stats-modal', 'pos-archive-modal'];
+  function closeAnyOpenModal() {
+    for (var i = 0; i < CLOSABLE_MODALS.length; i++) {
+      var el = $(CLOSABLE_MODALS[i]);
+      if (el && el.classList.contains('show')) el.classList.remove('show');
+    }
+  }
+  // × buttons
+  root.querySelectorAll('.pos-modal-close').forEach(function(btn) {
+    btn.addEventListener('click', function(ev) {
+      ev.stopPropagation();
+      var id = btn.getAttribute('data-close-modal');
+      if (id && $(id)) $(id).classList.remove('show');
+    });
+  });
+  // Backdrop click
+  CLOSABLE_MODALS.forEach(function(id) {
+    var el = $(id);
+    if (!el) return;
+    el.addEventListener('click', function(ev) {
+      if (ev.target === el) el.classList.remove('show');
+    });
+  });
+  // Esc key
+  document.addEventListener('keydown', function(ev) {
+    if (ev.key === 'Escape' || ev.keyCode === 27) closeAnyOpenModal();
+  });
 
   // ════════════════════════════════════════════════════════════════════════
   // Clock

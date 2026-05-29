@@ -22,7 +22,7 @@ const links = [
     class="hidden md:flex fixed top-0 left-0 right-0 w-full z-50 h-16 items-center justify-between px-6 lg:px-10 bg-transparent border-b border-transparent transition-all duration-500"
     style="will-change: background-color, border-color;"
 >
-    <a href={`${base}/#home`} class="flex items-center group" aria-label="Το Καλαμάκι Τρούμπας">
+    <a href={`${base}/#home`} class="flex items-center group shrink-0" aria-label="Το Καλαμάκι Τρούμπας">
         <img
             src="/photos/logo-main-200w.webp"
             alt="Το Καλαμάκι Τρούμπας"
@@ -34,13 +34,13 @@ const links = [
         />
     </a>
 
-    <nav class="flex gap-8 lg:gap-10 text-[11px] font-bold text-white uppercase tracking-[0.2em]">
+    <nav class="absolute left-1/2 -translate-x-1/2 flex gap-8 lg:gap-10 text-[11px] font-bold text-white uppercase tracking-[0.2em]">
         {links.map((link) => (
             <a href={link.href} class="hover:text-[#E5B32A] transition-colors py-2">{link.name}</a>
         ))}
     </nav>
 
-    <div class="flex items-center gap-4 lg:gap-6">
+    <div class="flex items-center gap-3 lg:gap-4 shrink-0">
         <div class="relative flex items-center gap-2 px-2 py-1 rounded-full border border-white/15 bg-black/20 backdrop-blur-sm">
             <button
                 id="lang-menu-btn"
@@ -83,19 +83,19 @@ const links = [
         <a
             id="desktop-call-link"
             href="tel:+302104222233"
-            class="hidden lg:inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-white hover:text-[#E5B32A] transition-colors"
+            class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white hover:text-[#E5B32A] transition-colors"
             aria-label={t.nav_aria_phone}
         >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 4.5l4.5-1.5 2.25 4.5-2.25 1.5a11.25 11.25 0 005.25 5.25l1.5-2.25 4.5 2.25-1.5 4.5A2.25 2.25 0 0114.25 21 13.5 13.5 0 013 9.75 2.25 2.25 0 012.25 4.5z"></path>
             </svg>
-            <span>{t.nav_aria_phone}</span>
+            <span class="hidden lg:inline">{t.nav_aria_phone}</span>
         </a>
 
         <a
             id="desktop-reserver-link"
             href={`${base}/delivery`}
-            class="px-6 lg:px-8 py-3 bg-[#E5B32A] text-black text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-white transition-colors hidden lg:inline"
+            class="inline-flex items-center px-3.5 py-1.5 bg-[#E5B32A] text-black text-[10px] font-bold uppercase tracking-[0.14em] rounded-full hover:bg-white transition-colors"
         >{t.order_cta}</a>
     </div>
 </header>
@@ -117,10 +117,10 @@ const links = [
 
 <div id="menu-overlay" class="menu-overlay fixed inset-0 z-[65] md:hidden"></div>
 
-<div id="menu-panel" class="menu-panel-drawer fixed z-[70] flex flex-col md:hidden touch-pan-y">
+<div id="menu-panel" class="menu-panel-drawer fixed z-[70] flex flex-col md:hidden touch-pan-y" aria-hidden="true" role="dialog" aria-modal="true">
     <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:12px auto;"></div>
-    <button id="drawer-close-btn" type="button" style="position:absolute;top:1rem;right:1.5rem;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);cursor:pointer;" aria-label="Κλείσιμο μενού">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+    <button id="drawer-close-btn" type="button" style="position:absolute;top:14px;right:14px;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(229,179,42,0.18);border:1.5px solid rgba(229,179,42,0.55);color:#E5B32A;cursor:pointer;transition:transform .15s ease, background .2s ease;-webkit-tap-highlight-color:transparent;" aria-label="Κλείσιμο μενού" onmouseover="this.style.background='rgba(229,179,42,0.32)'" onmouseout="this.style.background='rgba(229,179,42,0.18)'" ontouchstart="this.style.transform='scale(0.92)'" ontouchend="this.style.transform='scale(1)'">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
     </button>
     <div id="mobile-drawer-inner" class="px-8 pb-12 flex flex-col overflow-y-auto">
         <nav class="flex flex-col gap-8 mt-2">
@@ -194,44 +194,65 @@ const links = [
 
     const drawer = document.getElementById("menu-panel");
     const backdrop = document.getElementById("menu-overlay");
+    const drawerInner = document.getElementById("mobile-drawer-inner");
     const drawerLinks = document.querySelectorAll(".drawer-link");
     let drawerOpen = false;
     let savedScrollY = 0;
 
+    // Methode iOS-safe : position:fixed sur body avec scrollY preserve.
+    // overflow:hidden seul ne bloque PAS le scroll touch sur iOS Safari + plusieurs Android.
+    // Le swipe pour fermer le drawer ne doit JAMAIS scroller la page derriere.
     function lockBodyScroll() {
-        savedScrollY = window.scrollY;
-        document.body.style.overflow = "hidden";
+        savedScrollY = window.scrollY || window.pageYOffset || 0;
+        document.body.dataset.scrollY = String(savedScrollY);
         document.body.style.position = "fixed";
         document.body.style.top = `-${savedScrollY}px`;
         document.body.style.left = "0";
         document.body.style.right = "0";
         document.body.style.width = "100%";
+        document.body.style.overflow = "hidden";
+        document.body.style.touchAction = "none";
+        document.documentElement.style.overflow = "hidden";
+        document.body.classList.add("drawer-open");
     }
     function unlockBodyScroll() {
-        document.body.style.overflow = "";
+        const y = parseInt(document.body.dataset.scrollY || "0", 10);
+        document.body.classList.remove("drawer-open");
         document.body.style.position = "";
         document.body.style.top = "";
         document.body.style.left = "";
         document.body.style.right = "";
         document.body.style.width = "";
-        // Restaurer la position scroll EXACTEMENT ou on etait
-        window.scrollTo(0, savedScrollY);
+        document.body.style.overflow = "";
+        document.body.style.touchAction = "";
+        document.documentElement.style.overflow = "";
+        delete document.body.dataset.scrollY;
+        // Restaurer la position de scroll exacte (sans animation)
+        window.scrollTo(0, y);
     }
     function unlockBodyScrollNoRestore() {
-        // Pour fermeture suite a clic ancre — laisse le browser scroll vers l'ancre
-        document.body.style.overflow = "";
+        // Pour ancres internes : on laisse le browser scroller vers la cible
+        document.body.classList.remove("drawer-open");
         document.body.style.position = "";
         document.body.style.top = "";
         document.body.style.left = "";
         document.body.style.right = "";
         document.body.style.width = "";
+        document.body.style.overflow = "";
+        document.body.style.touchAction = "";
+        document.documentElement.style.overflow = "";
+        delete document.body.dataset.scrollY;
     }
-    function openDrawer() { if (!drawer || !backdrop) return; drawerOpen = true; backdrop.classList.add("open"); drawer.classList.add("open"); lockBodyScroll(); }
-    function closeDrawer() { if (!drawer || !backdrop) return; drawerOpen = false; backdrop.classList.remove("open"); drawer.classList.remove("open"); unlockBodyScroll(); }
+    function openDrawer() { if (!drawer || !backdrop) return; drawerOpen = true; backdrop.classList.add("open"); drawer.classList.add("open"); drawer.setAttribute("aria-hidden", "false"); lockBodyScroll(); }
+    function closeDrawer() { if (!drawer || !backdrop) return; drawerOpen = false; backdrop.classList.remove("open"); drawer.classList.remove("open"); drawer.setAttribute("aria-hidden", "true"); unlockBodyScroll(); }
     const drawerCloseBtn = document.getElementById("drawer-close-btn");
-    if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", closeDrawer);
+    if (drawerCloseBtn) drawerCloseBtn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); closeDrawer(); });
     document.addEventListener("open-drawer", openDrawer);
-    backdrop?.addEventListener("click", () => { if (drawerOpen) closeDrawer(); });
+    backdrop?.addEventListener("click", (e) => { if (drawerOpen) { e.preventDefault(); e.stopPropagation(); closeDrawer(); } });
+    // Bloquer tout touchmove sur le backdrop (safety net : empeche scroll page derriere)
+    backdrop?.addEventListener("touchmove", (e) => { if (drawerOpen) e.preventDefault(); }, { passive: false });
+    // Esc key pour fermer
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && drawerOpen) closeDrawer(); });
     drawerLinks.forEach((l) => l.addEventListener("click", () => {
         if (!drawerOpen) return;
         const href = (l as HTMLAnchorElement).getAttribute("href") || "";
@@ -241,18 +262,22 @@ const links = [
         drawerOpen = false;
         backdrop?.classList.remove("open");
         drawer?.classList.remove("open");
+        drawer?.setAttribute("aria-hidden", "true");
         if (isAnchor) unlockBodyScrollNoRestore();
         else unlockBodyScroll();
     }));
 
     // Swipe down depuis n'importe où dans le drawer pour fermer
     let swipeStartY = 0;
+    let swipeStartScrollTop = 0;
     drawer?.addEventListener('touchstart', (e) => {
         swipeStartY = e.changedTouches[0].screenY;
+        swipeStartScrollTop = drawerInner?.scrollTop ?? 0;
     }, { passive: true });
     drawer?.addEventListener('touchend', (e) => {
         const delta = e.changedTouches[0].screenY - swipeStartY;
-        if (delta > 60 && drawerOpen) closeDrawer();
+        // Ne fermer que si le drawer interne est deja en haut (sinon on scrollait du contenu)
+        if (delta > 60 && drawerOpen && swipeStartScrollTop <= 0) closeDrawer();
     }, { passive: true });
 
     // Logo flottant mobile : fade-in apres avoir scrolle au-dela du hero

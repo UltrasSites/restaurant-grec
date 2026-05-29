@@ -3,9 +3,6 @@ export function getStaticPaths() {
   return [
     { params: { lang: "el" } },
     { params: { lang: "en" } },
-    { params: { lang: "de" } },
-    { params: { lang: "ru" } },
-    { params: { lang: "ja" } },
   ];
 }
 
@@ -36,10 +33,10 @@ const baseUrl = `/${currentLang}`;
       box-sizing: border-box;
     }
     .hero-card-3d {
-      background: linear-gradient(135deg, rgba(229, 179, 42, 0.2) 0%, rgba(10, 10, 10, 0.95) 100%);
-      backdrop-filter: blur(25px);
-      -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(229, 179, 42, 0.4);
+      background: linear-gradient(135deg, rgba(229, 179, 42, 0.10) 0%, rgba(10, 10, 10, 0.55) 100%);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(229, 179, 42, 0.30);
       border-radius: 2rem;
       padding: 2rem 1.5rem !important;
       width: 100%;
@@ -184,6 +181,15 @@ const baseUrl = `/${currentLang}`;
   @keyframes gold-shimmer {
     from { background-position: 0% center; }
     to { background-position: 200% center; }
+  }
+  /* Perf machines faibles : ban background-position animation mobile + reduced-motion */
+  @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+    .gold-shine-text {
+      animation: none !important;
+      background: none !important;
+      -webkit-text-fill-color: #e5b32a !important;
+      color: #e5b32a !important;
+    }
   }
 </style>
 
@@ -475,16 +481,21 @@ const baseUrl = `/${currentLang}`;
         </p>
         <p class="text-[10px] uppercase tracking-[0.25em] text-[#E5B32A]/85 font-bold mb-2 flex items-center gap-2">
           <svg viewBox="0 0 24 24" class="w-3 h-3 fill-current"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-          {currentLang === 'el' ? 'Διαθέσιμος σε 7 γλώσσες :' : 'Available in 7 languages :'}
+          {currentLang === 'el' ? 'Διαθέσιμος σε 12 γλώσσες :' : 'Available in 12 languages :'}
         </p>
         <div class="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-5">
           {[
             { code: 'el', label: 'Ελληνικά' },
             { code: 'en', label: 'English' },
+            { code: 'de', label: 'Deutsch' },
+            { code: 'ru', label: 'Русский' },
+            { code: 'ja', label: '日本語' },
+            { code: 'tr', label: 'Türkçe' },
             { code: 'fr', label: 'Français' },
             { code: 'es', label: 'Español' },
             { code: 'it', label: 'Italiano' },
             { code: 'pt', label: 'Português' },
+            { code: 'nl', label: 'Nederlands' },
             { code: 'zh', label: '中文' },
           ].map((l) => (
             <a
@@ -511,6 +522,70 @@ const baseUrl = `/${currentLang}`;
       </div>
     </div>
   </div>
+
+  <!-- OUVERT TARD LA NUIT — info HAQQ vraie : Trouba ferme à 02h30 / 04h / 05h -->
+  <section class="bg-gradient-to-b from-[#050505] to-[#0a0a0a] py-16 px-6 border-t border-white/5">
+    <div class="max-w-5xl mx-auto">
+      <div class="grid md:grid-cols-3 gap-4 md:gap-6">
+        <div class="rounded-2xl border border-[#E5B32A]/30 bg-gradient-to-br from-[#E5B32A]/8 to-black/70 p-6 md:p-7 backdrop-blur-sm hover:border-[#E5B32A]/55 transition-colors">
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-[#E5B32A]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.2 14.2L11 13V7h1.5v5.2l4.5 2.7-.8 1.3z"/></svg>
+            <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold">
+              {currentLang === 'el' ? 'Ανοιχτά μέχρι αργά' : 'Open late at night'}
+            </p>
+          </div>
+          <h3 class="text-xl font-serif italic text-white mb-2">
+            {currentLang === 'el' ? 'Καλαμάκι μετά τα μεσάνυχτα' : 'Souvlaki past midnight'}
+          </h3>
+          <p class="text-sm text-gray-300/85 leading-relaxed mb-3">
+            {currentLang === 'el'
+              ? 'Δευ–Πέμ μέχρι 02:30 · Παρ μέχρι 04:00 · Σαβ μέχρι 05:00 το πρωί. Όταν η Τρούμπα ξυπνά τη νύχτα, εμείς ψήνουμε ακόμα.'
+              : 'Mon–Thu until 02:30 · Fri until 04:00 · Sat until 05:00 AM. When Trouba comes alive at night, we are still grilling.'}
+          </p>
+          <p class="text-[10px] uppercase tracking-[0.25em] text-white/40 font-bold">
+            {currentLang === 'el' ? 'Κυριακή: κλειστά' : 'Sunday: closed'}
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E5B32A]/30 bg-gradient-to-br from-[#E5B32A]/8 to-black/70 p-6 md:p-7 backdrop-blur-sm hover:border-[#E5B32A]/55 transition-colors">
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-[#E5B32A]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.1 13.34l2.83-2.83L3.91 3.5a4.008 4.008 0 000 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z"/></svg>
+            <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold">
+              {currentLang === 'el' ? 'Σερβίρισμα στο τραπέζι' : 'Table service'}
+            </p>
+          </div>
+          <h3 class="text-xl font-serif italic text-white mb-2">
+            {currentLang === 'el' ? 'Καθήστε και απολαύστε' : 'Sit down and enjoy'}
+          </h3>
+          <p class="text-sm text-gray-300/85 leading-relaxed">
+            {currentLang === 'el'
+              ? 'Τραπέζια μέσα και έξω, σερβιτόρος που σας προσέχει — όχι μόνο take-away. Χώρος για ζευγάρια, παρέες και οικογένειες.'
+              : 'Indoor and outdoor tables, a waiter looking after you — not just take-away. Room for couples, friends and families.'}
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-[#E5B32A]/30 bg-gradient-to-br from-[#E5B32A]/8 to-black/70 p-6 md:p-7 backdrop-blur-sm hover:border-[#E5B32A]/55 transition-colors">
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="w-5 h-5 text-[#E5B32A]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>
+            <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold">
+              {currentLang === 'el' ? 'Online παραγγελία' : 'Order online'}
+            </p>
+          </div>
+          <h3 class="text-xl font-serif italic text-white mb-2">
+            {currentLang === 'el' ? '0% προμήθεια, απευθείας' : '0% fees, order direct'}
+          </h3>
+          <p class="text-sm text-gray-300/85 leading-relaxed mb-3">
+            {currentLang === 'el'
+              ? 'Delivery ή take-away — απευθείας από εμάς, χωρίς προμήθεια πλατφόρμας. Πληρώνεις τα ίδια που πληρώνεις στο μαγαζί.'
+              : 'Delivery or take-away — direct with us, no platform fee. You pay the same price as at the shop.'}
+          </p>
+          <a href={`/${currentLang}/order`} class="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.2em] text-[#E5B32A] font-bold hover:text-white transition-colors">
+            {currentLang === 'el' ? 'Παράγγειλε τώρα →' : 'Order now →'}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <section class="bg-[#050505] py-14 px-6 border-t border-white/5">
     <div class="max-w-5xl mx-auto text-center">
@@ -637,13 +712,14 @@ const baseUrl = `/${currentLang}`;
           +30 210 422 2273
         </a>
         <a
-          href={currentLang === 'el'
-            ? 'mailto:kalamaki.troubas@gmail.com?subject=Επικοινωνία%20—%20Το%20Καλαμάκι%20Της%20Τρούμπας'
-            : 'mailto:kalamaki.troubas@gmail.com?subject=Contact%20—%20To%20Kalamaki%20Tis%20Troumpas'}
-          aria-label={currentLang === 'el' ? 'Email επικοινωνίας — αρχικό' : 'Contact email — primary'}
-          class="inline-flex items-center justify-center gap-2 px-6 py-4 border-2 border-white/30 text-white text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:border-[#E5B32A] hover:text-[#E5B32A] transition-colors">
+          href="#"
+          class="email-link inline-flex items-center justify-center gap-2 px-6 py-4 border-2 border-white/30 text-white text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:border-[#E5B32A] hover:text-[#E5B32A] transition-colors"
+          data-eu="kalamaki.troubas" data-ed="gmail.com"
+          data-subject-el="Επικοινωνία%20—%20Το%20Καλαμάκι%20Της%20Τρούμπας"
+          data-subject-en="Contact%20—%20To%20Kalamaki%20Tis%20Troumpas"
+          aria-label={currentLang === 'el' ? 'Στείλτε μας email' : 'Send us an email'}>
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
-          kalamaki.troubas@gmail.com
+          {currentLang === 'el' ? 'Email' : 'Mail'}
         </a>
       </div>
 

@@ -170,6 +170,20 @@
     transform: translateY(0);
 }
 
+/* Empeche le scroll du drawer de se propager au body derriere */
+.menu-panel-drawer,
+#mobile-drawer-inner {
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Body lock state quand drawer ouvert — securise iOS Safari + Android */
+body.drawer-open {
+    overflow: hidden !important;
+    overscroll-behavior: none;
+    touch-action: none;
+}
+
 @layer utilities {
     .text-gold-premium {
         background: linear-gradient(to right,
@@ -189,4 +203,15 @@
 @keyframes gold-shimmer {
     from { background-position: 0% center; }
     to { background-position: 200% center; }
+}
+
+/* Perf machines faibles : ban background-position animation mobile + reduced-motion (non-composited paint killer) */
+@media (max-width: 767px), (prefers-reduced-motion: reduce) {
+    .text-gold-premium {
+        animation: none !important;
+        background: none !important;
+        -webkit-text-fill-color: #E5B32A !important;
+        color: #E5B32A !important;
+        text-shadow: none !important;
+    }
 }

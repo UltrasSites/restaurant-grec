@@ -2,6 +2,7 @@
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import ScrollToTop from "../components/ScrollToTop.astro";
+import A2hsPrompt from "../components/A2hsPrompt.astro";
 import "../styles/global.css";
 import type { Lang } from "../i18n/utils";
 import { menuPages, parsePrice } from "../data/menu-data";
@@ -15,43 +16,56 @@ interface Props {
   breadcrumbs?: { name: string; path: string }[];
   /** When true, includes the Menu schema (only on pages that show the menu). */
   includeMenu?: boolean;
+  /** When true, loads Leaflet CSS+JS (only needed on delivery page). */
+  includeLeaflet?: boolean;
 }
 
 const {
-  title = "Το Καλαμάκι Της Τρούμπας – Αυθεντικά Σουβλάκια Πειραιάς",
+  title = "Σουβλάκι Τρούμπα · Παραγγελία online · Πειραιάς | Καλαμάκι",
   description = "Αυθεντικά καλαμάκια, γύρος και πίτες στην καρδιά της Τρούμπας Πειραιά. Μπουμπουλίνας 8 & Νοταρά.",
   lang = "el",
   hideHeader = false,
   breadcrumbs = [],
   includeMenu = false,
+  includeLeaflet = false,
 } = Astro.props;
-const HTML_LANG_MAP: Record<string, string> = { el: 'el-GR', en: 'en-GB', de: 'de-DE', ru: 'ru-RU', ja: 'ja-JP' };
+const HTML_LANG_MAP: Record<string, string> = { el: 'el-GR', en: 'en-GB' };
 const htmlLang = HTML_LANG_MAP[lang] ?? 'el-GR';
 const origin = Astro.url.origin;
 
 // ===== JSON-LD : Restaurant (with @id) =====
 const restaurantSchema = {
   "@context": "https://schema.org",
-  "@type": "Restaurant",
+  "@type": ["Restaurant", "LocalBusiness", "FoodEstablishment"],
   "@id": `${origin}/#restaurant`,
   "name": "Το Καλαμάκι Της Τρούμπας",
-  "alternateName": ["To Kalamaki Tis Troumpas", "Trouba Souvlaki", "Kalamaki Troumpa"],
+  "alternateName": ["To Kalamaki Tis Troumpas", "Trouba Souvlaki", "Kalamaki Troumpa", "Καλαμάκι Τρούμπας"],
   "description": description,
   "url": origin,
+  "mainEntityOfPage": `${origin}/${lang}/`,
   "image": [
     `${origin}/photos/efood-00-1600w.webp`,
     `${origin}/photos/efood-00-800w.webp`,
     `${origin}/photos/trouba-storefront-1600w.webp`,
     `${origin}/photos/trouba-grill-skewers-1600w.webp`,
+    `${origin}/photos/trouba-grill-chops-1600w.webp`,
     `${origin}/photos/logo-main.png`,
   ],
+  "photo": `${origin}/photos/efood-00-1600w.webp`,
   "logo": `${origin}/photos/logo-main.png`,
   "telephone": "+302104222233",
+  "faxNumber": "+302104222273",
   "email": "kalamaki.troubas@gmail.com",
   "priceRange": "€",
   "currenciesAccepted": "EUR",
   "paymentAccepted": "Cash, Credit Card, Debit Card",
-  "servesCuisine": ["Greek", "Mediterranean", "Souvlaki", "Gyros"],
+  "smokingAllowed": false,
+  "publicAccess": true,
+  "isAccessibleForFree": true,
+  "slogan": lang === 'en' ? "The authentic Trouba souvlaki" : "Το αυθεντικό σουβλάκι της Τρούμπας",
+  "knowsAbout": ["Greek charcoal souvlaki", "Pita gyros", "Kalamaki", "Mediterranean cuisine", "Greek street food", "Piraeus food culture"],
+  "servesCuisine": ["Greek", "Mediterranean", "Souvlaki", "Gyros", "Pita", "Charcoal grill", "Greek street food", "Trouba street food"],
+  "keywords": "σουβλάκι, σουβλάκι πειραιάς, σουβλάκι τρούμπα, σουβλάκι online, σουβλάκι delivery, παραγγελία σουβλάκι, γύρος πειραιάς, γύρος τρούμπα, γύρος delivery, καλαμάκι τρούμπας, καλαμάκι κοτόπουλο, καλαμάκι χοιρινό, πίτα γύρος, μερίδα σουβλάκι, τυλιχτό γύρος, ψητοπωλείο πειραιάς, ψητοπωλείο τρούμπας, ταβέρνα πειραιάς, ελληνικό φαγητό, φαγητό πειραιάς, delivery πειραιάς, take away πειραιάς, ψητά κρεατικά, φθηνό σουβλάκι πειραιά, καλή πίτα, souvlaki, greek souvlaki, souvlaki Piraeus, souvlaki Trouba, gyros Piraeus, kalamaki, pita gyros, chicken souvlaki, pork souvlaki, greek food, greek cuisine, greek restaurant Piraeus, greek taverna, souvlaki delivery Piraeus, souvlaki online order, best souvlaki Piraeus, best gyros Piraeus, greek street food, authentic greek food, piraeus food delivery, Trouba district Piraeus restaurant",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Μπουμπουλίνας 8 & Νοταρά",
@@ -83,7 +97,7 @@ const restaurantSchema = {
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "4.3",
-    "reviewCount": "200",
+    "reviewCount": "291",
     "bestRating": "5",
     "worstRating": "1",
   },
@@ -91,7 +105,69 @@ const restaurantSchema = {
     "https://www.facebook.com/to.kalamaki.tis.troumpas/",
     "https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas",
     "https://wolt.com/el/grc/piraeus/restaurant/to-kalamaki-tis-troumpas",
+    "https://box.gr",
     "https://www.tripadvisor.com/Restaurant_Review-g189403-d10042662-Reviews-To_Kalamaki_tis_Troumpas-Piraeus_Piraeus_Region_Attica.html",
+    "https://maps.google.com/?cid=4117845882351786324",
+  ],
+  "amenityFeature": [
+    { "@type": "LocationFeatureSpecification", "name": lang === 'en' ? "Takeaway" : "Take away", "value": true },
+    { "@type": "LocationFeatureSpecification", "name": lang === 'en' ? "Delivery" : "Παράδοση κατ' οίκον", "value": true },
+    { "@type": "LocationFeatureSpecification", "name": lang === 'en' ? "Vegetarian options" : "Χορτοφαγικές επιλογές", "value": true },
+    { "@type": "LocationFeatureSpecification", "name": lang === 'en' ? "Vegan options" : "Vegan επιλογές", "value": true },
+    { "@type": "LocationFeatureSpecification", "name": lang === 'en' ? "Late night food" : "Φαγητό μέχρι αργά", "value": true },
+    { "@type": "LocationFeatureSpecification", "name": lang === 'en' ? "Charcoal grill" : "Ψήσιμο στα κάρβουνα", "value": true },
+  ],
+  "potentialAction": [
+    {
+      "@type": "OrderAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `${origin}/${lang}/delivery/`,
+        "actionPlatform": ["http://schema.org/DesktopWebPlatform","http://schema.org/MobileWebPlatform"],
+      },
+      "deliveryMethod": ["http://purl.org/goodrelations/v1#DeliveryModeOwnFleet","http://purl.org/goodrelations/v1#DeliveryModePickUp"],
+    },
+    {
+      "@type": "ViewAction",
+      "name": lang === 'en' ? "View menu" : "Δες τον κατάλογο",
+      "target": `${origin}/menu/`,
+    },
+  ],
+};
+
+// ===== JSON-LD : Organization (parent — autorité du domaine) =====
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${origin}/#organization`,
+  "name": "Το Καλαμάκι Της Τρούμπας",
+  "url": origin,
+  "logo": {
+    "@type": "ImageObject",
+    "url": `${origin}/photos/logo-main.png`,
+    "width": 512,
+    "height": 481,
+  },
+  "sameAs": [
+    "https://www.facebook.com/to.kalamaki.tis.troumpas/",
+    "https://maps.google.com/?cid=4117845882351786324",
+    "https://www.tripadvisor.com/Restaurant_Review-g189403-d10042662-Reviews-To_Kalamaki_tis_Troumpas-Piraeus_Piraeus_Region_Attica.html",
+  ],
+  "contactPoint": [
+    {
+      "@type": "ContactPoint",
+      "telephone": "+302104222233",
+      "contactType": "reservations",
+      "areaServed": "GR",
+      "availableLanguage": ["el", "en"],
+    },
+    {
+      "@type": "ContactPoint",
+      "telephone": "+302104222273",
+      "contactType": "customer service",
+      "areaServed": "GR",
+      "availableLanguage": ["el", "en"],
+    },
   ],
 };
 
@@ -209,6 +285,46 @@ const faqSchema = {
           : "Ναι — κάθε καλαμάκι, κάθε μπριζολάκι και κάθε πίτα ψήνονται πάνω από αληθινά κάρβουνα, κάθε μέρα.",
       },
     },
+    {
+      "@type": "Question",
+      "name": lang === 'en' ? "Do you deliver to the Piraeus port and cruise terminals?" : "Κάνετε delivery στο λιμάνι του Πειραιά και στα κρουαζιερόπλοια;",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": lang === 'en'
+          ? "Yes — we deliver across Piraeus, including the ferry terminals and the cruise port. Order direct on our site (no commission) or via e-food, Wolt and Box.gr."
+          : "Ναι — παραδίδουμε σε όλο τον Πειραιά, συμπεριλαμβανομένων των φέρι και του λιμανιού κρουαζιέρας. Παραγγείλτε απευθείας από εμάς (χωρίς προμήθεια) ή μέσω e-food, Wolt και Box.gr.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": lang === 'en' ? "How much does a souvlaki cost?" : "Πόσο κοστίζει ένα σουβλάκι;",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": lang === 'en'
+          ? "Our charcoal-grilled chicken or pork kalamaki starts at €2.20. Pita gyros from €3.50. Souvlaki platters (with fries, pita, tzatziki and salad) from €11.50. Honest Piraeus pricing."
+          : "Το καλαμάκι κοτόπουλο ή χοιρινό στα κάρβουνα ξεκινά από 2,20€. Πίτα γύρος από 3,50€. Μερίδες σουβλάκι (με πατάτες, πίτα, τζατζίκι και σαλάτα) από 11,50€. Τίμιες τιμές Πειραιά.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": lang === 'en' ? "Are you open late at night?" : "Είστε ανοιχτά αργά το βράδυ;",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": lang === 'en'
+          ? "Yes — we stay open until 02:30 Monday to Thursday, 04:00 on Friday, and 05:00 on Saturday. Perfect for night-time arrivals and ferry departures."
+          : "Ναι — είμαστε ανοιχτά μέχρι 02:30 Δευτέρα-Πέμπτη, 04:00 την Παρασκευή και 05:00 το Σάββατο. Ιδανικό για νυχτερινές αφίξεις και αναχωρήσεις φέρι.",
+      },
+    },
+    {
+      "@type": "Question",
+      "name": lang === 'en' ? "How do I get to Trouba Souvlaki from the central port?" : "Πώς πάω στο Καλαμάκι Της Τρούμπας από το κεντρικό λιμάνι;",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": lang === 'en'
+          ? "We are a 5-minute walk from the central Piraeus port. Address: Bouboulinas 8 & Notara, Piraeus 185 35. Tap the address to open Google Maps."
+          : "Είμαστε 5 λεπτά με τα πόδια από το κεντρικό λιμάνι. Διεύθυνση: Μπουμπουλίνας 8 & Νοταρά, Πειραιάς 185 35. Πατήστε τη διεύθυνση για άνοιγμα στο Google Maps.",
+      },
+    },
   ],
 };
 ---
@@ -218,6 +334,7 @@ const faqSchema = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="yandex-verification" content="f3d9c4659950705e" />
     <meta name="theme-color" content="#0a0a0a" />
     <meta name="description" content={description} />
     <meta name="author" content="Το Καλαμάκι Της Τρούμπας — Πειραιάς" />
@@ -228,7 +345,16 @@ const faqSchema = {
     <meta name="rating" content="general" />
     <meta name="distribution" content="global" />
     <meta name="revisit-after" content="7 days" />
-    <meta name="keywords" content="σουβλάκι πειραιάς, καλαμάκι τρούμπα, γύρος πειραιάς, σουβλατζίδικο πειραιάς, ψητοπωλείο τρούμπα, παραγγελία σουβλάκι online, souvlaki piraeus, kalamaki troumpa, greek souvlaki piraeus, gyros piraeus, charcoal souvlaki, troumpa restaurant, best souvlaki piraeus" />
+    <meta name="keywords" content="σουβλάκι, σουβλάκι πειραιάς, σουβλάκι τρούμπα, σουβλάκι online, σουβλάκι delivery, σουβλάκι κάρβουνα, σουβλάκι κάρβουνα πειραιά, σουβλάκι Μπουμπουλίνας, σουβλάκι Νοταρά, σουβλάκι λιμάνι Πειραιά, σουβλάκι Καραϊσκάκη, σουβλάκι Πασαλιμάνι, σουβλάκι Φρεαττύδα, σουβλάκι κοντά μου, σουβλάκι online παραγγελία, σουβλάκι take away Πειραιά, σουβλάκι delivery Πειραιά, παραγγελία σουβλάκι, παραγγελία σουβλάκι online, παραγγελία σουβλάκι Πειραιά, online παραγγελία σουβλάκι, online παραγγελία γύρος, γύρος, γύρος πειραιάς, γύρος τρούμπα, γύρος delivery, γύρος χοιρινός, γύρος κοτόπουλος, γύρος μερίδα, γύρος μερίδα κοτόπουλο, γύρος μερίδα χοιρινό, γύρος online, γύρος online παραγγελία, γύρος Πειραιά κοντά μου, γύρος καλύτερος Πειραιά, γύρος αυθεντικός, καλαμάκι, καλαμάκι τρούμπας, καλαμάκι κοτόπουλο, καλαμάκι χοιρινό, καλαμάκι σεϊτάν, καλαμάκι κάρβουνα, καλαμάκι Πειραιά, καλαμάκι Τρούμπας Πειραιάς, καλαμάκια online, καλαμάκια delivery, πίτα γύρος, πίτα γύρο τρούμπα, πίτα γύρο Πειραιά, πίτα κοτόπουλο, πίτα χοιρινό, πίτα σουβλάκι, πίτα φρεσκοψημένη, μερίδα σουβλάκι, μερίδα γύρος, μερίδα κοτόπουλο, μερίδα χοιρινό, μερίδα κρέας, τυλιχτό, τυλιχτό γύρος, τυλιχτό σουβλάκι, τυλιχτό κοτόπουλο, τυλιχτό χοιρινό, κοτόπουλο σουβλάκι, χοιρινό σουβλάκι, μπριζόλα, μπριζολάκι, παϊδάκια, παϊδάκια αρνίσια, λουκάνικο χωριάτικο, μπιφτέκι, μπιφτέκι χειροποίητο, κεμπάπ, κεμπάπ πειραιά, πατάτες τηγανιτές, πατάτες τηγανιτές χειροποίητες, τζατζίκι, τζατζίκι σπιτικό, τυροκαυτερή, μελιτζανοσαλάτα, χωριάτικη σαλάτα, χωριάτικη σαλάτα πειραιάς, μαρουλοσαλάτα, σκεπαστή, σκεπαστή τρούμπας, σκεπαστή πειραιάς, ψητοπωλείο, ψητοπωλείο πειραιάς, ψητοπωλείο τρούμπας, ψητοπωλείο κοντά μου, σουβλατζίδικο, σουβλατζίδικο πειραιάς, σουβλατζίδικο τρούμπα, σουβλατζίδικο κοντά μου, ταβέρνα, ταβέρνα πειραιάς, ταβέρνα τρούμπα, ελληνική κουζίνα, ελληνικό φαγητό, ελληνικό φαγητό τρούμπα, φαγητό πειραιάς, φαγητό κοντά μου, παραγγελία φαγητού, παραγγελία φαγητού πειραιάς, παραγγελία φαγητού online, παραγγελία φαγητού online Πειραιά, delivery πειραιάς, delivery τρούμπα, delivery λιμάνι, take away πειραιάς, take away τρούμπα, σουβλάκι takeaway πειραιά, ψητά κρεατικά, ψητά κάρβουνα πειραιάς, μπριζολάκι κάρβουνα, παραδοσιακό σουβλάκι, παραδοσιακό ελληνικό φαγητό, αυθεντικό σουβλάκι πειραιάς, αυθεντικός γύρος, αυθεντική πίτα γύρο, φθηνό σουβλάκι πειραιά, φθηνός γύρος, φθηνό φαγητό Πειραιά, καλό φαγητό πειραιάς, καλή πίτα πειραιάς, καλή τιμή σουβλάκι, καλή ποιότητα φαγητό Πειραιά, τα καλύτερα σουβλάκια, τα καλύτερα σουβλάκια πειραιά, τα καλύτερα σουβλάκια Τρούμπας, καλύτερος γύρος Πειραιά, καλύτερη πίτα Πειραιά, κουλούρι θεσσαλονίκης, παγωτό, παγωτό ξυλάκι, παγωτό χωνάκι, κολοκυθοκεφτέδες, ρεβυθοκεφτέδες, veggie burger πειραιάς, χορτοφαγικό σουβλάκι, χορτοφαγικό φαγητό Πειραιά, vegan πειραιάς, vegan σουβλάκι, vegan γύρος, best souvlaki Πειραιάς, souvlaki, greek souvlaki, souvlaki Piraeus, souvlaki Trouba, souvlaki Troumpa, souvlaki Bouboulinas, souvlaki near me, souvlaki near port Piraeus, souvlaki delivery, souvlaki online, souvlaki online order, souvlaki order online, charcoal souvlaki, charcoal grilled souvlaki, charcoal souvlaki Piraeus, gyros, greek gyros, gyros Piraeus, gyros Trouba, gyros Troumpa, gyros wrap, gyros wrap Trouba, gyros wrap Piraeus, gyros pita, gyros pita Trouba, gyros pita Piraeus, gyros plate, gyros plate Piraeus, gyros chicken, gyros pork, chicken gyros, pork gyros, chicken gyros Piraeus, pork gyros Piraeus, gyros delivery, gyros delivery Piraeus, gyros online order, gyros near me, best gyros, best gyros Piraeus, kalamaki, greek kalamaki, kalamaki Trouba, kalamaki Piraeus, kalamaki chicken, kalamaki pork, kalamaki online, kalamaki delivery, kalamaki near me, pita gyros, pita gyros Piraeus, pita gyros Trouba, gyros wrap delivery, chicken souvlaki, pork souvlaki, lamb chops, sausage greek, kebab, kebab Piraeus, greek burger, homemade burger, fries homemade, tzatziki, homemade tzatziki, greek salad, greek salad Piraeus, greek food, greek cuisine, greek food Piraeus, greek food Trouba, traditional greek food, traditional greek cuisine, traditional greek street food, greek restaurant Piraeus, greek restaurant Trouba Piraeus, greek restaurant near me, greek restaurant near port Piraeus, greek taverna, greek taverna Piraeus, greek taverna Trouba, taverna Piraeus, souvlaki delivery Piraeus, souvlaki online order, souvlaki online, souvlaki near port, gyros delivery Piraeus, gyros online Piraeus, best souvlaki Piraeus, best gyros Piraeus, best pita Piraeus, best kalamaki Piraeus, best greek food Piraeus, pita Trouba Piraeus, greek street food, greek street food Trouba, greek street food Piraeus, authentic greek food, authentic Greek food Piraeus, authentic souvlaki Piraeus, authentic gyros Piraeus, piraeus restaurant, piraeus food delivery, piraeus food online, takeaway Piraeus, takeaway Trouba, takeaway near port Piraeus, delivery Piraeus, delivery Piraeus port, delivery near me Piraeus, cheap eats Piraeus, cheap eats Piraeus port, cheap gyros Piraeus, cheap souvlaki Piraeus, cheap greek food, charcoal souvlaki Piraeus, charcoal gyros, charcoal grilled meat, good food Piraeus, good price souvlaki Piraeus, good food near port Piraeus, Trouba district Piraeus, Trouba district Piraeus restaurant, Trouba Piraeus food, vegetarian souvlaki Piraeus, vegetarian greek food, vegan greek food, vegan souvlaki, vegan gyros, online order greek food, online order souvlaki, online order gyros, online order Piraeus, online order Trouba" />
+    {/* International tourist keywords — petite dose pour visiteurs Athènes/Pirée (DE/IT/FR/RU/ES/PL/HE/NL) */}
+    <meta name="keywords:de" content="Souvlaki bestellen Piräus, Gyros Lieferung Piräus, Pita online bestellen, griechisches Restaurant Piräus, griechisches Essen Piräus Hafen, Souvlaki Trouba, beste Souvlaki Piräus, authentisches Gyros, griechische Taverne Piräus, Essen bestellen Piräus" />
+    <meta name="keywords:it" content="ordinare souvlaki online Pireo, gyros consegna Pireo, pita gyros Pireo, ristorante greco Pireo, cibo greco porto Pireo, souvlaki Trouba, miglior souvlaki Pireo, gyros autentico, taverna greca Pireo, ordinare cibo Pireo" />
+    <meta name="keywords:fr" content="commander souvlaki Pirée, livraison gyros Pirée, pita gyros en ligne, restaurant grec Pirée port, cuisine grecque Pirée, souvlaki Trouba, meilleur souvlaki Pirée, gyros authentique, taverne grecque Pirée, commande en ligne nourriture Pirée" />
+    <meta name="keywords:ru" content="заказать сувлаки Пирей, доставка гирос Пирей, пита гирос онлайн, греческий ресторан Пирей, греческая еда порт Пирей, сувлаки Трумба, лучший сувлаки Пирей, аутентичный гирос, греческая таверна Пирей, заказать еду онлайн Пирей" />
+    <meta name="keywords:es" content="pedir souvlaki Pireo, entrega gyros Pireo, pita gyros online, restaurante griego Pireo puerto, comida griega Pireo, souvlaki Trouba, mejor souvlaki Pireo, gyros auténtico, taberna griega Pireo, pedir comida online Pireo" />
+    <meta name="keywords:pl" content="zamów souvlaki Pireus, dostawa giros Pireus, pita giros online, grecka restauracja Pireus port, greckie jedzenie Pireus, souvlaki Trouba, najlepsze souvlaki Pireus, autentyczny gyros, grecka taverna, zamów jedzenie online Pireus" />
+    <meta name="keywords:he" content="הזמנת סובלאקי פיראוס, משלוח גירוס פיראוס, פיתה גירוס אונליין, מסעדה יוונית פיראוס, אוכל יווני נמל פיראוס, סובלאקי טרומבה, הסובלאקי הטוב ביותר, גירוס אותנטי, טברנה יוונית, הזמנת אוכל אונליין" />
+    <meta name="keywords:nl" content="souvlaki bestellen Piraeus, gyros bezorging Piraeus, pita gyros online, grieks restaurant Piraeus haven, grieks eten Piraeus, souvlaki Trouba, beste souvlaki Piraeus, authentieke gyros, griekse taverna, eten bestellen online Piraeus" />
     <meta name="geo.region" content="GR-I" />
     <meta name="geo.placename" content="Piraeus" />
     <meta name="geo.position" content="37.9419284;23.6439786" />
@@ -241,12 +367,20 @@ const faqSchema = {
     <meta name="application-name" content="Καλαμάκι Της Τρούμπας" />
     <meta name="msapplication-TileColor" content="#0a0a0a" />
     <link rel="canonical" href={Astro.url.href} />
-    <link rel="alternate" hreflang="el" href={new URL('/el/', origin).href} />
-    <link rel="alternate" hreflang="en" href={new URL('/en/', origin).href} />
-    <link rel="alternate" hreflang="de" href={new URL('/de/', origin).href} />
-    <link rel="alternate" hreflang="ru" href={new URL('/ru/', origin).href} />
-    <link rel="alternate" hreflang="ja" href={new URL('/ja/', origin).href} />
-    <link rel="alternate" hreflang="x-default" href={new URL('/el/', origin).href} />
+    {/* hreflang dynamiques : on remplace le segment de langue dans le pathname courant
+        pour que chaque page (delivery, avis, cgv, mentions, privacy) ait son self-hreflang. */}
+    {(() => {
+      const path = Astro.url.pathname;
+      const pathEl = path.replace(/^\/(el|en)(\/|$)/, '/el$2');
+      const pathEn = path.replace(/^\/(el|en)(\/|$)/, '/en$2');
+      return (
+        <>
+          <link rel="alternate" hreflang="el" href={new URL(pathEl, origin).href} />
+          <link rel="alternate" hreflang="en" href={new URL(pathEn, origin).href} />
+          <link rel="alternate" hreflang="x-default" href={new URL(pathEl, origin).href} />
+        </>
+      );
+    })()}
     <link rel="manifest" href="/manifest.webmanifest" />
 
     <meta property="og:type" content="restaurant.restaurant" />
@@ -254,7 +388,7 @@ const faqSchema = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={Astro.url.href} />
-    <meta property="og:locale" content={({el:'el_GR',en:'en_GB',de:'de_DE',ru:'ru_RU',ja:'ja_JP'} as Record<string,string>)[lang] ?? 'el_GR'} />
+    <meta property="og:locale" content={({el:'el_GR',en:'en_GB'} as Record<string,string>)[lang] ?? 'el_GR'} />
     <meta property="og:locale:alternate" content={lang === 'el' ? 'en_GB' : 'el_GR'} />
     <meta property="og:image" content={new URL('/photos/efood-00-1600w.webp', Astro.url).href} />
     <meta property="og:image:secure_url" content={new URL('/photos/efood-00-1600w.webp', Astro.url).href} />
@@ -277,8 +411,9 @@ const faqSchema = {
     <meta name="twitter:image" content={new URL('/photos/efood-00-1600w.webp', Astro.url).href} />
     <meta name="twitter:image:alt" content="Το Καλαμάκι Της Τρούμπας" />
 
-    {/* === JSON-LD : Restaurant + WebSite + (BreadcrumbList) + (Menu) + FAQPage === */}
+    {/* === JSON-LD : Restaurant + Organization + WebSite + (BreadcrumbList) + (Menu) + FAQPage === */}
     <script type="application/ld+json" set:html={JSON.stringify(restaurantSchema)}></script>
+    <script type="application/ld+json" set:html={JSON.stringify(organizationSchema)}></script>
     <script type="application/ld+json" set:html={JSON.stringify(websiteSchema)}></script>
     {breadcrumbSchema && (
       <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)}></script>
@@ -289,14 +424,23 @@ const faqSchema = {
     <script type="application/ld+json" set:html={JSON.stringify(faqSchema)}></script>
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/photos/logo-favicon.png" />
-    <link rel="apple-touch-icon" href="/photos/logo-favicon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon-512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png" />
+    <link rel="apple-touch-icon" href="/icon-180.png" />
 
     {/* Preload LCP image — hero background */}
     <link rel="preload" as="image" href="/photos/efood-00-1600w.webp" fetchpriority="high" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    {/* Leaflet (carte zones livraison) — chargé UNIQUEMENT sur delivery.astro via includeLeaflet=true */}
+    {includeLeaflet && (
+      <>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
+      </>
+    )}
     {/* Preload critical font CSS for FCP */}
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" media="print" onload="this.media='all';this.onload=null;" />
@@ -340,5 +484,15 @@ const faqSchema = {
     </main>
     <Footer lang={lang} />
     <ScrollToTop lang={lang} />
+    <A2hsPrompt lang={lang} />
+
+    {/* Service Worker registration — PWA A2HS */}
+    <script is:inline>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('/sw.js').catch(function () { /* silencieux */ });
+        });
+      }
+    </script>
   </body>
 </html>

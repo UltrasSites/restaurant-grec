@@ -1,6 +1,8 @@
 ---
 // Page historique caisse — auth via cookie caisse_auth (vérifié côté endpoint).
 // 60 jours de rétention (conformité comptable).
+import CashdNav from "../../components/cashd/CashdNav.astro";
+import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
 ---
 <!doctype html>
 <html lang="el">
@@ -11,6 +13,7 @@
   <meta name="robots" content="noindex, nofollow" />
   <title>Ιστορικό — Καλαμάκι Της Τρούμπας</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <CashdAuthScript />
   <style>
     :root { --gold: #E5B32A; --bg: #0a0a0a; }
     * { box-sizing: border-box; }
@@ -111,11 +114,136 @@
     .empty { padding: 4rem 1rem; text-align: center; color: #555; font-size: 1.1rem; }
     .error { padding: 2rem 1rem; text-align: center; color: #f87171; }
 
+    /* ====== Filter pills ====== */
+    .filter-pills { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .filter-pill {
+      padding: 0.35rem 0.7rem; font-size: 0.75rem; font-weight: 700;
+      background: #1a1a1a; color: #aaa; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 999px; cursor: pointer; letter-spacing: 0.04em;
+      text-transform: uppercase; user-select: none;
+    }
+    .filter-pill:hover { background: #222; color: #ddd; }
+    .filter-pill.active { background: rgba(229,179,42,0.18); color: var(--gold); border-color: rgba(229,179,42,0.5); }
+    .filter-pill .count { opacity: 0.7; margin-left: 0.25rem; font-weight: 600; }
+
+    /* ====== Row action buttons ====== */
+    .col-actions { white-space: nowrap; text-align: right; }
+    .row-btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; padding: 0; margin-left: 0.2rem;
+      background: #1a1a1a; color: #aaa; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.4rem; cursor: pointer; font-size: 0.85rem;
+      position: relative; vertical-align: middle;
+    }
+    .row-btn:hover { background: #2a2a2a; color: #fff; }
+    .row-btn.row-chat { color: #c7d2fe; border-color: rgba(99,102,241,0.3); background: rgba(99,102,241,0.08); }
+    .row-btn.row-chat:hover { background: rgba(99,102,241,0.2); }
+    .row-btn.row-chat.has-msgs { color: #a5b4fc; border-color: rgba(99,102,241,0.5); }
+    .row-btn.row-print { color: #4ade80; border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.08); }
+    .row-btn.row-print:hover { background: rgba(34,197,94,0.2); }
+    .row-btn.row-del { color: #f87171; border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); }
+    .row-btn.row-del:hover { background: rgba(239,68,68,0.2); }
+    .row-btn .row-badge {
+      position: absolute; top: -5px; right: -5px;
+      background: #ef4444; color: #fff;
+      min-width: 16px; height: 16px; padding: 0 4px;
+      border-radius: 999px; font-size: 0.62rem; font-weight: 800;
+      display: inline-flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 0 2px #111;
+      line-height: 1;
+    }
+
+    /* ====== Chat modal ====== */
+    .modal-chat-history {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      z-index: 1000; display: none; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-chat-history.open { display: flex; }
+    .modal-chat-history .mch-box {
+      width: 100%; max-width: 540px; max-height: 90vh;
+      background: #121212; border: 1px solid rgba(229,179,42,0.3);
+      border-radius: 0.85rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .mch-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.85rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: #000;
+    }
+    .mch-head h3 {
+      margin: 0; font-size: 0.95rem; color: var(--gold);
+      letter-spacing: 0.04em; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .mch-head .mch-meta { font-size: 0.75rem; color: #888; margin-top: 0.15rem; display: block; }
+    .mch-close {
+      background: transparent; border: none; color: #aaa; cursor: pointer;
+      font-size: 1.4rem; padding: 0.2rem 0.5rem; line-height: 1; border-radius: 0.4rem;
+    }
+    .mch-close:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    .mch-body {
+      flex: 1; overflow-y: auto;
+      padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem;
+      background: #0f0f0f;
+      min-height: 200px;
+    }
+    .mch-empty { color: #555; text-align: center; padding: 2rem 0; font-size: 0.9rem; }
+    .mch-msg {
+      max-width: 78%; padding: 0.55rem 0.8rem;
+      border-radius: 0.7rem; font-size: 0.88rem; line-height: 1.35;
+      word-break: break-word; white-space: pre-wrap;
+    }
+    .mch-msg.from-patron { align-self: flex-end; background: rgba(229,179,42,0.18); color: #fde68a; border: 1px solid rgba(229,179,42,0.35); }
+    .mch-msg.from-client { align-self: flex-start; background: rgba(99,102,241,0.18); color: #c7d2fe; border: 1px solid rgba(99,102,241,0.35); }
+    .mch-msg.from-system { align-self: center; max-width: 90%; background: rgba(255,255,255,0.04); color: #888; font-style: italic; font-size: 0.78rem; border: 1px dashed rgba(255,255,255,0.1); }
+    .mch-msg .mch-meta-line { font-size: 0.62rem; opacity: 0.65; margin-top: 0.2rem; }
+    .mch-templates {
+      padding: 0.5rem 0.75rem 0 0.75rem;
+      display: flex; gap: 0.35rem; flex-wrap: wrap;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .mch-template {
+      padding: 0.32rem 0.65rem; font-size: 0.72rem; font-weight: 600;
+      background: #1a1a1a; color: #c7d2fe; border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 999px; cursor: pointer; letter-spacing: 0.03em;
+    }
+    .mch-template:hover { background: rgba(99,102,241,0.18); color: #e0e7ff; }
+    .mch-input-row {
+      display: flex; gap: 0.5rem; padding: 0.7rem 0.75rem 0.85rem 0.75rem;
+      background: #0a0a0a; border-top: 1px solid rgba(255,255,255,0.06);
+    }
+    .mch-input-row input {
+      flex: 1; padding: 0.65rem 0.8rem; background: #1a1a1a;
+      border: 1px solid rgba(255,255,255,0.1); color: #fff;
+      border-radius: 0.5rem; font-size: 0.9rem;
+    }
+    .mch-input-row input:focus { outline: none; border-color: rgba(99,102,241,0.5); }
+    .mch-input-row button {
+      padding: 0.65rem 1rem; background: rgba(99,102,241,0.25); color: #c7d2fe;
+      border: 1px solid rgba(99,102,241,0.45); border-radius: 0.5rem;
+      cursor: pointer; font-weight: 700; font-size: 0.85rem;
+    }
+    .mch-input-row button:hover { background: rgba(99,102,241,0.45); color: #fff; }
+    .mch-input-row button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    @media (max-width: 768px) {
+      .modal-chat-history { padding: 0; align-items: stretch; }
+      .modal-chat-history .mch-box {
+        max-width: 100%; max-height: 100vh; height: 100vh;
+        border-radius: 0; border-left: none; border-right: none;
+      }
+      .mch-input-row input { min-height: 44px; }
+      .mch-input-row button { min-height: 44px; }
+    }
+
     @media (max-width: 700px) {
       table.history thead th, table.history tbody td { padding: 0.45rem 0.45rem; font-size: 0.8rem; }
       .col-date, .col-address { display: none; }
       .col-address-th { display: none; }
       .col-date-th { display: none; }
+      .row-btn { width: 34px; height: 34px; font-size: 0.95rem; }
     }
 
     /* ====== PRINT ====== */
@@ -131,6 +259,8 @@
       }
       body { overflow-x: visible !important; }
       .topbar, .meta-row, .btn, .lang-toggle, #refresh-btn, #print-btn, .actions, .legal { display: none !important; }
+      .modal-chat-history { display: none !important; }
+      .filter-pills, .row-btn, .col-actions, .col-actions-th { display: none !important; }
       .topbar { position: static !important; }
       .wrap { max-width: none !important; padding: 0 !important; margin: 0 !important; }
       #content { overflow: visible !important; height: auto !important; }
@@ -174,6 +304,8 @@
 </head>
 <body>
 
+  <CashdNav />
+
   <div class="topbar">
     <h1 id="page-title">📋 ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ — 60 ημέρες</h1>
     <div class="actions">
@@ -192,10 +324,37 @@
     </div>
     <div class="legal" id="legal-note">Νόμιμη διατήρηση 60 ημερών — επιτρέπεται για λογιστικά</div>
 
+    <div class="filter-pills" id="filter-pills" style="margin: 0.5rem 0 0.75rem;">
+      <button type="button" class="filter-pill active" data-filter="all" id="fp-all">Όλες <span class="count" id="fp-all-count">0</span></button>
+      <button type="button" class="filter-pill" data-filter="with" id="fp-with">Με μηνύματα <span class="count" id="fp-with-count">0</span></button>
+      <button type="button" class="filter-pill" data-filter="unread" id="fp-unread">Σε αναμονή απάντησης <span class="count" id="fp-unread-count">0</span></button>
+    </div>
+
     <h2 class="print-title" id="print-title">ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ — 60 ημέρες</h2>
 
     <div id="content">
       <div class="empty" id="loading-msg">Φόρτωση…</div>
+    </div>
+  </div>
+
+  <!-- Chat modal (hors print) -->
+  <div class="modal-chat-history" id="chat-modal" role="dialog" aria-modal="true" aria-labelledby="mch-title">
+    <div class="mch-box">
+      <div class="mch-head">
+        <div>
+          <h3 id="mch-title">💬 <span id="mch-customer">—</span></h3>
+          <span class="mch-meta" id="mch-meta">—</span>
+        </div>
+        <button type="button" class="mch-close" id="mch-close" aria-label="Close">×</button>
+      </div>
+      <div class="mch-body" id="mch-body">
+        <div class="mch-empty" id="mch-empty">—</div>
+      </div>
+      <div class="mch-templates" id="mch-templates"></div>
+      <div class="mch-input-row">
+        <input type="text" id="mch-input" placeholder="..." maxlength="500" autocomplete="off" />
+        <button type="button" id="mch-send">→</button>
+      </div>
     </div>
   </div>
 
@@ -237,6 +396,30 @@
         statusPaid:      'Πληρώθηκε',
         statusCompleted: 'Ολοκληρώθηκε',
         statusCancelled: 'Ακυρώθηκε',
+        thActions:    '',
+        filterAll:    'Όλες',
+        filterWith:   'Με μηνύματα',
+        filterUnread: 'Σε αναμονή απάντησης',
+        chatTitle:    'Συνομιλία με τον πελάτη',
+        chatOrderLbl: 'Παραγγελία',
+        chatEmpty:    'Καμία συνομιλία ακόμη.',
+        chatPlaceholder: 'Γράψε στον πελάτη...',
+        chatSend:     'Αποστολή',
+        chatFromPatron: 'Εσείς',
+        chatFromClient: 'Πελάτης',
+        chatSystemAccepted: 'Παραγγελία αποδέχθηκε — έτοιμο σε ',
+        chatSystemEta:    'Νέος χρόνος : ',
+        chatSendError: 'Σφάλμα αποστολής : ',
+        chatLoadError: 'Σφάλμα φόρτωσης συνομιλίας',
+        confirmDelete: 'Διαγραφή αυτής της παραγγελίας;',
+        deleteError:  'Σφάλμα διαγραφής : ',
+        min:          'λεπτά',
+        tpls: [
+          { label: '🙏 Ευχαριστούμε', text: 'Ευχαριστούμε για την παραγγελία σας! Καλή σας όρεξη! 🥙' },
+          { label: '👍 Όλα καλά;', text: 'Γεια σας! Όλα πήγαν καλά με την παραγγελία σας;' },
+          { label: '⭐ Αφήστε αξιολόγηση', text: 'Αν σας άρεσε, αφήστε μας μια αξιολόγηση στο Google : https://g.page/r/CinHV9ASMcWg' },
+          { label: '🎁 Κωδικός -10%', text: 'Δώρο για την επόμενή σας παραγγελία : κωδικός RETOUR10 για -10%!' },
+        ],
       },
       en: {
         title:        '📋 ORDERS HISTORY — 60 days',
@@ -273,6 +456,30 @@
         statusPaid:      'Paid',
         statusCompleted: 'Completed',
         statusCancelled: 'Cancelled',
+        thActions:    '',
+        filterAll:    'All',
+        filterWith:   'With messages',
+        filterUnread: 'Awaiting reply',
+        chatTitle:    'Chat with customer',
+        chatOrderLbl: 'Order',
+        chatEmpty:    'No messages yet.',
+        chatPlaceholder: 'Write to the customer...',
+        chatSend:     'Send',
+        chatFromPatron: 'You',
+        chatFromClient: 'Customer',
+        chatSystemAccepted: 'Order accepted — ready in ',
+        chatSystemEta:    'New ETA: ',
+        chatSendError: 'Send error: ',
+        chatLoadError: 'Failed to load conversation',
+        confirmDelete: 'Delete this order?',
+        deleteError:  'Delete error: ',
+        min:          'min',
+        tpls: [
+          { label: '🙏 Thank you', text: 'Thank you for your order! Enjoy your meal! 🥙' },
+          { label: '👍 All good?', text: 'Hi! Did everything go well with your order?' },
+          { label: '⭐ Leave a review', text: 'If you enjoyed it, please leave us a Google review : https://g.page/r/CinHV9ASMcWg' },
+          { label: '🎁 Promo -10%', text: 'A gift for your next order : code RETOUR10 for -10% off!' },
+        ],
       },
     };
 
@@ -291,7 +498,7 @@
     var lastData = null;
 
     function flagSvg(code) {
-      return '<img src="/flags/' + code + '.svg" alt="" />';
+      return '<img src="/flags/' + code + '.svg" alt="" width="14" height="10" style="width:14px;height:10px;display:inline-block;object-fit:cover;border-radius:2px;vertical-align:middle;" />';
     }
 
     function applyI18n() {
@@ -318,6 +525,11 @@
       if (timeLabel) timeLabel.textContent = t.timeLabel;
       if (legal) legal.textContent = t.legal;
       if (loading) loading.textContent = t.loading;
+      var fpAll = document.querySelector('#fp-all'); if (fpAll) fpAll.childNodes[0].nodeValue = t.filterAll + ' ';
+      var fpWith = document.querySelector('#fp-with'); if (fpWith) fpWith.childNodes[0].nodeValue = t.filterWith + ' ';
+      var fpUnread = document.querySelector('#fp-unread'); if (fpUnread) fpUnread.childNodes[0].nodeValue = t.filterUnread + ' ';
+      var mchInput = document.getElementById('mch-input'); if (mchInput) mchInput.placeholder = t.chatPlaceholder;
+      var mchSend = document.getElementById('mch-send'); if (mchSend) mchSend.title = t.chatSend;
       document.documentElement.lang = lang;
     }
 
@@ -372,9 +584,30 @@
       }).join('\n');
     }
 
+    var currentFilter = 'all'; // 'all' | 'with' | 'unread'
+    function rowsByFilter(allRows) {
+      if (currentFilter === 'with') return allRows.filter(function(r) { return Number(r.msg_total || 0) > 0; });
+      if (currentFilter === 'unread') return allRows.filter(function(r) { return Number(r.msg_unread_client || 0) > 0; });
+      return allRows;
+    }
+
+    function updateFilterCounts(allRows) {
+      var nAll = allRows.length;
+      var nWith = 0, nUnread = 0;
+      allRows.forEach(function(r) {
+        if (Number(r.msg_total || 0) > 0) nWith++;
+        if (Number(r.msg_unread_client || 0) > 0) nUnread++;
+      });
+      var a = document.getElementById('fp-all-count'); if (a) a.textContent = nAll;
+      var w = document.getElementById('fp-with-count'); if (w) w.textContent = nWith;
+      var u = document.getElementById('fp-unread-count'); if (u) u.textContent = nUnread;
+    }
+
     function renderTable(data) {
       lastData = data;
-      var rows = data.rows || [];
+      var allRows = data.rows || [];
+      updateFilterCounts(allRows);
+      var rows = rowsByFilter(allRows);
       metaCount.textContent = String(rows.length);
       var nowD = new Date(data.now || Date.now());
       metaTime.textContent = pad2(nowD.getHours()) + ':' + pad2(nowD.getMinutes()) + ':' + pad2(nowD.getSeconds());
@@ -396,6 +629,7 @@
           + '<th>' + escapeHtml(t.thItems) + '</th>'
           + '<th style="text-align:right;">' + escapeHtml(t.thTotal) + '</th>'
           + '<th>' + escapeHtml(t.thStatus) + '</th>'
+          + '<th class="col-actions-th"></th>'
         + '</tr></thead>'
         + '<tbody>';
       rows.forEach(function(r) {
@@ -405,7 +639,17 @@
         if (addr && r.bell)  addr += ' · ' + r.bell;
         var itemsCount = Number(r.items_count || 0);
         var tooltip = itemsTooltip(r.items || []);
-        html += '<tr>'
+        var unread = Number(r.msg_unread_client || 0);
+        var total = Number(r.msg_total || 0);
+        var chatBtnCls = 'row-btn row-chat' + (total > 0 ? ' has-msgs' : '');
+        var badge = unread > 0
+          ? '<span class="row-badge">' + (unread > 9 ? '9+' : unread) + '</span>'
+          : '';
+        var actions =
+          '<button type="button" class="' + chatBtnCls + '" data-action="chat" data-id="' + escapeHtml(r.id) + '" title="Chat">💬' + badge + '</button>'
+          + '<button type="button" class="row-btn row-print" data-action="print-row" data-id="' + escapeHtml(r.id) + '" title="Print">🖨</button>'
+          + '<button type="button" class="row-btn row-del" data-action="del-row" data-id="' + escapeHtml(r.id) + '" title="Delete">🗑</button>';
+        html += '<tr data-row-id="' + escapeHtml(r.id) + '">'
           + '<td class="col-id">' + escapeHtml(r.id) + '</td>'
           + '<td class="col-date">' + fmtDate(r.created_at) + '</td>'
           + '<td class="col-time">' + fmtTime(r.created_at) + '</td>'
@@ -416,19 +660,240 @@
           + '<td class="col-items" title="' + escapeHtml(tooltip) + '">' + itemsCount + '</td>'
           + '<td class="col-total">' + fmtPrice(r.total) + '</td>'
           + '<td><span class="status-pill status-' + escapeHtml(st) + '">' + escapeHtml(statusLabel(st)) + '</span></td>'
+          + '<td class="col-actions">' + actions + '</td>'
           + '</tr>';
       });
       html += '</tbody></table>';
       content.innerHTML = html;
     }
 
+    // Find row data by id from last load
+    function findRow(id) {
+      if (!lastData || !lastData.rows) return null;
+      for (var i = 0; i < lastData.rows.length; i++) {
+        if (String(lastData.rows[i].id) === String(id)) return lastData.rows[i];
+      }
+      return null;
+    }
+
+    // ═══ CHAT MODAL ═══
+    var chatModal = document.getElementById('chat-modal');
+    var mchClose = document.getElementById('mch-close');
+    var mchBody = document.getElementById('mch-body');
+    var mchEmpty = document.getElementById('mch-empty');
+    var mchInput = document.getElementById('mch-input');
+    var mchSend = document.getElementById('mch-send');
+    var mchCustomer = document.getElementById('mch-customer');
+    var mchMeta = document.getElementById('mch-meta');
+    var mchTemplates = document.getElementById('mch-templates');
+    var activeChatId = null;
+
+    function renderTemplates() {
+      var html = '';
+      (t.tpls || []).forEach(function(tpl, i) {
+        html += '<button type="button" class="mch-template" data-tpl="' + i + '">'
+          + escapeHtml(tpl.label) + '</button>';
+      });
+      mchTemplates.innerHTML = html;
+    }
+
+    function renderChat(messages) {
+      if (!messages || messages.length === 0) {
+        mchBody.innerHTML = '<div class="mch-empty">' + escapeHtml(t.chatEmpty) + '</div>';
+        return;
+      }
+      var html = '';
+      messages.forEach(function(m) {
+        var d = new Date(m.created_at);
+        var time = pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+        var dateStr = fmtDate(m.created_at);
+        var cls, who, text;
+        if (m.sender === 'patron') {
+          cls = 'from-patron'; who = t.chatFromPatron; text = m.text;
+        } else if (m.sender === 'client') {
+          cls = 'from-client'; who = t.chatFromClient; text = m.text;
+        } else {
+          cls = 'from-system'; who = '';
+          var raw = String(m.text || '');
+          if (raw.indexOf('accepted:') === 0) {
+            text = t.chatSystemAccepted + raw.slice(9) + ' ' + t.min;
+          } else if (raw.indexOf('eta:') === 0) {
+            var parts = raw.slice(4).split(':');
+            text = t.chatSystemEta + parts[0] + ' ' + t.min + (parts[1] ? ' (' + parts[1] + ')' : '');
+          } else {
+            text = raw;
+          }
+        }
+        html += '<div class="mch-msg ' + cls + '">'
+          + (who ? '<div style="font-size:0.65rem;opacity:0.75;margin-bottom:0.18rem;font-weight:700;">' + escapeHtml(who) + '</div>' : '')
+          + escapeHtml(text)
+          + '<div class="mch-meta-line">' + dateStr + ' ' + time + '</div>'
+          + '</div>';
+      });
+      mchBody.innerHTML = html;
+      mchBody.scrollTop = mchBody.scrollHeight;
+    }
+
+    async function loadChat(id) {
+      mchBody.innerHTML = '<div class="mch-empty">' + escapeHtml(t.loading) + '</div>';
+      try {
+        var res = await fetchAuth('/api/orders/' + encodeURIComponent(id) + '/messages');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'fail');
+        renderChat(data.messages || []);
+        // Clear unread badge on the row (patron just saw the chat)
+        var row = findRow(id);
+        if (row) row.msg_unread_client = 0;
+        var btn = document.querySelector('.row-btn[data-action="chat"][data-id="' + cssIdSafe(id) + '"]');
+        if (btn) {
+          var b = btn.querySelector('.row-badge');
+          if (b) b.remove();
+        }
+        if (lastData) updateFilterCounts(lastData.rows || []);
+      } catch (err) {
+        mchBody.innerHTML = '<div class="mch-empty" style="color:#f87171;">' + escapeHtml(t.chatLoadError) + '</div>';
+      }
+    }
+
+    function cssIdSafe(id) {
+      return String(id).replace(/"/g, '\\"');
+    }
+
+    function openChat(id) {
+      var r = findRow(id);
+      activeChatId = id;
+      if (r) {
+        mchCustomer.textContent = r.name || '#' + id;
+        var phone = r.phone || '';
+        mchMeta.textContent = t.chatOrderLbl + ' #' + id + (phone ? ' · ' + phone : '') + ' · ' + fmtPrice(r.total);
+      } else {
+        mchCustomer.textContent = '#' + id;
+        mchMeta.textContent = t.chatOrderLbl + ' #' + id;
+      }
+      renderTemplates();
+      mchInput.value = '';
+      chatModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      loadChat(id);
+      setTimeout(function() { try { mchInput.focus(); } catch (e) {} }, 50);
+    }
+
+    function closeChat() {
+      chatModal.classList.remove('open');
+      document.body.style.overflow = '';
+      activeChatId = null;
+    }
+
+    async function sendChat() {
+      if (!activeChatId) return;
+      var text = (mchInput.value || '').trim();
+      if (!text) return;
+      mchSend.disabled = true;
+      try {
+        var res = await fetchAuth('/api/orders/' + encodeURIComponent(activeChatId) + '/message-patron', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: text }),
+        });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
+        mchInput.value = '';
+        await loadChat(activeChatId);
+        // Update row badge count too
+        var r = findRow(activeChatId);
+        if (r) r.msg_total = Number(r.msg_total || 0) + 1;
+        if (lastData) updateFilterCounts(lastData.rows || []);
+        var btn = document.querySelector('.row-btn[data-action="chat"][data-id="' + cssIdSafe(activeChatId) + '"]');
+        if (btn) btn.classList.add('has-msgs');
+      } catch (err) {
+        alert(t.chatSendError + (err && err.message ? err.message : err));
+      } finally {
+        mchSend.disabled = false;
+      }
+    }
+
+    mchClose.addEventListener('click', closeChat);
+    chatModal.addEventListener('click', function(e) { if (e.target === chatModal) closeChat(); });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && chatModal.classList.contains('open')) closeChat();
+    });
+    mchSend.addEventListener('click', sendChat);
+    mchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+    });
+    mchTemplates.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-tpl]');
+      if (!btn) return;
+      var idx = parseInt(btn.getAttribute('data-tpl'), 10);
+      var tpl = (t.tpls || [])[idx];
+      if (!tpl) return;
+      mchInput.value = tpl.text;
+      try { mchInput.focus(); } catch (er) {}
+    });
+
+    // Delegated row actions (chat / print / delete)
+    content.addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-action]');
+      if (!btn) return;
+      var action = btn.getAttribute('data-action');
+      var id = btn.getAttribute('data-id');
+      if (!id) return;
+      if (action === 'chat') {
+        openChat(id);
+      } else if (action === 'print-row') {
+        // Filter to this row only via DOM and print
+        printSingleRow(id);
+      } else if (action === 'del-row') {
+        if (!confirm(t.confirmDelete + ' #' + id)) return;
+        deleteRow(id);
+      }
+    });
+
+    function printSingleRow(id) {
+      // Hide all rows except target during print
+      var rows = content.querySelectorAll('tr[data-row-id]');
+      rows.forEach(function(tr) {
+        if (tr.getAttribute('data-row-id') !== String(id)) tr.style.display = 'none';
+      });
+      var restore = function() {
+        rows.forEach(function(tr) { tr.style.display = ''; });
+        window.removeEventListener('afterprint', restore);
+      };
+      window.addEventListener('afterprint', restore);
+      window.print();
+      // Fallback restore (some browsers don't fire afterprint)
+      setTimeout(restore, 1500);
+    }
+
+    async function deleteRow(id) {
+      try {
+        var res = await fetchAuth('/api/orders/' + encodeURIComponent(id) + '/delete', { method: 'POST' });
+        var data = await res.json();
+        if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
+        await load();
+      } catch (err) {
+        alert(t.deleteError + (err && err.message ? err.message : err));
+      }
+    }
+
+    // Filter pills
+    var fpEls = document.querySelectorAll('.filter-pill');
+    fpEls.forEach(function(el) {
+      el.addEventListener('click', function() {
+        currentFilter = el.getAttribute('data-filter') || 'all';
+        fpEls.forEach(function(x) { x.classList.toggle('active', x === el); });
+        if (lastData) renderTable(lastData);
+      });
+    });
+
+    // Auth unifiée via /cashd/cashd-auth.js (session 2h, refresh auto)
+    var fetchAuth = window.cashdAuth.fetchAuth.bind(window.cashdAuth);
+
     async function load() {
       content.innerHTML = '<div class="empty">' + escapeHtml(t.loading) + '</div>';
       try {
-        var res = await fetch('/api/orders/history', {
-          credentials: 'include',
-          cache: 'no-store'
-        });
+        var res = await fetchAuth('/api/orders/history');
         if (res.status === 401) {
           content.innerHTML = '<div class="error">' + escapeHtml(t.unauthorized) + ' <a href="/cashd" style="color:var(--gold);">' + escapeHtml(t.reLogin) + '</a></div>';
           return;
@@ -446,7 +911,18 @@
     langToggleBtn.addEventListener('click', function() { setLang(lang === 'el' ? 'en' : 'el'); });
 
     applyI18n();
-    load();
+    (async function init() {
+      // Pré-auth via session 2h. Si pas de session ET pas de cookie → redirect login.
+      var ok = await window.cashdAuth.bootAuth();
+      if (!ok) {
+        var probe = await fetch('/api/orders/history', { credentials: 'include', cache: 'no-store' });
+        if (probe.status === 401) {
+          window.location.href = '/cashd?next=' + encodeURIComponent(window.location.pathname);
+          return;
+        }
+      }
+      load();
+    })();
   })();
   </script>
 </body>

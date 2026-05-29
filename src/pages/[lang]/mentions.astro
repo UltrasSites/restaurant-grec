@@ -6,9 +6,6 @@ export function getStaticPaths() {
   return [
     { params: { lang: "el" } },
     { params: { lang: "en" } },
-    { params: { lang: "de" } },
-    { params: { lang: "ru" } },
-    { params: { lang: "ja" } },
   ];
 }
 
@@ -20,12 +17,31 @@ const title = isEl ? "Νομικές πληροφορίες" : "Legal notice";
 <BaseLayout
   lang={currentLang}
   title={`${title} — Το Καλαμάκι Της Τρούμπας`}
-  description={isEl ? 'Νομικές πληροφορίες για το Καλαμάκι Της Τρούμπας — επωνυμία, διεύθυνση, υπεύθυνος δημοσίευσης.' : 'Legal notice for Trouba Souvlaki — company details, address, publisher.'}
+  description={isEl
+    ? 'Νομικές πληροφορίες για το Καλαμάκι Της Τρούμπας — επωνυμία, διεύθυνση, υπεύθυνος δημοσίευσης, στοιχεία φιλοξενίας, πνευματικά δικαιώματα και επικοινωνία.'
+    : 'Legal notice for Trouba Souvlaki — company name, address, publisher details, hosting information, intellectual property rights and customer contact channels.'}
   breadcrumbs={[
     { name: currentLang === 'el' ? 'Αρχική' : 'Home', path: `/${currentLang}/` },
     { name: title, path: `/${currentLang}/mentions/` },
   ]}
 >
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'DigitalDocument',
+    name: `${title} — Το Καλαμάκι Της Τρούμπας`,
+    description: isEl
+      ? 'Νομικές πληροφορίες για το Καλαμάκι Της Τρούμπας.'
+      : 'Legal notice for Trouba Souvlaki — Piraeus.',
+    inLanguage: currentLang,
+    url: `https://kalamakitroubas.gr/${currentLang}/mentions/`,
+    about: 'Legal notice — Trouba Souvlaki publisher and hosting info',
+    publisher: {
+      '@type': 'Restaurant',
+      name: 'Το Καλαμάκι Της Τρούμπας',
+      url: 'https://kalamakitroubas.gr',
+      address: { '@type': 'PostalAddress', streetAddress: 'Μπουμπουλίνας 8 & Νοταρά', addressLocality: 'Πειραιάς', postalCode: '185 35', addressCountry: 'GR' },
+    },
+  })} />
   <section class="bg-[#0a0a0a] pt-32 pb-24 px-6">
     <div class="max-w-3xl mx-auto">
       <h1 class="text-3xl md:text-4xl font-serif italic text-white mb-8">{title}</h1>

@@ -1,0 +1,233 @@
+---
+// Page Admin — section centrale pour outils annexes (POS in-store, deconnexion, futurs reglages).
+// Auth via cookie caisse_auth (verifie cote endpoints, ici on check juste avec /api/orders/poll).
+// i18n : EL par défaut, EN via toggle caisse_lang.
+import CashdNav from "../../../components/cashd/CashdNav.astro";
+import CashdAuthScript from "../../../components/cashd/CashdAuthScript.astro";
+---
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Διαχείριση — Καλαμάκι Τρούμπας</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <CashdAuthScript />
+  <style>
+    :root { --gold: #E5B32A; --bg: #0a0a0a; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; min-height: 100dvh; }
+
+    .auth-gate {
+      position: fixed; inset: 0; z-index: 200;
+      background: var(--bg);
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem; padding: 1.5rem;
+      text-align: center;
+      margin-left: -220px;
+    }
+    @media (max-width: 768px) { .auth-gate { margin-left: 0; margin-top: -52px; } }
+    .auth-gate.show { display: flex; }
+    .auth-gate p { color: #ccc; max-width: 360px; margin: 0; }
+    .auth-gate a {
+      padding: 0.85rem 1.4rem; background: var(--gold); color: #000;
+      border-radius: 0.5rem; text-decoration: none; font-weight: 800;
+      letter-spacing: 0.05em; min-height: 48px; display: inline-flex; align-items: center;
+    }
+
+    .wrap {
+      max-width: 920px; margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+    .page-title {
+      margin: 0 0 0.35rem; color: var(--gold);
+      font-size: 1.25rem; letter-spacing: 0.05em;
+    }
+    .page-sub { color: #999; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+    .grid {
+      display: grid; gap: 1rem;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    }
+    .card {
+      background: #111;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.85rem;
+      padding: 1.1rem 1.15rem;
+      display: flex; flex-direction: column; gap: 0.65rem;
+    }
+    .card h3 {
+      margin: 0; color: var(--gold);
+      font-size: 0.95rem; letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .card p { margin: 0; color: #bbb; font-size: 0.88rem; line-height: 1.45; flex: 1; }
+    .card a, .card button {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 0.4rem;
+      padding: 0.75rem 1rem;
+      background: rgba(229,179,42,0.12);
+      color: var(--gold);
+      border: 1px solid rgba(229,179,42,0.4);
+      border-radius: 0.5rem;
+      text-decoration: none;
+      font-weight: 700; font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      min-height: 44px; cursor: pointer;
+    }
+    .card a:hover, .card button:hover {
+      background: rgba(229,179,42,0.22);
+      color: #fff;
+    }
+    .card.danger a, .card.danger button {
+      background: transparent; color: #f87171;
+      border-color: rgba(239,68,68,0.4);
+    }
+    .card.danger a:hover, .card.danger button:hover {
+      background: rgba(239,68,68,0.12); color: #fca5a5;
+    }
+
+    .info-block {
+      margin-top: 2rem;
+      padding: 1rem 1.15rem;
+      background: rgba(229,179,42,0.06);
+      border: 1px solid rgba(229,179,42,0.2);
+      border-radius: 0.7rem;
+      color: #ddd; font-size: 0.85rem; line-height: 1.55;
+    }
+    .info-block strong { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+  <CashdNav />
+
+  <div class="auth-gate" id="auth-gate">
+    <p id="ag-msg">Πρόσβαση μόνο για εξουσιοδοτημένους. Απαιτείται σύνδεση.</p>
+    <a id="ag-link" href="/cashd">Σύνδεση</a>
+  </div>
+
+  <div class="wrap">
+    <h1 class="page-title" id="page-title">Διαχείριση</h1>
+    <p class="page-sub" id="page-sub">Εργαλεία και ρυθμίσεις του ταμείου Καλαμάκι.</p>
+
+    <div class="grid">
+      <div class="card">
+        <h3 id="c1-title">POS καταστήματος</h3>
+        <p id="c1-desc">Ταμείο για παραγγελίες στον πάγκο : επιλογή προϊόντων, σύνολα, πληρωμή, θερμική απόδειξη.</p>
+        <a href="/cashd/pos" id="c1-btn">Άνοιγμα POS</a>
+      </div>
+
+      <div class="card">
+        <h3 id="c2-title">Ιστορικό 60 ημερών</h3>
+        <p id="c2-desc">Όλες οι παραγγελίες (κλειστές, πληρωμές, τύποι) για λογιστικά και διαφορές.</p>
+        <a href="/cashd/history" id="c2-btn">Άνοιγμα ιστορικού</a>
+      </div>
+
+      <div class="card">
+        <h3 id="c3-title">Παραγγελίες ζωντανά</h3>
+        <p id="c3-desc">Απλή προβολή αφεντικού : νέες παραγγελίες σε αναμονή, ETA, συνομιλία με πελάτη.</p>
+        <a href="/cashd/live" id="c3-btn">Προβολή ζωντανά</a>
+      </div>
+
+      <div class="card danger">
+        <h3 id="c4-title">Αποσύνδεση</h3>
+        <p id="c4-desc">Τερματισμός της τρέχουσας συνεδρίας (cookie caisse_auth). Θα επιστρέψετε στην οθόνη σύνδεσης.</p>
+        <button type="button" id="logout-btn">Αποσύνδεση</button>
+      </div>
+    </div>
+
+    <div class="info-block">
+      <strong id="info-help">Βοήθεια :</strong> <span id="info-text">Αν μια σελίδα κολλάει στη σύνδεση, ελέγξτε το cookie <code>caisse_auth</code>.
+      Ο κωδικός ρυθμίζεται στις μεταβλητές περιβάλλοντος Cloudflare Pages (<code>CAISSE_PASSWORD</code>).</span>
+    </div>
+  </div>
+
+  <script is:inline>
+    (function() {
+      var I18N = {
+        el: {
+          pageTitle: 'Διαχείριση',
+          pageSub: 'Εργαλεία και ρυθμίσεις του ταμείου Καλαμάκι.',
+          agMsg: 'Πρόσβαση μόνο για εξουσιοδοτημένους. Απαιτείται σύνδεση.',
+          agLink: 'Σύνδεση',
+          c1Title: 'POS καταστήματος',
+          c1Desc: 'Ταμείο για παραγγελίες στον πάγκο : επιλογή προϊόντων, σύνολα, πληρωμή, θερμική απόδειξη.',
+          c1Btn: 'Άνοιγμα POS',
+          c2Title: 'Ιστορικό 60 ημερών',
+          c2Desc: 'Όλες οι παραγγελίες (κλειστές, πληρωμές, τύποι) για λογιστικά και διαφορές.',
+          c2Btn: 'Άνοιγμα ιστορικού',
+          c3Title: 'Παραγγελίες ζωντανά',
+          c3Desc: 'Απλή προβολή αφεντικού : νέες παραγγελίες σε αναμονή, ETA, συνομιλία με πελάτη.',
+          c3Btn: 'Προβολή ζωντανά',
+          c4Title: 'Αποσύνδεση',
+          c4Desc: 'Τερματισμός της τρέχουσας συνεδρίας (cookie caisse_auth). Θα επιστρέψετε στην οθόνη σύνδεσης.',
+          c4Btn: 'Αποσύνδεση',
+          confirmLogout: 'Αποσύνδεση;',
+          infoHelp: 'Βοήθεια :',
+          infoText: 'Αν μια σελίδα κολλάει στη σύνδεση, ελέγξτε το cookie <code>caisse_auth</code>. Ο κωδικός ρυθμίζεται στις μεταβλητές περιβάλλοντος Cloudflare Pages (<code>CAISSE_PASSWORD</code>).',
+        },
+        en: {
+          pageTitle: 'Admin',
+          pageSub: 'Tools and settings for the Kalamaki checkout.',
+          agMsg: 'Restricted area. Sign in required.',
+          agLink: 'Sign in',
+          c1Title: 'In-store POS',
+          c1Desc: 'Counter POS for in-store orders: product selection, totals, payment, thermal ticket.',
+          c1Btn: 'Open POS',
+          c2Title: '60-day history',
+          c2Desc: 'All orders (closed, payments, modes) for accounting and disputes.',
+          c2Btn: 'View history',
+          c3Title: 'Live orders',
+          c3Desc: 'Simple owner view: new pending orders, ETA, customer chat.',
+          c3Btn: 'Open live',
+          c4Title: 'Sign out',
+          c4Desc: 'Ends the current session (cookie caisse_auth). You will return to the login screen.',
+          c4Btn: 'Sign out',
+          confirmLogout: 'Sign out?',
+          infoHelp: 'Help:',
+          infoText: 'If a page stays stuck on login, check the <code>caisse_auth</code> cookie. The password is set via Cloudflare Pages env vars (<code>CAISSE_PASSWORD</code>).',
+        },
+      };
+      function getLang() { try { return localStorage.getItem('caisse_lang') || 'el'; } catch (e) { return 'el'; } }
+      var t = I18N[getLang()] || I18N.el;
+      function setText(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+      function setHtml(id, v) { var el = document.getElementById(id); if (el) el.innerHTML = v; }
+      setText('page-title', t.pageTitle);
+      setText('page-sub', t.pageSub);
+      setText('ag-msg', t.agMsg);
+      setText('ag-link', t.agLink);
+      setText('c1-title', t.c1Title); setText('c1-desc', t.c1Desc); setText('c1-btn', t.c1Btn);
+      setText('c2-title', t.c2Title); setText('c2-desc', t.c2Desc); setText('c2-btn', t.c2Btn);
+      setText('c3-title', t.c3Title); setText('c3-desc', t.c3Desc); setText('c3-btn', t.c3Btn);
+      setText('c4-title', t.c4Title); setText('c4-desc', t.c4Desc);
+      var lo = document.getElementById('logout-btn'); if (lo) lo.textContent = t.c4Btn;
+      setText('info-help', t.infoHelp);
+      setHtml('info-text', t.infoText);
+
+      (async function() {
+        try { await window.cashdAuth.bootAuth(); } catch (e) {}
+        try {
+          var r = await fetch('/api/orders/poll?since=0', { credentials: 'include', cache: 'no-store' });
+          if (r.status === 401) {
+            document.getElementById('auth-gate').classList.add('show');
+          }
+        } catch (e) { /* offline = on laisse passer (PWA) */ }
+
+        var btn = document.getElementById('logout-btn');
+        if (btn) {
+          btn.addEventListener('click', function() {
+            if (!confirm(t.confirmLogout)) return;
+            document.cookie = 'caisse_auth=; Path=/; Max-Age=0; SameSite=Lax';
+            document.cookie = 'caisse_auth=; Path=/; Max-Age=0; SameSite=Lax; Secure';
+            try { window.cashdAuth.clearSession(); } catch (e) {}
+            window.location.href = '/cashd';
+          });
+        }
+      })();
+    })();
+  </script>
+</body>
+</html>

@@ -1,95 +1,131 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://kalamakitroubas.gr/el/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://kalamakitroubas.gr/el/"/>
+    <image:image>
+      <image:loc>https://kalamakitroubas.gr/photos/efood-00-1600w.webp</image:loc>
+      <image:title>Το Καλαμάκι Της Τρούμπας — Αυθεντικά Σουβλάκια Πειραιάς</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kalamakitroubas.gr/photos/trouba-storefront-1600w.webp</image:loc>
+      <image:title>Καλαμάκι Της Τρούμπας — Μπουμπουλίνας 8, Πειραιάς</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kalamakitroubas.gr/photos/trouba-grill-skewers-1600w.webp</image:loc>
+      <image:title>Σουβλάκια στα κάρβουνα — Τρούμπα Πειραιάς</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/en/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://kalamakitroubas.gr/el/"/>
+    <image:image>
+      <image:loc>https://kalamakitroubas.gr/photos/efood-00-1600w.webp</image:loc>
+      <image:title>Trouba Souvlaki — Authentic Piraeus Souvlaki</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kalamakitroubas.gr/photos/trouba-storefront-1600w.webp</image:loc>
+      <image:title>Trouba Souvlaki — Bouboulinas 8, Piraeus</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://kalamakitroubas.gr/photos/trouba-grill-skewers-1600w.webp</image:loc>
+      <image:title>Charcoal souvlaki skewers — Trouba Piraeus</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/el/delivery/</loc>
-    <lastmod>2026-05-15</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/delivery/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/delivery/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kalamakitroubas.gr/el/delivery/"/>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/en/delivery/</loc>
-    <lastmod>2026-05-15</lastmod>
-    <changefreq>monthly</changefreq>
+    <lastmod>2026-05-24</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/delivery/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/delivery/"/>
-  </url>
-  <url>
-    <loc>https://kalamakitroubas.gr/menu/</loc>
-    <lastmod>2026-05-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kalamakitroubas.gr/el/delivery/"/>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/el/avis/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/avis/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/avis/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kalamakitroubas.gr/el/avis/"/>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/en/avis/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/avis/"/>
     <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/avis/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://kalamakitroubas.gr/el/avis/"/>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/el/cgv/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/cgv/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/cgv/"/>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/en/cgv/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/cgv/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/cgv/"/>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/el/mentions/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/mentions/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/mentions/"/>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/en/mentions/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/mentions/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/mentions/"/>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/el/privacy/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/privacy/"/>
   </url>
   <url>
     <loc>https://kalamakitroubas.gr/en/privacy/</loc>
-    <lastmod>2026-05-15</lastmod>
+    <lastmod>2026-05-24</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="el" href="https://kalamakitroubas.gr/el/privacy/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://kalamakitroubas.gr/en/privacy/"/>
   </url>
 </urlset>

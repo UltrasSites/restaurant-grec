@@ -7,30 +7,18 @@ const pages = menuPages;
 
 // Resolveurs multilingues — fallback EN puis EL si la traduction manque
 const pickTitle = (p: typeof pages[number]) => {
-  if (lang === 'de') return p.title_de ?? p.title_en;
-  if (lang === 'ru') return p.title_ru ?? p.title_en;
-  if (lang === 'ja') return p.title_ja ?? p.title_en;
   if (lang === 'el') return p.title_el;
   return p.title_en;
 };
 const pickNote = (p: typeof pages[number]) => {
-  if (lang === 'de') return p.note_de ?? p.note_en;
-  if (lang === 'ru') return p.note_ru ?? p.note_en;
-  if (lang === 'ja') return p.note_ja ?? p.note_en;
   if (lang === 'el') return p.note_el;
   return p.note_en;
 };
 const pickItemName = (item: any) => {
-  if (lang === 'de') return item.de ?? item.en;
-  if (lang === 'ru') return item.ru ?? item.en;
-  if (lang === 'ja') return item.ja ?? item.en;
   if (lang === 'el') return item.el;
   return item.en;
 };
 const pickItemDesc = (item: any) => {
-  if (lang === 'de') return item.desc_de ?? item.desc_en;
-  if (lang === 'ru') return item.desc_ru ?? item.desc_en;
-  if (lang === 'ja') return item.desc_ja ?? item.desc_en;
   if (lang === 'el') return item.desc_el;
   return item.desc_en;
 };
@@ -39,9 +27,6 @@ const pickItemDesc = (item: any) => {
 const L = {
   el: { cover_label: "Εξώφυλλο", our_menu: "Ο Κατάλογός Μας", flavour: "Αυθεντική Γεύση Πειραιά.", swipe_hint: "Γλίστρα με το δάχτυλο για να γυρίσεις σελίδα", turn_pages: "Γύρισε τις σελίδες", name1: "Το Καλαμάκι", name2: "Της Τρούμπας", addr: "Μπουμπουλίνας 8 & Νοταρά — Πειραιάς", swipe_browse: "← Γύρισε για να ανοίξεις", prev: "Προηγούμενη σελίδα", prev_short: "Πίσω", next: "Επόμενη σελίδα", next_short: "Επόμενη", swipe_short: "← Γλίστρα →" },
   en: { cover_label: "Cover", our_menu: "Our Menu", flavour: "Authentic Piraeus Flavour.", swipe_hint: "Swipe with your finger to turn the page", turn_pages: "Turn the pages", name1: "To Kalamaki", name2: "Tis Troumpas", addr: "Bouboulinas 8 & Notara — Piraeus", swipe_browse: "← Swipe to browse", prev: "Previous page", prev_short: "Previous", next: "Next page", next_short: "Next", swipe_short: "← Swipe →" },
-  de: { cover_label: "Titelseite", our_menu: "Unsere Speisekarte", flavour: "Authentischer Piräus-Geschmack.", swipe_hint: "Wischen Sie mit dem Finger, um die Seite umzublättern", turn_pages: "Seiten umblättern", name1: "To Kalamaki", name2: "Tis Troumpas", addr: "Bouboulinas 8 & Notara — Piräus", swipe_browse: "← Wischen zum Öffnen", prev: "Vorherige Seite", prev_short: "Zurück", next: "Nächste Seite", next_short: "Weiter", swipe_short: "← Wischen →" },
-  ru: { cover_label: "Обложка", our_menu: "Наше меню", flavour: "Аутентичный вкус Пирея.", swipe_hint: "Проведите пальцем, чтобы перевернуть страницу", turn_pages: "Переворачивайте страницы", name1: "To Kalamaki", name2: "Tis Troumpas", addr: "Бубулинас 8 & Нотара — Пирей", swipe_browse: "← Смахните, чтобы открыть", prev: "Предыдущая страница", prev_short: "Назад", next: "Следующая страница", next_short: "Вперёд", swipe_short: "← Смахните →" },
-  ja: { cover_label: "表紙", our_menu: "当店のメニュー", flavour: "本格ピレウスの味。", swipe_hint: "指でスワイプしてページをめくってください", turn_pages: "ページをめくる", name1: "To Kalamaki", name2: "Tis Troumpas", addr: "ブブリナス8番地 & ノタラ通り — ピレウス", swipe_browse: "← スワイプして開く", prev: "前のページ", prev_short: "戻る", next: "次のページ", next_short: "次へ", swipe_short: "← スワイプ →" },
 };
 const t = (L as any)[lang] ?? L.en;
 

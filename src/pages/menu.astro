@@ -3,13 +3,18 @@ import Flag from "../components/Flag.astro";
 // Standalone language picker — clients land here after scanning the QR.
 // On click, opens the PDF inline in browser.
 const LANGS = [
-  { code: "zh", label: "中文",      sub: "Chinese",     hello: "欢迎光临" },
-  { code: "el", label: "Ελληνικά",  sub: "Greek",       hello: "Καλώς ήρθατε" },
-  { code: "en", label: "English",   sub: "English",     hello: "Welcome", pdf: "/menu-en.pdf" },
-  { code: "fr", label: "Français",  sub: "French",      hello: "Bienvenue" },
-  { code: "pt", label: "Português", sub: "Portuguese",  hello: "Bem-vindo" },
-  { code: "it", label: "Italiano",  sub: "Italian",     hello: "Benvenuto" },
-  { code: "es", label: "Español",   sub: "Spanish",     hello: "Bienvenido" },
+  { code: "el", label: "Ελληνικά",   sub: "Greek",      hello: "Καλώς ήρθατε",        pdf: "/menu-el.pdf" },
+  { code: "en", label: "English",    sub: "English",    hello: "Welcome",              pdf: "/menu-en.pdf" },
+  { code: "de", label: "Deutsch",    sub: "German",     hello: "Willkommen",           pdf: "/menu-de.pdf" },
+  { code: "ru", label: "Русский",    sub: "Russian",    hello: "Добро пожаловать",    pdf: "/menu-ru.pdf" },
+  { code: "ja", label: "日本語",      sub: "Japanese",   hello: "ようこそ",              pdf: "/menu-ja.pdf" },
+  { code: "tr", label: "Türkçe",     sub: "Turkish",    hello: "Hoş geldiniz",         pdf: "/menu-tr.pdf" },
+  { code: "fr", label: "Français",   sub: "French",     hello: "Bienvenue",            pdf: "/menu-fr.pdf" },
+  { code: "es", label: "Español",    sub: "Spanish",    hello: "Bienvenido",           pdf: "/menu-es.pdf" },
+  { code: "it", label: "Italiano",   sub: "Italian",    hello: "Benvenuto",            pdf: "/menu-it.pdf" },
+  { code: "pt", label: "Português",  sub: "Portuguese", hello: "Bem-vindo",            pdf: "/menu-pt.pdf" },
+  { code: "nl", label: "Nederlands", sub: "Dutch",      hello: "Welkom",               pdf: "/menu-nl.pdf" },
+  { code: "zh", label: "中文",        sub: "Chinese",    hello: "欢迎光临",              pdf: "/menu-zh.pdf" },
 ];
 ---
 <!doctype html>
