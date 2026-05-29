@@ -6,14 +6,18 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import { menuPages, parsePrice } from "./menu-data";
+// @ts-ignore — .mjs sans types
+import { getPhotoSrc } from "./efood-photos-map.mjs";
 
 export type PosProduct = {
   id: string;
   name: string;        // primary label (clerk language)
   name_alt?: string;   // optional secondary (e.g. EN translation)
   price: number;       // unit price, currency-agnostic float
-  category: string;    // for the tab/grid grouping
+  category: string;    // for the tab/grid grouping (primary lang)
+  category_alt?: string; // EN translation of category (for i18n EN mode)
   vat?: number;        // override default VAT rate (0–1)
+  photo?: string;      // /photos/efood/<slug>-<size>w.webp (chaque produit = image unique cf. delivery)
 };
 
 export type PosPaymentMode = {
@@ -106,12 +110,17 @@ export function getKalamakiProducts(): PosProduct[] {
       const priceStr = it.price.split("/")[0].trim(); // take first if "2,30€ / 3,00€"
       const price = parsePrice(priceStr);
       if (price <= 0) return; // skip "+0,70€" supplements as standalone
+      // Photo : même source que /delivery (module commande en ligne) — chaque produit a son image
+      // Fallback : photo de catégorie si l'item n'a pas de mapping spécifique
+      const photo = getPhotoSrc(it.el, 400) || page.photo || undefined;
       out.push({
         id: `p${pIdx}-i${iIdx}`,
         name: it.el,
         name_alt: it.en,
         price,
         category: page.title_el,
+        category_alt: page.title_en,
+        photo,
       });
     });
   });

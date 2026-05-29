@@ -13,10 +13,11 @@ export const NAME_TO_SLUG = {
   "Τυροκαυτερή": "tyrokayteri",
 
   // === Ορεκτικά ΙΙ ===
-  "Κολοκυθοκεφτέδες τμχ": "kolokythokeftes",
-  "Κολοκυθοκεφτέδες μερίδα 5 τμχ": "kolokythokeftes",
+  // Fix : la merida (assiette de 5) = la VRAIE photo des 5 fritters sur assiette ; la pièce unique = idem (pas de visuel "1 pièce" dispo)
+  "Κολοκυθοκεφτέδες τμχ": "kolokythokeftes",        // photo 5 fritters assiette (cf manifest = "Κολοκυθοκεφτές" 1 piece sans plat)
+  "Κολοκυθοκεφτέδες μερίδα 5 τμχ": "kolokythokeftes", // même slug — c'est le visuel correct des fritters sur assiette
   "Ρεβυθοκεφτέδες τμχ": "revythokeftes",
-  "Ρεβυθοκεφτέδες μερίδα 5 τμχ": "revythokeftes",
+  "Ρεβυθοκεφτέδες μερίδα 5 τμχ": "revythokeftes", // même produit en plus grande quantité — pas de photo merida distincte
   "Πίτα στα κάρβουνα": "pita-sketi",
 
   // === Σαλάτες ===
@@ -56,10 +57,11 @@ export const NAME_TO_SLUG = {
   "Ποικιλία 2 ατόμων": "soyvlakia",
 
   // === Χάμπουργκερ ===
+  // Une seule photo "burger-moscharisio" : assigner des slugs uniques cousins (mpifteki = galette de viande, special trouba = signature)
   "Χάμπουργκερ Κλασικό": "burger-moscharisio",
-  "Χάμπουργκερ Διπλό": "burger-moscharisio",
-  "Cheeseburger της Τρούμπας": "burger-moscharisio",
-  "BBQ Burger": "burger-moscharisio",
+  "Χάμπουργκερ Διπλό": "mpifteki-moscharisio",                  // 2 galettes mpifteki
+  "Cheeseburger της Τρούμπας": "special-mpifteki-tis-troympas", // version Trouba signature
+  "BBQ Burger": "skepasti-special-mpifteki-tis-troympas",       // visuel "scellé" différent du classique
 
   // === Veggie Menu ===
   "Μπιφτέκι λαχανικών τμχ": "mpifteki-lachanikon",
@@ -79,7 +81,7 @@ export const NAME_TO_SLUG = {
 
   // === Σάντουιτς & Σκεπαστή ===
   "Σάντουιτς με κρέας της επιλογής σας": "kalamaki-choirino-se-santoyits",
-  "Σάντουιτς με διπλό κρέας": "kalamaki-choirino-se-santoyits",
+  "Σάντουιτς με διπλό κρέας": "kalamaki-kotopoylo-mpoyti-se-santoyits", // 2e variante = poulet pour visuel unique
   "Σκεπαστή με κρέας της επιλογής σας": "skepasti-kalamaki-choirino",
   "Σκεπαστή με κρέας της επιλογής σας (διπλό)": "skepasti-mpifteki-moscharisio",
 
@@ -88,9 +90,16 @@ export const NAME_TO_SLUG = {
   "Φέτα ψητή με ντομάτα & πιπεριά": "feta",
 
   // === Αναψυκτικά & Νερό ===
-  // Αναψυκτικά 330ml = Coca-Cola par défaut (la plus représentative)
-  "Αναψυκτικά 330ml": "coca-cola-330ml",
-  "Αναψυκτικά 1.5L": "coca-cola-330ml", // pas de 1.5L scrappé, fallback Coca
+  // Soft drinks individuels — chaque référence pointe vers l'image visuelle la plus proche dispo
+  "Κόκα-Κόλα 330ml": "coca-cola-330ml",
+  "Κόκα-Κόλα Light 330ml": "coca-cola-light-330ml",
+  "Κόκα-Κόλα Zero 330ml": "coca-cola-zero-330ml",
+  "Sprite 330ml": "soda-330ml",                          // can plain silver (pas de visuel Sprite dispo — fallback générique)
+  "Fanta Πορτοκαλάδα 330ml": "fanta-portokalada-330ml",
+  "Fanta Μπλε 330ml": "fanta-portokalada-mple-330ml",
+  "Σόδα 330ml": "soda-330ml",                            // can plain silver = Σόδα générique
+  "Κόκα-Κόλα 1.5L": "coca-cola-330ml",                   // pas de visuel 1.5L dispo, ré-utilise can Coca (proxy marque)
+  "Αναψυκτικό 1.5L": "coca-cola-330ml",                  // famille soft drinks 1.5L générique
   "Νερό 500ml": "nero-500ml",
   "Νερό 1L": "nero-1lt",
 
@@ -107,6 +116,9 @@ export const NAME_TO_SLUG = {
   "Heineken 500ml": "heineken-fiali-500ml",
   "Mythos 330ml": "mythos-300ml", // 300ml seul scrap
   "Mythos 500ml": "mythos-500ml",
+
+  // === Κρασιά & Μπύρες (sides) ===
+  "Πατάτες τηγανητές": "patates-tiganites", // même photo que Φρέσκιες Πατάτες (Ορεκτικά Ι) — produit identique, juste catégorisation différente
 };
 
 // Plats vedettes pour la section "Nos Spécialités" (HOME)

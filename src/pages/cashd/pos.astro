@@ -35,7 +35,7 @@ const products = getKalamakiProducts();
       min-width: 0;
     }
     .pos-topbar h1 { margin: 0; font-size: 0.95rem; color: #E5B32A; letter-spacing: 0.05em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .pos-topbar .links { display: flex; gap: 0.4rem; flex-shrink: 0; }
+    .pos-topbar .links { display: flex; gap: 0.4rem; flex-shrink: 0; align-items: center; }
     .pos-topbar a {
       padding: 0.5rem 0.85rem; font-size: 0.78rem;
       background: #1a1a1a; color: #ccc;
@@ -44,11 +44,21 @@ const products = getKalamakiProducts();
       letter-spacing: 0.04em; font-weight: 700;
     }
     .pos-topbar a:hover { background: #222; color: #E5B32A; }
+    .pos-topbar .lang-toggle {
+      padding: 0.5rem 0.7rem; font-size: 0.78rem;
+      background: #222; color: #ccc; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.4rem; cursor: pointer;
+      letter-spacing: 0.05em; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 0.3rem;
+    }
+    .pos-topbar .lang-toggle:hover { background: #333; color: #E5B32A; }
+    .pos-topbar .lang-toggle img { width: 14px; height: 10px; display: inline-block; object-fit: cover; border-radius: 2px; }
     @media (max-width: 768px) {
       .pos-topbar { padding: 0.5rem 0.6rem; gap: 0.35rem; }
       .pos-topbar h1 { font-size: 0.78rem; flex: 1 1 100%; }
       .pos-topbar .links { width: 100%; }
       .pos-topbar a { padding: 0.45rem 0.65rem; font-size: 0.72rem; flex: 1; text-align: center; }
+      .pos-topbar .lang-toggle { padding: 0.45rem 0.55rem; font-size: 0.72rem; flex: 0 0 auto; }
     }
 
     .auth-overlay {
@@ -68,10 +78,11 @@ const products = getKalamakiProducts();
 <body>
   <CashdNav />
   <header class="pos-topbar">
-    <h1>🧾 POS — ΚΑΛΑΜΑΚΙ</h1>
+    <h1 id="pos-topbar-title">🧾 POS — ΚΑΛΑΜΑΚΙ</h1>
     <div class="links">
-      <a href="/cashd">📟 Online</a>
-      <a href="/cashd/history">📋 Ιστορικό</a>
+      <a id="pos-link-dashboard" href="/cashd">📟 Online</a>
+      <a id="pos-link-history" href="/cashd/history">📋 Ιστορικό</a>
+      <button type="button" id="pos-lang-toggle" class="lang-toggle" aria-label="Language"></button>
     </div>
   </header>
 
@@ -80,11 +91,72 @@ const products = getKalamakiProducts();
   </main>
 
   <div class="auth-overlay" id="auth-overlay">
-    <div>🔒 Απαιτείται σύνδεση</div>
-    <a href="/cashd">Σύνδεση</a>
+    <div id="auth-overlay-text">🔒 Απαιτείται σύνδεση</div>
+    <a id="auth-overlay-link" href="/cashd">Σύνδεση</a>
   </div>
 
   <script is:inline>
+    // ══════════════════════════════════════════════════════════════════════
+    // I18N topbar + auth-overlay (EL/EN). Composant POS gère son propre i18n
+    // via 'pos-lang-change' event + storage listener (cf. PosCaisse.astro).
+    // ══════════════════════════════════════════════════════════════════════
+    var TOPBAR_I18N = {
+      el: {
+        title: '🧾 POS — ΚΑΛΑΜΑΚΙ',
+        dashboard: '📟 Online',
+        history: '📋 Ιστορικό',
+        authText: '🔒 Απαιτείται σύνδεση',
+        authLink: 'Σύνδεση'
+      },
+      en: {
+        title: '🧾 TILL — KALAMAKI',
+        dashboard: '📟 Dashboard',
+        history: '📋 History',
+        authText: '🔒 Sign-in required',
+        authLink: 'Sign in'
+      }
+    };
+    function posGetLang() {
+      try { return localStorage.getItem('caisse_lang') || 'el'; }
+      catch (e) { return 'el'; }
+    }
+    function posFlag(code) {
+      return '<img src="/flags/' + code + '.svg" alt="" width="14" height="10" />';
+    }
+    function applyTopbarI18n() {
+      var l = posGetLang();
+      var t = TOPBAR_I18N[l] || TOPBAR_I18N.el;
+      var title = document.getElementById('pos-topbar-title');
+      var dash = document.getElementById('pos-link-dashboard');
+      var hist = document.getElementById('pos-link-history');
+      var aText = document.getElementById('auth-overlay-text');
+      var aLink = document.getElementById('auth-overlay-link');
+      var toggle = document.getElementById('pos-lang-toggle');
+      if (title) title.textContent = t.title;
+      if (dash) dash.textContent = t.dashboard;
+      if (hist) hist.textContent = t.history;
+      if (aText) aText.textContent = t.authText;
+      if (aLink) aLink.textContent = t.authLink;
+      if (toggle) toggle.innerHTML = (l === 'el' ? posFlag('gr') + 'EL' : posFlag('gb') + 'EN');
+    }
+    applyTopbarI18n();
+
+    // Lang toggle click → flip caisse_lang + dispatch event same-tab
+    var langBtn = document.getElementById('pos-lang-toggle');
+    if (langBtn) {
+      langBtn.addEventListener('click', function() {
+        var curr = posGetLang();
+        var next = (curr === 'el') ? 'en' : 'el';
+        try { localStorage.setItem('caisse_lang', next); } catch (e) {}
+        applyTopbarI18n();
+        window.dispatchEvent(new CustomEvent('pos-lang-change', { detail: { lang: next } }));
+      });
+    }
+    // Cross-tab storage listener
+    window.addEventListener('storage', function(ev) {
+      if (ev.key === 'caisse_lang') applyTopbarI18n();
+    });
+
     // Pré-auth via session 2h, puis vérifie cookie. Si fail → overlay login (redirect /cashd).
     (async function() {
       try { await window.cashdAuth.bootAuth(); } catch (e) {}
