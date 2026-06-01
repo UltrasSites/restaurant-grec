@@ -1,0 +1,136 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getLangFromParam } from "../../i18n/utils";
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: "el" } },
+    { params: { lang: "en" } },
+  ];
+}
+
+const currentLang = getLangFromParam(Astro.params.lang);
+const isEl = currentLang === "el";
+const title = isEl ? "Πολιτική cookies" : "Cookie policy";
+---
+
+<BaseLayout
+  lang={currentLang}
+  title={`${title} — Το Καλαμάκι Της Τρούμπας`}
+  description={isEl
+    ? 'Πολιτική cookies για το Καλαμάκι Της Τρούμπας. Χρησιμοποιούμε μόνο τα απολύτως απαραίτητα τεχνικά cookies. Κανένα cookie διαφημιστικό ή ανάλυσης χωρίς συγκατάθεση.'
+    : 'Cookie policy for Trouba Souvlaki — Piraeus. We only use strictly necessary technical cookies. No advertising or analytics cookies without prior consent.'}
+  breadcrumbs={[
+    { name: isEl ? 'Αρχική' : 'Home', path: `/${currentLang}/` },
+    { name: title, path: `/${currentLang}/cookies/` },
+  ]}
+>
+  <script type="application/ld+json" set:html={JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'DigitalDocument',
+    name: `${title} — Το Καλαμάκι Της Τρούμπας`,
+    description: isEl
+      ? 'Πολιτική cookies για το Καλαμάκι Της Τρούμπας — μόνο απαραίτητα τεχνικά cookies.'
+      : 'Cookie policy for Trouba Souvlaki — only strictly necessary technical cookies.',
+    inLanguage: currentLang,
+    url: `https://kalamakitroubas.gr/${currentLang}/cookies/`,
+    about: 'Cookie policy — Trouba Souvlaki (HDPA / GDPR compliant)',
+    publisher: {
+      '@type': 'Restaurant',
+      name: 'Το Καλαμάκι Της Τρούμπας',
+      url: 'https://kalamakitroubas.gr',
+      address: { '@type': 'PostalAddress', addressLocality: 'Πειραιάς', addressCountry: 'GR' },
+    },
+  })} />
+  <section class="bg-[#0a0a0a] pt-32 pb-24 px-6">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-3xl md:text-4xl font-serif italic text-white mb-8">{title}</h1>
+
+      {isEl ? (
+        <div class="space-y-6 text-gray-300 leading-relaxed text-[0.95rem]">
+          <div>
+            <p>Η παρούσα πολιτική εξηγεί τι είναι τα cookies και ποια χρησιμοποιεί ο ιστότοπος <strong class="text-white">kalamakitroubas.gr</strong> του εστιατορίου <strong class="text-white">Το Καλαμάκι Της Τρούμπας</strong>, σύμφωνα με τον Γενικό Κανονισμό Προστασίας Δεδομένων (GDPR) και τον Ν. 4624/2019.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">1. Τι είναι ένα cookie</h2>
+            <p>Το cookie είναι ένα μικρό αρχείο που αποθηκεύεται στον περιηγητή σας όταν επισκέπτεστε έναν ιστότοπο. Επιτρέπει να θυμάται προτιμήσεις (όπως τη γλώσσα) ή να λειτουργούν σωστά λειτουργίες όπως το καλάθι παραγγελίας.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">2. Τι cookies χρησιμοποιούμε</h2>
+            <p>Χρησιμοποιούμε <strong class="text-white">μόνο απολύτως απαραίτητα τεχνικά cookies</strong>:</p>
+            <ul class="list-disc pl-6 mt-2 space-y-1">
+              <li><strong>Προτίμηση γλώσσας</strong> — για να θυμάται την επιλογή σας (ελληνικά ή αγγλικά)</li>
+              <li><strong>Καλάθι παραγγελίας</strong> — απαραίτητο για να μην χάνετε τα προϊόντα που έχετε προσθέσει</li>
+              <li><strong>Σύνδεση ταμείου</strong> — μόνο για το προσωπικό του εστιατορίου που χειρίζεται τις παραγγελίες</li>
+              <li>Cookies ασφαλείας του παρόχου φιλοξενίας (Cloudflare) για προστασία από επιθέσεις</li>
+            </ul>
+            <p class="mt-2">Αυτά τα cookies εξαιρούνται από την υποχρέωση προηγούμενης συγκατάθεσης σύμφωνα με την Οδηγία 2002/58/ΕΚ και τις κατευθυντήριες γραμμές της ΑΠΔΠΧ.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">3. Τι ΔΕΝ χρησιμοποιούμε</h2>
+            <p>Ο ιστότοπος <strong class="text-white">δεν φορτώνει</strong> καμία υπηρεσία τύπου Google Analytics, Google Tag Manager, Meta Pixel (Facebook), TikTok Pixel, Google Ads, Hotjar ή Microsoft Clarity. Κανένα προφίλ διαφημιστικής χρήσης δεν δημιουργείται και δεν διαβιβάζονται δεδομένα σε τρίτους για εμπορικούς σκοπούς.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">4. Πώς να διαχειριστείτε τα cookies</h2>
+            <p>Μπορείτε να ρυθμίσετε ή να διαγράψετε τα cookies από τις ρυθμίσεις του περιηγητή σας. Λάβετε υπόψη ότι η απενεργοποίηση των απαραίτητων cookies μπορεί να επηρεάσει τη λειτουργία της online παραγγελίας.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">5. Περισσότερες πληροφορίες</h2>
+            <p>Για περισσότερες λεπτομέρειες σχετικά με την επεξεργασία προσωπικών δεδομένων, δείτε την <a href={`/${currentLang}/privacy/`} class="text-[#E5B32A] hover:underline">πολιτική απορρήτου</a> μας. Για ερωτήσεις: <a href="mailto:kalamaki.troubas@gmail.com" class="text-[#E5B32A] hover:underline">kalamaki.troubas@gmail.com</a>. Μπορείτε επίσης να υποβάλετε καταγγελία στην <a href="https://www.dpa.gr" target="_blank" rel="noopener" class="text-[#E5B32A] hover:underline">Αρχή Προστασίας Δεδομένων Προσωπικού Χαρακτήρα (ΑΠΔΠΧ)</a>.</p>
+            <p class="text-gray-500 text-xs mt-3">Τελευταία ενημέρωση: Μάιος 2026.</p>
+          </div>
+        </div>
+      ) : (
+        <div class="space-y-6 text-gray-300 leading-relaxed text-[0.95rem]">
+          <div>
+            <p>This policy explains what cookies are and which ones the website <strong class="text-white">kalamakitroubas.gr</strong>, operated by <strong class="text-white">Trouba Souvlaki</strong>, uses. It complies with the General Data Protection Regulation (GDPR) and Greek Law 4624/2019.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">1. What is a cookie</h2>
+            <p>A cookie is a small file stored in your browser when you visit a website. It lets the site remember preferences (such as language) or makes features work properly (like the order basket).</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">2. Cookies we use</h2>
+            <p>We only use <strong class="text-white">strictly necessary technical cookies</strong>:</p>
+            <ul class="list-disc pl-6 mt-2 space-y-1">
+              <li><strong>Language preference</strong> — to remember your choice (Greek or English)</li>
+              <li><strong>Shopping basket</strong> — needed to keep items you have added to your order</li>
+              <li><strong>Cashier login</strong> — only used by restaurant staff handling orders in the back-office</li>
+              <li>Security cookies from our hosting provider (Cloudflare) to protect against attacks</li>
+            </ul>
+            <p class="mt-2">These cookies are exempt from the prior-consent requirement under Directive 2002/58/EC and the guidelines of the Hellenic Data Protection Authority.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">3. What we do NOT use</h2>
+            <p>The site <strong class="text-white">does not load</strong> any service such as Google Analytics, Google Tag Manager, Meta Pixel (Facebook), TikTok Pixel, Google Ads, Hotjar or Microsoft Clarity. No advertising profile is built and no data is transferred to third parties for commercial purposes.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">4. How to manage cookies</h2>
+            <p>You can configure or delete cookies from your browser settings. Note that disabling strictly necessary cookies may affect the online ordering feature.</p>
+          </div>
+
+          <div>
+            <h2 class="text-xl font-serif text-[#E5B32A] mb-2">5. More information</h2>
+            <p>For more details on personal data processing, see our <a href={`/${currentLang}/privacy/`} class="text-[#E5B32A] hover:underline">privacy policy</a>. For any question: <a href="mailto:kalamaki.troubas@gmail.com" class="text-[#E5B32A] hover:underline">kalamaki.troubas@gmail.com</a>. You can also lodge a complaint with the <a href="https://www.dpa.gr/en" target="_blank" rel="noopener" class="text-[#E5B32A] hover:underline">Hellenic Data Protection Authority (HDPA)</a>.</p>
+            <p class="text-gray-500 text-xs mt-3">Last updated: May 2026.</p>
+          </div>
+        </div>
+      )}
+
+      <div class="mt-12 pt-8 border-t border-white/10">
+        <a href={`/${currentLang}/`} class="text-[#E5B32A] hover:underline text-sm">
+          ← {isEl ? "Επιστροφή στην αρχική" : "Back to home"}
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

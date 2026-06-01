@@ -191,7 +191,7 @@ import CashdAuthScript from "../../../components/cashd/CashdAuthScript.astro";
           infoText: 'If a page stays stuck on login, check the <code>caisse_auth</code> cookie. The password is set via Cloudflare Pages env vars (<code>CAISSE_PASSWORD</code>).',
         },
       };
-      function getLang() { try { return localStorage.getItem('caisse_lang') || 'el'; } catch (e) { return 'el'; } }
+      function getLang() { return 'el'; /* dashboard grec uniquement */ }
       var t = I18N[getLang()] || I18N.el;
       function setText(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
       function setHtml(id, v) { var el = document.getElementById(id); if (el) el.innerHTML = v; }

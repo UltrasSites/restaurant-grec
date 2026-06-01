@@ -557,7 +557,7 @@ import CashdAuthScript from "../../../components/cashd/CashdAuthScript.astro";
       },
     };
     function getLang() {
-      try { return localStorage.getItem('caisse_lang') || 'el'; }
+      try { return 'el'; /* dashboard grec uniquement */ }
       catch (e) { return 'el'; }
     }
     var lang = getLang();

@@ -1061,7 +1061,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
   <div id="login-screen" class="login-wrap" style="display:none;">
     <form class="login-box" id="login-form" method="post" action="#" autocomplete="on">
       <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
-        <button type="button" id="login-lang-toggle" class="lang-toggle" aria-label="Language"></button>
+        <button type="button" id="login-lang-toggle" class="lang-toggle" aria-label="Language" style="display:none"></button>
       </div>
       <h1 id="login-title">ΤΑΜΕΙΟ — ΤΡΟΥΜΠΑΣ</h1>
       {/* Hidden username pour permettre au navigateur d'enregistrer le mot de passe */}
@@ -1080,7 +1080,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
         <span class="dot"></span>
         <span class="clock" id="clock">--:--</span>
         <a href="/cashd/pos" class="new-order-cta" title="Καταχώρηση πώλησης στο κατάστημα">🆕 <span class="new-order-label">Νέα παραγγελία</span></a>
-        <button type="button" id="lang-toggle" class="lang-toggle" aria-label="Language"></button>
+        <button type="button" id="lang-toggle" class="lang-toggle" aria-label="Language" style="display:none"></button>
         <a href="/cashd/messages" id="global-msg-btn" class="msg-icon-btn" title="Όλα τα μηνύματα">💬<span id="global-unread-badge" class="global-unread hidden">0</span></a>
         <select id="sound-select" class="sound-select" aria-label="Ήχος ειδοποίησης"></select>
         <button type="button" id="sound-test" class="sound-test" title="Test">🔊 Test</button>
@@ -1369,7 +1369,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
     };
 
     function getLang() {
-      try { return localStorage.getItem('caisse_lang') || 'el'; }
+      try { return 'el'; /* dashboard grec uniquement */ }
       catch (e) { return 'el'; }
     }
     function setLang(l) {

@@ -309,7 +309,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
   <div class="topbar">
     <h1 id="page-title">📋 ΙΣΤΟΡΙΚΟ ΠΑΡΑΓΓΕΛΙΩΝ — 60 ημέρες</h1>
     <div class="actions">
-      <button type="button" id="lang-toggle" class="btn lang-toggle" aria-label="Language"></button>
+      <button type="button" id="lang-toggle" class="btn lang-toggle" aria-label="Language" style="display:none"></button>
       <a href="/cashd" id="back-btn" class="btn">← Πίσω</a>
       <button type="button" id="refresh-btn" class="btn btn-primary" id="refresh-btn">↻ Ανανέωση</button>
       <button type="button" id="print-btn" class="btn btn-print">🖨 Εκτύπωση</button>
@@ -484,7 +484,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
     };
 
     function getLang() {
-      try { return localStorage.getItem('caisse_lang') || 'el'; }
+      try { return 'el'; /* dashboard grec uniquement */ }
       catch (e) { return 'el'; }
     }
     function setLang(l) {

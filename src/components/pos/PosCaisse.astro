@@ -914,7 +914,7 @@ const dataPayload = JSON.stringify({ products, config, categories, categoriesAlt
   };
 
   function getPosLang() {
-    try { return localStorage.getItem('caisse_lang') || 'el'; }
+    try { return 'el'; /* dashboard grec uniquement */ }
     catch (e) { return 'el'; }
   }
   var POS_LANG = getPosLang();

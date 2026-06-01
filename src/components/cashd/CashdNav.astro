@@ -248,7 +248,7 @@ const items = [
       en: { collapse: 'Collapse', logout: 'Sign out',    confirmLogout: 'Sign out?' },
     };
     function getNavLang() {
-      try { return localStorage.getItem('caisse_lang') || 'el'; }
+      try { return 'el'; /* dashboard grec uniquement */ }
       catch (e) { return 'el'; }
     }
     function applyNavI18n() {

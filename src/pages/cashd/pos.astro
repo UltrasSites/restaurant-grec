@@ -82,7 +82,7 @@ const products = getKalamakiProducts();
     <div class="links">
       <a id="pos-link-dashboard" href="/cashd">📟 Online</a>
       <a id="pos-link-history" href="/cashd/history">📋 Ιστορικό</a>
-      <button type="button" id="pos-lang-toggle" class="lang-toggle" aria-label="Language"></button>
+      <button type="button" id="pos-lang-toggle" class="lang-toggle" aria-label="Language" style="display:none"></button>
     </div>
   </header>
 
@@ -117,7 +117,7 @@ const products = getKalamakiProducts();
       }
     };
     function posGetLang() {
-      try { return localStorage.getItem('caisse_lang') || 'el'; }
+      try { return 'el'; /* dashboard grec uniquement */ }
       catch (e) { return 'el'; }
     }
     function posFlag(code) {
