@@ -101,7 +101,7 @@ type RestaurantTranslations = {
 
 const ui: Record<Lang, RestaurantTranslations> = {
   el: {
-    meta_title: 'Σουβλάκι Τρούμπα · Παραγγελία online · Πειραιάς | Καλαμάκι',
+    meta_title: 'Καλαμάκι Της Τρούμπας — Σουβλάκια στον Πειραιά | Παραγγελία online',
     meta_description: 'Καλαμάκι Της Τρούμπας — αυθεντική πίτα, γύρος, σουβλάκι στην Τρούμπα Πειραιά. Παραγγειλε online, γρήγορη παράδοση, 0% προμήθεια. Μπουμπουλίνας 8.',
     nav_home: 'Αρχική',
     nav_ambiance: 'Ιστορία',
@@ -196,7 +196,7 @@ const ui: Record<Lang, RestaurantTranslations> = {
     order_remove: 'Αφαίρεση',
   },
   en: {
-    meta_title: 'Souvlaki Trouba · Online order & delivery · Piraeus | Kalamaki',
+    meta_title: 'Kalamaki Tis Troumpas — Souvlaki in Piraeus | Order online',
     meta_description: 'Kalamaki Tis Troumpas — authentic pita, gyros and souvlaki in Troumpa Piraeus. Order online, fast delivery, 0% platform fees. 8 Bouboulinas & Notara.',
     nav_home: 'Home',
     nav_ambiance: 'Our Story',
