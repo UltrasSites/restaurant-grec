@@ -71,9 +71,11 @@ const dl = DOCK_LABELS[lang as Lang] ?? DOCK_LABELS.el;
         gap: 0.25rem;
         padding: 0.45rem;
         border-radius: 999px;
-        background: rgba(15, 11, 6, 0.92);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        /* perf mobile : fond quasi opaque + blur réduit (8px) — la barre est toujours
+           visible donc un gros blur = rasterisation GPU permanente. Look glass conservé. */
+        background: rgba(15, 11, 6, 0.97);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
         border: 1px solid rgba(229, 179, 42, 0.35);
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(229, 179, 42, 0.15);
     }

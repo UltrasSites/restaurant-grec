@@ -33,9 +33,10 @@ const baseUrl = `/${currentLang}`;
       box-sizing: border-box;
     }
     .hero-card-3d {
-      background: linear-gradient(135deg, rgba(229, 179, 42, 0.10) 0%, rgba(10, 10, 10, 0.55) 100%);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      /* MOBILE-ONLY (parent @media max-width:767px) — perf : pas de backdrop-filter
+         (rasterisation GPU coûteuse sur mobile) ni d'animation continue sur cet élément.
+         Fond légèrement plus opaque pour garder le look "glass" sans le blur. */
+      background: linear-gradient(135deg, rgba(229, 179, 42, 0.12) 0%, rgba(10, 10, 10, 0.78) 100%);
       border: 1px solid rgba(229, 179, 42, 0.30);
       border-radius: 2rem;
       padding: 2rem 1.5rem !important;
@@ -51,7 +52,6 @@ const baseUrl = `/${currentLang}`;
         0 30px 60px -12px rgba(0, 0, 0, 0.8),
         0 18px 36px -18px rgba(0, 0, 0, 0.9),
         0 0 40px rgba(229, 179, 42, 0.1);
-      animation: hero-card-float 8s ease-in-out infinite;
       position: relative;
     }
     /* Force all direct children to fit */
@@ -166,6 +166,11 @@ const baseUrl = `/${currentLang}`;
     0%   { transform: translateX(0); }
     100% { transform: translateX(-50%); }
   }
+  /* MOBILE-ONLY perf : on fige le carrousel hero (pas de boucle compositeur permanente
+     qui empêche la page de devenir idle). Les photos restent visibles. Desktop inchangé. */
+  @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+    .strip-track { animation: none !important; }
+  }
   .gold-shine-text {
     background: linear-gradient(
       to right,
@@ -227,7 +232,8 @@ const baseUrl = `/${currentLang}`;
     50%     { transform: translate3d(-50px, -20px, 0); }
   }
   @media (max-width: 767px), (prefers-reduced-motion: reduce) {
-    .hero-blob { animation: none !important; }
+    /* perf mobile : pas d'animation ET pas de will-change (sinon layer GPU promu pour rien) */
+    .hero-blob { animation: none !important; will-change: auto !important; }
   }
 
   /* CTA principale "Commandez en ligne" — la SEULE illuminée du hero.
@@ -296,6 +302,13 @@ const baseUrl = `/${currentLang}`;
   @media (prefers-reduced-motion: reduce) {
     .cta-beam-target::before { animation: none !important; opacity: 0.6; transform: translate3d(0,0,0) scale(1); }
     .cta-beam-target::after  { animation: none !important; opacity: 0; }
+  }
+  /* MOBILE-ONLY perf : on coupe les 2 boucles de la CTA (halo pulse + shine mix-blend).
+     mix-blend-mode:screen force un layer composite + blending par frame = cher sur mobile.
+     La CTA reste illuminée (gradient or + box-shadow + halo statique). Desktop inchangé. */
+  @media (max-width: 767px) {
+    .cta-beam-target::before { animation: none !important; opacity: 0.55; transform: translate3d(0,0,0) scale(1); }
+    .cta-beam-target::after  { animation: none !important; opacity: 0; mix-blend-mode: normal; }
   }
 
   /* Beam SVG : trait pointillé doré qui "respire" du titre vers la CTA (desktop only).
@@ -605,7 +618,8 @@ const baseUrl = `/${currentLang}`;
       .speciality-card {
         height: 200px;
         transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
-        will-change: transform;
+        /* will-change retiré : le hover (desktop) suffit, pas besoin de promouvoir
+           un layer GPU en permanence sur chaque carte (coût mémoire mobile). */
       }
       @media (min-width: 768px) {
         .speciality-card { height: 240px; }
