@@ -430,11 +430,16 @@ const faqSchema = {
     <link rel="apple-touch-icon" sizes="180x180" href="/icon-180.png" />
     <link rel="apple-touch-icon" href="/icon-180.png" />
 
-    {/* Preload LCP image — hero background */}
-    <link rel="preload" as="image" href="/photos/efood-00-1600w.webp" fetchpriority="high" />
+    {/* Preload LCP image — hero background (responsive: mobile pulls 800w, desktop 1600w) */}
+    <link
+      rel="preload"
+      as="image"
+      href="/photos/efood-00-1600w.webp"
+      imagesrcset="/photos/efood-00-800w.webp 800w, /photos/efood-00-1600w.webp 1600w"
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     {/* Leaflet (carte zones livraison) — chargé UNIQUEMENT sur delivery.astro via includeLeaflet=true */}
     {includeLeaflet && (
       <>
@@ -442,10 +447,11 @@ const faqSchema = {
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
       </>
     )}
-    {/* Preload critical font CSS for FCP */}
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" media="print" onload="this.media='all';this.onload=null;" />
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" /></noscript>
+    {/* Self-hosted fonts (Inter + Playfair Display) — @font-face inlined via global.css, font-display:swap.
+        Preload only the critical subsets needed for first paint to avoid extra round-trip. */}
+    {lang === 'el' && <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-400-normal-greek.woff2" crossorigin />}
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-400-normal-latin.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/playfairdisplay-700-normal-latin.woff2" crossorigin />
 
     <title>{title}</title>
 
