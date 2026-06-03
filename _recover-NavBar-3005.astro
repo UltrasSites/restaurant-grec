@@ -1,0 +1,120 @@
+---
+import { translations } from "../i18n/translations";
+import { supportedLangs, langLabels, type Lang } from "../i18n/utils";
+
+const { lang = "el" } = Astro.props as { lang?: Lang };
+const base = lang ? `/${lang}` : "";
+const t = lang ? translations[lang] : null;
+const tel = "tel:+302104222233";
+
+// Toggle EL ↔ EN seulement (Tiago 28/05 — cycle complet confusant)
+const otherLang: Lang = (lang === "el" ? "en" : "el") as Lang;
+const otherLangBase = `/${otherLang}/`;
+const FLAG_MAP: Record<Lang, string> = { el: "/flags/gr.svg", en: "/flags/gb.svg", de: "/flags/de.svg", ru: "/flags/ru.svg", ja: "/flags/ja.svg" };
+const flagSrc = FLAG_MAP[lang as Lang] ?? "/flags/gr.svg";
+const flagAlt = langLabels[lang as Lang] ?? "Ελληνικά";
+const orderHref = `${base}/delivery`;
+const orderLabel = t?.order_cta ?? (lang === "el" ? "Παραγγελία" : "Order");
+// Adresse EXACTE Trouba : Μπουμπουλίνας 8 & Νοταρά, 18535 Πειραιάς (Tiago 28/05)
+const mapsHref = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("Καλαμάκι της Τρούμπας Μπουμπουλίνας 8 Νοταρά 18535 Πειραιάς");
+// Labels signature Pirée / Athènes / Souvlaki par langue (style La Mamma : icon + label en dessous)
+const DOCK_LABELS: Record<Lang, { menu: string; order: string; call: string; piraeus: string; lang: string }> = {
+  el: { menu: "Μενού", order: "Παραγγείλτε", call: "Κλήση", piraeus: "Πειραιάς", lang: "EN/EL" },
+  en: { menu: "Menu", order: "Order", call: "Call", piraeus: "Piraeus", lang: "EL/EN" },
+  de: { menu: "Menü", order: "Bestellen", call: "Anrufen", piraeus: "Piräus", lang: "Sprache" },
+  ru: { menu: "Меню", order: "Заказ", call: "Звонок", piraeus: "Пирей", lang: "Язык" },
+  ja: { menu: "メニュー", order: "注文", call: "電話", piraeus: "ピレウス", lang: "言語" },
+};
+const dl = DOCK_LABELS[lang as Lang] ?? DOCK_LABELS.el;
+---
+
+<div class="md:hidden absolute top-4 left-3 sm:left-5 z-20">
+    <a href={`${base}/#home`} class="inline-flex items-center gap-2">
+        <img src="/photos/logo-dark-bg-88w.webp" alt="" width="44" height="44" class="w-11 h-11 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" loading="eager" decoding="async" />
+        <span class="text-[11px] font-semibold tracking-wide uppercase text-white/90 leading-tight">Το Καλαμάκι<br/>Της Τρούμπας</span>
+    </a>
+</div>
+
+<div class="mobile-dock md:hidden" id="mobile-fab-wrapper" aria-label="Κύριες ενέργειες">
+    <div class="mobile-dock-inner">
+        <button type="button" id="mobile-open-drawer-btn" class="dock-btn dock-btn-menu" aria-label={t?.nav_menu ?? "Μενού"}>
+            <span class="dock-icon">🍽️</span>
+            <span class="dock-label">{dl.menu}</span>
+        </button>
+        <a href={orderHref} class="dock-btn dock-btn-order" aria-label={orderLabel}>
+            <span class="dock-icon">🥙</span>
+            <span class="dock-label">{dl.order}</span>
+        </a>
+        <a href={tel} class="dock-btn dock-btn-phone" aria-label={t?.nav_aria_phone ?? 'Τηλέφωνο'}>
+            <span class="dock-icon">📞</span>
+            <span class="dock-label">{dl.call}</span>
+        </a>
+        <a href={mapsHref} target="_blank" rel="noopener" class="dock-btn dock-btn-maps" aria-label="Πειραιάς · Maps">
+            <span class="dock-icon">📍</span>
+            <span class="dock-label">{dl.piraeus}</span>
+        </a>
+        <a href={otherLangBase} class="dock-btn dock-btn-lang" aria-label={`Switch to ${otherLang.toUpperCase()}`}>
+            <img src={flagSrc} alt={flagAlt} width="20" height="20" class="dock-flag" loading="eager" decoding="async" />
+            <span class="dock-label">{lang.toUpperCase()}</span>
+        </a>
+    </div>
+</div>
+
+<style>
+    /* Mobile dock — style La Mamma signature (Tiago 28/05) : icon + label en column,
+       palette gold Kalamaki, accent Πειραιάς + Souvlaki 🥙 */
+    .mobile-dock { position: fixed; bottom: calc(0.85rem + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); z-index: 60; display: flex; justify-content: center; max-width: calc(100vw - 1rem); }
+    @media (min-width: 768px) { .mobile-dock { display: none !important; } }
+    .mobile-dock-inner {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.45rem;
+        border-radius: 999px;
+        background: rgba(15, 11, 6, 0.92);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(229, 179, 42, 0.35);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(229, 179, 42, 0.15);
+    }
+    .dock-btn {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        flex-shrink: 0;
+        transition: transform 0.18s ease, background 0.2s;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        background: transparent;
+        color: rgba(245, 233, 216, 0.75);
+        padding: 0;
+    }
+    .dock-btn:active, .dock-btn:hover { transform: scale(1.05); background: rgba(229, 179, 42, 0.18); color: #fff; }
+    .dock-btn .dock-icon { font-size: 1.3rem; line-height: 1; }
+    .dock-btn .dock-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1px; }
+    /* Primary highlight Order (signature gold) */
+    .dock-btn-order { background: linear-gradient(135deg, #E5B32A 0%, #c89a1e 100%); color: #000; position: relative; }
+    .dock-btn-order:hover, .dock-btn-order:active { background: linear-gradient(135deg, #f0c142 0%, #d4a523 100%); color: #000; }
+    .dock-btn-order::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; border: 2px solid rgba(229, 179, 42, 0.5); animation: pulse-ring 2.4s ease-in-out infinite; pointer-events: none; opacity: 0; }
+    @keyframes pulse-ring {
+        0%, 100% { transform: scale(1); opacity: 0.55; }
+        50% { transform: scale(1.22); opacity: 0; }
+    }
+    @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+        .dock-btn-order::after { animation: none; opacity: 0; }
+    }
+    .dock-flag { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+</style>
+
+<script>
+    const openDrawerBtn = document.getElementById("mobile-open-drawer-btn");
+    const fabWrapper = document.getElementById("mobile-fab-wrapper");
+    if (fabWrapper && fabWrapper.parentNode !== document.body) document.body.appendChild(fabWrapper);
+    if (openDrawerBtn) { openDrawerBtn.addEventListener("click", (e) => { e.preventDefault(); document.dispatchEvent(new CustomEvent("open-drawer")); }); }
+</script>
