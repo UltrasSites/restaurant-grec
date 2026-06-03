@@ -3,6 +3,7 @@ import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import ScrollToTop from "../components/ScrollToTop.astro";
 import A2hsPrompt from "../components/A2hsPrompt.astro";
+import DeliveryPartnersWidget from "../components/DeliveryPartnersWidget.astro";
 import "../styles/global.css";
 import type { Lang } from "../i18n/utils";
 import { menuPages, parsePrice } from "../data/menu-data";
@@ -485,6 +486,7 @@ const faqSchema = {
     <Footer lang={lang} />
     <ScrollToTop lang={lang} />
     <A2hsPrompt lang={lang} />
+    <DeliveryPartnersWidget lang={lang} />
 
     {/* Service Worker registration — PWA A2HS */}
     <script is:inline>
@@ -493,6 +495,22 @@ const faqSchema = {
           navigator.serviceWorker.register('/sw.js').catch(function () { /* silencieux */ });
         });
       }
+    </script>
+
+    {/* Scroll hint Beam Drop — fade out après 80px de scroll */}
+    <script is:inline>
+      (function(){
+        var hints = document.querySelectorAll('.scroll-hint');
+        if (!hints.length) return;
+        function update(){
+          var hide = window.scrollY > 80;
+          for (var i = 0; i < hints.length; i++) {
+            hints[i].classList.toggle('is-hidden', hide);
+          }
+        }
+        update();
+        addEventListener('scroll', update, { passive: true });
+      })();
     </script>
   </body>
 </html>

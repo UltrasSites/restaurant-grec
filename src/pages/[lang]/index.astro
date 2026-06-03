@@ -191,6 +191,202 @@ const baseUrl = `/${currentLang}`;
       color: #e5b32a !important;
     }
   }
+
+  /* ═══════════════════════════════════════════════════════════
+     BEAM-TO-CTA — toutes les animations du hero convergent vers
+     la seule CTA illuminée : "Commandez en ligne" (.cta-beam-target).
+     Palette Kalamaki : or #E5B32A. Animations transform/opacity only.
+     (restauré du travail 27/05) */
+
+  /* Fond ambient : 2 blobs dorés qui dérivent lentement */
+  .hero-ambient {
+    position: absolute;
+    inset: -10% -10% 0 -10%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .hero-blob {
+    position: absolute;
+    width: 520px; height: 520px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(229,179,42,0.16) 0%, rgba(229,179,42,0) 60%);
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
+  .hero-blob.b1 { top: -10%; left: -8%; animation: hero-blob-drift-a 38s ease-in-out infinite; }
+  .hero-blob.b2 { bottom: -15%; right: -10%; width: 600px; height: 600px;
+                  background: radial-gradient(circle at 50% 50%, rgba(229,179,42,0.10) 0%, rgba(229,179,42,0) 60%);
+                  animation: hero-blob-drift-b 46s ease-in-out infinite; }
+  @keyframes hero-blob-drift-a {
+    0%,100% { transform: translate3d(0,0,0); }
+    50%     { transform: translate3d(40px, 30px, 0); }
+  }
+  @keyframes hero-blob-drift-b {
+    0%,100% { transform: translate3d(0,0,0); }
+    50%     { transform: translate3d(-50px, -20px, 0); }
+  }
+  @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+    .hero-blob { animation: none !important; }
+  }
+
+  /* CTA principale "Commandez en ligne" — la SEULE illuminée du hero.
+     Gradient or profond + halo radial qui pulse (::before, scale+opacity = composé GPU)
+     + shine interne qui traverse le bouton (::after). box-shadow statique (perf). */
+  .cta-beam-target {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #E5B32A 0%, #FBBF24 48%, #E5B32A 100%) !important;
+    color: #1a1206 !important;
+    box-shadow:
+      0 8px 22px rgba(229, 179, 42, 0.4),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transform: translateZ(0);
+    z-index: 1;
+  }
+  /* ::before = halo or qui pulse en scale+opacity (composé GPU, zero paint) */
+  .cta-beam-target::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: inherit;
+    background: radial-gradient(circle at 50% 50%, rgba(229, 179, 42, 0.55) 0%, rgba(229, 179, 42, 0.18) 50%, transparent 75%);
+    transform: translate3d(0, 0, 0) scale(0.92);
+    opacity: 0.5;
+    will-change: transform, opacity;
+    animation: cta-beam-halo 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
+  }
+  /* ::after = shine qui traverse l'INTÉRIEUR de la CTA toutes les 3s (overflow hidden = reste dans) */
+  .cta-beam-target::after {
+    content: "";
+    position: absolute;
+    top: -10%;
+    left: -55%;
+    width: 55%;
+    height: 120%;
+    background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.92) 50%, rgba(255, 255, 255, 0) 100%);
+    transform: translate3d(0, 0, 0) skewX(-18deg);
+    animation: cta-beam-shine 3s ease-in-out infinite;
+    pointer-events: none;
+    mix-blend-mode: screen;
+  }
+  .cta-beam-target:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 12px 28px rgba(229, 179, 42, 0.5),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+  .cta-beam-target:active { transform: scale(0.98); }
+  @keyframes cta-beam-halo {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(0.94); opacity: 0.45; }
+    50%      { transform: translate3d(0, 0, 0) scale(1.06); opacity: 0.85; }
+  }
+  @keyframes cta-beam-shine {
+    0%   { transform: translate3d(0, 0, 0) skewX(-18deg); opacity: 0; }
+    18%  { opacity: 0.95; }
+    60%  { transform: translate3d(360%, 0, 0) skewX(-18deg); opacity: 0.95; }
+    62%  { opacity: 0; }
+    100% { transform: translate3d(360%, 0, 0) skewX(-18deg); opacity: 0; }
+  }
+  /* Reduced motion : on coupe les boucles, la CTA reste illuminée (halo statique) */
+  @media (prefers-reduced-motion: reduce) {
+    .cta-beam-target::before { animation: none !important; opacity: 0.6; transform: translate3d(0,0,0) scale(1); }
+    .cta-beam-target::after  { animation: none !important; opacity: 0; }
+  }
+
+  /* Beam SVG : trait pointillé doré qui "respire" du titre vers la CTA (desktop only).
+     27/05 perf : opacity-pulse (composé GPU) au lieu de stroke-dashoffset (repaint/frame). */
+  .hero-beam-svg {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    width: 100%; height: 100%;
+    z-index: 2;
+    display: none;
+  }
+  @media (min-width: 1024px) {
+    .hero-beam-svg { display: block; }
+  }
+  .hero-beam-svg .beam-path {
+    fill: none;
+    stroke: url(#beamGradient);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 8 12;
+    stroke-dashoffset: 0;
+    opacity: 0.55;
+    will-change: opacity;
+    animation: beam-flow-opacity 5s ease-in-out infinite;
+  }
+  @keyframes beam-flow-opacity {
+    0%, 100% { opacity: 0.35; }
+    50%      { opacity: 0.85; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-beam-svg .beam-path { animation: none !important; opacity: 0.3; }
+  }
+
+  /* =====================================================================
+     SCROLL HINT — Vertical Beam Drop (signature Ultras-Sites, palette or)
+     Ligne verticale + goutte lumineuse or. Disparaît au scroll > 80px.
+     ===================================================================== */
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    opacity: 0.85;
+    transition: opacity 0.35s ease;
+    z-index: 5;
+  }
+  .scroll-hint:hover { opacity: 1; }
+  .scroll-hint-label {
+    font-size: 10px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: rgba(232, 232, 237, 0.55);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .scroll-hint-svg {
+    width: 4px;
+    height: 60px;
+    overflow: visible;
+  }
+  .scroll-hint-dot {
+    animation: beamDrop 2.6s cubic-bezier(.55, .08, .45, 1) infinite;
+    filter: drop-shadow(0 0 4px rgba(229, 179, 42, 0.7));
+  }
+  @keyframes beamDrop {
+    0%   { transform: translateY(0);  opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { transform: translateY(60px); opacity: 0; }
+  }
+  .scroll-hint.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  @media (max-width: 480px) {
+    .scroll-hint-label { letter-spacing: 0.22em; font-size: 9px; }
+    .scroll-hint { bottom: 20px; gap: 8px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-hint-dot {
+      animation: none;
+      transform: translateY(30px);
+      opacity: 1;
+    }
+  }
 </style>
 
 <BaseLayout
@@ -217,6 +413,24 @@ const baseUrl = `/${currentLang}`;
       />
       <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-neutral-950/75"></div>
     </div>
+
+    {/* Ambient blobs Kalamaki — palette or, dérive lente, transform only */}
+    <div class="hero-ambient" aria-hidden="true">
+      <div class="hero-blob b1"></div>
+      <div class="hero-blob b2"></div>
+    </div>
+
+    {/* Beam SVG — trait pointillé qui converge du titre vers la CTA principale (desktop only) */}
+    <svg class="hero-beam-svg" viewBox="0 0 1200 800" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="beamGradient" x1="0%" y1="0%" x2="100%" y2="50%">
+          <stop offset="0%"  stop-color="#E5B32A" stop-opacity="0"/>
+          <stop offset="40%" stop-color="#E5B32A" stop-opacity="0.7"/>
+          <stop offset="100%" stop-color="#E5B32A" stop-opacity="1"/>
+        </linearGradient>
+      </defs>
+      <path class="beam-path" d="M 280 380 Q 500 320 720 400 T 980 460" />
+    </svg>
 
     <NavBar lang={currentLang} />
 
@@ -291,24 +505,9 @@ const baseUrl = `/${currentLang}`;
                 </p>
               </div>
               <div class="flex flex-col gap-3">
-                <a href={`${baseUrl}/delivery`} class="w-full px-8 py-3 bg-[#E5B32A] text-black text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg shadow-[0_8px_24px_rgba(229,179,42,0.28)] hover:bg-white hover:shadow-[0_12px_32px_rgba(229,179,42,0.45)] transition-all duration-300">
+                <a href={`${baseUrl}/delivery`} class="cta-beam-target w-full px-8 py-3.5 text-black text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg transition-all duration-300">
                   {t.order_cta} <span class="ml-1 text-[9px] opacity-70">· 0%</span>
                 </a>
-                {/* Partenaires delivery — logos brand-colored */}
-                <div class="grid grid-cols-3 gap-2 mt-1">
-                  <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" class="flex items-center justify-center gap-1.5 px-2 py-2.5 bg-[#a8104a] text-white rounded-lg hover:bg-[#8a0c3e] transition-colors shadow-md">
-                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 fill-current shrink-0" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 12v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V4.07c3.94.49 7 3.85 7 7.93 0 2.53-1.18 4.77-3.1 6.39z"/></svg>
-                    <span class="font-black text-[11px] tracking-tight whitespace-nowrap" style="font-family:'Helvetica',sans-serif;">e-food</span>
-                  </a>
-                  <a href="https://wolt.com/el/grc/piraeus/restaurant/to-kalamaki-tis-troumpas" target="_blank" rel="noopener" class="flex items-center justify-center gap-1.5 px-2 py-2.5 bg-[#005c70] text-white rounded-lg hover:bg-[#00485a] transition-colors shadow-md">
-                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 fill-current shrink-0" aria-hidden="true"><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
-                    <span class="font-black text-[12px] tracking-tight" style="font-family:'Inter',sans-serif;">Wolt</span>
-                  </a>
-                  <a href="https://box.gr" target="_blank" rel="noopener" class="flex items-center justify-center gap-1.5 px-2 py-2.5 bg-[#8a3d00] text-white rounded-lg hover:bg-[#6f3000] transition-colors shadow-md">
-                    <svg viewBox="0 0 24 24" class="w-3.5 h-3.5 fill-current shrink-0" aria-hidden="true"><path d="M3 7l9-4 9 4v10l-9 4-9-4V7zm9 1.9L6.4 6.4 12 4.1l5.6 2.3L12 8.9zm-7 1.5l6 2.5v7.2l-6-2.7v-7zm14 0v7l-6 2.7v-7.2l6-2.5z"/></svg>
-                    <span class="font-black text-[12px] tracking-tight" style="font-family:'Arial',sans-serif;">Box</span>
-                  </a>
-                </div>
                 <a href={`${baseUrl}/#carte`} class="w-full px-8 py-2.5 bg-transparent border border-white/15 text-white/80 text-[10px] font-bold uppercase tracking-[0.2em] text-center rounded-lg hover:bg-white/5 transition-all duration-300">
                   {t.resa_cta3}
                 </a>
@@ -320,10 +519,25 @@ const baseUrl = `/${currentLang}`;
         </div>
       </div>
     </div>
+
+    {/* Scroll hint Beam Drop — signature Ultras-Sites, palette or Kalamaki */}
+    <a href="#histoire" class="scroll-hint" aria-label={t.scroll_hint_aria}>
+      <span class="scroll-hint-label">{t.scroll_hint_label}</span>
+      <svg class="scroll-hint-svg" viewBox="0 0 4 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="dropGrad-kalamaki" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#E5B32A"/>
+            <stop offset="100%" stop-color="#FBBF24"/>
+          </linearGradient>
+        </defs>
+        <line x1="2" y1="0" x2="2" y2="60" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
+        <circle class="scroll-hint-dot" cx="2" cy="0" r="2.4" fill="url(#dropGrad-kalamaki)"/>
+      </svg>
+    </a>
   </section>
 
   <!-- HISTOIRE -->
-  <section id="histoire" class="histoire-section bg-[#0a0a0a] py-24 px-6">
+  <section id="histoire" data-reveal class="histoire-section bg-[#0a0a0a] py-24 px-6">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
       <div>
         <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mb-4">{t.story_label}</p>
@@ -348,7 +562,7 @@ const baseUrl = `/${currentLang}`;
   </section>
 
   <!-- SPÉCIALITÉS — Nos plats phares (photos HD e-food) -->
-  <section id="specialites" class="bg-[#070707] py-24 px-6 border-t border-white/5">
+  <section id="specialites" data-reveal class="bg-[#070707] py-24 px-6 border-t border-white/5">
     <div class="max-w-7xl mx-auto text-center mb-12">
       <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mb-3">
         {currentLang === 'el' ? 'Οι σπεσιαλιτέ μας' : 'Our specialities'}
@@ -415,7 +629,7 @@ const baseUrl = `/${currentLang}`;
   </section>
 
   <!-- BLOG / AMBIANCE CARDS -->
-  <section id="blog" class="bg-[#050505] py-24 px-6 border-t border-white/5">
+  <section id="blog" data-reveal class="bg-[#050505] py-24 px-6 border-t border-white/5">
     <div class="max-w-7xl mx-auto text-center mb-16">
       <p class="text-[10px] uppercase tracking-[0.4em] text-[#E5B32A] font-bold mb-4">{t.blog_label}</p>
       <h2 class="text-3xl md:text-4xl font-serif italic text-white mb-4">{t.blog_title}</h2>
@@ -583,41 +797,6 @@ const baseUrl = `/${currentLang}`;
             {currentLang === 'el' ? 'Παράγγειλε τώρα →' : 'Order now →'}
           </a>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="bg-[#050505] py-14 px-6 border-t border-white/5">
-    <div class="max-w-5xl mx-auto text-center">
-      <p class="text-[10px] uppercase tracking-[0.35em] text-[#E5B32A] font-bold mb-3">
-        {currentLang === 'el' ? 'Παράδοση κατ\'οίκον' : 'Home delivery'}
-      </p>
-      <h2 class="text-2xl md:text-3xl font-serif italic text-white mb-3">
-        {currentLang === 'el' ? 'Παράγγειλε απ\'τους συνεργάτες delivery' : 'Order via our delivery partners'}
-      </h2>
-      <p class="text-gray-400 text-sm mb-8 max-w-xl mx-auto">
-        {currentLang === 'el'
-          ? 'Διάλεξε την εφαρμογή που προτιμάς — ή κάνε απευθείας online παραγγελία από εμάς, χωρίς προμήθεια.'
-          : 'Pick your favourite app — or order direct with us online, no commission added.'}
-      </p>
-      <div class="flex flex-wrap items-stretch justify-center gap-3">
-        <a href="https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 bg-[#a8104a] text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-[#8a0c3e] transition-colors shadow-[0_8px_20px_rgba(168,16,74,0.45)]">
-          <span class="text-base">🛵</span>
-          <span>e-food</span>
-        </a>
-        <a href="https://wolt.com/el/grc/piraeus/restaurant/to-kalamaki-tis-troumpas" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 bg-[#005c70] text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-[#00485a] transition-colors shadow-[0_8px_20px_rgba(0,92,112,0.45)]">
-          <span class="text-base">🛵</span>
-          <span>Wolt</span>
-        </a>
-        <a href="https://box.gr" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-3 bg-[#8a3d00] text-white text-sm font-bold uppercase tracking-widest rounded-full hover:bg-[#6f3000] transition-colors shadow-[0_8px_20px_rgba(138,61,0,0.5)]">
-          <span class="text-base">🛵</span>
-          <span>Box.gr</span>
-        </a>
-        <a href={`/${currentLang}/delivery`} class="inline-flex items-center gap-2 px-5 py-3 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-widest rounded-full hover:bg-white transition-colors shadow-[0_8px_20px_rgba(229,179,42,0.4)]">
-          <span class="text-base">🥡</span>
-          <span>{currentLang === 'el' ? 'Απευθείας παραγγελία' : 'Order direct'}</span>
-          <span class="text-[10px] opacity-80">{currentLang === 'el' ? '0% προμήθεια' : '0% fees'}</span>
-        </a>
       </div>
     </div>
   </section>
@@ -969,6 +1148,27 @@ const baseUrl = `/${currentLang}`;
       }, { threshold: 0.1 });
       observer.observe(sentinel);
     }
+  </script>
+
+  {/* Reveal one-shot — opacity/transform sur sections [data-reveal] */}
+  <script is:inline>
+    (function () {
+      var els = document.querySelectorAll('[data-reveal]');
+      if (!els.length) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        els.forEach(function (e) { e.classList.add('is-revealed'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      els.forEach(function (e) { io.observe(e); });
+    })();
   </script>
 
 </BaseLayout>

@@ -1,11 +1,41 @@
 ---
-// Liens sociaux + avis avec notes/étoiles
+// Liens sociaux + avis avec notes/étoiles + bouton delivery (modale picker)
 // Facebook : juste l'icône
 // Google + TripAdvisor : icône + note + étoiles + nombre d'avis
+// Delivery : 1 pastille unique avec preview cycle 3 logos (2s chacun, cycle 6s)
+//   → click ouvre la modale picker (DeliveryPartnersWidget rendue dans BaseLayout)
+import { translations } from "../i18n/translations";
 import type { Lang } from "../i18n/utils";
 
 interface Props { lang?: Lang; }
 const { lang = "el" } = Astro.props;
+const t = translations[lang];
+
+const deliveryPlatforms = [
+  {
+    key: "efood",
+    name: "e-food",
+    href: "https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas",
+    bg: "#a8104a",
+    fg: "#ffffff",
+  },
+  {
+    key: "wolt",
+    name: "Wolt",
+    href: "https://wolt.com/el/grc/piraeus/restaurant/to-kalamaki-tis-troumpas",
+    bg: "#00c2e8",
+    fg: "#003a4a",
+  },
+  {
+    key: "box",
+    name: "Box",
+    href: "https://box.gr",
+    bg: "#ff6a00",
+    fg: "#ffffff",
+  },
+];
+
+const orderViaLabel = lang === 'el' ? 'Παράγγειλε από' : lang === 'fr' ? 'Commande via' : 'Order via';
 
 const ARIA_REVIEWS: Record<string, string> = {
   el: "κριτικές",
@@ -54,68 +84,195 @@ function renderStars(rating: number) {
 }
 ---
 
-<div class="flex gap-3 sm:gap-4 items-start justify-center">
-  {
-    sites.map((site) => {
-      const stars = site.rating ? renderStars(site.rating) : null;
-      return (
-        <a
-          href={site.href}
-          aria-label={site.rating ? `${site.name} ${site.rating}/5 (${site.count} ${reviewsWord})` : site.name}
-          target="_blank"
-          rel="noopener"
-          class="relative group flex flex-col items-center"
-        >
-          <div class="absolute -inset-2 top-0 bg-white/5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-out backdrop-blur-sm -z-10" style="height:3.5rem;" />
-          <div class="w-12 h-12 flex items-center justify-center text-white/80 group-hover:text-[#E5B32A] transition-all duration-300 transform group-hover:-translate-y-1">
-            {site.iconType === "fb" && (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 drop-shadow-lg">
-                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-              </svg>
-            )}
-            {site.iconType === "google" && (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 drop-shadow-lg">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-              </svg>
-            )}
-            {site.iconType === "ta" && (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-7 h-7 drop-shadow-lg">
-                <circle cx="50" cy="50" r="48" fill="#34E0A1"/>
-                <circle cx="32" cy="55" r="14" fill="white"/>
-                <circle cx="68" cy="55" r="14" fill="white"/>
-                <circle cx="32" cy="55" r="6" fill="#000"/>
-                <circle cx="68" cy="55" r="6" fill="#000"/>
-                <path d="M30 32 Q50 22 70 32" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
-              </svg>
-            )}
-          </div>
-          {stars && (
-            <div class="flex flex-col items-center mt-1 leading-none">
-              <span class="text-[10px] font-bold text-[#E5B32A] flex items-center gap-0.5">
-                <span>{site.rating}</span>
-                <span class="text-[9px]">/5</span>
-              </span>
-              <div class="flex items-center gap-px mt-0.5" aria-hidden="true">
-                {Array.from({ length: stars.fullCount }).map(() => (
-                  <svg viewBox="0 0 20 20" class="w-2.5 h-2.5 fill-[#E5B32A]"><path d="M10 1l2.6 5.6 6.1.6-4.6 4.2 1.3 6L10 14.5 4.6 17.4l1.3-6L1.3 7.2l6.1-.6z"/></svg>
-                ))}
-                {stars.half === 1 && (
-                  <svg viewBox="0 0 20 20" class="w-2.5 h-2.5">
-                    <defs><linearGradient id={`half-${site.iconType}`} x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="50%" stop-color="#E5B32A"/><stop offset="50%" stop-color="rgba(255,255,255,0.25)"/></linearGradient></defs>
-                    <path d="M10 1l2.6 5.6 6.1.6-4.6 4.2 1.3 6L10 14.5 4.6 17.4l1.3-6L1.3 7.2l6.1-.6z" fill={`url(#half-${site.iconType})`}/>
-                  </svg>
-                )}
-                {Array.from({ length: stars.empty }).map(() => (
-                  <svg viewBox="0 0 20 20" class="w-2.5 h-2.5 fill-white/25"><path d="M10 1l2.6 5.6 6.1.6-4.6 4.2 1.3 6L10 14.5 4.6 17.4l1.3-6L1.3 7.2l6.1-.6z"/></svg>
-                ))}
-              </div>
+<div class="social-links-wrap flex flex-col sm:flex-row gap-3 sm:gap-5 items-center sm:items-start justify-center">
+  <!-- Bloc social (Facebook + Google + TripAdvisor) -->
+  <div class="flex gap-3 sm:gap-4 items-start justify-center social-links-row">
+    {
+      sites.map((site) => {
+        const stars = site.rating ? renderStars(site.rating) : null;
+        return (
+          <a
+            href={site.href}
+            aria-label={site.rating ? `${site.name} ${site.rating}/5 (${site.count} ${reviewsWord})` : site.name}
+            target="_blank"
+            rel="noopener"
+            class="relative group flex flex-col items-center"
+          >
+            <div class="absolute -inset-2 top-0 bg-white/5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-out backdrop-blur-sm -z-10" style="height:3.5rem;" />
+            <div class="w-12 h-12 flex items-center justify-center text-white/80 group-hover:text-[#E5B32A] transition-all duration-300 transform group-hover:-translate-y-1">
+              {site.iconType === "fb" && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 drop-shadow-lg">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                </svg>
+              )}
+              {site.iconType === "google" && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 drop-shadow-lg">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+              )}
+              {site.iconType === "ta" && (
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-7 h-7 drop-shadow-lg">
+                  <circle cx="50" cy="50" r="48" fill="#34E0A1"/>
+                  <circle cx="32" cy="55" r="14" fill="white"/>
+                  <circle cx="68" cy="55" r="14" fill="white"/>
+                  <circle cx="32" cy="55" r="6" fill="#000"/>
+                  <circle cx="68" cy="55" r="6" fill="#000"/>
+                  <path d="M30 32 Q50 22 70 32" stroke="#000" stroke-width="3" fill="none" stroke-linecap="round"/>
+                </svg>
+              )}
             </div>
-          )}
-        </a>
-      );
-    })
-  }
+            {stars && (
+              <div class="flex flex-col items-center mt-1 leading-none">
+                <span class="text-[10px] font-bold text-[#E5B32A] flex items-center gap-0.5">
+                  <span>{site.rating}</span>
+                  <span class="text-[9px]">/5</span>
+                </span>
+                <div class="flex items-center gap-px mt-0.5" aria-hidden="true">
+                  {Array.from({ length: stars.fullCount }).map(() => (
+                    <svg viewBox="0 0 20 20" class="w-2.5 h-2.5 fill-[#E5B32A]"><path d="M10 1l2.6 5.6 6.1.6-4.6 4.2 1.3 6L10 14.5 4.6 17.4l1.3-6L1.3 7.2l6.1-.6z"/></svg>
+                  ))}
+                  {stars.half === 1 && (
+                    <svg viewBox="0 0 20 20" class="w-2.5 h-2.5">
+                      <defs><linearGradient id={`half-${site.iconType}`} x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="50%" stop-color="#E5B32A"/><stop offset="50%" stop-color="rgba(255,255,255,0.25)"/></linearGradient></defs>
+                      <path d="M10 1l2.6 5.6 6.1.6-4.6 4.2 1.3 6L10 14.5 4.6 17.4l1.3-6L1.3 7.2l6.1-.6z" fill={`url(#half-${site.iconType})`}/>
+                    </svg>
+                  )}
+                  {Array.from({ length: stars.empty }).map(() => (
+                    <svg viewBox="0 0 20 20" class="w-2.5 h-2.5 fill-white/25"><path d="M10 1l2.6 5.6 6.1.6-4.6 4.2 1.3 6L10 14.5 4.6 17.4l1.3-6L1.3 7.2l6.1-.6z"/></svg>
+                  ))}
+                </div>
+              </div>
+            )}
+          </a>
+        );
+      })
+    }
+  </div>
+
+  {/* BOUTON Delivery — 1 pastille avec preview cycle 3 logos (2s chacun)
+       → click ouvre la modale picker (DeliveryPartnersWidget rendue dans BaseLayout) */}
+  <button
+    type="button"
+    class="delivery-trigger"
+    aria-label={t.delivery_widget_aria}
+    data-delivery-open
+  >
+    <span class="dlv-trigger-label" aria-hidden="true">{orderViaLabel}</span>
+    <span class="dlv-trigger-stage" aria-hidden="true">
+      {deliveryPlatforms.map((p, i) => (
+        <span
+          class={`dlv-trigger-slot dlv-slot-${i + 1}`}
+          style={`--brand:${p.bg};--brand-fg:${p.fg};`}
+        >
+          <span class="dlv-trigger-slot-name">{p.name}</span>
+        </span>
+      ))}
+    </span>
+  </button>
 </div>
+
+<style>
+  /* ─────────────────────────────────────────────────────────────
+     BOUTON delivery — 1 pastille unique avec preview cycle 3 logos
+     (1 visible à la fois, 2s par logo, cycle 6s). Click → modale picker.
+     ───────────────────────────────────────────────────────────── */
+  .delivery-trigger {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+  }
+  .delivery-trigger:focus-visible {
+    outline: 2px solid #E5B32A;
+    outline-offset: 4px;
+    border-radius: 14px;
+  }
+  .dlv-trigger-label {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1;
+  }
+  /* Pastille unique = stage avec 3 slots superposés */
+  .dlv-trigger-stage {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    overflow: hidden;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+  .delivery-trigger:hover .dlv-trigger-stage {
+    transform: translate3d(0, -2px, 0) scale(1.06);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 18px rgba(229, 179, 42, 0.55);
+    border-color: rgba(229, 179, 42, 0.55);
+  }
+  .delivery-trigger:active .dlv-trigger-stage {
+    transform: translate3d(0, 0, 0) scale(0.97);
+  }
+  .dlv-trigger-slot {
+    position: absolute;
+    inset: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: var(--brand);
+    color: var(--brand-fg);
+    opacity: 0;
+    transform: scale(0.85);
+    will-change: opacity, transform;
+    pointer-events: none;
+  }
+  .dlv-trigger-slot-name {
+    font-size: 10.5px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  /* Cycle 6s : chaque slot visible 2s avec entry/exit BIEN MARQUÉ.
+     Tiago 27/05 ~09:50 : transitions plus visibles pour qu'on voie passer eFood → Wolt → Box.
+     0-33% = slot1 in/out, 33-66% slot2, 66-100% slot3 (stagger 0/2/4s entre les 3 slots) */
+  @keyframes dlv-slot-cycle {
+    0%   { opacity: 0; transform: scale(0.6) rotate(-8deg); }
+    5%   { opacity: 1; transform: scale(1.12) rotate(0deg); }
+    10%  { transform: scale(1) rotate(0deg); }
+    28%  { opacity: 1; transform: scale(1) rotate(0deg); }
+    33%  { opacity: 0; transform: scale(0.7) rotate(8deg); }
+    100% { opacity: 0; transform: scale(0.6) rotate(-8deg); }
+  }
+  .dlv-slot-1 { animation: dlv-slot-cycle 6s ease-in-out infinite; animation-delay: 0s; }
+  .dlv-slot-2 { animation: dlv-slot-cycle 6s ease-in-out infinite; animation-delay: 2s; }
+  .dlv-slot-3 { animation: dlv-slot-cycle 6s ease-in-out infinite; animation-delay: 4s; }
+
+  /* Desktop : pastille un peu plus grande */
+  @media (min-width: 768px) {
+    .dlv-trigger-stage { width: 52px; height: 52px; border-radius: 14px; }
+    .dlv-trigger-slot { border-radius: 11px; }
+    .dlv-trigger-slot-name { font-size: 12px; }
+    .dlv-trigger-label { font-size: 10.5px; letter-spacing: 0.22em; }
+  }
+
+  /* Reduced-motion : on fige le 1er logo visible (eFood) */
+  @media (prefers-reduced-motion: reduce) {
+    .dlv-slot-1 { animation: none; opacity: 1; transform: scale(1); }
+    .dlv-slot-2, .dlv-slot-3 { animation: none; opacity: 0; }
+  }
+</style>

@@ -17,6 +17,8 @@ type RestaurantTranslations = {
   hero_title: string;
   hero_lead: string;
   hero_demo_note: string;
+  scroll_hint_label: string;
+  scroll_hint_aria: string;
   resa_title: string;
   resa_subtitle: string;
   resa_address: string;
@@ -97,6 +99,12 @@ type RestaurantTranslations = {
   order_error: string;
   order_add: string;
   order_remove: string;
+  // Delivery partners widget + modal
+  delivery_widget_aria: string;
+  delivery_modal_title: string;
+  delivery_modal_subtitle: string;
+  delivery_platform_fees_note: string;
+  delivery_modal_direct_cta: string;
 };
 
 const ui: Record<Lang, RestaurantTranslations> = {
@@ -115,6 +123,8 @@ const ui: Record<Lang, RestaurantTranslations> = {
     hero_title: 'Γεύση & Μεράκι',
     hero_lead: 'Στην Τρούμπα, στη γωνία Μπουμπουλίνας & Νοταρά. Φρέσκα κρέατα, σπιτικές σάλτσες και τιμές που σε γυρνάνε πίσω. Αυτό είναι το καλαμάκι του Πειραιά.',
     hero_demo_note: '',
+    scroll_hint_label: 'ΕΞΕΡΕΥΝΗΣΗ',
+    scroll_hint_aria: 'Δείτε περισσότερα',
     resa_title: 'Επικοινωνία & Κράτηση',
     resa_subtitle: 'Κλείσε τραπέζι ή παράγγειλε online.',
     resa_address: 'Μπουμπουλίνας 8 & Νοταρά, Πειραιάς 185 35',
@@ -194,6 +204,11 @@ const ui: Record<Lang, RestaurantTranslations> = {
     order_error: 'Σφάλμα — δοκίμασε ξανά.',
     order_add: 'Προσθήκη',
     order_remove: 'Αφαίρεση',
+    delivery_widget_aria: 'Συνεργάτες παράδοσης',
+    delivery_modal_title: 'Παράγγειλε μέσω συνεργάτη',
+    delivery_modal_subtitle: 'Απευθείας από το site είναι πιο γρήγορο και πιο φθηνό. Αν προτιμάς μια εφαρμογή που χρησιμοποιείς συχνά, διάλεξε παρακάτω.',
+    delivery_platform_fees_note: 'Με χρέωση πλατφόρμας',
+    delivery_modal_direct_cta: 'Ή παράγγειλε απευθείας στο site →',
   },
   en: {
     meta_title: 'Kalamaki Tis Troumpas — Souvlaki in Piraeus | Order online',
@@ -210,6 +225,8 @@ const ui: Record<Lang, RestaurantTranslations> = {
     hero_title: 'Flavour & Passion',
     hero_lead: 'In Troumpa, on the corner of Bouboulinas & Notara. Fresh meat, homemade sauces and prices that bring you back. This is Piraeus souvlaki at its best.',
     hero_demo_note: '',
+    scroll_hint_label: 'EXPLORE',
+    scroll_hint_aria: 'See more below',
     resa_title: 'Contact & Reservations',
     resa_subtitle: 'Book a table or order online.',
     resa_address: 'Bouboulinas 8 & Notara, Piraeus 185 35',
@@ -289,6 +306,11 @@ const ui: Record<Lang, RestaurantTranslations> = {
     order_error: 'Error — please try again.',
     order_add: 'Add',
     order_remove: 'Remove',
+    delivery_widget_aria: 'Delivery partners',
+    delivery_modal_title: 'Order via a delivery partner',
+    delivery_modal_subtitle: 'Ordering direct on the site is faster and cheaper. If you prefer an app you already use, pick one below.',
+    delivery_platform_fees_note: 'Platform fees apply',
+    delivery_modal_direct_cta: 'Or order direct on the site →',
   },
 };
 

@@ -1,0 +1,275 @@
+---
+// DeliveryPartnersModal — modale picker (rendue 1× dans BaseLayout).
+// Le bouton qui l'ouvre est dans SocialLinks.astro (data-delivery-open).
+// Animation cross-fade des slots gérée localement dans chaque pastille.
+// JS global : rotation synchronisée + open/close (3 voies : ×, backdrop, Esc).
+import { translations } from "../i18n/translations";
+import type { Lang } from "../i18n/utils";
+
+interface Props { lang?: Lang; }
+const { lang = "el" } = Astro.props;
+const t = translations[lang];
+const baseUrl = `/${lang}`;
+
+const platforms = [
+  {
+    key: "efood",
+    name: "e-food",
+    href: "https://www.e-food.gr/delivery/peiraias/to-kalamaki-ths-troympas",
+    bg: "#a8104a",
+  },
+  {
+    key: "wolt",
+    name: "Wolt",
+    href: "https://wolt.com/el/grc/piraeus/restaurant/to-kalamaki-tis-troumpas",
+    bg: "#00a3d7",
+  },
+  {
+    key: "box",
+    name: "Box.gr",
+    href: "https://box.gr",
+    bg: "#8a3d00",
+  },
+];
+---
+
+<div
+  class="delivery-modal-back"
+  id="delivery-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="delivery-modal-title"
+  aria-hidden="true"
+>
+  <div class="delivery-modal">
+    <button
+      type="button"
+      class="delivery-modal-close"
+      id="delivery-modal-close"
+      aria-label={lang === 'el' ? 'Κλείσιμο' : 'Close'}
+    >×</button>
+
+    <p class="dm-eyebrow">
+      {lang === 'el' ? 'Συνεργάτες παράδοσης' : 'Delivery partners'}
+    </p>
+    <h2 class="dm-title" id="delivery-modal-title">{t.delivery_modal_title}</h2>
+    <p class="dm-sub">{t.delivery_modal_subtitle}</p>
+
+    <div class="dm-cards">
+      {platforms.map((p) => (
+        <a
+          href={p.href}
+          target="_blank"
+          rel="noopener"
+          class="dm-card"
+          style={`--brand:${p.bg};`}
+        >
+          <span class="dm-card-logo" style={`background:${p.bg};`}>
+            <span class="dm-card-name">{p.name}</span>
+          </span>
+          <span class="dm-card-fee">{t.delivery_platform_fees_note}</span>
+        </a>
+      ))}
+    </div>
+
+    <a href={`${baseUrl}/delivery`} class="dm-direct-cta">
+      {t.delivery_modal_direct_cta}
+    </a>
+  </div>
+</div>
+
+<style>
+  .delivery-modal-back {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 250;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .delivery-modal-back.show { display: flex; }
+  .delivery-modal-back.show .delivery-modal {
+    animation: dm-in 220ms cubic-bezier(.2,1,.3,1) both;
+  }
+  @keyframes dm-in {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .delivery-modal {
+    position: relative;
+    width: 100%; max-width: 460px;
+    background: linear-gradient(180deg, #141414 0%, #0a0a0a 100%);
+    border: 1px solid rgba(229,179,42,0.3);
+    border-radius: 1.1rem;
+    padding: 1.75rem 1.25rem 1.5rem;
+    box-shadow: 0 28px 70px rgba(0,0,0,0.65), 0 0 0 1px rgba(229,179,42,0.08);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .delivery-modal-close {
+    position: absolute;
+    top: 0.65rem; right: 0.65rem;
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.85);
+    font-size: 1.35rem; line-height: 1;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.18s, color 0.18s, border-color 0.18s;
+  }
+  .delivery-modal-close:hover {
+    background: rgba(239,68,68,0.15);
+    color: #ef4444;
+    border-color: rgba(239,68,68,0.4);
+  }
+
+  .dm-eyebrow {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3em;
+    color: #E5B32A;
+    font-weight: 800;
+    margin: 0 0 0.55rem;
+  }
+  .dm-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-size: 1.45rem;
+    color: #fff;
+    margin: 0 0 0.55rem;
+    line-height: 1.15;
+  }
+  .dm-sub {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+    margin: 0 0 1.25rem;
+  }
+
+  .dm-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.55rem;
+    margin-bottom: 1.1rem;
+  }
+  @media (max-width: 380px) {
+    .dm-cards { grid-template-columns: 1fr; }
+  }
+  .dm-card {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+    padding: 0.65rem 0.55rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 0.7rem;
+    text-decoration: none;
+    color: #fff;
+    transition: border-color 0.2s, transform 0.2s, background 0.2s;
+  }
+  .dm-card:hover {
+    border-color: var(--brand);
+    background: rgba(255,255,255,0.05);
+    transform: translateY(-2px);
+  }
+  .dm-card:active { transform: scale(0.98); }
+  .dm-card-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    border-radius: 0.5rem;
+    color: #fff;
+  }
+  .dm-card-name {
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .dm-card-fee {
+    font-size: 9.5px;
+    text-align: center;
+    color: rgba(255,255,255,0.55);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .dm-direct-cta {
+    display: block;
+    text-align: center;
+    padding: 0.85rem 1rem;
+    background: linear-gradient(135deg, #E5B32A 0%, #c89324 100%);
+    color: #0a0a0a;
+    text-decoration: none;
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-radius: 0.7rem;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .dm-direct-cta:hover {
+    background: linear-gradient(135deg, #f0c042 0%, #d8a32a 100%);
+    transform: translateY(-1px);
+  }
+  .dm-direct-cta:active { transform: scale(0.98); }
+</style>
+
+<script is:inline>
+  (function () {
+    var modal = document.getElementById('delivery-modal');
+    if (!modal) return;
+    var closeBtn = document.getElementById('delivery-modal-close');
+
+    function open() {
+      modal.classList.add('show');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+    function close() {
+      modal.classList.remove('show');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    // Tous les boutons d'ouverture
+    document.querySelectorAll('[data-delivery-open]').forEach(function (b) {
+      b.addEventListener('click', open);
+    });
+    if (closeBtn) closeBtn.addEventListener('click', close);
+
+    // Backdrop click
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) close();
+    });
+    // Esc
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && modal.classList.contains('show')) close();
+    });
+
+    // ── Rotator synchrone toutes pastilles ──
+    var slotGroups = document.querySelectorAll('.dlv-pill-rot');
+    if (!slotGroups.length) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var idx = 0;
+    setInterval(function () {
+      slotGroups.forEach(function (group) {
+        var slots = group.querySelectorAll('.dlv-pill-slot');
+        if (!slots.length) return;
+        slots[idx % slots.length].classList.remove('is-active');
+        var next = (idx + 1) % slots.length;
+        slots[next].classList.add('is-active');
+      });
+      idx = (idx + 1) % 3;
+    }, 2200);
+  })();
+</script>
