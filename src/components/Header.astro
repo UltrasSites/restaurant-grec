@@ -1,5 +1,6 @@
 ---
 import LanguageSwitcher from "./LanguageSwitcher.astro";
+import Flag from "./Flag.astro";
 import { translations } from "../i18n/translations";
 import type { Lang } from "../i18n/utils";
 
@@ -45,11 +46,12 @@ const links = [
             <button
                 id="lang-menu-btn"
                 type="button"
-                class="px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.12em] text-white/80 hover:text-white hover:bg-white/10 border border-white/10 transition-colors"
+                class="flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-[0.12em] text-white/80 hover:text-white hover:bg-white/10 border border-white/10 transition-colors"
                 aria-haspopup="menu"
                 aria-expanded="false"
                 aria-controls="lang-menu-panel"
             >
+                <Flag code={lang} size={15} rounded />
                 {lang.toUpperCase()}
             </button>
 

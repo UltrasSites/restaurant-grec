@@ -39,6 +39,28 @@ const flatItems = menuPages.flatMap((p, pi) =>
       };
     })
 );
+
+// Catégories app-like (gabarit Tasquinha) : nourriture d'abord, boissons à la fin.
+// IMPORTANT : itemId garde l'index ORIGINAL (pi) — ids panier/serveur inchangés.
+const isDrinkCat = (p: typeof menuPages[number]) => /Αναψυκτικά|Κρασιά/.test(p.title_el);
+const pagesOrdered = menuPages
+  .map((p, pi) => ({ p, pi }))
+  .sort((a, b) => (isDrinkCat(a.p) ? 1 : 0) - (isDrinkCat(b.p) ? 1 : 0));
+const catIcon = (p: typeof menuPages[number]) => {
+  const s = p.title_el;
+  if (/Αναψυκτικά/.test(s)) return '🥤';
+  if (/Κρασιά/.test(s)) return '🍷';
+  if (/Ορεκτικά/.test(s)) return '🫒';
+  if (/Σαλάτες/.test(s)) return '🥗';
+  if (/Πίτες/.test(s)) return '🌯';
+  if (/Καλαμάκια/.test(s)) return '🍢';
+  if (/Σπεσιαλιτέ/.test(s)) return '⭐';
+  if (/Χοιρινά/.test(s)) return '🍖';
+  if (/Χάμπουργκερ/.test(s)) return '🍔';
+  if (/Veggie/i.test(s)) return '🥦';
+  if (/Σάντουιτς|Σκεπαστή/.test(s)) return '🥪';
+  return '🍽️';
+};
 ---
 
 <BaseLayout
@@ -99,23 +121,31 @@ const flatItems = menuPages.flatMap((p, pi) =>
             <button type="button" id="menu-search-clear" class="menu-search-clear" aria-label={isEl ? 'Καθάρισμα' : 'Clear'} hidden>×</button>
             <span id="menu-search-count" class="menu-search-count"></span>
           </div>
+          <nav id="cat-tabs" class="cat-tabs" aria-label={isEl ? 'Κατηγορίες' : 'Categories'}>
+            {pagesOrdered.map(({ p, pi }) => (
+              <a href={`#cat-${pi}`} class="cat-tab" data-cat-tab={String(pi)}>
+                <span class="cat-tab-ico" aria-hidden="true">{catIcon(p)}</span>
+                <span>{isEl ? p.title_el : p.title_en}</span>
+              </a>
+            ))}
+          </nav>
           <p id="menu-search-empty" class="menu-search-empty" hidden>{isEl ? 'Κανένα προϊόν δεν ταιριάζει.' : 'No matching items.'}</p>
         </div>
 
         <div class="grid gap-8">
-          {menuPages.map((p, pi) => (
-            <section class="rounded-2xl bg-white/3 border border-white/10 p-5 md:p-6">
-              <h2 class="text-xl md:text-2xl font-serif italic text-[#E5B32A] mb-4">{isEl ? p.title_el : p.title_en}</h2>
+          {pagesOrdered.map(({ p, pi }) => (
+            <section id={`cat-${pi}`} data-cat-section={String(pi)} class="cat-section rounded-2xl bg-white/3 border border-white/10 p-5 md:p-6">
+              <h2 class="text-xl md:text-2xl font-serif italic text-[#E5B32A] mb-4"><span class="mr-2" aria-hidden="true">{catIcon(p)}</span>{isEl ? p.title_el : p.title_en}</h2>
               {(isEl ? p.note_el : p.note_en) && (
                 <p class="text-xs text-gray-400 italic mb-4">{isEl ? p.note_el : p.note_en}</p>
               )}
-              <ul class="divide-y divide-white/5">
+              <ul class="divide-y divide-white/5 md:divide-y-0 md:grid md:grid-cols-2 md:gap-x-8">
                 {p.items.map((it, ii) => {
                   const id = itemId(pi, ii);
                   const isExtra = it.price.startsWith("+");
                   const photo = getPhotoData(it.el);
                   return (
-                    <li class="flex items-start gap-3 py-3" data-item-row={id}>
+                    <li class="flex items-start gap-3 py-3 md:border-b md:border-white/5" data-item-row={id}>
                       {photo ? (
                         <img
                           src={photo.src}
@@ -430,6 +460,22 @@ const flatItems = menuPages.flatMap((p, pi) =>
     .leaflet-popup-content { font-family: 'Inter', sans-serif; font-size: 0.85rem; line-height: 1.4; }
 
     /* BARRE DE RECHERCHE MENU */
+    /* Onglets catégories app-like (structure Tasquinha, palette Kalamaki) */
+    .cat-tabs {
+      display: flex; gap: 0.5rem; overflow-x: auto; -webkit-overflow-scrolling: touch;
+      padding: 0.55rem 0 0.15rem; scrollbar-width: none;
+    }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+    .cat-tab {
+      flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.45rem 0.9rem; border-radius: 9999px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.85); font-size: 12px; font-weight: 600; white-space: nowrap;
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .cat-tab-ico { font-size: 14px; line-height: 1; }
+    .cat-tab.active { background: #E5B32A; border-color: #E5B32A; color: #111; }
+    .cat-section { scroll-margin-top: 165px; }
     .menu-search-wrap {
       position: sticky;
       top: 70px;
@@ -1444,4 +1490,27 @@ const flatItems = menuPages.flatMap((p, pi) =>
     refreshMode();
   })();
   </script>
+<script>
+  // Scrollspy onglets catégories (app-like)
+  (() => {
+    const tabs = Array.from(document.querySelectorAll('[data-cat-tab]')) as HTMLElement[];
+    const sections = Array.from(document.querySelectorAll('[data-cat-section]')) as HTMLElement[];
+    if (!tabs.length || !sections.length) return;
+    const byId = new Map(tabs.map(el => [el.dataset.catTab, el]));
+    let lock = 0;
+    const setActive = (pi: string | undefined) => {
+      if (!pi) return;
+      tabs.forEach(el => el.classList.toggle('active', el.dataset.catTab === pi));
+      byId.get(pi)?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    };
+    const io = new IntersectionObserver((entries) => {
+      if (Date.now() < lock) return;
+      const vis = entries.filter(e => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (vis) setActive((vis.target as HTMLElement).dataset.catSection);
+    }, { rootMargin: '-150px 0px -55% 0px', threshold: [0, 0.25, 0.5] });
+    sections.forEach(s => io.observe(s));
+    tabs.forEach(el => el.addEventListener('click', () => { lock = Date.now() + 900; setActive(el.dataset.catTab); }));
+  })();
+</script>
+
 </BaseLayout>
