@@ -431,11 +431,11 @@ const baseUrl = `/${currentLang}`;
 
     <NavBar lang={currentLang} />
 
-    <div class="relative z-10 w-full max-w-3xl mx-auto px-6 pb-32 md:pb-0 md:py-24 text-center">
-      <span class="inline-block text-[9px] md:text-xs uppercase tracking-[0.28em] md:tracking-[0.35em] font-bold px-4 py-1.5 rounded-full border border-[#E5B32A]/50 bg-black/30 text-[#E5B32A] mb-4 md:mb-5">{t.hero_badge}</span>
-      <h1 class="font-serif italic text-white text-4xl md:text-7xl leading-tight mb-3 md:mb-4 drop-shadow-2xl">{t.hero_title}</h1>
-      <p class="text-gray-200 text-sm md:text-lg font-light leading-relaxed max-w-xl mx-auto mb-6 md:mb-8">{t.hero_lead}</p>
-      <div id="cta-card-sentinel" class="flex flex-wrap items-center justify-center gap-3">
+    <div class="relative z-10 px-5 md:px-16 pb-16 md:pb-0 max-w-3xl text-white">
+      <span class="inline-block text-xs md:text-sm tracking-[0.3em] uppercase font-semibold px-3 py-1.5 rounded-full border border-white/40 mb-5 text-[#E5B32A]">{t.hero_badge}</span>
+      <h1 class="font-serif italic text-5xl md:text-7xl leading-tight mb-4">{t.hero_title}</h1>
+      <p class="text-lg md:text-xl text-white/90 max-w-xl mb-7">{t.hero_lead}</p>
+      <div id="cta-card-sentinel" class="flex flex-wrap gap-3">
         <a href={`${baseUrl}/delivery`} class="btn-order-glow">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 18h18M12 6a8 8 0 00-8 8h16a8 8 0 00-8-8zM12 6V3.5"/></svg>
           {t.order_cta}
@@ -443,25 +443,12 @@ const baseUrl = `/${currentLang}`;
         <a href={`${baseUrl}/#carte`} class="btn-glass">{t.resa_cta3}</a>
         <a href="tel:+302104222233" class="btn-glass">{t.resa_phone}</a>
       </div>
-      <div class="flex justify-center mt-4 md:mt-6">
-        <SocialLinks lang={currentLang} />
+      <div class="mt-8 flex items-center gap-3 text-sm">
+        <div class="flex items-center gap-1 text-[#E5B32A]"><span>★</span><span>★</span><span>★</span><span>★</span><span>☆</span></div>
+        <span class="text-white/85"><strong>4.3</strong> · Google</span>
       </div>
     </div>
 
-    {/* Scroll hint Beam Drop — signature Ultras-Sites, palette or Kalamaki */}
-    <a href="#histoire" class="scroll-hint" aria-label={t.scroll_hint_aria}>
-      <span class="scroll-hint-label">{t.scroll_hint_label}</span>
-      <svg class="scroll-hint-svg" viewBox="0 0 4 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs>
-          <linearGradient id="dropGrad-kalamaki" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#E5B32A"/>
-            <stop offset="100%" stop-color="#FBBF24"/>
-          </linearGradient>
-        </defs>
-        <line x1="2" y1="0" x2="2" y2="60" stroke="rgba(255,255,255,.12)" stroke-width="1"/>
-        <circle class="scroll-hint-dot" cx="2" cy="0" r="2.4" fill="url(#dropGrad-kalamaki)"/>
-      </svg>
-    </a>
   </section>
 
   <!-- HISTOIRE -->
