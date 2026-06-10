@@ -23,6 +23,14 @@ const baseUrl = `/${currentLang}`;
 ---
 
 <style>
+  /* === Reveal au scroll (mobile + desktop) — transform/opacity only = perf-safe §10.
+     Le JS ajoute .is-revealed ; SANS ce CSS rien n'animait (cause du « animations mobile KO »). === */
+  [data-reveal] { opacity: 0; transform: translateY(26px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.8,.2,1); }
+  [data-reveal].is-revealed { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  }
+
   /* === MOBILE HERO — Exact restaurant-bar pattern + carrousel === */
   @media (max-width: 767px) {
     .hero-card-viewport {
@@ -415,12 +423,20 @@ const baseUrl = `/${currentLang}`;
   <!-- HERO -->
   <section id="home" class="relative min-h-[100svh] w-full flex items-end md:items-center overflow-hidden bg-neutral-950">
     <div class="absolute inset-0 z-0">
+      {/* Mobile : fond flou (cover) pour dézoomer + image nette (contain) = plan large, pas de crop serré sur un plat */}
+      <img
+        src="/photos/efood-00-1600w.webp"
+        alt=""
+        aria-hidden="true"
+        class="md:hidden absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-40"
+        width="1600" height="900" loading="eager" decoding="async"
+      />
       <img
         src="/photos/efood-00-1600w.webp"
         srcset="/photos/efood-00-800w.webp 800w, /photos/efood-00-1600w.webp 1600w"
         sizes="100vw"
         alt={currentLang === 'el' ? 'Αυθεντικό ψητοπωλείο στην Τρούμπα, Πειραιάς' : 'Authentic charcoal souvlaki shop in Troumpa, Piraeus'}
-        class="w-full h-full object-cover opacity-60"
+        class="absolute inset-0 w-full h-full object-contain object-center opacity-90 md:object-cover md:opacity-60"
         width="1600" height="900"
         loading="eager"
         fetchpriority="high"
@@ -432,9 +448,14 @@ const baseUrl = `/${currentLang}`;
     <NavBar lang={currentLang} />
 
     <div class="relative z-10 px-5 md:px-16 pb-16 md:pb-0 max-w-3xl text-white">
-      <span class="inline-block text-xs md:text-sm tracking-[0.3em] uppercase font-semibold px-3 py-1.5 rounded-full border border-white/40 mb-5 text-[#E5B32A]">{t.hero_badge}</span>
-      <h1 class="font-serif italic text-5xl md:text-7xl leading-tight mb-4">{t.hero_title}</h1>
-      <p class="text-lg md:text-xl text-white/90 max-w-xl mb-7">{t.hero_lead}</p>
+      {/* Logo dans le hero (mobile + desktop) — signature, centré au-dessus du contenu */}
+      <a href={`${baseUrl}/#home`} id="hero-logo" class="block mb-5 md:mb-6" aria-label="Το Καλαμάκι Της Τρούμπας">
+        <img src="/photos/logo-main-200w.webp" alt="Το Καλαμάκι Της Τρούμπας" width="200" height="188"
+          class="h-20 md:h-28 w-auto mx-auto md:mx-0 drop-shadow-[0_4px_18px_rgba(0,0,0,0.6)]" loading="eager" decoding="async" />
+      </a>
+      <span class="inline-block text-[10px] md:text-sm tracking-[0.28em] md:tracking-[0.3em] uppercase font-semibold px-3 py-1.5 rounded-full border border-white/40 mb-4 md:mb-5 text-[#E5B32A]">{t.hero_badge}</span>
+      <h1 class="font-serif italic text-4xl md:text-7xl leading-tight mb-3 md:mb-4">{t.hero_title}</h1>
+      <p class="text-base md:text-xl text-white/90 max-w-xl mb-6 md:mb-7">{t.hero_lead}</p>
       <div id="cta-card-sentinel" class="flex flex-wrap gap-3">
         <a href={`${baseUrl}/delivery`} class="btn-order-glow">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 18h18M12 6a8 8 0 00-8 8h16a8 8 0 00-8-8zM12 6V3.5"/></svg>
@@ -443,9 +464,9 @@ const baseUrl = `/${currentLang}`;
         <a href={`${baseUrl}/#carte`} class="btn-glass">{t.resa_cta3}</a>
         <a href="tel:+302104222233" class="btn-glass">{t.resa_phone}</a>
       </div>
-      <div class="mt-8 flex items-center gap-3 text-sm">
-        <div class="flex items-center gap-1 text-[#E5B32A]"><span>★</span><span>★</span><span>★</span><span>★</span><span>☆</span></div>
-        <span class="text-white/85"><strong>4.3</strong> · Google</span>
+      {/* Avis (Google + TripAdvisor) + plateformes de livraison */}
+      <div class="mt-8">
+        <SocialLinks lang={currentLang} />
       </div>
     </div>
 

@@ -23,7 +23,7 @@ const L = lang === "el"
   : { call: "Call", menu: "Menu", order: "Order", loc: "Piraeus", lang: "EN" };
 ---
 
-<div id="nav-pill-logo" class="md:hidden absolute top-4 left-3 sm:left-5 z-20" style="transition:opacity .25s ease">
+<div id="nav-pill-logo" class="nav-pill-logo md:hidden absolute top-4 left-3 sm:left-5 z-20" style="transition:opacity .25s ease">
     <a href={`${base}/#home`} class="inline-flex items-center gap-2">
         <img src="/photos/logo-dark-bg-88w.webp" alt="" width="44" height="44" class="w-11 h-11 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" loading="eager" decoding="async" />
         <span class="text-[11px] font-semibold tracking-wide uppercase text-white/90 leading-tight">Το Καλαμάκι<br/>Της Τρούμπας</span>
@@ -60,6 +60,9 @@ const L = lang === "el"
 </div>
 
 <style>
+  /* Le logo du hero est la signature : tant qu'il est visible, on cache la pastille top-left (anti double logo §11.bis.C) */
+  :global(body.hero-logo-visible) .nav-pill-logo { opacity: 0; pointer-events: none; }
+
   .rdock {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
     display: flex; justify-content: center; pointer-events: none;

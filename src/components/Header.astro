@@ -282,15 +282,22 @@ const links = [
         if (delta > 60 && drawerOpen && swipeStartScrollTop <= 0) closeDrawer();
     }, { passive: true });
 
-    // Logo flottant mobile : fade-in apres avoir scrolle au-dela du hero
+    // Logo flottant mobile (top-centre) : visible UNIQUEMENT quand le logo du hero n'est plus
+    // a l'ecran (§11.bis.C). IntersectionObserver sur #hero-logo ; fallback scroll si absent.
     const mobileLogoFloat = document.getElementById('mobile-logo-float');
+    const heroLogo = document.getElementById('hero-logo');
     if (mobileLogoFloat) {
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 200) {
-                mobileLogoFloat.style.opacity = '1';
-            } else {
-                mobileLogoFloat.style.opacity = '0';
-            }
-        }, { passive: true });
+        if (heroLogo && 'IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries) => {
+                const visible = entries[0].isIntersecting;
+                document.body.classList.toggle('hero-logo-visible', visible);
+                mobileLogoFloat.style.opacity = visible ? '0' : '1';
+            }, { rootMargin: '-12px 0px 0px 0px', threshold: 0 });
+            io.observe(heroLogo);
+        } else {
+            window.addEventListener('scroll', () => {
+                mobileLogoFloat.style.opacity = window.scrollY > 200 ? '1' : '0';
+            }, { passive: true });
+        }
     }
 </script>
