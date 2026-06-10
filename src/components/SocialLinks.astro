@@ -84,9 +84,9 @@ function renderStars(rating: number) {
 }
 ---
 
-<div class="social-links-wrap flex flex-col sm:flex-row gap-3 sm:gap-5 items-center sm:items-start justify-center">
+<div class="social-links-wrap flex flex-row flex-wrap gap-x-4 gap-y-2 items-center justify-start">
   <!-- Bloc social (Facebook + Google + TripAdvisor) -->
-  <div class="flex gap-3 sm:gap-4 items-start justify-center social-links-row">
+  <div class="flex gap-2.5 sm:gap-3 items-start justify-center social-links-row">
     {
       sites.map((site) => {
         const stars = site.rating ? renderStars(site.rating) : null;
@@ -98,8 +98,8 @@ function renderStars(rating: number) {
             rel="noopener"
             class="relative group flex flex-col items-center"
           >
-            <div class="absolute -inset-2 top-0 bg-white/5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-out backdrop-blur-sm -z-10" style="height:3.5rem;" />
-            <div class="w-12 h-12 flex items-center justify-center text-white/80 group-hover:text-[#E5B32A] transition-all duration-300 transform group-hover:-translate-y-1">
+            <div class="absolute -inset-2 top-0 bg-white/5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-out backdrop-blur-sm -z-10" style="height:3rem;" />
+            <div class="w-10 h-10 flex items-center justify-center text-white/80 group-hover:text-[#E5B32A] transition-all duration-300 transform group-hover:-translate-y-1">
               {site.iconType === "fb" && (
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 drop-shadow-lg">
                   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
@@ -200,17 +200,18 @@ function renderStars(rating: number) {
     font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.14em;
     color: rgba(255, 255, 255, 0.55);
+    font-size: 9px;
     line-height: 1;
   }
   /* Pastille unique = stage avec 3 slots superposés */
   .dlv-trigger-stage {
     position: relative;
     display: inline-block;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(8px);

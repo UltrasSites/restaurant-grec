@@ -122,11 +122,15 @@ const catIcon = (p: typeof menuPages[number]) => {
             <span id="menu-search-count" class="menu-search-count"></span>
           </div>
           <nav id="cat-tabs" class="cat-tabs" aria-label={isEl ? 'Κατηγορίες' : 'Categories'}>
+            <button type="button" class="cat-tab active" data-cat-tab="all">
+              <span class="cat-tab-ico" aria-hidden="true">🍽️</span>
+              <span>{isEl ? 'Όλα' : 'All'}</span>
+            </button>
             {pagesOrdered.map(({ p, pi }) => (
-              <a href={`#cat-${pi}`} class="cat-tab" data-cat-tab={String(pi)}>
+              <button type="button" class="cat-tab" data-cat-tab={String(pi)}>
                 <span class="cat-tab-ico" aria-hidden="true">{catIcon(p)}</span>
                 <span>{isEl ? p.title_el : p.title_en}</span>
-              </a>
+              </button>
             ))}
           </nav>
           <p id="menu-search-empty" class="menu-search-empty" hidden>{isEl ? 'Κανένα προϊόν δεν ταιριάζει.' : 'No matching items.'}</p>
@@ -1491,25 +1495,28 @@ const catIcon = (p: typeof menuPages[number]) => {
   })();
   </script>
 <script>
-  // Scrollspy onglets catégories (app-like)
+  // Onglets catégories app-like = FILTRE (modèle resto canonique Ultras-Sites) :
+  // « Όλα/All » montre tout ; choisir une catégorie n'affiche QUE ses plats.
   (() => {
     const tabs = Array.from(document.querySelectorAll('[data-cat-tab]')) as HTMLElement[];
     const sections = Array.from(document.querySelectorAll('[data-cat-section]')) as HTMLElement[];
     if (!tabs.length || !sections.length) return;
-    const byId = new Map(tabs.map(el => [el.dataset.catTab, el]));
-    let lock = 0;
-    const setActive = (pi: string | undefined) => {
-      if (!pi) return;
-      tabs.forEach(el => el.classList.toggle('active', el.dataset.catTab === pi));
-      byId.get(pi)?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    const apply = (sel: string | undefined) => {
+      if (!sel) return;
+      tabs.forEach(el => el.classList.toggle('active', el.dataset.catTab === sel));
+      sections.forEach(s => {
+        const show = sel === 'all' || (s as HTMLElement).dataset.catSection === sel;
+        (s as HTMLElement).style.display = show ? '' : 'none';
+      });
+      // remonter en haut de la liste pour voir la catégorie choisie dès le 1er plat
+      const wrap = document.getElementById('order-view-menu');
+      if (sel !== 'all' && wrap) {
+        const top = wrap.getBoundingClientRect().top + window.scrollY - 150;
+        window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      }
     };
-    const io = new IntersectionObserver((entries) => {
-      if (Date.now() < lock) return;
-      const vis = entries.filter(e => e.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (vis) setActive((vis.target as HTMLElement).dataset.catSection);
-    }, { rootMargin: '-150px 0px -55% 0px', threshold: [0, 0.25, 0.5] });
-    sections.forEach(s => io.observe(s));
-    tabs.forEach(el => el.addEventListener('click', () => { lock = Date.now() + 900; setActive(el.dataset.catTab); }));
+    tabs.forEach(el => el.addEventListener('click', () => apply(el.dataset.catTab)));
+    apply('all');
   })();
 </script>
 
