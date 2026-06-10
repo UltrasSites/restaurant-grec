@@ -413,125 +413,38 @@ const baseUrl = `/${currentLang}`;
 >
 
   <!-- HERO -->
-  <section id="home" class="relative min-h-screen w-full flex flex-col overflow-x-hidden bg-neutral-950">
+  <section id="home" class="relative min-h-[100svh] w-full flex items-end md:items-center overflow-hidden bg-neutral-950">
     <div class="absolute inset-0 z-0">
       <img
         src="/photos/efood-00-1600w.webp"
         srcset="/photos/efood-00-800w.webp 800w, /photos/efood-00-1600w.webp 1600w"
         sizes="100vw"
         alt={currentLang === 'el' ? 'Αυθεντικό ψητοπωλείο στην Τρούμπα, Πειραιάς' : 'Authentic charcoal souvlaki shop in Troumpa, Piraeus'}
-        class="w-full h-full object-cover opacity-55"
+        class="w-full h-full object-cover opacity-60"
         width="1600" height="900"
         loading="eager"
         fetchpriority="high"
         decoding="async"
       />
-      <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/40 to-neutral-950/75"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/35 to-neutral-950/70"></div>
     </div>
-
-    {/* Ambient blobs Kalamaki — palette or, dérive lente, transform only */}
-    <div class="hero-ambient" aria-hidden="true">
-      <div class="hero-blob b1"></div>
-      <div class="hero-blob b2"></div>
-    </div>
-
-    {/* Beam SVG — trait pointillé qui converge du titre vers la CTA principale (desktop only) */}
-    <svg class="hero-beam-svg" viewBox="0 0 1200 800" preserveAspectRatio="none" aria-hidden="true">
-      <defs>
-        <linearGradient id="beamGradient" x1="0%" y1="0%" x2="100%" y2="50%">
-          <stop offset="0%"  stop-color="#E5B32A" stop-opacity="0"/>
-          <stop offset="40%" stop-color="#E5B32A" stop-opacity="0.7"/>
-          <stop offset="100%" stop-color="#E5B32A" stop-opacity="1"/>
-        </linearGradient>
-      </defs>
-      <path class="beam-path" d="M 280 380 Q 500 320 720 400 T 980 460" />
-    </svg>
 
     <NavBar lang={currentLang} />
 
-    <div class="relative z-10 px-6 w-full flex-1 flex items-center justify-center py-4 md:py-20">
-      <div class="hero-card-viewport">
-        <div class="hero-card-3d max-w-screen-2xl mx-auto grid md:grid-cols-1 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] gap-8 lg:gap-16 items-center text-left w-full">
-
-          <div class="flex flex-col items-center lg:items-start max-w-xl">
-            <span class="inline-block border border-[#E5B32A]/50 px-6 py-2 rounded-full text-[10px] uppercase tracking-[0.4em] mb-3 bg-black/30 backdrop-blur-sm text-[#E5B32A] font-bold">
-              {t.hero_badge}
-            </span>
-
-            {/* Carrousel hero — photos haute résolution du resto.
-                Affichage 120px (mobile) / 170px (desktop) → 400w est suffisant + 800w pour retina. */}
-            <div class="hero-photo-strip">
-              <div class="strip-track">
-                {[
-                  "trouba-storefront",
-                  "trouba-grill-skewers",
-                  "trouba-grill-chops",
-                  "efood-00",
-                  "trouba-storefront",
-                  "trouba-grill-skewers",
-                  "trouba-grill-chops",
-                  "efood-25",
-                  "trouba-storefront",
-                ].map((stem) => (
-                  <img
-                    src={`/photos/${stem}-400w.webp`}
-                    srcset={`/photos/${stem}-400w.webp 400w, /photos/${stem}-800w.webp 800w`}
-                    sizes="(max-width: 767px) 120px, 170px"
-                    alt=""
-                    width="400" height="300"
-                    loading="lazy" decoding="async"
-                  />
-                ))}
-              </div>
-            </div>
-
-            <h1 class="text-5xl md:text-5xl lg:text-6xl font-serif italic text-white mb-2 md:mb-3 leading-none drop-shadow-2xl text-center lg:text-left whitespace-nowrap">
-              {t.hero_title}
-            </h1>
-            <p class="text-gray-300 max-w-xl md:max-w-2xl mx-auto lg:mx-0 leading-relaxed mb-4 md:mb-6 font-light text-base md:text-lg text-center lg:text-left">
-              {t.hero_lead}
-            </p>
-            <div class="flex mb-1 justify-center lg:justify-start opacity-100 visible">
-              <SocialLinks lang={currentLang} />
-            </div>
-            <p class="hidden md:block text-xs text-gray-300 italic">{t.hero_demo_note}</p>
-          </div>
-
-          <aside class="w-full md:mt-0 mt-1 mobile-hero-card-shift">
-            <div class="resa-card-inner-mobile bg-gradient-to-b from-[#E5B32A]/12 to-black/70 border border-[#E5B32A]/30 rounded-3xl p-6 md:p-8 backdrop-blur-xl shadow-2xl w-full max-w-md ml-auto">
-              <p class="text-[9px] md:text-[9px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2 md:mb-3">{t.resa_title}</p>
-              <h2 class="hidden md:block text-lg font-serif text-white mb-4">{t.resa_subtitle}</h2>
-              <div class="mobile-hide-details space-y-2 text-xs text-gray-300 mb-4">
-                <p class="leading-snug">
-                  <span class="font-semibold text-white text-[10px] uppercase tracking-wider">{t.resa_label_address}</span><br />
-                  <span class="font-medium text-white/90 text-[11px]">{t.resa_address}</span>
-                </p>
-                <p class="leading-snug">
-                  <span class="font-semibold text-white text-[10px] uppercase tracking-wider">{t.resa_label_phone}</span><br />
-                  <a href="tel:+302104222233" aria-label={currentLang === 'el' ? 'Τηλέφωνο 1 — Καλαμάκι Της Τρούμπας' : 'Phone 1 — Kalamaki Tis Troumpas'} class="font-medium text-[#E5B32A] hover:underline block text-[11px] tabular-nums py-1.5 -my-1.5 px-2 -mx-2">{t.resa_phone}</a>
-                  <a href="tel:+302104222273" aria-label={currentLang === 'el' ? 'Τηλέφωνο 2 — Καλαμάκι Της Τρούμπας' : 'Phone 2 — Kalamaki Tis Troumpas'} class="font-medium text-[#E5B32A] hover:underline block text-[11px] tabular-nums mt-0.5 py-1.5 -my-1.5 px-2 -mx-2">+30 210 422 2273</a>
-                </p>
-              </div>
-              {/* Horaires : visible aussi sur mobile (assez de place) */}
-              <div class="space-y-2 text-xs text-gray-300 mb-4">
-                <p class="leading-snug">
-                  <span class="font-semibold text-white text-[10px] uppercase tracking-wider">{t.resa_label_hours}</span><br />
-                  <span class="font-medium text-white/90 text-[11px]">{t.resa_hours}</span>
-                </p>
-              </div>
-              <div class="flex flex-col gap-3">
-                <a href={`${baseUrl}/delivery`} class="cta-beam-target w-full px-8 py-3.5 text-black text-[11px] font-bold uppercase tracking-[0.2em] text-center rounded-lg transition-all duration-300">
-                  {t.order_cta} <span class="ml-1 text-[9px] opacity-70">· 0%</span>
-                </a>
-                <a href={`${baseUrl}/#carte`} class="w-full px-8 py-2.5 bg-transparent border border-white/15 text-white/80 text-[10px] font-bold uppercase tracking-[0.2em] text-center rounded-lg hover:bg-white/5 transition-all duration-300">
-                  {t.resa_cta3}
-                </a>
-              </div>
-              <div id="cta-card-sentinel" class="h-px w-full absolute bottom-0" aria-hidden="true"></div>
-            </div>
-          </aside>
-
-        </div>
+    <div class="relative z-10 w-full max-w-3xl mx-auto px-6 pb-32 md:pb-0 md:py-24 text-center">
+      <span class="inline-block text-[9px] md:text-xs uppercase tracking-[0.28em] md:tracking-[0.35em] font-bold px-4 py-1.5 rounded-full border border-[#E5B32A]/50 bg-black/30 text-[#E5B32A] mb-4 md:mb-5">{t.hero_badge}</span>
+      <h1 class="font-serif italic text-white text-4xl md:text-7xl leading-tight mb-3 md:mb-4 drop-shadow-2xl">{t.hero_title}</h1>
+      <p class="text-gray-200 text-sm md:text-lg font-light leading-relaxed max-w-xl mx-auto mb-6 md:mb-8">{t.hero_lead}</p>
+      <div id="cta-card-sentinel" class="flex flex-wrap items-center justify-center gap-3">
+        <a href={`${baseUrl}/delivery`} class="btn-order-glow">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 18h18M12 6a8 8 0 00-8 8h16a8 8 0 00-8-8zM12 6V3.5"/></svg>
+          {t.order_cta}
+        </a>
+        <a href={`${baseUrl}/#carte`} class="btn-glass">{t.resa_cta3}</a>
+        <a href="tel:+302104222233" class="btn-glass">{t.resa_phone}</a>
+      </div>
+      <div class="flex justify-center mt-4 md:mt-6">
+        <SocialLinks lang={currentLang} />
       </div>
     </div>
 
