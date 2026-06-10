@@ -89,5 +89,16 @@ const isEl = lang === 'el';
         window.location.href = 'mailto:' + u + '@' + d;
       });
     });
+    // Téléphone : numéro JAMAIS dans le DOM. Reconstruit au clic à partir de data-cc + data-tn.
+    document.querySelectorAll('a.tel-link[data-p]').forEach(function(a) {
+      a.setAttribute('role', 'button');
+      a.style.cursor = 'pointer';
+      a.addEventListener('click', function(ev) {
+        var p = a.getAttribute('data-p');
+        if (!p) return;
+        ev.preventDefault();
+        try { window.location.href = 'tel:+' + atob(p); } catch (e) {}
+      });
+    });
   })();
 </script>

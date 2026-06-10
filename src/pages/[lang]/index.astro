@@ -454,7 +454,7 @@ const baseUrl = `/${currentLang}`;
           {t.order_cta}
         </a>
         <a href={`${baseUrl}/#carte`} class="btn-glass">{t.resa_cta3}</a>
-        <a href="tel:+302104222233" class="btn-glass">{t.resa_phone}</a>
+        <a class="tel-link btn-glass" data-p="MzAyMTA0MjIyMjMz">{currentLang === 'el' ? 'Καλέστε μας' : 'Call us'}</a>
       </div>
       {/* Avis (Google + TripAdvisor) + plateformes de livraison */}
       <div class="mt-8">
@@ -811,13 +811,11 @@ const baseUrl = `/${currentLang}`;
       </p>
 
       <div class="flex flex-col sm:flex-row gap-3 justify-center mb-8 flex-wrap">
-        <a href="tel:+302104222233" class="inline-flex items-center justify-center gap-2 px-5 py-4 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:bg-white transition-colors shadow-[0_12px_30px_rgba(229,179,42,0.35)]">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
-          +30 210 422 2233
+        <a class="tel-link inline-flex items-center justify-center gap-2 px-5 py-4 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:bg-white transition-colors shadow-[0_12px_30px_rgba(229,179,42,0.35)]" data-p="MzAyMTA0MjIyMjMz"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+          {currentLang === 'el' ? 'Καλέστε μας' : 'Call us'}
         </a>
-        <a href="tel:+302104222273" class="inline-flex items-center justify-center gap-2 px-5 py-4 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:bg-white transition-colors shadow-[0_12px_30px_rgba(229,179,42,0.35)]">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
-          +30 210 422 2273
+        <a class="tel-link inline-flex items-center justify-center gap-2 px-5 py-4 bg-[#E5B32A] text-black text-sm font-bold uppercase tracking-[0.12em] rounded-full hover:bg-white transition-colors shadow-[0_12px_30px_rgba(229,179,42,0.35)]" data-p="MzAyMTA0MjIyMjcz"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+          {currentLang === 'el' ? 'Καλέστε μας · 2' : 'Call us · 2'}
         </a>
         <a
           href="#"
@@ -876,8 +874,8 @@ const baseUrl = `/${currentLang}`;
           </div>
           <div class="border-t border-white/10 pt-5">
             <p class="text-[10px] uppercase tracking-[0.3em] text-[#E5B32A] font-bold mb-2">{t.resa_label_phone}</p>
-            <a href="tel:+302104222233" class="text-base text-[#E5B32A] hover:underline font-bold tracking-wide block">+30 210 422 2233</a>
-            <a href="tel:+302104222273" class="text-base text-[#E5B32A] hover:underline font-bold tracking-wide block mt-1">+30 210 422 2273</a>
+            <a class="tel-link text-base text-[#E5B32A] hover:underline font-bold tracking-wide block" data-p="MzAyMTA0MjIyMjMz">{currentLang === 'el' ? 'Καλέστε μας' : 'Call us'}</a>
+            <a class="tel-link text-base text-[#E5B32A] hover:underline font-bold tracking-wide block mt-1" data-p="MzAyMTA0MjIyMjcz">{currentLang === 'el' ? 'Καλέστε μας · 2' : 'Call us · 2'}</a>
           </div>
           <div class="mt-auto flex flex-col sm:flex-row gap-3 pt-2">
             <a
@@ -912,8 +910,12 @@ const baseUrl = `/${currentLang}`;
       <span class="order-pop-sub">{currentLang === 'el' ? 'και πλήρωσε επί τόπου' : 'and pay at the shop'}</span>
       <span class="order-pop-arrow" aria-hidden="true"></span>
     </span>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="order-fab-svg" aria-hidden="true">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+    {/* Scooter de livraison (Tiago 11/06 : pas un caddie — il fait de la livraison) */}
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" class="order-fab-svg" aria-hidden="true">
+      <circle cx="5.5" cy="18" r="2.5"/>
+      <circle cx="18" cy="18" r="2.5"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M8 18h7M3 7h4l3 8M14 7h3l2.2 6.2a2.5 2.5 0 01.3 1.3M14 7l1.5 4.5M13 7h3"/>
+      <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6h3.2"/>
     </svg>
   </a>
 
