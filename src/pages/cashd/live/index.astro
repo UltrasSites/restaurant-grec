@@ -452,6 +452,7 @@ import CashdAuthScript from "../../../components/cashd/CashdAuthScript.astro";
         tplReplacement: { label: 'Αντικατάσταση',  text: 'Το προϊόν είναι μη διαθέσιμο, OK για αντικατάσταση;' },
         modeDelivery: '🛵 Παράδοση',
         modeTakeaway: '🥡 Παραλαβή',
+        modeDinein: '🍽️ Επιτόπου',
         labelClient: 'Πελάτης',
         labelPhone: 'Τηλέφωνο',
         labelAddress: 'Διεύθυνση',
@@ -521,6 +522,7 @@ import CashdAuthScript from "../../../components/cashd/CashdAuthScript.astro";
         tplReplacement: { label: 'Replacement',  text: 'Item out of stock, OK for replacement?' },
         modeDelivery: '🛵 Delivery',
         modeTakeaway: '🥡 Pickup',
+        modeDinein: '🍽️ Dine-in',
         labelClient: 'Customer',
         labelPhone: 'Phone',
         labelAddress: 'Address',
@@ -860,7 +862,7 @@ import CashdAuthScript from "../../../components/cashd/CashdAuthScript.astro";
       var isNew = o.status === 'new';
       var isReady = o.status === 'ready';
       var modeClass = o.mode === 'delivery' ? 'delivery' : 'takeaway';
-      var modeLbl = o.mode === 'delivery' ? t.modeDelivery : t.modeTakeaway;
+      var modeLbl = o.mode === 'delivery' ? t.modeDelivery : (o.mode === 'surplace' ? t.modeDinein : t.modeTakeaway);
 
       var itemsHtml = '';
       if (Array.isArray(o.items)) {

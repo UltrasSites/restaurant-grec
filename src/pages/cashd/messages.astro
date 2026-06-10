@@ -334,6 +334,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
         loadError: 'Σφάλμα φόρτωσης συνομιλίας',
         modeDelivery: '🛵 Παράδοση',
         modeTakeaway: '🥡 Παραλαβή',
+        modeDinein: '🍽️ Επιτόπου',
         statusNew: '🔴 Σε αναμονή',
         statusSeen: '🟡 Προετοιμασία',
         statusReady: '🟢 Έτοιμη',
@@ -416,6 +417,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
     }
     function modeLabel(m) {
       if (m === 'delivery') return t.modeDelivery;
+      if (m === 'surplace') return t.modeDinein;
       if (m === 'takeaway') return t.modeTakeaway;
       return '';
     }

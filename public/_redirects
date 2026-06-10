@@ -3,6 +3,7 @@
 /caisse  /cashd  301
 /el/commander  /el/delivery  301
 /en/commander  /en/delivery  301
+/menu-download  /el/delivery  301
 
 # Trailing-slash fix : Cloudflare Pages retourne du HTML 404 quand on ajoute un slash
 # a un fichier statique. Google Search Console et certains bots normalisent les URLs

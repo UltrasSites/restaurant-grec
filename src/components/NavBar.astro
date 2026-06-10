@@ -28,7 +28,7 @@ const DOCK_LABELS: Record<Lang, { menu: string; order: string; call: string; pir
 const dl = DOCK_LABELS[lang as Lang] ?? DOCK_LABELS.el;
 ---
 
-<div class="md:hidden absolute top-4 left-3 sm:left-5 z-20">
+<div id="nav-pill-logo" class="md:hidden absolute top-4 left-3 sm:left-5 z-20" style="transition:opacity .25s ease">
     <a href={`${base}/#home`} class="inline-flex items-center gap-2">
         <img src="/photos/logo-dark-bg-88w.webp" alt="" width="44" height="44" class="w-11 h-11 object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" loading="eager" decoding="async" />
         <span class="text-[11px] font-semibold tracking-wide uppercase text-white/90 leading-tight">Το Καλαμάκι<br/>Της Τρούμπας</span>
@@ -112,6 +112,12 @@ const dl = DOCK_LABELS[lang as Lang] ?? DOCK_LABELS.el;
         .dock-btn-order::after { animation: none; opacity: 0; }
     }
     .dock-flag { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+
+  /* === Alignement style resto canonique : commande = FAB central surélevé === */
+  .mobile-dock-inner{ align-items:flex-end; }
+  .dock-btn-order{ transform:translateY(-13px); width:60px; height:60px; box-shadow:0 12px 26px -6px rgba(0,0,0,.45); }
+  .dock-btn-order .dock-icon{ font-size:1.5rem; }
+  .dock-btn-order .dock-label{ position:absolute; bottom:-15px; white-space:nowrap; }
 </style>
 
 <script>

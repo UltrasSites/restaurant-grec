@@ -38,6 +38,7 @@ const t = isEl ? {
   total: 'Σύνολο',
   modeDelivery: '🛵 Παράδοση',
   modeTakeaway: '🥡 Παραλαβή',
+  modeDinein: '🍽️ Επιτόπου',
   pendingMsg: '⏳ Αναμένουμε την επιβεβαίωση του εστιατορίου…',
   acceptedMsg: '✅ Η παραγγελία σου είναι αποδεκτή! Έτοιμη σε',
   preparingMsg: '🍳 Η παραγγελία σου ετοιμάζεται',
@@ -81,6 +82,7 @@ const t = isEl ? {
   total: 'Total',
   modeDelivery: '🛵 Delivery',
   modeTakeaway: '🥡 Pickup',
+  modeDinein: '🍽️ Dine-in',
   pendingMsg: '⏳ Waiting for the restaurant to confirm…',
   acceptedMsg: '✅ Your order is accepted! Ready in',
   preparingMsg: '🍳 Your order is being prepared',
@@ -343,9 +345,10 @@ const t = isEl ? {
       orderView.hidden = false;
 
       document.getElementById('ov-id').textContent = orderState.id;
-      document.getElementById('ov-name').textContent = orderState.name || '';
+      // Dine-in : le nom = placeholder cuisine (grec) → on le masque côté client (le pill « Dine-in » suffit).
+      document.getElementById('ov-name').textContent = orderState.mode === 'surplace' ? '' : (orderState.name || '');
       var modeEl = document.getElementById('ov-mode');
-      modeEl.textContent = orderState.mode === 'delivery' ? t.modeDelivery : t.modeTakeaway;
+      modeEl.textContent = orderState.mode === 'delivery' ? t.modeDelivery : (orderState.mode === 'surplace' ? t.modeDinein : t.modeTakeaway);
       document.getElementById('ov-total').textContent = fmtPrice(orderState.total);
 
       // Adjust step4 label : delivery vs takeaway

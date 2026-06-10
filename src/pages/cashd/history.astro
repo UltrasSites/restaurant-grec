@@ -388,6 +388,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
         thStatus:     'Κατάσταση',
         modeTakeaway: 'Παραλαβή',
         modeDelivery: 'Παράδοση',
+        modeDinein:   'Επιτόπου',
         payCash:      'Μετρητά',
         payCard:      'Κάρτα',
         statusNew:       'Σε αναμονή',
@@ -448,6 +449,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
         thStatus:     'Status',
         modeTakeaway: 'Pickup',
         modeDelivery: 'Delivery',
+        modeDinein:   'Dine-in',
         payCash:      'Cash',
         payCard:      'Card',
         statusNew:       'Pending',
@@ -571,7 +573,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
     }
     function modePill(m) {
       if (m === 'delivery') return '<span class="pill-mini pill-delivery">' + t.modeDelivery + '</span>';
-      return '<span class="pill-mini pill-takeaway">' + t.modeTakeaway + '</span>';
+      return '<span class="pill-mini pill-takeaway">' + (m === 'surplace' ? t.modeDinein : t.modeTakeaway) + '</span>';
     }
     function payPill(p) {
       if (p === 'card') return '<span class="pill-mini pill-card">' + t.payCard + '</span>';

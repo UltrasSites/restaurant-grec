@@ -1231,6 +1231,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
         emptyHistory: 'Κανένα ιστορικό.',
         modeDelivery: '🛵 ΠΑΡΑΔΟΣΗ',
         modeTakeaway: '🥡 ΠΑΡΑΛΑΒΗ',
+        modeDinein: '🍽️ ΕΠΙΤΟΠΟΥ',
         payCard: '💳 ΚΑΡΤΑ',
         payCash: '💶 ΜΕΤΡΗΤΑ',
         payAtCounter: 'ΣΤΟ ΤΑΜΕΙΟ',
@@ -1311,6 +1312,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
         emptyHistory: 'No history yet.',
         modeDelivery: '🛵 DELIVERY',
         modeTakeaway: '🥡 TAKE-AWAY',
+        modeDinein: '🍽️ DINE-IN',
         payCard: '💳 CARD',
         payCash: '💶 CASH',
         payAtCounter: 'AT COUNTER',
@@ -1648,7 +1650,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
       var payLoc = isDelivery ? t.payAtCourier : t.payAtCounter;
       var modePill = isDelivery
         ? '<span class="pill pill-delivery">' + t.modeDelivery + '</span>'
-        : '<span class="pill pill-takeaway">' + t.modeTakeaway + '</span>';
+        : '<span class="pill pill-takeaway">' + (o.mode === 'surplace' ? t.modeDinein : t.modeTakeaway) + '</span>';
       var payPill = o.payment === 'card'
         ? '<span class="pill pill-card">' + t.payCard + ' ' + payLoc + '</span>'
         : '<span class="pill pill-cash">' + t.payCash + ' ' + payLoc + '</span>';

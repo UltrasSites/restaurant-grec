@@ -116,10 +116,22 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
       ? deliveryZoneRaw
       : null;
 
-  if (!name || name.length < 2) return jsonResp({ ok: false, error: "Name required" }, 400);
-  if (!phone || phone.length < 6) return jsonResp({ ok: false, error: "Phone required" }, 400);
-  if (!["takeaway", "delivery"].includes(mode)) {
+  if (!["takeaway", "delivery", "surplace"].includes(mode)) {
     return jsonResp({ ok: false, error: "Invalid mode" }, 400);
+  }
+
+  // Dine-in (surplace) : le client est à table → pas de nom/tél requis.
+  // On génère un code de suivi 4 chiffres qui sert de clé anti-énumération
+  // pour la page de suivi public (réutilise le champ phone, aucune migration).
+  const isDinein = mode === "surplace";
+  let finalName = name;
+  let finalPhone = phone;
+  if (isDinein) {
+    if (!finalName || finalName.length < 2) finalName = "Επιτόπου"; // dine-in (grec, pour la cuisine)
+    finalPhone = String(Math.floor(1000 + Math.random() * 9000));   // code suivi 4 chiffres
+  } else {
+    if (!name || name.length < 2) return jsonResp({ ok: false, error: "Name required" }, 400);
+    if (!phone || phone.length < 6) return jsonResp({ ok: false, error: "Phone required" }, 400);
   }
   if (!["cash", "card", "on_site"].includes(payment)) {
     return jsonResp({ ok: false, error: "Invalid payment" }, 400);
@@ -228,8 +240,8 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
     .bind(
       order_id,
       nextNum,
-      name,
-      phone,
+      finalName,
+      finalPhone,
       total,
       pickup_time,
       lang,
@@ -259,5 +271,5 @@ export const onRequestPost = async (ctx: { request: Request; env: Env }) => {
     .run()
     .catch(() => {});
 
-  return jsonResp({ ok: true, order_id });
+  return jsonResp({ ok: true, order_id, track_code: isDinein ? finalPhone : undefined });
 };
