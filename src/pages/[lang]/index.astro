@@ -195,14 +195,26 @@ const baseUrl = `/${currentLang}`;
     from { background-position: 0% center; }
     to { background-position: 200% center; }
   }
-  /* Perf machines faibles : ban background-position animation mobile + reduced-motion */
-  @media (max-width: 767px), (prefers-reduced-motion: reduce) {
+  /* Shimmer doré des titres : actif mobile + desktop (Tiago 11/06 — « remets les animations »).
+     Désactivé uniquement en reduced-motion (accessibilité). */
+  @media (prefers-reduced-motion: reduce) {
     .gold-shine-text {
       animation: none !important;
       background: none !important;
       -webkit-text-fill-color: #e5b32a !important;
       color: #e5b32a !important;
     }
+  }
+  /* Titre du hero : shimmer doré subtil (mode signature) */
+  .hero-title-shine {
+    background: linear-gradient(to right, #ffffff 0%, #ffe9a8 30%, #ffffff 50%, #ffe9a8 70%, #ffffff 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    animation: gold-shimmer 5s linear infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-title-shine { animation: none; -webkit-text-fill-color: #fff; color: #fff; background: none; }
   }
 
   /* ═══════════════════════════════════════════════════════════
@@ -446,7 +458,7 @@ const baseUrl = `/${currentLang}`;
           class="h-20 md:h-28 w-auto mx-auto md:mx-0 drop-shadow-[0_4px_18px_rgba(0,0,0,0.6)]" loading="eager" decoding="async" />
       </a>
       <span class="inline-block text-[10px] md:text-sm tracking-[0.28em] md:tracking-[0.3em] uppercase font-semibold px-3 py-1.5 rounded-full border border-white/40 mb-4 md:mb-5 text-[#E5B32A]">{t.hero_badge}</span>
-      <h1 class="font-serif italic text-4xl md:text-7xl leading-tight mb-3 md:mb-4">{t.hero_title}</h1>
+      <h1 class="hero-title-shine font-serif italic text-4xl md:text-7xl leading-tight mb-3 md:mb-4">{t.hero_title}</h1>
       <p class="text-base md:text-xl text-white/90 max-w-xl mb-6 md:mb-7">{t.hero_lead}</p>
       {/* Desktop : CTAs + avis/livraison sur la même ligne (avis à côté du CTA téléphone) ; mobile : empilés */}
       <div class="md:flex md:items-center md:gap-7 md:flex-nowrap">
