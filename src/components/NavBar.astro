@@ -72,7 +72,7 @@ const L = lang === "el"
   .rdock-bar {
     pointer-events: auto; position: relative;
     display: flex; align-items: flex-end; justify-content: space-between; gap: 2px;
-    width: 100%; max-width: 440px; height: 62px; padding: 7px 12px;
+    width: 100%; max-width: 412px; height: 54px; padding: 5px 10px;
     border-radius: 22px;
     background: linear-gradient(180deg, #1d160c 0%, #140f08 100%);
     backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4);
@@ -87,17 +87,17 @@ const L = lang === "el"
     transition: color 0.18s ease, transform 0.14s ease;
   }
   .rdock-item:active { transform: scale(0.9); }
-  .rdock-item svg { width: 21px; height: 21px; }
-  .rdock-item span { font-size: 9.5px; font-weight: 700; letter-spacing: 0.01em; white-space: nowrap; }
+  .rdock-item svg { width: 19px; height: 19px; }
+  .rdock-item span { font-size: 9px; font-weight: 700; letter-spacing: 0.01em; white-space: nowrap; }
   .rdock-flag { width: 18px; height: 18px; border-radius: 50%; object-fit: cover; }
 
   /* action centrale surélevée — Παραγγελία, elle brille */
   .rdock-fab-wrap {
     flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px;
-    transform: translateY(-16px); width: 64px;
+    transform: translateY(-14px); width: 58px;
   }
   .rdock-fab {
-    width: 56px; height: 56px; border-radius: 50%;
+    width: 50px; height: 50px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     color: #1a1208; position: relative;
     background: linear-gradient(135deg, #E5B32A, #F59E0B);
@@ -106,7 +106,7 @@ const L = lang === "el"
     transition: transform 0.16s ease;
   }
   .rdock-fab:active { transform: scale(0.93); }
-  .rdock-fab svg { width: 26px; height: 26px; }
+  .rdock-fab svg { width: 23px; height: 23px; }
   .rdock-fab::after {
     content: ''; position: absolute; inset: -2px; border-radius: 50%; pointer-events: none;
     box-shadow: 0 0 0 0 rgba(229, 179, 42, 0.6);
@@ -119,7 +119,7 @@ const L = lang === "el"
   .rdock-fab-lb { font-size: 10px; font-weight: 800; color: #E5B32A; letter-spacing: 0.02em; }
   @media (prefers-reduced-motion: reduce) { .rdock-fab::after { animation: none; } }
 
-  @media (max-width: 767px) { :global(main), :global(body) { padding-bottom: 96px; } }
+  @media (max-width: 767px) { :global(main), :global(body) { padding-bottom: 86px; } }
 </style>
 
 <script>
