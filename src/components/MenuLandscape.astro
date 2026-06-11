@@ -1,0 +1,85 @@
+---
+// Carte "livre" en PAYSAGE (Tiago 11/06) : remplace le flipbook portrait.
+// Sections en longueur, 2 colonnes, chaque plat avec sa photo + son prix (comme la page commande).
+import { menuPages } from "../data/menu-data";
+import { getPhotoData } from "../data/efood-photos-map.mjs";
+
+interface Props { lang?: string; }
+const { lang = "el" } = Astro.props;
+const isEl = lang === "el";
+const baseUrl = isEl ? "/el" : "/en";
+
+const catIcon = (p: typeof menuPages[number]) => {
+  const s = p.title_el;
+  if (/Αναψυκτικά/.test(s)) return "🥤";
+  if (/Κρασιά/.test(s)) return "🍷";
+  if (/Ορεκτικά/.test(s)) return "🫒";
+  if (/Σαλάτες/.test(s)) return "🥗";
+  if (/Πίτες/.test(s)) return "🌯";
+  if (/Καλαμάκια/.test(s)) return "🍢";
+  if (/Σπεσιαλιτέ/.test(s)) return "⭐";
+  if (/Χοιρινά/.test(s)) return "🍖";
+  if (/Χάμπουργκερ/.test(s)) return "🍔";
+  if (/Veggie/i.test(s)) return "🥦";
+  if (/Σάντουιτς|Σκεπαστή/.test(s)) return "🥪";
+  if (/Γλυκά|Επιδόρπ/.test(s)) return "🍮";
+  return "🍽️";
+};
+const t = isEl
+  ? { our_menu: "Ο Κατάλογός Μας", flavour: "Αυθεντική Γεύση Πειραιά", lead: "Όλα ψημένα στα κάρβουνα, με παραγγελία. Δες τη σειρά, μετά παράγγειλε.", order: "Παράγγειλε online", from: "από" }
+  : { our_menu: "Our Menu", flavour: "Authentic Piraeus Flavour", lead: "All charcoal-grilled, made to order. Browse the lineup, then order.", order: "Order online", from: "from" };
+---
+
+<section id="menu-book" class="bg-[#050505] py-14 md:py-20 px-4 border-t border-white/5">
+  <div class="max-w-6xl mx-auto">
+    <div class="text-center mb-10">
+      <p class="text-[10px] md:text-xs tracking-[0.35em] uppercase text-[#E5B32A] font-bold mb-3">{t.flavour}</p>
+      <h2 class="font-serif italic text-3xl md:text-5xl text-white mb-3">{t.our_menu}</h2>
+      <p class="text-sm md:text-base text-white/55 max-w-xl mx-auto">{t.lead}</p>
+    </div>
+
+    <div class="grid gap-6 md:gap-8">
+      {menuPages.map((p) => (
+        <section class="menu-cat rounded-2xl bg-white/[0.03] border border-white/10 p-5 md:p-7">
+          <h3 class="text-xl md:text-2xl font-serif italic text-[#E5B32A] mb-1 flex items-center gap-2">
+            <span aria-hidden="true">{catIcon(p)}</span>{isEl ? p.title_el : p.title_en}
+          </h3>
+          {(isEl ? p.note_el : p.note_en) && (
+            <p class="text-xs text-gray-400 italic mb-4">{isEl ? p.note_el : p.note_en}</p>
+          )}
+          <ul class="mt-4 grid sm:grid-cols-2 gap-x-8 gap-y-1">
+            {p.items.map((it) => {
+              const photo = getPhotoData(it.el);
+              const isExtra = it.price.startsWith("+");
+              return (
+                <li class={`flex items-start gap-3 py-3 border-b border-white/5 ${isExtra ? "opacity-80" : ""}`}>
+                  {photo ? (
+                    <img src={photo.src} srcset={photo.srcset} sizes="72px" alt={it.el} width="72" height="72" loading="lazy" decoding="async" class="shrink-0 w-[72px] h-[72px] rounded-lg object-cover border border-white/10" />
+                  ) : (
+                    <div class="shrink-0 w-[72px] h-[72px] rounded-lg border border-[#E5B32A]/25 flex items-center justify-center" style="background:linear-gradient(135deg,rgba(229,179,42,0.16),rgba(0,0,0,0.9) 80%)" aria-hidden="true">
+                      <span class="text-lg">{catIcon(p)}</span>
+                    </div>
+                  )}
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm md:text-base text-white font-medium leading-snug">{isEl ? it.el : it.en}</p>
+                    {(isEl ? it.desc_el : it.desc_en) && (
+                      <p class="text-xs text-gray-500 mt-0.5 leading-snug">{isEl ? it.desc_el : it.desc_en}</p>
+                    )}
+                    <p class="text-sm text-[#E5B32A] font-bold mt-1 whitespace-nowrap">{it.price}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
+    </div>
+
+    <div class="text-center mt-10">
+      <a href={`${baseUrl}/delivery`} class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm uppercase tracking-wider text-black" style="background:linear-gradient(135deg,#E5B32A,#caa12a);box-shadow:0 10px 30px -8px rgba(229,179,42,0.6)">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 18h18M12 6a8 8 0 00-8 8h16a8 8 0 00-8-8zM12 6V3.5"/></svg>
+        {t.order}
+      </a>
+    </div>
+  </div>
+</section>

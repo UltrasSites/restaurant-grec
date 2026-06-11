@@ -9,7 +9,7 @@ export function getStaticPaths() {
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import NavBar from "../../components/NavBar.astro";
 import SocialLinks from "../../components/SocialLinks.astro";
-import MenuBook from "../../components/MenuBook.astro";
+import MenuLandscape from "../../components/MenuLandscape.astro";
 import ReviewsSection from "../../components/ReviewsSection.astro";
 import Flag from "../../components/Flag.astro";
 import { getLangFromParam } from "../../i18n/utils";
@@ -641,7 +641,7 @@ const baseUrl = `/${currentLang}`;
 
   <!-- MENU LIVRE -->
   <div id="carte">
-    <MenuBook lang={currentLang} />
+    <MenuLandscape lang={currentLang} />
   </div>
 
   <!-- QR → commande en ligne (les PDF n'existent plus : on scanne, on voit les plats, on commande sur le site) -->
