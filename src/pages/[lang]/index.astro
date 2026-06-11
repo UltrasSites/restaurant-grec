@@ -484,7 +484,7 @@ const baseUrl = `/${currentLang}`;
       {/* Logo GROS tout en haut (mobile + desktop) ; au scroll il laisse place à la pastille flottante */}
       <a href={`${baseUrl}/#home`} id="hero-logo" class="block pt-6 md:pt-10 shrink-0" aria-label="Το Καλαμάκι Της Τρούμπας">
         <img src="/photos/logo-main-200w.webp" alt="Το Καλαμάκι Της Τρούμπας" width="200" height="188"
-          class="h-28 md:h-32 w-auto mx-auto md:mx-0 drop-shadow-[0_6px_22px_rgba(0,0,0,0.6)]" loading="eager" decoding="async" />
+          class="h-28 md:h-32 w-auto mx-auto md:mx-0 drop-shadow-[0_6px_22px_rgba(0,0,0,0.6)]" loading="eager" fetchpriority="high" decoding="async" />
       </a>
 
       {/* Contenu EN BAS (mobile) — pastille + titre + sous-titre rapprochés des CTA. Bouton Appeler retiré
@@ -523,9 +523,9 @@ const baseUrl = `/${currentLang}`;
       <div class="flex justify-center items-center relative">
         <div class="absolute inset-0 bg-gradient-to-tr from-[#E5B32A]/20 to-transparent rounded-2xl blur-2xl -z-10"></div>
         <img
-          src="/photos/trouba-storefront-800w.webp"
+          src="/photos/trouba-storefront-400w.webp"
           srcset="/photos/trouba-storefront-400w.webp 400w, /photos/trouba-storefront-800w.webp 800w, /photos/trouba-storefront-1600w.webp 1600w"
-          sizes="(max-width: 767px) 90vw, 640px"
+          sizes="(max-width: 767px) 360px, 600px"
           alt={currentLang === 'el' ? 'Καλαμάκι Της Τρούμπας — η είσοδος του μαγαζιού, Πειραιάς' : 'Kalamaki Tis Troumpas — shopfront in Piraeus'}
           class="histoire-img no-invert w-full max-w-md object-cover rounded-2xl shadow-2xl border border-white/10"
           width="800" height="600"
