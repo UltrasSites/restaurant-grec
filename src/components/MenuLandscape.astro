@@ -1,7 +1,6 @@
 ---
-// Carte "livre" feuilletable (Tiago 11/06) : une SECTION par page, taille FIXE (réf. Appetizers).
-// Grandes sections (Veggie…) -> 3 colonnes + police réduite pour tenir dans la même taille.
-// Chaque plat avec sa photo + son prix (réutilise les photos de la page commande).
+// Carte = LIVRE feuilletable (Tiago 11/06) : COUVERTURE (logo) → SOMMAIRE cliquable → 1 section/page.
+// Taille FIXE (réf. Appetizers). Grandes sections -> 3 colonnes + police réduite. Nav numérotée en bas.
 import { menuPages } from "../data/menu-data";
 import { getPhotoData } from "../data/efood-photos-map.mjs";
 
@@ -26,29 +25,49 @@ const catIcon = (p: typeof menuPages[number]) => {
   if (/Γλυκά|Επιδόρπ/.test(s)) return "🍮";
   return "🍽️";
 };
-// colonnes selon le nombre d'items pour que TOUT tienne dans la taille fixe
 const colsFor = (n: number) => (n > 10 ? 3 : 2);
 const t = isEl
-  ? { our_menu: "Ο Κατάλογός Μας", flavour: "Αυθεντική Γεύση Πειραιά", prev: "Προηγούμενη", next: "Επόμενη", order: "Παράγγειλε online", page: "Σελίδα" }
-  : { our_menu: "Our Menu", flavour: "Authentic Piraeus Flavour", prev: "Previous", next: "Next", order: "Order online", page: "Page" };
+  ? { our_menu: "Ο Κατάλογός Μας", flavour: "Αυθεντική Γεύση Πειραιά", prev: "Προηγούμενη", next: "Επόμενη", order: "Παράγγειλε online", open: "Άνοιξε τον κατάλογο", contents: "Περιεχόμενα", cover: "Εξώφυλλο" }
+  : { our_menu: "Our Menu", flavour: "Authentic Piraeus Flavour", prev: "Previous", next: "Next", order: "Order online", open: "Open the menu", contents: "Contents", cover: "Cover" };
+// total pages = couverture + sommaire + sections
+const totalPages = menuPages.length + 2;
 ---
 
 <section id="menu-book" class="bg-[#050505] py-12 md:py-16 px-4 border-t border-white/5">
   <div class="max-w-5xl mx-auto">
-    <div class="text-center mb-6">
-      <p class="text-[10px] md:text-xs tracking-[0.35em] uppercase text-[#E5B32A] font-bold mb-2">{t.flavour}</p>
-      <h2 class="font-serif italic text-3xl md:text-5xl text-white">{t.our_menu}</h2>
-    </div>
-
     <div class="ml-book" id="ml-book">
+
+      <!-- PAGE 0 : COUVERTURE -->
+      <article class="ml-page ml-cover is-active" data-ml-page="0">
+        <div class="ml-cover-inner">
+          <img src="/photos/logo-main-200w.webp" alt="" width="200" height="188" class="ml-cover-logo" />
+          <p class="ml-cover-flavour">{t.flavour}</p>
+          <h2 class="ml-cover-title">{t.our_menu}</h2>
+          <button type="button" class="ml-cover-cta" id="ml-open">{t.open} →</button>
+        </div>
+      </article>
+
+      <!-- PAGE 1 : SOMMAIRE cliquable -->
+      <article class="ml-page ml-toc" data-ml-page="1">
+        <h3 class="ml-cat-title"><span aria-hidden="true">📖</span>{t.contents}</h3>
+        <div class="ml-toc-grid">
+          {menuPages.map((p, i) => (
+            <button type="button" class="ml-toc-item" data-ml-goto={String(i + 2)}>
+              <span class="ml-toc-ico" aria-hidden="true">{catIcon(p)}</span>
+              <span class="ml-toc-name">{isEl ? p.title_el : p.title_en}</span>
+              <span class="ml-toc-num">{i + 1}</span>
+            </button>
+          ))}
+        </div>
+      </article>
+
+      <!-- PAGES 2+ : SECTIONS -->
       {menuPages.map((p, pi) => (
-        <article class={`ml-page${pi === 0 ? " is-active" : ""}`} data-ml-page={String(pi)} data-cols={String(colsFor(p.items.length))}>
+        <article class="ml-page" data-ml-page={String(pi + 2)} data-cols={String(colsFor(p.items.length))}>
           <h3 class="ml-cat-title">
             <span aria-hidden="true">{catIcon(p)}</span>{isEl ? p.title_el : p.title_en}
           </h3>
-          {(isEl ? p.note_el : p.note_en) && (
-            <p class="ml-cat-note">{isEl ? p.note_el : p.note_en}</p>
-          )}
+          {(isEl ? p.note_el : p.note_en) && <p class="ml-cat-note">{isEl ? p.note_el : p.note_en}</p>}
           <ul class="ml-grid">
             {p.items.map((it) => {
               const photo = getPhotoData(it.el);
@@ -71,15 +90,16 @@ const t = isEl
         </article>
       ))}
 
-      <!-- Navigation -->
       <button type="button" class="ml-nav ml-prev" id="ml-prev" aria-label={t.prev}>‹</button>
       <button type="button" class="ml-nav ml-next" id="ml-next" aria-label={t.next}>›</button>
     </div>
 
-    <!-- Dots -->
-    <div class="ml-dots" id="ml-dots">
-      {menuPages.map((_, pi) => (
-        <button type="button" class={`ml-dot${pi === 0 ? " is-active" : ""}`} data-ml-dot={String(pi)} aria-label={`${t.page} ${pi + 1}`}></button>
+    <!-- Numéros de page cliquables -->
+    <div class="ml-pager" id="ml-pager">
+      {Array.from({ length: totalPages }).map((_, pi) => (
+        <button type="button" class={`ml-pg${pi === 0 ? " is-active" : ""}`} data-ml-pg={String(pi)} aria-label={`${pi + 1}`}>
+          {pi === 0 ? "★" : pi === 1 ? "☰" : String(pi - 1)}
+        </button>
       ))}
     </div>
 
@@ -95,22 +115,37 @@ const t = isEl
 <style>
   .ml-book {
     position: relative;
-    background: linear-gradient(165deg, rgba(229,179,42,0.05), rgba(255,255,255,0.02) 45%, rgba(0,0,0,0.4));
+    background: linear-gradient(165deg, rgba(229,179,42,0.06), rgba(255,255,255,0.02) 45%, rgba(0,0,0,0.45));
     border: 1px solid rgba(229,179,42,0.18);
     border-radius: 20px;
     box-shadow: 0 30px 70px -30px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.03);
-    /* spine */
     padding: 1.5rem 3.2rem 1.6rem;
-    /* TAILLE FIXE (réf. section Appetizers) — toutes les pages la respectent */
-    min-height: clamp(420px, 56vh, 580px);
+    min-height: clamp(440px, 58vh, 600px);
     overflow: hidden;
+    perspective: 1800px;
   }
   .ml-book::before { content: ""; position: absolute; top: 8%; bottom: 8%; left: 50%; width: 1px; background: linear-gradient(180deg, transparent, rgba(229,179,42,0.25), transparent); }
   @media (max-width: 640px) { .ml-book { padding: 1.2rem 1rem 1.4rem; } .ml-book::before { display: none; } }
 
-  .ml-page { display: none; }
-  .ml-page.is-active { display: block; animation: mlFade .35s ease; }
-  @keyframes mlFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .ml-page { display: none; transform-origin: left center; }
+  .ml-page.is-active { display: block; animation: mlTurn .5s cubic-bezier(.2,.7,.2,1); }
+  @keyframes mlTurn { from { opacity: 0; transform: rotateY(-22deg); } to { opacity: 1; transform: none; } }
+
+  /* COUVERTURE */
+  .ml-cover-inner { min-height: clamp(380px, 50vh, 520px); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 0.4rem; }
+  .ml-cover-logo { width: clamp(110px, 16vw, 160px); height: auto; filter: drop-shadow(0 6px 22px rgba(0,0,0,0.6)); margin-bottom: 0.6rem; }
+  .ml-cover-flavour { color: #E5B32A; font-size: 0.72rem; letter-spacing: 0.34em; text-transform: uppercase; font-weight: 700; }
+  .ml-cover-title { font-family: "Playfair Display", serif; font-style: italic; color: #fff; font-size: clamp(1.8rem, 5vw, 3rem); margin: 0.2rem 0 1rem; }
+  .ml-cover-cta { background: linear-gradient(135deg, #E5B32A, #caa12a); color: #1a1208; font-weight: 800; padding: 0.7rem 1.6rem; border: 0; border-radius: 999px; cursor: pointer; font-size: 0.9rem; box-shadow: 0 10px 26px -10px rgba(229,179,42,0.7); }
+
+  /* SOMMAIRE */
+  .ml-toc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; margin-top: 1rem; }
+  @media (min-width: 768px) { .ml-toc-grid { grid-template-columns: repeat(3, 1fr); } }
+  .ml-toc-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 0.85rem; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(229,179,42,0.2); color: #fff; cursor: pointer; text-align: left; transition: background .15s, border-color .15s, transform .12s; }
+  .ml-toc-item:hover { background: rgba(229,179,42,0.12); border-color: rgba(229,179,42,0.5); transform: translateY(-2px); }
+  .ml-toc-ico { font-size: 1.2rem; }
+  .ml-toc-name { flex: 1; font-size: 0.86rem; font-weight: 600; line-height: 1.15; }
+  .ml-toc-num { color: #E5B32A; font-weight: 800; font-size: 0.78rem; opacity: 0.7; }
 
   .ml-cat-title { display: flex; align-items: center; gap: 0.5rem; font-family: "Playfair Display", serif; font-style: italic; color: #E5B32A; font-size: clamp(1.2rem, 3vw, 1.9rem); margin: 0 0 0.2rem; }
   .ml-cat-note { color: #9a9a9a; font-style: italic; font-size: 0.78rem; margin: 0 0 0.6rem; }
@@ -127,7 +162,6 @@ const t = isEl
   .ml-name { color: #fff; font-weight: 600; font-size: 0.92rem; line-height: 1.2; margin: 0; }
   .ml-desc { color: #8a8a8a; font-size: 0.72rem; line-height: 1.2; margin: 0.1rem 0 0; }
   .ml-price { color: #E5B32A; font-weight: 800; font-size: 0.85rem; margin: 0.15rem 0 0; }
-  /* 3 colonnes -> police réduite pour tenir dans la même taille */
   .ml-page[data-cols="3"] .ml-name { font-size: 0.8rem; }
   .ml-page[data-cols="3"] .ml-desc { display: none; }
   .ml-page[data-cols="3"] .ml-price { font-size: 0.78rem; }
@@ -138,9 +172,10 @@ const t = isEl
   .ml-prev { left: -10px; } .ml-next { right: -10px; }
   @media (max-width: 640px) { .ml-prev { left: 2px; } .ml-next { right: 2px; } }
 
-  .ml-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin-top: 0.9rem; }
-  .ml-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 0; cursor: pointer; padding: 0; transition: background .15s, transform .15s; }
-  .ml-dot.is-active { background: #E5B32A; transform: scale(1.3); }
+  .ml-pager { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.35rem; margin-top: 1rem; }
+  .ml-pg { min-width: 28px; height: 28px; padding: 0 0.4rem; border-radius: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #bbb; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all .15s; }
+  .ml-pg:hover { background: rgba(229,179,42,0.18); color: #E5B32A; }
+  .ml-pg.is-active { background: #E5B32A; color: #1a1208; border-color: #E5B32A; }
 </style>
 
 <script is:inline>
@@ -148,16 +183,22 @@ const t = isEl
     var book = document.getElementById('ml-book');
     if (!book) return;
     var pages = Array.prototype.slice.call(book.querySelectorAll('[data-ml-page]'));
-    var dots = Array.prototype.slice.call(document.querySelectorAll('[data-ml-dot]'));
+    var pgs = Array.prototype.slice.call(document.querySelectorAll('[data-ml-pg]'));
     var i = 0;
     function show(n) {
       i = (n + pages.length) % pages.length;
       pages.forEach(function (p, k) { p.classList.toggle('is-active', k === i); });
-      dots.forEach(function (d, k) { d.classList.toggle('is-active', k === i); });
+      pgs.forEach(function (d, k) { d.classList.toggle('is-active', k === i); });
     }
     document.getElementById('ml-prev').addEventListener('click', function () { show(i - 1); });
     document.getElementById('ml-next').addEventListener('click', function () { show(i + 1); });
-    dots.forEach(function (d, k) { d.addEventListener('click', function () { show(k); }); });
+    var openBtn = document.getElementById('ml-open');
+    if (openBtn) openBtn.addEventListener('click', function () { show(1); });
+    pgs.forEach(function (d, k) { d.addEventListener('click', function () { show(k); }); });
+    // sommaire -> page section
+    book.querySelectorAll('[data-ml-goto]').forEach(function (b) {
+      b.addEventListener('click', function () { show(parseInt(b.getAttribute('data-ml-goto'), 10)); });
+    });
     // swipe mobile
     var x0 = null;
     book.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });

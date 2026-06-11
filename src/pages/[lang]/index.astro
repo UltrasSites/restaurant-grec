@@ -934,6 +934,15 @@ const baseUrl = `/${currentLang}`;
       <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6h3.2"/>
     </svg>
   </a>
+  <script is:inline>
+    (function () {
+      var fab = document.querySelector('.order-fab-link');
+      if (!fab) return;
+      var onScroll = function () { fab.classList.toggle('is-compact', window.scrollY > 220); };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+  </script>
 
   <style>
     .order-fab-link {
@@ -960,6 +969,13 @@ const baseUrl = `/${currentLang}`;
       right: calc(100% + 0.7rem);
       top: 50%;
       transform: translateY(-50%);
+      transition: opacity .3s ease, transform .3s ease;
+    }
+    /* Au scroll : la bulle disparaît, il ne reste QUE le bouton scooter (Tiago 11/06) */
+    .order-fab-link.is-compact .order-pop {
+      opacity: 0;
+      transform: translateY(-50%) translateX(12px) scale(0.85);
+      pointer-events: none;
     }
     .order-pop {
       display: flex; flex-direction: column;
