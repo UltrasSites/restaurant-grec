@@ -6,6 +6,7 @@ import { translations } from "../../i18n/translations";
 import { menuPages, parsePrice, itemId } from "../../data/menu-data";
 import { getPhotoData } from "../../data/efood-photos-map.mjs";
 import { KALAMAKI_HOURS, HOURS_I18N } from "../../data/opening-hours";
+import menuI18n from "../../data/menu-i18n-names.json";
 
 const hoursPayload = JSON.stringify({ hours: KALAMAKI_HOURS, i18n: HOURS_I18N });
 
@@ -108,6 +109,20 @@ const catIcon = (p: typeof menuPages[number]) => {
       <!-- VUE MENU -->
       <div id="order-view-menu">
 
+        <!-- Sélecteur de langue du MENU (12 langues + drapeaux) — change les noms des plats -->
+        <div class="menu-lang-bar" role="group" aria-label={isEl ? 'Γλώσσα μενού' : 'Menu language'}>
+          <span class="menu-lang-hint">{isEl ? '🌐 Δες το μενού στη γλώσσα σου :' : '🌐 See the menu in your language:'}</span>
+          <div class="menu-lang-flags">
+            {menuI18n.langs.map((code) => (
+              <button type="button" class={`menu-lang-flag${code === (isEl ? 'el' : 'en') ? ' active' : ''}`} data-menu-lang={code}
+                title={menuI18n.labels[code]} aria-label={menuI18n.labels[code]}>
+                <span class="mlf-flag">{menuI18n.flags[code]}</span>
+                <span class="mlf-code">{code.toUpperCase()}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <!-- BARRE DE RECHERCHE STICKY -->
         <div id="menu-search-wrap" class="menu-search-wrap mb-6">
           <div class="menu-search-box">
@@ -170,7 +185,7 @@ const catIcon = (p: typeof menuPages[number]) => {
                         </div>
                       )}
                       <div class="flex-1 min-w-0">
-                        <p class="text-sm md:text-base text-white font-medium leading-snug">{isEl ? it.el : it.en}</p>
+                        <p class="text-sm md:text-base text-white font-medium leading-snug" data-name-el={it.el}>{isEl ? it.el : it.en}</p>
                         {(isEl ? it.desc_el : it.desc_en) && (
                           <p class="text-xs text-gray-500 mt-0.5 leading-snug">{isEl ? it.desc_el : it.desc_en}</p>
                         )}
@@ -480,6 +495,21 @@ const catIcon = (p: typeof menuPages[number]) => {
     .cat-tab-ico { font-size: 14px; line-height: 1; }
     .cat-tab.active { background: #E5B32A; border-color: #E5B32A; color: #111; }
     .cat-section { scroll-margin-top: 165px; }
+
+    /* Sélecteur de langue du menu (12 drapeaux) */
+    .menu-lang-bar { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+    .menu-lang-hint { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: rgba(229,179,42,0.9); text-transform: uppercase; }
+    .menu-lang-flags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .menu-lang-flag {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      padding: 0.35rem 0.6rem; border-radius: 999px;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.82); font-size: 11px; font-weight: 700; cursor: pointer;
+      transition: background .15s ease, border-color .15s ease, color .15s ease;
+    }
+    .menu-lang-flag .mlf-flag { font-size: 15px; line-height: 1; }
+    .menu-lang-flag:hover { background: rgba(229,179,42,0.14); border-color: rgba(229,179,42,0.4); color: #fff; }
+    .menu-lang-flag.active { background: #E5B32A; border-color: #E5B32A; color: #1a1208; }
     .menu-search-wrap {
       position: sticky;
       top: 70px;
@@ -1494,6 +1524,32 @@ const catIcon = (p: typeof menuPages[number]) => {
     refreshMode();
   })();
   </script>
+<script type="application/json" id="menu-i18n-data" set:html={JSON.stringify({ names: menuI18n.names })}></script>
+<script>
+  // Menu en 12 langues : changer les NOMS des plats selon le drapeau choisi (client-side).
+  (() => {
+    const dataEl = document.getElementById('menu-i18n-data');
+    if (!dataEl) return;
+    let MAP: Record<string, Record<string, string>> = {};
+    try { MAP = JSON.parse(dataEl.textContent || '{}').names || {}; } catch (e) { return; }
+    const flags = Array.from(document.querySelectorAll('[data-menu-lang]')) as HTMLElement[];
+    const names = Array.from(document.querySelectorAll('[data-name-el]')) as HTMLElement[];
+    const KEY = 'kalamaki-menu-lang';
+    function apply(lang: string) {
+      flags.forEach(f => f.classList.toggle('active', f.dataset.menuLang === lang));
+      names.forEach(p => {
+        const el = p.dataset.nameEl || '';
+        const tr = (MAP[el] && (MAP[el][lang] || MAP[el]['en'])) || el;
+        p.textContent = tr;
+      });
+      try { localStorage.setItem(KEY, lang); } catch (e) {}
+    }
+    flags.forEach(f => f.addEventListener('click', () => apply(f.dataset.menuLang || 'el')));
+    let init = '';
+    try { init = localStorage.getItem(KEY) || ''; } catch (e) {}
+    if (init && init !== (document.documentElement.lang || 'el')) apply(init);
+  })();
+</script>
 <script>
   // Onglets catégories app-like = FILTRE (modèle resto canonique Ultras-Sites) :
   // « Όλα/All » montre tout ; choisir une catégorie n'affiche QUE ses plats.
