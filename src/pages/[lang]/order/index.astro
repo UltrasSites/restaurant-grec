@@ -45,7 +45,7 @@ const t = isEl ? {
   readyMsg: '🛵 Η παραγγελία σου είναι έτοιμη! Ο διανομέας ξεκινάει.',
   readyMsgTa: '🎉 Η παραγγελία σου είναι έτοιμη για παραλαβή!',
   paidMsg: '✓ Η παραγγελία σου ολοκληρώθηκε. Ευχαριστούμε!',
-  cancelledMsg: '❌ Η παραγγελία σου ακυρώθηκε.',
+  cancelledMsg: '❌ Η παραγγελία σου ακυρώθηκε από το κατάστημα. Δες το μήνυμα για τον λόγο.',
   chatTitle: '💬 Μηνύματα από το εστιατόριο',
   chatPlaceholder: 'Γράψε στο εστιατόριο…',
   send: 'Αποστολή',
@@ -89,7 +89,7 @@ const t = isEl ? {
   readyMsg: '🛵 Your order is ready! The courier is leaving.',
   readyMsgTa: '🎉 Your order is ready for pickup!',
   paidMsg: '✓ Your order is complete. Thank you!',
-  cancelledMsg: '❌ Your order was cancelled.',
+  cancelledMsg: '❌ Your order was cancelled by the restaurant. See the message for the reason.',
   chatTitle: '💬 Messages from the restaurant',
   chatPlaceholder: 'Write to the restaurant…',
   send: 'Send',
@@ -480,6 +480,13 @@ const t = isEl ? {
           cache: 'no-store',
         });
         if (res.status === 404) {
+          // Si la commande avait déjà été chargée puis disparaît → elle a été annulée/retirée par l'établissement.
+          if (orderState) {
+            orderState.status = 'cancelled';
+            renderOrder();
+            stopPoll();
+            return;
+          }
           errorState.hidden = false;
           errorState.textContent = t.notFound;
           loadingState.hidden = true;
@@ -490,6 +497,7 @@ const t = isEl ? {
         if (!data.ok) return;
         orderState = data.order;
         renderOrder();
+        if (orderState.status === 'cancelled') stopPoll();
         if (data.messages && data.messages.length > 0) {
           renderMessages(data.messages);
         }

@@ -238,7 +238,10 @@ const catIcon = (p: typeof menuPages[number]) => {
             <div>
               <label class="block text-xs uppercase tracking-wider text-gray-400 mb-1">{t.order_form_phone}</label>
               <div class="flex gap-2">
-                <select name="phone_code" class="bg-black/40 border border-white/15 text-white px-2 py-3 rounded-lg focus:border-[#E5B32A] focus:outline-none text-sm" style="max-width:130px">
+                <span class="flex items-center px-2 bg-black/40 border border-white/15 rounded-lg" aria-hidden="true">
+                  <img id="phone-flag" src="/flags/gr.svg" alt="" width="26" height="18" style="width:26px;height:18px;border-radius:3px;object-fit:cover;" />
+                </span>
+                <select id="phone-code-select" name="phone_code" class="bg-black/40 border border-white/15 text-white px-2 py-3 rounded-lg focus:border-[#E5B32A] focus:outline-none text-sm" style="max-width:110px">
                   <option value="+30" selected>🇬🇷 +30</option>
                   <option value="+44">🇬🇧 +44</option>
                   <option value="+1">🇺🇸 +1</option>
@@ -272,6 +275,15 @@ const catIcon = (p: typeof menuPages[number]) => {
                 <input type="tel" name="phone" required minlength="6" maxlength="20" pattern="[0-9\\s\\-().]+" class="flex-1 bg-black/40 border border-white/15 text-white px-4 py-3 rounded-lg focus:border-[#E5B32A] focus:outline-none" placeholder={isEl ? '210 422 2233' : '210 422 2233'} />
               </div>
             </div>
+            <script is:inline>
+              (function () {
+                var sel = document.getElementById('phone-code-select');
+                var flag = document.getElementById('phone-flag');
+                if (!sel || !flag) return;
+                var MAP = { '+30':'gr','+44':'gb','+1':'us','+33':'fr','+34':'es','+49':'de','+39':'it','+351':'pt','+31':'nl','+32':'be','+41':'ch','+90':'tr','+966':'sa','+86':'cn','+81':'ja','+82':'kr','+61':'au','+7':'ru' };
+                sel.addEventListener('change', function () { flag.src = '/flags/' + (MAP[sel.value] || 'xx') + '.svg'; });
+              })();
+            </script>
 
             {/* Note client — toujours visible (takeaway et delivery) */}
             <div>
