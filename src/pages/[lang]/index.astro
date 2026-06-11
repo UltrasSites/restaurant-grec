@@ -440,13 +440,13 @@ const baseUrl = `/${currentLang}`;
         srcset="/photos/efood-00-800w.webp 800w, /photos/efood-00-1600w.webp 1600w"
         sizes="100vw"
         alt={currentLang === 'el' ? 'Αυθεντικό ψητοπωλείο στην Τρούμπα, Πειραιάς' : 'Authentic charcoal souvlaki shop in Troumpa, Piraeus'}
-        class="absolute inset-0 w-full h-full object-cover object-center opacity-60"
+        class="absolute inset-0 w-full h-full object-cover object-center opacity-[0.72]"
         width="1600" height="900"
         loading="eager"
         fetchpriority="high"
         decoding="async"
       />
-      <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/45 to-neutral-950/75"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/35 to-neutral-950/65"></div>
     </div>
 
     <NavBar lang={currentLang} />
@@ -462,19 +462,21 @@ const baseUrl = `/${currentLang}`;
       <p class="text-base md:text-xl text-white/90 max-w-xl mb-6 md:mb-7">{t.hero_lead}</p>
       {/* Desktop : AVIS/livraison à gauche, puis les CTA (commande en 1er) ; mobile : empilés.
           Même rendu EN/EL (le grec plus long ne casse pas la ligne grâce à flex-nowrap + max-w-5xl). */}
-      <div class="flex flex-col md:flex-row md:items-center gap-5 md:gap-7 md:flex-nowrap">
-        {/* Avis (Google + TripAdvisor) + plateformes de livraison — desktop tout à gauche ;
-            mobile : APRÈS les CTA et plus petits (Tiago 11/06). */}
-        <div class="order-2 md:order-1 mt-5 md:mt-0 shrink-0 scale-[0.82] origin-left md:scale-100">
+      {/* Desktop : avis (gauche, rétrécis) · Menu · Appeler · [Commander online TOUT À DROITE].
+          Mobile : Commander/Menu/Appeler en 1er, puis avis plus petits. `md:contents` permet de
+          réordonner chaque bouton dans la ligne desktop ; `flex-nowrap` garde une seule ligne (EN comme EL). */}
+      <div class="flex flex-col md:flex-row md:items-center gap-5 md:gap-4 w-full md:flex-nowrap">
+        {/* Avis + livraison — desktop tout à gauche (rétrécis), mobile après les CTA et plus petits */}
+        <div class="order-2 md:order-1 mt-5 md:mt-0 shrink-0 scale-[0.78] md:scale-[0.82] origin-left">
           <SocialLinks lang={currentLang} />
         </div>
-        <div id="cta-card-sentinel" class="order-1 md:order-2 flex flex-wrap gap-3">
-          <a href={`${baseUrl}/delivery`} class="btn-order-glow">
+        <div id="cta-card-sentinel" class="order-1 md:order-2 md:contents flex flex-wrap gap-3">
+          <a href={`${baseUrl}/delivery`} class="btn-order-glow md:order-4 md:ml-auto whitespace-nowrap">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 18h18M12 6a8 8 0 00-8 8h16a8 8 0 00-8-8zM12 6V3.5"/></svg>
             {t.order_cta}
           </a>
-          <a href={`${baseUrl}/#carte`} class="btn-glass">{t.resa_cta3}</a>
-          <a class="tel-link btn-glass" data-p="MzAyMTA0MjIyMjMz">
+          <a href={`${baseUrl}/#carte`} class="btn-glass md:order-2 whitespace-nowrap">{t.resa_cta3}</a>
+          <a class="tel-link btn-glass md:order-3 whitespace-nowrap" data-p="MzAyMTA0MjIyMjMz">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
             {currentLang === 'el' ? 'Καλέστε μας' : 'Call us'}
           </a>
