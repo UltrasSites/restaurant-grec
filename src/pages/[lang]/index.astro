@@ -238,12 +238,12 @@ const baseUrl = `/${currentLang}`;
     .hero-cta .a-call svg { width: 0.95rem; height: 0.95rem; }
   }
   @media (min-width: 768px) {
-    .hero-cta { display: flex; align-items: center; gap: 0.9rem; grid-template: none; }
+    .hero-cta { display: flex; align-items: center; gap: 0.7rem; grid-template: none; }
     .hero-cta .a-row2  { display: contents; }
-    .hero-cta .a-social { order: 1; transform: scale(0.82); transform-origin: left center; margin-right: 0.3rem; }
+    /* avis à gauche ; les CTA (Menu + Commander) collés à droite, sans grand vide entre eux */
+    .hero-cta .a-social { order: 1; transform: scale(0.82); transform-origin: left center; margin-right: auto; }
     .hero-cta .a-menu   { order: 2; width: auto; }
-    .hero-cta .a-call   { order: 3; width: auto; margin-left: 0; }
-    .hero-cta .a-order  { order: 4; width: auto; margin-left: auto; }
+    .hero-cta .a-order  { order: 3; width: auto; }
   }
 
   /* ═══════════════════════════════════════════════════════════
