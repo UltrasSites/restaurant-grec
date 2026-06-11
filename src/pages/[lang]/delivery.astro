@@ -113,13 +113,16 @@ const catIcon = (p: typeof menuPages[number]) => {
         <div class="menu-lang-bar" role="group" aria-label={isEl ? 'Γλώσσα μενού' : 'Menu language'}>
           <span class="menu-lang-hint">{isEl ? '🌐 Δες το μενού στη γλώσσα σου :' : '🌐 See the menu in your language:'}</span>
           <div class="menu-lang-flags">
-            {menuI18n.langs.map((code) => (
+            {menuI18n.langs.map((code) => {
+              const flagCountry = { zh: 'cn', el: 'gr', en: 'gb', fr: 'fr', pt: 'pt', it: 'it', es: 'es', de: 'de', ru: 'ru', ja: 'ja', tr: 'tr', nl: 'nl' }[code] || 'xx';
+              return (
               <button type="button" class={`menu-lang-flag${code === (isEl ? 'el' : 'en') ? ' active' : ''}`} data-menu-lang={code}
                 title={menuI18n.labels[code]} aria-label={menuI18n.labels[code]}>
-                <span class="mlf-flag">{menuI18n.flags[code]}</span>
+                <img class="mlf-flag" src={`/flags/${flagCountry}.svg`} alt="" width="22" height="16" loading="lazy" />
                 <span class="mlf-code">{code.toUpperCase()}</span>
               </button>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -339,12 +342,12 @@ const catIcon = (p: typeof menuPages[number]) => {
               <p class="text-xs text-gray-500 italic mt-2">{isEl ? 'Πληρωμή στον διανομέα κατά την παράδοση.' : 'Pay the courier on delivery.'}</p>
             </div>
 
-            {/* Bandeau info appel */}
+            {/* Bandeau info messagerie (le resto répond ICI, pas d'appel) */}
             <div id="call-info-takeaway" class="p-3 rounded-lg bg-[#E5B32A]/10 border border-[#E5B32A]/30 text-sm text-[#E5B32A] text-center font-medium">
-              {isEl ? '📞 Το μαγαζί θα σε ειδοποιήσει όταν είναι έτοιμη η παραγγελία.' : '📞 The shop will call you when your order is ready.'}
+              {isEl ? '💬 Μείνε σε αυτή τη σελίδα — το μαγαζί θα σου απαντήσει εδώ μόλις είναι έτοιμη η παραγγελία.' : '💬 Stay on this page — the shop replies to you right here as soon as your order is ready.'}
             </div>
             <div id="call-info-delivery" hidden class="p-3 rounded-lg bg-[#E5B32A]/10 border border-[#E5B32A]/30 text-sm text-[#E5B32A] text-center font-medium">
-              {isEl ? '📞 Το μαγαζί θα σε καλέσει όταν φύγει ο διανομέας — σύντομα μετά την παραγγελία.' : '📞 The shop will call you when the courier leaves — shortly after ordering.'}
+              {isEl ? '💬 Μείνε σε αυτή τη σελίδα — το μαγαζί θα σου γράψει εδώ μόλις φύγει ο διανομέας.' : '💬 Stay on this page — the shop messages you here when the courier leaves.'}
             </div>
 
             <button type="submit" id="order-submit-btn" class="w-full bg-[#E5B32A] text-black font-bold uppercase tracking-[0.2em] py-4 rounded-lg text-sm hover:bg-white transition-all">{t.order_form_submit}</button>
@@ -507,7 +510,7 @@ const catIcon = (p: typeof menuPages[number]) => {
       color: rgba(255,255,255,0.82); font-size: 11px; font-weight: 700; cursor: pointer;
       transition: background .15s ease, border-color .15s ease, color .15s ease;
     }
-    .menu-lang-flag .mlf-flag { font-size: 15px; line-height: 1; }
+    .menu-lang-flag .mlf-flag { width: 22px; height: 16px; border-radius: 3px; object-fit: cover; display: block; }
     .menu-lang-flag:hover { background: rgba(229,179,42,0.14); border-color: rgba(229,179,42,0.4); color: #fff; }
     .menu-lang-flag.active { background: #E5B32A; border-color: #E5B32A; color: #1a1208; }
     .menu-search-wrap {

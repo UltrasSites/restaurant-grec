@@ -1,6 +1,7 @@
 ---
-// Carte "livre" en PAYSAGE (Tiago 11/06) : remplace le flipbook portrait.
-// Sections en longueur, 2 colonnes, chaque plat avec sa photo + son prix (comme la page commande).
+// Carte "livre" feuilletable (Tiago 11/06) : une SECTION par page, taille FIXE (réf. Appetizers).
+// Grandes sections (Veggie…) -> 3 colonnes + police réduite pour tenir dans la même taille.
+// Chaque plat avec sa photo + son prix (réutilise les photos de la page commande).
 import { menuPages } from "../data/menu-data";
 import { getPhotoData } from "../data/efood-photos-map.mjs";
 
@@ -25,57 +26,64 @@ const catIcon = (p: typeof menuPages[number]) => {
   if (/Γλυκά|Επιδόρπ/.test(s)) return "🍮";
   return "🍽️";
 };
+// colonnes selon le nombre d'items pour que TOUT tienne dans la taille fixe
+const colsFor = (n: number) => (n > 10 ? 3 : 2);
 const t = isEl
-  ? { our_menu: "Ο Κατάλογός Μας", flavour: "Αυθεντική Γεύση Πειραιά", lead: "Όλα ψημένα στα κάρβουνα, με παραγγελία. Δες τη σειρά, μετά παράγγειλε.", order: "Παράγγειλε online", from: "από" }
-  : { our_menu: "Our Menu", flavour: "Authentic Piraeus Flavour", lead: "All charcoal-grilled, made to order. Browse the lineup, then order.", order: "Order online", from: "from" };
+  ? { our_menu: "Ο Κατάλογός Μας", flavour: "Αυθεντική Γεύση Πειραιά", prev: "Προηγούμενη", next: "Επόμενη", order: "Παράγγειλε online", page: "Σελίδα" }
+  : { our_menu: "Our Menu", flavour: "Authentic Piraeus Flavour", prev: "Previous", next: "Next", order: "Order online", page: "Page" };
 ---
 
-<section id="menu-book" class="bg-[#050505] py-14 md:py-20 px-4 border-t border-white/5">
-  <div class="max-w-6xl mx-auto">
-    <div class="text-center mb-10">
-      <p class="text-[10px] md:text-xs tracking-[0.35em] uppercase text-[#E5B32A] font-bold mb-3">{t.flavour}</p>
-      <h2 class="font-serif italic text-3xl md:text-5xl text-white mb-3">{t.our_menu}</h2>
-      <p class="text-sm md:text-base text-white/55 max-w-xl mx-auto">{t.lead}</p>
+<section id="menu-book" class="bg-[#050505] py-12 md:py-16 px-4 border-t border-white/5">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-6">
+      <p class="text-[10px] md:text-xs tracking-[0.35em] uppercase text-[#E5B32A] font-bold mb-2">{t.flavour}</p>
+      <h2 class="font-serif italic text-3xl md:text-5xl text-white">{t.our_menu}</h2>
     </div>
 
-    <div class="grid gap-6 md:gap-8">
-      {menuPages.map((p) => (
-        <section class="menu-cat rounded-2xl bg-white/[0.03] border border-white/10 p-5 md:p-7">
-          <h3 class="text-xl md:text-2xl font-serif italic text-[#E5B32A] mb-1 flex items-center gap-2">
+    <div class="ml-book" id="ml-book">
+      {menuPages.map((p, pi) => (
+        <article class={`ml-page${pi === 0 ? " is-active" : ""}`} data-ml-page={String(pi)} data-cols={String(colsFor(p.items.length))}>
+          <h3 class="ml-cat-title">
             <span aria-hidden="true">{catIcon(p)}</span>{isEl ? p.title_el : p.title_en}
           </h3>
           {(isEl ? p.note_el : p.note_en) && (
-            <p class="text-xs text-gray-400 italic mb-4">{isEl ? p.note_el : p.note_en}</p>
+            <p class="ml-cat-note">{isEl ? p.note_el : p.note_en}</p>
           )}
-          <ul class="mt-4 grid sm:grid-cols-2 gap-x-8 gap-y-1">
+          <ul class="ml-grid">
             {p.items.map((it) => {
               const photo = getPhotoData(it.el);
-              const isExtra = it.price.startsWith("+");
               return (
-                <li class={`flex items-start gap-3 py-3 border-b border-white/5 ${isExtra ? "opacity-80" : ""}`}>
+                <li class="ml-item">
                   {photo ? (
-                    <img src={photo.src} srcset={photo.srcset} sizes="72px" alt={it.el} width="72" height="72" loading="lazy" decoding="async" class="shrink-0 w-[72px] h-[72px] rounded-lg object-cover border border-white/10" />
+                    <img src={photo.src} srcset={photo.srcset} sizes="56px" alt={it.el} width="56" height="56" loading="lazy" decoding="async" class="ml-thumb" />
                   ) : (
-                    <div class="shrink-0 w-[72px] h-[72px] rounded-lg border border-[#E5B32A]/25 flex items-center justify-center" style="background:linear-gradient(135deg,rgba(229,179,42,0.16),rgba(0,0,0,0.9) 80%)" aria-hidden="true">
-                      <span class="text-lg">{catIcon(p)}</span>
-                    </div>
+                    <div class="ml-thumb ml-thumb--ph" aria-hidden="true"><span>{catIcon(p)}</span></div>
                   )}
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm md:text-base text-white font-medium leading-snug">{isEl ? it.el : it.en}</p>
-                    {(isEl ? it.desc_el : it.desc_en) && (
-                      <p class="text-xs text-gray-500 mt-0.5 leading-snug">{isEl ? it.desc_el : it.desc_en}</p>
-                    )}
-                    <p class="text-sm text-[#E5B32A] font-bold mt-1 whitespace-nowrap">{it.price}</p>
+                  <div class="ml-info">
+                    <p class="ml-name">{isEl ? it.el : it.en}</p>
+                    {(isEl ? it.desc_el : it.desc_en) && <p class="ml-desc">{isEl ? it.desc_el : it.desc_en}</p>}
+                    <p class="ml-price">{it.price}</p>
                   </div>
                 </li>
               );
             })}
           </ul>
-        </section>
+        </article>
+      ))}
+
+      <!-- Navigation -->
+      <button type="button" class="ml-nav ml-prev" id="ml-prev" aria-label={t.prev}>‹</button>
+      <button type="button" class="ml-nav ml-next" id="ml-next" aria-label={t.next}>›</button>
+    </div>
+
+    <!-- Dots -->
+    <div class="ml-dots" id="ml-dots">
+      {menuPages.map((_, pi) => (
+        <button type="button" class={`ml-dot${pi === 0 ? " is-active" : ""}`} data-ml-dot={String(pi)} aria-label={`${t.page} ${pi + 1}`}></button>
       ))}
     </div>
 
-    <div class="text-center mt-10">
+    <div class="text-center mt-7">
       <a href={`${baseUrl}/delivery`} class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm uppercase tracking-wider text-black" style="background:linear-gradient(135deg,#E5B32A,#caa12a);box-shadow:0 10px 30px -8px rgba(229,179,42,0.6)">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 18h18M12 6a8 8 0 00-8 8h16a8 8 0 00-8-8zM12 6V3.5"/></svg>
         {t.order}
@@ -83,3 +91,81 @@ const t = isEl
     </div>
   </div>
 </section>
+
+<style>
+  .ml-book {
+    position: relative;
+    background: linear-gradient(165deg, rgba(229,179,42,0.05), rgba(255,255,255,0.02) 45%, rgba(0,0,0,0.4));
+    border: 1px solid rgba(229,179,42,0.18);
+    border-radius: 20px;
+    box-shadow: 0 30px 70px -30px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.03);
+    /* spine */
+    padding: 1.5rem 3.2rem 1.6rem;
+    /* TAILLE FIXE (réf. section Appetizers) — toutes les pages la respectent */
+    min-height: clamp(420px, 56vh, 580px);
+    overflow: hidden;
+  }
+  .ml-book::before { content: ""; position: absolute; top: 8%; bottom: 8%; left: 50%; width: 1px; background: linear-gradient(180deg, transparent, rgba(229,179,42,0.25), transparent); }
+  @media (max-width: 640px) { .ml-book { padding: 1.2rem 1rem 1.4rem; } .ml-book::before { display: none; } }
+
+  .ml-page { display: none; }
+  .ml-page.is-active { display: block; animation: mlFade .35s ease; }
+  @keyframes mlFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .ml-cat-title { display: flex; align-items: center; gap: 0.5rem; font-family: "Playfair Display", serif; font-style: italic; color: #E5B32A; font-size: clamp(1.2rem, 3vw, 1.9rem); margin: 0 0 0.2rem; }
+  .ml-cat-note { color: #9a9a9a; font-style: italic; font-size: 0.78rem; margin: 0 0 0.6rem; }
+
+  .ml-grid { list-style: none; margin: 0.6rem 0 0; padding: 0 0.4rem 0 0; max-height: clamp(300px, 42vh, 440px); overflow-y: auto; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.35rem 1.6rem; }
+  .ml-page[data-cols="3"] .ml-grid { grid-template-columns: repeat(3, 1fr); gap: 0.25rem 1.1rem; }
+  @media (max-width: 640px) { .ml-grid, .ml-page[data-cols="3"] .ml-grid { grid-template-columns: 1fr; } }
+
+  .ml-item { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .ml-thumb { width: 56px; height: 56px; border-radius: 9px; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); flex: 0 0 auto; }
+  .ml-page[data-cols="3"] .ml-thumb { width: 44px; height: 44px; }
+  .ml-thumb--ph { display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, rgba(229,179,42,0.16), rgba(0,0,0,0.9) 80%); font-size: 1.1rem; }
+  .ml-info { min-width: 0; flex: 1; }
+  .ml-name { color: #fff; font-weight: 600; font-size: 0.92rem; line-height: 1.2; margin: 0; }
+  .ml-desc { color: #8a8a8a; font-size: 0.72rem; line-height: 1.2; margin: 0.1rem 0 0; }
+  .ml-price { color: #E5B32A; font-weight: 800; font-size: 0.85rem; margin: 0.15rem 0 0; }
+  /* 3 colonnes -> police réduite pour tenir dans la même taille */
+  .ml-page[data-cols="3"] .ml-name { font-size: 0.8rem; }
+  .ml-page[data-cols="3"] .ml-desc { display: none; }
+  .ml-page[data-cols="3"] .ml-price { font-size: 0.78rem; }
+  .ml-page[data-cols="3"] .ml-item { padding: 0.28rem 0; }
+
+  .ml-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; background: rgba(229,179,42,0.14); border: 1px solid rgba(229,179,42,0.4); color: #E5B32A; font-size: 1.5rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s; z-index: 3; }
+  .ml-nav:hover { background: rgba(229,179,42,0.28); }
+  .ml-prev { left: -10px; } .ml-next { right: -10px; }
+  @media (max-width: 640px) { .ml-prev { left: 2px; } .ml-next { right: 2px; } }
+
+  .ml-dots { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.4rem; margin-top: 0.9rem; }
+  .ml-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 0; cursor: pointer; padding: 0; transition: background .15s, transform .15s; }
+  .ml-dot.is-active { background: #E5B32A; transform: scale(1.3); }
+</style>
+
+<script is:inline>
+  (function () {
+    var book = document.getElementById('ml-book');
+    if (!book) return;
+    var pages = Array.prototype.slice.call(book.querySelectorAll('[data-ml-page]'));
+    var dots = Array.prototype.slice.call(document.querySelectorAll('[data-ml-dot]'));
+    var i = 0;
+    function show(n) {
+      i = (n + pages.length) % pages.length;
+      pages.forEach(function (p, k) { p.classList.toggle('is-active', k === i); });
+      dots.forEach(function (d, k) { d.classList.toggle('is-active', k === i); });
+    }
+    document.getElementById('ml-prev').addEventListener('click', function () { show(i - 1); });
+    document.getElementById('ml-next').addEventListener('click', function () { show(i + 1); });
+    dots.forEach(function (d, k) { d.addEventListener('click', function () { show(k); }); });
+    // swipe mobile
+    var x0 = null;
+    book.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+    book.addEventListener('touchend', function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 45) show(i + (dx < 0 ? 1 : -1));
+      x0 = null;
+    }, { passive: true });
+  })();
+</script>
