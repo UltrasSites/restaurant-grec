@@ -14,7 +14,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
   <title>Ταμείο — Καλαμάκι Της Τρούμπας</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <CashdAuthScript />
-  <style>
+  <style is:global>
     :root { --gold: #E5B32A; --bg: #0a0a0a; }
     * { box-sizing: border-box; }
     html, body { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; min-height: 100vh; }
@@ -88,6 +88,14 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
       font-size: 1.1rem; font-weight: 900; letter-spacing: 0.06em;
       text-transform: uppercase;
     }
+    /* KDS v2 (Tasquinha) : pastille colorée devant le titre de colonne */
+    .col-head::before {
+      content: ""; width: 12px; height: 12px; border-radius: 50%; margin-right: 0.6rem; flex: 0 0 auto;
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.04);
+    }
+    .col-pending .col-head::before { background: #ef4444; box-shadow: 0 0 10px 1px rgba(239,68,68,0.7); }
+    .col-prep .col-head::before    { background: #e7b54a; box-shadow: 0 0 10px 1px rgba(231,181,74,0.7); }
+    .col-history .col-head::before { background: #7aa2ff; box-shadow: 0 0 10px 1px rgba(122,162,255,0.6); }
     .col-head .count {
       background: rgba(0,0,0,0.35); padding: 0.15rem 0.65rem;
       border-radius: 999px; font-size: 0.9rem; min-width: 2.2rem; text-align: center;
@@ -314,24 +322,29 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
     }
 
     /* ====== CARDS ====== */
+    /* KDS v2 (Tasquinha cozinha) : carte chaude + accent latéral gauche */
     .order-card {
-      background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
-      border-radius: 1.1rem;
+      background: linear-gradient(160deg, rgba(231,181,74,0.05), #241b14 58%, rgba(14,10,7,0.94));
+      border: 1px solid rgba(244,234,214,0.10);
+      border-left: 5px solid #4abf74;
+      border-radius: 16px;
       padding: 1.1rem 1.2rem;
       box-shadow: 0 18px 36px rgba(0,0,0,0.55);
+      animation: ord-pop .3s ease;
     }
+    @keyframes ord-pop { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
     .card-pending {
-      border: 3px solid #ef4444;
-      box-shadow: 0 0 0 4px rgba(239,68,68,0.18), 0 18px 36px rgba(0,0,0,0.55);
-      animation: pulse-red 1.6s ease-in-out infinite;
+      border-left-color: #ef4444;
+      box-shadow: 0 0 0 1px rgba(239,68,68,0.25), 0 18px 36px rgba(0,0,0,0.55);
+      animation: ord-pop .3s ease, pulse-red 1.6s ease-in-out infinite;
     }
     @keyframes pulse-red {
-      0%, 100% { box-shadow: 0 0 0 4px rgba(239,68,68,0.18), 0 18px 36px rgba(0,0,0,0.55); border-color: #ef4444; }
-      50%      { box-shadow: 0 0 0 8px rgba(239,68,68,0.45), 0 18px 44px rgba(0,0,0,0.65); border-color: #ff6666; }
+      0%, 100% { box-shadow: 0 0 0 1px rgba(239,68,68,0.25), 0 18px 36px rgba(0,0,0,0.55); }
+      50%      { box-shadow: 0 0 0 5px rgba(239,68,68,0.38), 0 18px 44px rgba(0,0,0,0.65); }
     }
     .card-prep {
-      border: 3px solid var(--gold);
-      box-shadow: 0 0 0 4px rgba(229,179,42,0.15), 0 18px 36px rgba(0,0,0,0.55);
+      border-left-color: #e7b54a;
+      box-shadow: 0 0 0 1px rgba(231,181,74,0.2), 0 18px 36px rgba(0,0,0,0.55);
     }
 
     /* === Boutons d'action TOUJOURS visibles en haut === */
@@ -374,7 +387,7 @@ import CashdAuthScript from "../../components/cashd/CashdAuthScript.astro";
     .btn-paid:hover { background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); color: #fff; box-shadow: 0 12px 28px rgba(34,197,94,0.55); }
 
     .order-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.85rem; }
-    .order-id { font-size: 2.2rem; font-weight: 900; color: var(--gold); letter-spacing: 0.05em; line-height: 1; }
+    .order-id { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 2rem; font-weight: 700; color: var(--gold); letter-spacing: 0.02em; line-height: 1; }
     .order-meta { font-size: 0.95rem; color: #ccc; text-align: right; }
     .order-meta .name { font-size: 1.25rem; color: #fff; font-weight: 700; }
     .order-meta .phone { color: var(--gold); font-weight: 700; margin-top: 0.25rem; }
