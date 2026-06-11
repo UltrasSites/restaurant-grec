@@ -153,6 +153,20 @@ const links = [
             {t.nav_reserver}
         </a>
 
+        {/* Bascule thème clair/sombre (mobile — absent ailleurs) */}
+        <button
+            type="button"
+            onclick="window.__toggleTheme && window.__toggleTheme()"
+            class="drawer-link mt-4 w-full flex items-center justify-center gap-3 text-sm font-semibold uppercase tracking-[0.2em] text-white/70 hover:text-white border border-white/20 hover:border-[#E5B32A]/50 rounded-full py-4 transition-colors"
+            aria-label={t.drawer_theme}
+        >
+            <span class="relative w-5 h-5 inline-flex items-center justify-center">
+                <svg class="theme-icon-sun absolute w-5 h-5 transition-opacity" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path stroke-linecap="round" d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                <svg class="theme-icon-moon absolute w-5 h-5 transition-opacity" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="opacity:0"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </span>
+            {t.drawer_theme}
+        </button>
+
         <div class="mt-auto pt-8 text-[10px] text-white/30 uppercase tracking-widest text-center">{t.drawer_brand}</div>
     </div>
 </div>

@@ -99,14 +99,14 @@ function renderStars(rating: number) {
             class="relative group flex flex-col items-center"
           >
             <div class="absolute -inset-2 top-0 bg-white/5 rounded-full scale-0 group-hover:scale-100 transition-transform duration-500 ease-out backdrop-blur-sm -z-10" style="height:3rem;" />
-            <div class="w-10 h-10 flex items-center justify-center text-white/80 group-hover:text-[#E5B32A] transition-all duration-300 transform group-hover:-translate-y-1">
+            <div class="w-8 h-8 flex items-center justify-center text-white/80 group-hover:text-[#E5B32A] transition-all duration-300 transform group-hover:-translate-y-1">
               {site.iconType === "fb" && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 drop-shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 drop-shadow-lg">
                   <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                 </svg>
               )}
               {site.iconType === "google" && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-6 h-6 drop-shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-5 h-5 drop-shadow-lg">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -114,7 +114,7 @@ function renderStars(rating: number) {
                 </svg>
               )}
               {site.iconType === "ta" && (
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-7 h-7 drop-shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-6 h-6 drop-shadow-lg">
                   <circle cx="50" cy="50" r="48" fill="#34E0A1"/>
                   <circle cx="32" cy="55" r="14" fill="white"/>
                   <circle cx="68" cy="55" r="14" fill="white"/>
@@ -209,9 +209,9 @@ function renderStars(rating: number) {
   .dlv-trigger-stage {
     position: relative;
     display: inline-block;
-    width: 38px;
-    height: 38px;
-    border-radius: 11px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.12);
     backdrop-filter: blur(8px);
