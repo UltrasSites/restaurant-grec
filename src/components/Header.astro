@@ -27,7 +27,7 @@ const links = [
         <img
             src="/photos/logo-main-200w.webp"
             alt="Το Καλαμάκι Τρούμπας"
-            class="header-desktop-logo h-11 lg:h-12 w-auto select-none transition-opacity duration-300"
+            class="header-desktop-logo h-14 lg:h-16 w-auto select-none transition-opacity duration-300"
             width="200"
             height="188"
             loading="eager"
@@ -82,16 +82,17 @@ const links = [
             </button>
         </div>
 
+
         <a
             id="desktop-call-link"
-            class="tel-link inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest text-white hover:text-[#E5B32A] transition-colors"
+            class="tel-link inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-[#E5B32A] bg-[#E5B32A]/15 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-[#E5B32A]/30 transition-colors"
             data-p="MzAyMTA0MjIyMjMz"
             aria-label={t.nav_aria_phone}
         >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-4 h-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-[#E5B32A]">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 4.5l4.5-1.5 2.25 4.5-2.25 1.5a11.25 11.25 0 005.25 5.25l1.5-2.25 4.5 2.25-1.5 4.5A2.25 2.25 0 0114.25 21 13.5 13.5 0 013 9.75 2.25 2.25 0 012.25 4.5z"></path>
             </svg>
-            <span class="hidden lg:inline">{t.nav_aria_phone}</span>
+            <span>{t.nav_aria_phone}</span>
         </a>
 
         <a

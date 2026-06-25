@@ -240,6 +240,7 @@ const t = isEl ? {
         <div class="chat-msgs" id="chat-msgs"></div>
         <form id="chat-form" class="chat-input">
           <input type="text" id="chat-text" maxlength="500" placeholder={t.chatPlaceholder} />
+          <button type="button" id="share-pos" title="Partager ma position (livraison)" aria-label="Partager ma position" style="padding:0.7rem 0.9rem;background:rgba(229,179,42,0.18);color:#E5B32A;border:1px solid rgba(229,179,42,0.4);border-radius:0.6rem;cursor:pointer;font-weight:700">📍</button>
           <button type="submit">{t.send}</button>
         </form>
       </div>
@@ -544,6 +545,31 @@ const t = isEl ? {
         input.disabled = false;
         input.focus();
       }
+    });
+
+    // Partage de position (livraison) — consentement explicite, envoi unique via la messagerie
+    var posBtn = document.getElementById('share-pos');
+    if (posBtn) posBtn.addEventListener('click', function() {
+      if (!navigator.geolocation) { alert('Géolocalisation non disponible sur cet appareil.'); return; }
+      if (!confirm('Partager votre position avec le restaurant pour la livraison ?\n\nElle est envoyée une seule fois, uniquement à ce restaurant, et n’est pas conservée au-delà de votre commande.')) return;
+      posBtn.disabled = true; var prev = posBtn.textContent; posBtn.textContent = '…';
+      navigator.geolocation.getCurrentPosition(async function(p) {
+        var lat = p.coords.latitude.toFixed(6), lng = p.coords.longitude.toFixed(6);
+        var link = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+        try {
+          var res = await fetch('/api/orders/' + encodeURIComponent(qId) + '/message-client', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: '📍 Ma position (livraison) : ' + link, phone: qPhone }),
+          });
+          var data = await res.json();
+          if (!res.ok || !data.ok) throw new Error(data.error || 'fail');
+          fetchOnce();
+        } catch (err) { alert(t.errorPrefix + (err && err.message ? err.message : err)); }
+        finally { posBtn.disabled = false; posBtn.textContent = prev; }
+      }, function() {
+        posBtn.disabled = false; posBtn.textContent = prev;
+        alert('Position refusée ou indisponible.');
+      }, { enableHighAccuracy: true, timeout: 10000 });
     });
 
     // Pause poll si page invisible (économie batterie mobile)

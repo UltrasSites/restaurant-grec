@@ -207,11 +207,12 @@ const baseUrl = `/${currentLang}`;
   }
   /* Titre du hero : shimmer doré subtil (mode signature) */
   .hero-title-shine {
-    background: linear-gradient(to right, #ffffff 0%, #ffe9a8 30%, #ffffff 50%, #ffe9a8 70%, #ffffff 100%);
+    background: linear-gradient(to right, #E5B32A 0%, #fff3cf 25%, #ffffff 50%, #fff3cf 75%, #E5B32A 100%);
     background-size: 200% auto;
     -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent; color: transparent;
-    animation: gold-shimmer 5s linear infinite;
+    animation: gold-shimmer 4s linear infinite;
+    text-shadow: 0 2px 18px rgba(0,0,0,0.35);
   }
   @media (prefers-reduced-motion: reduce) {
     .hero-title-shine { animation: none; -webkit-text-fill-color: #fff; color: #fff; background: none; }
@@ -238,10 +239,10 @@ const baseUrl = `/${currentLang}`;
     .hero-cta .a-call svg { width: 0.95rem; height: 0.95rem; }
   }
   @media (min-width: 768px) {
-    .hero-cta { display: flex; align-items: center; gap: 0.7rem; grid-template: none; }
+    .hero-cta { display: flex; align-items: center; gap: 0.25rem; grid-template: none; justify-content: flex-start; }
     .hero-cta .a-row2  { display: contents; }
-    /* avis à gauche ; les CTA (Menu + Commander) collés à droite, sans grand vide entre eux */
-    .hero-cta .a-social { order: 1; transform: scale(0.82); transform-origin: left center; margin-right: auto; }
+    /* Wolt/Uber/avis à GAUCHE, CTA (Menu + Commander) COLLÉS juste à droite (Tiago : rapprocher encore du bouton Wolt) */
+    .hero-cta .a-social { order: 1; transform: scale(0.82); transform-origin: left center; margin-right: -0.5rem; }
     .hero-cta .a-menu   { order: 2; width: auto; }
     .hero-cta .a-order  { order: 3; width: auto; }
   }
@@ -491,7 +492,7 @@ const baseUrl = `/${currentLang}`;
           (déjà dans le dock mobile + dans le header desktop). */}
       <div class="mt-auto pb-12 md:pb-10 pt-6">
         <span class="inline-block text-[10px] md:text-sm tracking-[0.28em] md:tracking-[0.3em] uppercase font-semibold px-3 py-1.5 rounded-full border border-white/40 mb-3 md:mb-4 text-[#E5B32A]">{t.hero_badge}</span>
-        <h1 class="hero-title-shine font-serif italic text-4xl md:text-7xl leading-tight mb-2 md:mb-3">{t.hero_title}</h1>
+        <h1 class="hero-title-shine font-serif italic text-3xl md:text-5xl leading-tight mb-2 md:mb-3">{t.hero_title}</h1>
         <p class="text-base md:text-xl text-white/90 max-w-xl mb-4 md:mb-5">{t.hero_lead}</p>
 
         {/* Zone CTA — mobile : ligne [Menu | Commander], puis avis ; desktop : 1 ligne (avis · Menu ··· Commander à droite) */}

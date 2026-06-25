@@ -447,6 +447,8 @@ const faqSchema = {
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
       </>
     )}
+    {/* Préchargement du logo LCP (sinon il concurrence les polices en 4G lente → LCP retardé) */}
+    <link rel="preload" as="image" type="image/webp" href="/photos/logo-main-200w.webp" fetchpriority="high" />
     {/* Self-hosted fonts (Inter + Playfair Display) — @font-face inlined via global.css, font-display:swap.
         Preload only the critical subsets needed for first paint to avoid extra round-trip. */}
     {lang === 'el' && <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-400-normal-greek.woff2" crossorigin />}
@@ -518,5 +520,7 @@ const faqSchema = {
         addEventListener('scroll', update, { passive: true });
       })();
     </script>
+  <script is:inline>['contextmenu','dragstart'].forEach(function(ev){document.addEventListener(ev,function(e){if(e.target&&e.target.tagName==='IMG')e.preventDefault();});});</script>
+  <style is:global>img{-webkit-user-drag:none;user-select:none;-webkit-touch-callout:none;}</style>
   </body>
 </html>
