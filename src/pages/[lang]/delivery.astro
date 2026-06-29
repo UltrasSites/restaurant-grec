@@ -7,6 +7,7 @@ import { menuPages, parsePrice, itemId } from "../../data/menu-data";
 import { getPhotoData } from "../../data/efood-photos-map.mjs";
 import { KALAMAKI_HOURS, HOURS_I18N } from "../../data/opening-hours";
 import menuI18n from "../../data/menu-i18n-names.json";
+import menuDescs from "../../data/menu-i18n-descs.json";
 
 const hoursPayload = JSON.stringify({ hours: KALAMAKI_HOURS, i18n: HOURS_I18N });
 
@@ -189,8 +190,8 @@ const catIcon = (p: typeof menuPages[number]) => {
                       )}
                       <div class="flex-1 min-w-0">
                         <p class="text-sm md:text-base text-white font-medium leading-snug" data-name-el={it.el}>{isEl ? it.el : it.en}</p>
-                        {(isEl ? it.desc_el : it.desc_en) && (
-                          <p class="text-xs text-gray-500 mt-0.5 leading-snug">{isEl ? it.desc_el : it.desc_en}</p>
+                        {it.desc_el && (
+                          <p class="text-xs text-gray-500 mt-0.5 leading-snug" data-desc-el={it.desc_el}>{isEl ? it.desc_el : (it.desc_en || it.desc_el)}</p>
                         )}
                         <p class="text-sm text-[#E5B32A] font-bold mt-1">{it.price}</p>
                       </div>
@@ -1539,22 +1540,29 @@ const catIcon = (p: typeof menuPages[number]) => {
     refreshMode();
   })();
   </script>
-<script type="application/json" id="menu-i18n-data" set:html={JSON.stringify({ names: menuI18n.names })}></script>
+<script type="application/json" id="menu-i18n-data" set:html={JSON.stringify({ names: menuI18n.names, descs: menuDescs })}></script>
 <script>
   // Menu en 12 langues : changer les NOMS des plats selon le drapeau choisi (client-side).
   (() => {
     const dataEl = document.getElementById('menu-i18n-data');
     if (!dataEl) return;
     let MAP: Record<string, Record<string, string>> = {};
-    try { MAP = JSON.parse(dataEl.textContent || '{}').names || {}; } catch (e) { return; }
+    let DMAP: Record<string, Record<string, string>> = {};
+    try { const parsed = JSON.parse(dataEl.textContent || '{}'); MAP = parsed.names || {}; DMAP = parsed.descs || {}; } catch (e) { return; }
     const flags = Array.from(document.querySelectorAll('[data-menu-lang]')) as HTMLElement[];
     const names = Array.from(document.querySelectorAll('[data-name-el]')) as HTMLElement[];
+    const descs = Array.from(document.querySelectorAll('[data-desc-el]')) as HTMLElement[];
     const KEY = 'kalamaki-menu-lang';
     function apply(lang: string) {
       flags.forEach(f => f.classList.toggle('active', f.dataset.menuLang === lang));
       names.forEach(p => {
         const el = p.dataset.nameEl || '';
         const tr = (MAP[el] && (MAP[el][lang] || MAP[el]['en'])) || el;
+        p.textContent = tr;
+      });
+      descs.forEach(p => {
+        const el = p.dataset.descEl || '';
+        const tr = (DMAP[el] && (DMAP[el][lang] || DMAP[el]['en'])) || el;
         p.textContent = tr;
       });
       try { localStorage.setItem(KEY, lang); } catch (e) {}
